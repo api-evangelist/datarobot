@@ -1,0 +1,50 @@
+generated: '2026-07-18'
+method: searched
+source: https://pypi.org/project/datarobot/ ; https://cran.r-project.org/package=datarobot ; https://docs.datarobot.com/en/docs/api/reference/sdk/index.html
+packages:
+  - language: python
+    registry: pypi
+    name: datarobot
+    version: 3.17.0
+    url: https://pypi.org/project/datarobot/
+    install: pip install datarobot
+    docs: https://docs.datarobot.com/en/docs/api/reference/sdk/index.html
+    official: true
+  - language: python
+    registry: pypi
+    name: datarobot-predict
+    url: https://pypi.org/project/datarobot-predict/
+    install: pip install datarobot-predict
+    official: true
+  - language: python
+    registry: pypi
+    name: datarobot-mlops
+    version: 11.2.42
+    url: https://pypi.org/project/datarobot-mlops/
+    install: pip install datarobot-mlops
+    docs: https://docs.datarobot.com/en/docs/mlops/deployment/mlops-agent/spooler.html
+    official: true
+  - language: python
+    registry: pypi
+    name: datarobotx
+    version: 0.2.0
+    url: https://pypi.org/project/datarobotx/
+    install: pip install datarobotx
+    docs: https://drx.datarobot.com/
+    official: true
+    note: DataRobotX (drx) extensions library
+  - language: r
+    registry: cran
+    name: datarobot
+    url: https://cran.r-project.org/package=datarobot
+    install: install.packages("datarobot")
+    docs: https://docs.datarobot.com/en/docs/api/reference/r-sdk/index.html
+    official: true
+  - language: shell
+    registry: homebrew
+    name: dr-cli
+    url: https://github.com/datarobot-oss
+    install: brew install datarobot-oss/taps/dr-cli
+    docs: https://docs.datarobot.com/en/docs/agentic-ai/cli/getting-started.html
+    official: true
+    note: DataRobot CLI (dr); also curl https://cli.datarobot.com/install | sh

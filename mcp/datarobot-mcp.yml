@@ -1,0 +1,22 @@
+generated: '2026-07-18'
+method: searched
+status: published
+source: https://docs.datarobot.com/en/docs/agentic-ai/agentic-mcp/index.html
+summary: >-
+  DataRobot exposes tools and resources over the Model Context Protocol. It ships a
+  hosted "DataRobot Global MCP" server plus the ability to deploy standalone/custom
+  MCP servers on the platform, and an Agent Assist skill that connects third-party
+  coding agents (Claude Code, Cursor, VS Code Copilot, OpenCode) to DataRobot.
+servers:
+  - name: DataRobot Global MCP
+    kind: hosted
+    docs: https://docs.datarobot.com/en/docs/agentic-ai/agentic-mcp/agentic-mcp-clients.html
+    note: Configure Cursor, Claude Desktop, and VS Code to use the DataRobot MCP server for tools and resources.
+  - name: Standalone / custom MCP server
+    kind: self-deployed
+    docs: https://docs.datarobot.com/en/docs/agentic-ai/agentic-mcp/agentic-tools-mcp.html
+    note: Integrate tools into agentic workflows via an MCP server deployment instead of direct tool deployments.
+clients:
+  - name: Agent Assist skill
+    docs: https://docs.datarobot.com/en/docs/agentic-ai/agent-assist/agent-assist-skill.html
+    note: Install the DataRobot Agent Assist skill in third-party coding agents (Claude Code, Cursor, OpenCode, VS Code Copilot).

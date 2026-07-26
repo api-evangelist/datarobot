@@ -1,0 +1,33 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.datarobot.com/en/docs/agentic-ai/cli/getting-started.html
+name: dr
+description: >-
+  The DataRobot CLI (`dr`) manages custom applications, agentic workflows, and
+  developer authentication against the DataRobot platform. Open source under the
+  datarobot-oss GitHub org.
+repo: https://github.com/datarobot-oss
+docs: https://docs.datarobot.com/en/docs/agentic-ai/cli/index.html
+command_reference: https://docs.datarobot.com/en/docs/agentic-ai/cli/commands/index.html
+install:
+  - method: homebrew
+    command: brew install datarobot-oss/taps/dr-cli
+  - method: shell
+    command: curl https://cli.datarobot.com/install | sh
+    platforms: [macos, linux]
+  - method: windows
+    command: https://cli.datarobot.com/winstall
+    platforms: [windows]
+commands:
+  - name: auth
+    summary: Manage authentication with DataRobot (personal API keys / login).
+    docs: https://docs.datarobot.com/en/docs/agentic-ai/cli/commands/auth.html
+  - name: start
+    summary: Run the application quickstart process for the current template.
+    docs: https://docs.datarobot.com/en/docs/agentic-ai/cli/commands/start.html
+  - name: plugin
+    summary: Install plugins (e.g. `dr plugin install assist` for Agent Assist).
+key_flows:
+  - Authenticate with a personal API key and select an endpoint region.
+  - Scaffold, run, and deploy custom applications / agentic templates.
+  - Trigger agent execution and testing from the CLI.

@@ -1,8 +1,17 @@
 aid: datarobot
-name: Datarobot
-description: 'Datarobot is a company surfaced as a portfolio company of norwest-venture-partners, sapphire-ventures,
-  techstars and added to the API Evangelist network as a stub for enrichment. Sector: unknown. This profile
-  is a lead awaiting the enrichment pipeline.'
+name: DataRobot
+description: >-
+  DataRobot is an enterprise AI platform for building, deploying, governing, and
+  monitoring predictive and generative AI models and agentic workflows. It exposes
+  a public REST API (v2), first-party Python and R clients, a `dr` command-line
+  tool, and an MCP surface (Global MCP plus deployable standalone servers) that lets
+  agentic coding environments call DataRobot tools and resources. Developers
+  authenticate with personal API keys (bearer tokens) against regional endpoints
+  (US/EU/JP), while OAuth 2.0 / OIDC via app.datarobot.com backs agent and
+  integration auth. The platform covers AutoML, MLOps deployment and monitoring,
+  model governance and compliance documentation, and code-first GenAI/agent
+  development. Surfaced as a portfolio company of Norwest Venture Partners, Sapphire
+  Ventures, and Techstars, and enriched by the API Evangelist pipeline.
 url: https://raw.githubusercontent.com/api-evangelist/datarobot/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -10,15 +19,51 @@ x-backed-by:
 - norwest-venture-partners
 - sapphire-ventures
 - techstars
-x-tier: stub
+x-tier: profiled
 x-tier-reason: portfolio-lead
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-18'
 tags:
 - Company
-- Unknown
-apis: []
+- Artificial Intelligence
+- Machine Learning
+- MLOps
+- Data Science
+- Agentic AI
+- Predictive Analytics
+- Generative AI
+image: https://www.datarobot.com/wp-content/uploads/2021/09/DataRobot-Logo.png
+apis:
+- name: DataRobot REST API v2
+  description: >-
+    DataRobot's public REST API (v2) for projects, modeling, predictions,
+    deployments, MLOps monitoring, governance, and agentic workflows. Personal API
+    keys are sent as bearer tokens against regional base URLs.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  version: v2.46
+  properties:
+  - type: Documentation
+    url: https://docs.datarobot.com/en/docs/api/index.html
+  - type: APIReference
+    url: https://docs.datarobot.com/en/docs/api/reference/index.html
+  - type: GettingStarted
+    url: https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
+  - type: Authentication
+    url: authentication/datarobot-authentication.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -27,3 +72,60 @@ maintainers:
 common:
 - type: Website
   url: https://datarobot.com
+- type: DeveloperPortal
+  url: https://docs.datarobot.com/
+- type: Documentation
+  url: https://docs.datarobot.com/en/docs/api/index.html
+- type: APIReference
+  url: https://docs.datarobot.com/en/docs/api/reference/index.html
+- type: GettingStarted
+  url: https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
+- type: Support
+  url: https://community.datarobot.com
+- type: GitHubOrganization
+  url: https://github.com/datarobot
+- type: Pricing
+  url: https://www.datarobot.com/pricing/
+- type: TermsOfService
+  url: https://www.datarobot.com/terms-of-service/
+- type: PrivacyPolicy
+  url: https://www.datarobot.com/privacy/
+- type: StatusPage
+  url: https://status.datarobot.com
+- type: TrustCenter
+  url: https://trust.datarobot.com
+- type: ChangeLog
+  url: changelog/datarobot-changelog.yml
+- type: Packages
+  url: packages/datarobot-packages.yml
+- type: SDKs
+  url: packages/datarobot-packages.yml
+- type: CLI
+  url: cli/datarobot-cli.yml
+- type: MCPServer
+  url: mcp/datarobot-mcp.yml
+- type: LLMsTxt
+  url: llms/datarobot-llms.txt
+- type: WellKnown
+  url: well-known/datarobot-well-known.yml
+- type: Authentication
+  url: authentication/datarobot-authentication.yml
+- type: OAuthScopes
+  url: scopes/datarobot-scopes.yml
+- type: Conventions
+  url: conventions/datarobot-conventions.yml
+- type: Lifecycle
+  url: lifecycle/datarobot-lifecycle.yml
+- type: Deprecation
+  url: https://docs.datarobot.com/en/docs/api/reference/changelogs/index.html
+- type: Conformance
+  url: conformance/datarobot-conformance.yml
+- type: TrustCenterArtifact
+  url: security/datarobot-trust-center.yml
+- type: DomainSecurity
+  url: security/datarobot-domain-security.yml
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence

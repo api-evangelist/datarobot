@@ -1,0 +1,16 @@
+generated: '2026-07-18'
+method: searched
+source: https://app.datarobot.com/.well-known/openid-configuration ; https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
+standards:
+  - id: oauth2
+    conforms: true
+    evidence: app.datarobot.com publishes an OAuth 2.0 authorization server (authorize/token/revoke/device endpoints, PKCE S256).
+  - id: oidc
+    conforms: true
+    evidence: /.well-known/openid-configuration discovery document present with issuer, jwks_uri, userinfo, RS256 id_token signing.
+  - id: bearer-token
+    conforms: true
+    evidence: REST API accepts Authorization; Bearer personal API keys.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: not verified — no OpenAPI captured for this provider yet.

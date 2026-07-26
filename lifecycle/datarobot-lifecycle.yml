@@ -1,0 +1,16 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.datarobot.com/en/docs/api/reference/changelogs/index.html ; https://status.datarobot.com
+versioning:
+  scheme: uri-path
+  current: v2
+  api_release: v2.46
+  docs: https://docs.datarobot.com/en/docs/api/reference/changelogs/rest-changelog/index.html
+deprecation:
+  policy_documented: true
+  note: >-
+    DataRobot documents deprecations per release in the REST and Python/R client
+    changelogs; deprecated SDK methods are flagged in the API reference.
+  docs: https://docs.datarobot.com/en/docs/api/reference/changelogs/index.html
+status_page: https://status.datarobot.com
+status_docs: https://docs.datarobot.com/en/docs/get-started/troubleshooting/status-help.html

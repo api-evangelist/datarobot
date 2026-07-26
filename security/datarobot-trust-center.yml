@@ -1,0 +1,14 @@
+generated: '2026-07-18'
+method: searched
+probe: true
+url: https://trust.datarobot.com
+certifications: []
+note: >-
+  DataRobot operates a public Trust Center at https://trust.datarobot.com (HTTP 200,
+  titled "datarobot.com Trust Center"). The certifications catalog is rendered
+  client-side and could not be extracted verbatim at capture time; named
+  certifications are intentionally left empty rather than fabricated.
+evidence:
+  - source: https://trust.datarobot.com
+    kind: trust-center
+    status: 200

@@ -1,0 +1,34 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html ; https://docs.datarobot.com/en/docs/api/reference/index.html
+summary: >-
+  Cross-cutting request/response semantics for the DataRobot REST API v2.
+authentication:
+  style: bearer
+  header: "Authorization: Bearer <personal-api-key>"
+  ref: authentication/datarobot-authentication.yml
+base_url:
+  scheme: regional
+  hosts:
+    us: https://app.datarobot.com/api/v2
+    eu: https://app.eu.datarobot.com/api/v2
+    jp: https://app.jp.datarobot.com/api/v2
+versioning:
+  scheme: uri-path
+  current: v2
+  api_release: v2.46
+  ref: lifecycle/datarobot-lifecycle.yml
+rate_limiting:
+  documented: true
+  note: >-
+    Quota usage, tokens, and rate limits for deployments are monitored via the
+    platform (Deployment usage / agent usage).
+  docs: https://docs.datarobot.com/en/docs/agentic-ai/agentic-monitor/agent-usage.html
+request_headers:
+  docs: https://docs.datarobot.com/en/docs/agentic-ai/agentic-develop/agentic-request-headers.html
+  note: Deployed agents can access HTTP request headers for authentication, tracking, and custom metadata.
+idempotency:
+  documented: false
+  note: No documented idempotency-key header found in the developer quickstart / API reference index at capture time.
+error_envelope:
+  ref: errors/

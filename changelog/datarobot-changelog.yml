@@ -1,0 +1,29 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.datarobot.com/en/docs/api/reference/changelogs/index.html
+scheme: sequential (REST v2.X); semver for Python/R clients
+surfaces:
+  rest:
+    docs: https://docs.datarobot.com/en/docs/api/reference/changelogs/rest-changelog/index.html
+    current_version: v2.46
+  python_client:
+    docs: https://docs.datarobot.com/en/docs/api/reference/changelogs/py-changelog/index.html
+    current_version: 3.17.0
+  r_client:
+    docs: https://docs.datarobot.com/en/docs/api/reference/changelogs/index.html
+entries:
+  - version: v2.46
+    surface: rest
+    highlights: Added artifact repositories, workloads management, and agentic memory service endpoints.
+  - version: v2.45
+    surface: rest
+    highlights: Introduced agent cards, JDBC execution, and file management sharing features.
+  - version: v2.44
+    surface: rest
+    highlights: Added custom application usage tracking and SYFTR search functionality.
+  - version: v2.43
+    surface: rest
+    highlights: Implemented ACL connections and JDBC data preview capabilities.
+  - version: v2.42
+    surface: rest
+    highlights: Launched file management endpoints and confusion matrix insights.
