@@ -124,6 +124,8 @@ common:
   url: security/datarobot-trust-center.yml
 - type: DomainSecurity
   url: security/datarobot-domain-security.yml
+- type: AICatalog
+  url: ai-catalog/datarobot-ai-catalog.yml
 x-enrichment:
   date: '2026-07-19'
   status: backfilled

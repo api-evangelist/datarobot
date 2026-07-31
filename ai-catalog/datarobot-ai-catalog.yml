@@ -1,0 +1,111 @@
+generated: '2026-07-31'
+method: probed
+source: https://www.datarobot.com/.well-known/ai-catalog.json
+description: 'AI Catalog manifest observed at /.well-known/ai-catalog.json on datarobot.com. The AI Catalog
+  Standard 1.0 is the publishing half of the Agentic Resource Discovery (ARD) v0.9 draft: a JSON manifest
+  listing the agentic resources a domain offers — MCP servers, agent cards, skills, APIs — each typed
+  by media type and identified by a domain-anchored urn:air: URN. Two verdicts are recorded: a structural
+  grade against the AI Catalog 1.0 data model, and the result of the ARD project''s own conformance CLI
+  run against this exact body. Provider-published by construction — served from the provider''s own host;
+  nothing here is derived or generated.'
+discovery:
+  path: /.well-known/ai-catalog.json
+  canonical: true
+  host: datarobot.com
+  also_served_on:
+  - docs.datarobot.com
+conformance:
+  spec: AI Catalog 1.0 / ARD v0.9 (Draft)
+  grade: flavored
+  spec_version_declared: '1.0'
+  hard_failures:
+  - entry-identifier-not-urn-air
+  - host-no-identifier
+  soft_gaps:
+  - entry-no-representativeQueries
+  official_tool:
+    tool: ARD conformance-test v0.5.0 (ards-project/ard-spec)
+    status: FAIL
+    critical_errors: 10
+    errors:
+    - '[datarobot-agent-assist] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:agent-assist''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-app-framework-cicd] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:app-framework-cicd''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-data-preparation] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:data-preparation''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-external-agent-monitoring] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:external-agent-monitoring''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-feature-engineering] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:feature-engineering''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-model-deployment] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:model-deployment''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-model-explainability] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:model-explainability''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-model-monitoring] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:model-monitoring''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-model-training] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:model-training''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    - '[datarobot-predictions] Identifier ''urn:ai:github.com:datarobot-oss:datarobot-agent-skills:predictions''
+      does not match RFC 8141 URN pattern ''urn:air:<publisher>:<namespace>:<agent-name>''.'
+    warnings:
+    - '[datarobot-agent-assist] Media type ''application/ai-skill'' is not one of standard discovery types:
+      [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-app-framework-cicd] Media type ''application/ai-skill'' is not one of standard discovery
+      types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-data-preparation] Media type ''application/ai-skill'' is not one of standard discovery
+      types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-external-agent-monitoring] Media type ''application/ai-skill'' is not one of standard
+      discovery types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-feature-engineering] Media type ''application/ai-skill'' is not one of standard discovery
+      types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-model-deployment] Media type ''application/ai-skill'' is not one of standard discovery
+      types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-model-explainability] Media type ''application/ai-skill'' is not one of standard discovery
+      types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-model-monitoring] Media type ''application/ai-skill'' is not one of standard discovery
+      types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-model-training] Media type ''application/ai-skill'' is not one of standard discovery
+      types: [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+    - '[datarobot-predictions] Media type ''application/ai-skill'' is not one of standard discovery types:
+      [''application/ai-catalog+json'', ''application/agent-card+json'', ''application/a2a-agent-card+json'',
+      ''application/mcp-server-card+json'', ''application/agent-skills+zip'', ''application/agent-skills+gzip'',
+      ''text/markdown; profile="urn:air:agent-skills"'', ''application/ai-registry'', ''application/ai-registry+json''].'
+catalog:
+  host_display_name: DataRobot Agent Skills
+  host_identifier: null
+  entry_count: 10
+  types:
+    application/ai-skill: 10
+  representative_queries: 0
+  trust_manifests: 0
+  file: datarobot-ai-catalog.json
+transport:
+  http_status: 200
+  content_type: application/json
+  access_control_allow_origin: '*'
+  meets_publish_guide_requirements: true
+x-evidence:
+  fetched: '2026-07-31'
+  url: https://www.datarobot.com/.well-known/ai-catalog.json
+  http_status: 200
+  content_type: application/json
+  note: Verbatim body saved alongside this manifest. No field inferred.
