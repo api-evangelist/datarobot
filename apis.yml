@@ -1,30 +1,23 @@
 aid: datarobot
-
 name: DataRobot
-
-description: DataRobot is an enterprise AI platform for building, deploying, governing, and monitoring predictive and generative AI models and
-  agentic workflows. It exposes a public REST API (v2), first-party Python and R clients, a `dr` command-line tool, and an MCP surface (Global
-  MCP plus deployable standalone servers) that lets agentic coding environments call DataRobot tools and resources. Developers authenticate with
-  personal API keys (bearer tokens) against regional endpoints (US/EU/JP), while OAuth 2.0 / OIDC via app.datarobot.com backs agent and integration
-  auth. The platform covers AutoML, MLOps deployment and monitoring, model governance and compliance documentation, and code-first GenAI/agent
-  development. Surfaced as a portfolio company of Norwest Venture Partners, Sapphire Ventures, and Techstars, and enriched by the API Evangelist
-  pipeline.
-
+description: DataRobot is an enterprise AI platform for building, deploying, governing, and monitoring
+  predictive and generative AI models and agentic workflows. It exposes a public REST API (v2), first-party
+  Python and R clients, a `dr` command-line tool, and an MCP surface (Global MCP plus deployable standalone
+  servers) that lets agentic coding environments call DataRobot tools and resources. Developers authenticate
+  with personal API keys (bearer tokens) against regional endpoints (US/EU/JP), while OAuth 2.0 / OIDC
+  via app.datarobot.com backs agent and integration auth. The platform covers AutoML, MLOps deployment
+  and monitoring, model governance and compliance documentation, and code-first GenAI/agent development.
+  Surfaced as a portfolio company of Norwest Venture Partners, Sapphire Ventures, and Techstars, and enriched
+  by the API Evangelist pipeline.
 url: https://raw.githubusercontent.com/api-evangelist/datarobot/refs/heads/main/apis.yml
-
 x-type: company
-
 x-source: vc-portfolio
-
 x-backed-by:
 - norwest-venture-partners
 - sapphire-ventures
 - techstars
-
 x-tier: profiled
-
 x-tier-reason: portfolio-lead
-
 deliveryModel:
   model: saas
   open_source: false
@@ -36,7 +29,6 @@ deliveryModel:
   - pricing
   generated: '2026-08-28'
   method: derived
-
 accessModel:
   pricing: unknown
   onboarding: self-serve
@@ -49,13 +41,9 @@ accessModel:
   - authentication
   generated: '2026-07-22'
   method: derived
-
 specificationVersion: '0.23'
-
 created: '2026-07-17'
-
 modified: '2026-07-18'
-
 tags:
 - Company
 - Artificial Intelligence
@@ -65,7 +53,6 @@ tags:
 - Agentic AI
 - Predictive Analytics
 - Generative AI
-
 tags_raw:
 - Company
 - Artificial Intelligence
@@ -75,15 +62,12 @@ tags_raw:
 - Agentic AI
 - Predictive Analytics
 - Generative AI
-
 image: https://www.datarobot.com/wp-content/uploads/2021/09/DataRobot-Logo.png
-
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
-
 common:
 - type: Spectral
   url: rules/datarobot-rules.yml
@@ -161,11 +145,11 @@ common:
   url: security/datarobot-domain-security.yml
 - type: AICatalog
   url: ai-catalog/datarobot-ai-catalog.yml
-
 apis:
 - name: DataRobot REST API v2
-  description: DataRobot's public REST API (v2) for projects, modeling, predictions, deployments, MLOps monitoring, governance, and agentic workflows.
-    Personal API keys are sent as bearer tokens against regional base URLs.
+  description: DataRobot's public REST API (v2) for projects, modeling, predictions, deployments, MLOps
+    monitoring, governance, and agentic workflows. Personal API keys are sent as bearer tokens against
+    regional base URLs.
   humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
   baseURL: https://app.datarobot.com/api/v2
   version: v2.46
@@ -181,7 +165,8 @@ apis:
   aid: datarobot:datarobot-rest-api-v2
 - aid: datarobot:datarobot-api
   name: DataRobot API
-  description: 'DataRobot API as documented publicly: 18 operations. Contract generated from the documentation by API Evangelist (2026-10-03);
+  description: 'DataRobot API as documented publicly: 18 operations. Contract generated from the documentation
+    by API Evangelist (2026-10-03);
 
     not the provider''s own document.'
   humanURL: https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
@@ -202,13 +187,11 @@ apis:
     url: json-schema/datarobot-post-api-v2-projects-request-schema.json
   - type: JSONSchema
     url: json-schema/datarobot-post-api-v2-projects-response-schema.json
-
 x-enrichment:
   date: '2026-07-19'
   status: backfilled
   pass: local-v1
   note: backfilled from .gitignore signal + verified work evidence
-
 x-coverage:
   state: unreadable
   reason: no-machine-readable-spec
