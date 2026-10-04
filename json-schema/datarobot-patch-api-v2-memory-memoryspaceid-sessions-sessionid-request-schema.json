@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/datarobot/main/json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json",
+  "title": "PatchApiV2MemoryMemoryspaceidSessionsSessionidRequest",
+  "x-generated": "2026-10-03",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_ae-authored/datarobot-openapi-generated.yml#/components/schemas/PatchApiV2MemoryMemoryspaceidSessionsSessionidRequest",
+  "type": "object",
+  "properties": {
+    "lifecycleStrategies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "trigger": {
+            "type": "object",
+            "properties": {
+              "never": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

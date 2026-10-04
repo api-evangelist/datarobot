@@ -1,0 +1,190 @@
+generated: '2026-10-03'
+method: derived
+source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
+generator: derive-hosts.py
+summary:
+  hosts: 15
+  own: 14
+  other_domain: 0
+  platform: 1
+  roles:
+  - api
+  - marketing
+  - other
+  - partner
+  - portal
+  - source
+  - status
+  - support
+  - website
+hosts:
+- host: api.datarobot.com
+  found_by:
+  - contract-discovery
+  types: []
+  serves: []
+  registrable_domain: datarobot.com
+  role: api
+  relation: own
+- host: app.datarobot.com
+  found_by:
+  - apis[]
+  - probed
+  - site-links
+  - contract-discovery
+  - well-known
+  types: []
+  serves:
+  - api
+  registrable_domain: datarobot.com
+  role: other
+  relation: own
+- host: cli.datarobot.com
+  found_by:
+  - apis[]
+  types: []
+  serves:
+  - api
+  registrable_domain: datarobot.com
+  role: other
+  relation: own
+- host: community.datarobot.com
+  found_by:
+  - pointer
+  - probed
+  - contract-discovery
+  - well-known
+  types:
+  - Support
+  serves: []
+  registrable_domain: datarobot.com
+  role: support
+  relation: own
+- host: datarobot.com
+  found_by:
+  - pointer
+  - probed
+  - well-known
+  types:
+  - Website
+  serves: []
+  registrable_domain: datarobot.com
+  role: website
+  relation: own
+- host: docs.datarobot.com
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - site-links
+  - docs-index
+  - contract-discovery
+  - well-known
+  types:
+  - DeveloperPortal
+  - Documentation
+  - APIReference
+  - GettingStarted
+  - Deprecation
+  serves:
+  - docs
+  registrable_domain: datarobot.com
+  role: portal
+  relation: own
+- host: github.com
+  found_by:
+  - pointer
+  types:
+  - GitHubOrganization
+  serves: []
+  registrable_domain: github.com
+  role: source
+  relation: platform
+- host: go.datarobot.com
+  found_by:
+  - probed
+  - site-links
+  - well-known
+  types: []
+  serves: []
+  registrable_domain: datarobot.com
+  role: other
+  relation: own
+- host: learn.datarobot.com
+  found_by:
+  - probed
+  - site-links
+  types: []
+  serves: []
+  registrable_domain: datarobot.com
+  role: other
+  relation: own
+- host: page.datarobot.com
+  found_by:
+  - probed
+  - site-links
+  types: []
+  serves: []
+  registrable_domain: datarobot.com
+  role: other
+  relation: own
+- host: partners.datarobot.com
+  found_by:
+  - probed
+  - site-links
+  - namespace-probe
+  types: []
+  serves: []
+  title: Datarobot Partner Program | Home
+  status: 200
+  registrable_domain: datarobot.com
+  role: partner
+  relation: own
+- host: status.datarobot.com
+  found_by:
+  - pointer
+  - probed
+  - site-links
+  - well-known
+  types:
+  - StatusPage
+  serves: []
+  registrable_domain: datarobot.com
+  role: status
+  relation: own
+- host: support.datarobot.com
+  found_by:
+  - probed
+  - site-links
+  types: []
+  serves: []
+  registrable_domain: datarobot.com
+  role: support
+  relation: own
+- host: trust.datarobot.com
+  found_by:
+  - pointer
+  - probed
+  - site-links
+  - well-known
+  types:
+  - TrustCenter
+  serves: []
+  registrable_domain: datarobot.com
+  role: other
+  relation: own
+- host: www.datarobot.com
+  found_by:
+  - pointer
+  - probed
+  - contract-discovery
+  - well-known
+  types:
+  - Blog
+  - Pricing
+  - TermsOfService
+  - PrivacyPolicy
+  serves: []
+  registrable_domain: datarobot.com
+  role: marketing
+  relation: own

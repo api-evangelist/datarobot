@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/datarobot/main/json-schema/datarobot-post-oauth2-token-response-schema.json",
+  "title": "PostOauth2TokenResponse",
+  "x-generated": "2026-10-03",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_ae-authored/datarobot-openapi-generated.yml#/components/schemas/PostOauth2TokenResponse",
+  "type": "object",
+  "properties": {
+    "access_token": {
+      "type": "string",
+      "description": "The DataRobot access token to use on API requests."
+    },
+    "token_type": {
+      "type": "string",
+      "description": "Always Bearer."
+    },
+    "expires_in": {
+      "type": "integer",
+      "description": "Lifetime of the token, in seconds."
+    },
+    "scope": {
+      "type": "string",
+      "description": "The granted scope. Inbound OAuth tokens carry the dr.impersonation scope."
+    }
+  }
+}

@@ -1,0 +1,63 @@
+generated: '2026-10-03'
+method: probed
+source: pre-flight dossier (docs platform, portal detections) + CNAME chains and response headers of the hosts apis.yml names
+registry: all/0-working/vendors.yml
+areas_vocabulary:
+- documentation
+- developer-portal
+- api-gateway
+- cdn
+- hosting
+- sdk-generation
+- api-collections
+- status-page
+- support
+- community
+- identity
+- mcp-hosting
+vendors:
+- vendor: fastly
+  name: Fastly
+  area: cdn
+  host: datarobot.com
+  evidence: header:x-served-by:cache-
+  signal: header
+  confidence: high
+  kin_score: []
+- vendor: mkdocs
+  name: MkDocs
+  area: documentation
+  host: docs.datarobot.com
+  evidence: markup:mkdocs
+  signal: docs-platform
+  confidence: medium
+  kin_score: []
+- vendor: github-pages
+  name: GitHub Pages
+  area: hosting
+  host: cli.datarobot.com
+  evidence: cname:github.io
+  signal: cname
+  confidence: high
+  kin_score: []
+reliance:
+  areas_vendor_served:
+  - cdn
+  - documentation
+  - hosting
+  vendor_count: 3
+  areas_observed: 12
+  share_of_observable_areas: 0.25
+  note: areas where a third party was DETECTED serving this provider; an area absent here was either self-run or not observed, and this script
+    cannot tell those apart
+checked:
+- 'docs-platform: mkdocs'
+- datarobot.com (Website)
+- docs.datarobot.com (DeveloperPortal)
+- docs.datarobot.com (Documentation)
+- docs.datarobot.com (APIReference)
+- docs.datarobot.com (GettingStarted)
+- community.datarobot.com (Support)
+- status.datarobot.com (StatusPage)
+- app.datarobot.com (baseURL)
+- cli.datarobot.com (baseURL)
