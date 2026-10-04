@@ -1,0 +1,72 @@
+openapi: 3.2.0
+info:
+  title: DataRobot API
+  version: '2026-10-03'
+  description: 'GENERATED FROM DOCUMENTATION by API Evangelist on 2026-10-03: 18 operation(s) read from 15 public documentation page(s) (each operation names its page in x-source). This is not the provider''s published contract; DataRobot has published no machine-readable contract that the pipeline could find. Engine: local.'
+  x-evidence-tiers:
+    code-example: 16
+    documentation: 2
+    pages-with-code: 12
+    pages-read: 15
+  x-generated-from: documentation
+  x-provenance: generated
+  x-authored-by: API Evangelist
+  x-generated: '2026-10-03'
+  x-generator: generate-contract-from-docs.py
+  x-engine: local
+  x-sources:
+  - https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/agentic-mcp/agentic-tools-mcp.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/agentic-develop/agentic-get-started.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/agentic-develop/agentic-memory-service.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/agentic-mcp/agentic-mcp-dynamic-tool-registration.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/agentic-mcp/agentic-mcp-clients.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/cli/overview.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/cli/getting-started.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/cli/quick-reference.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/cli/development/setup.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/cli/shell-completions.html
+  - https://docs.datarobot.com/en/docs/agentic-ai/cli/local-experimentation/index.html
+  - https://docs.datarobot.com/en/docs/api/dev-learning/inbound-oauth-tokens.html
+  - https://docs.datarobot.com/en/docs/api/dev-learning/restapi/multi-rest.html
+  - https://docs.datarobot.com/en/docs/api/dev-learning/restapi/rest-cluster.html
+servers:
+- url: https://cli.datarobot.com
+security:
+- bearer: []
+tags:
+- name: DataRobot API
+paths:
+  /:
+    get:
+      operationId: get
+      tags:
+      - DataRobot API
+      summary: GET /
+      x-source: https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
+      responses:
+        '200':
+          description: Success (status as documented)
+      x-evidence:
+        kind: code-example
+        language: curl
+        snippet: "curl \n jq (optional, for readable JSON in examples) \n A DataRobot account \n DataRobot account: Access to a DataRobot instance (cloud or Self-Managed). If you don't have an account, sign up at DataRobot or contact your organization's DataRobot administrator. \n Git: For cloning templates (version 2.0+). Install Git from git-scm.com if not already installed. Verify installation: git --version \n Task:"
+  /api/v2:
+    get:
+      operationId: get_api_v2
+      tags:
+      - DataRobot API
+      summary: GET /api/v2
+      x-source: https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
+      responses:
+        '200':
+          description: Success (status as documented)
+      x-evidence:
+        kind: code-example
+        language: curl
+        snippet: "curl --location -X GET \" ${ DATAROBOT_ENDPOINT } /projects\" --header \"Authorization: Bearer ${ DATAROBOT_API_TOKEN } \" \n Windows: \n setx DATAROBOT_ENDPOINT \"https://app.datarobot.com/api/v2\" \nsetx DATAROBOT_API_TOKEN \"your_api_token\" \n Close and reopen the terminal. To persist through the UI, search for \"Environment Variables\", then add DATAROBOT_ENDPOINT and DATAROBOT_API_TOKEN under system varia"
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

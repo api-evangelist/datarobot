@@ -1,0 +1,38 @@
+{
+  "provider": "datarobot",
+  "sources": [
+    "_ae-authored/datarobot-openapi-generated.yml"
+  ],
+  "outputs": [
+    "datarobot-datarobot-api-api-openapi.yml",
+    "datarobot-datarobot-oss-api-openapi.yml",
+    "datarobot-homebrew-api-openapi.yml",
+    "datarobot-info-api-openapi.yml",
+    "datarobot-install-api-openapi.yml",
+    "datarobot-mcp-api-openapi.yml",
+    "datarobot-memory-api-openapi.yml",
+    "datarobot-oauth2-api-openapi.yml",
+    "datarobot-projects-api-openapi.yml",
+    "datarobot-registereddeployments-api-openapi.yml",
+    "datarobot-uv-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (0 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "datarobot-openapi-generated.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "datarobot-openapi-generated.yml: tagged paths GET / -> DataRobot API",
+    "datarobot-openapi-generated.yml: tagged paths GET /api/info -> Info",
+    "datarobot-openapi-generated.yml: tagged paths GET /api/v2 -> DataRobot API",
+    "datarobot-openapi-generated.yml: tagged paths PATCH /api/v2/memory/{memoryspaceid}/sessions/{sessionid} -> Memory",
+    "datarobot-openapi-generated.yml: tagged paths GET /api/v2/projects -> Projects",
+    "datarobot-openapi-generated.yml: tagged paths POST /api/v2/projects -> Projects",
+    "datarobot-openapi-generated.yml: declared missing tag: DataRobot API",
+    "datarobot-openapi-generated.yml: declared missing tag: Info",
+    "datarobot-openapi-generated.yml: declared missing tag: Memory",
+    "datarobot-openapi-generated.yml: declared missing tag: Projects",
+    "apis.yml register: written (+11 apis, 12 total)"
+  ],
+  "skipped": []
+}

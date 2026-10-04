@@ -147,9 +147,10 @@ common:
   url: ai-catalog/datarobot-ai-catalog.yml
 apis:
 - name: DataRobot REST API v2
-  description: DataRobot's public REST API (v2) for projects, modeling, predictions, deployments, MLOps
-    monitoring, governance, and agentic workflows. Personal API keys are sent as bearer tokens against
-    regional base URLs.
+  description: >-
+    DataRobot's public REST API (v2) for projects, modeling, predictions, deployments, MLOps monitoring,
+    governance, and agentic workflows. Personal API keys are sent as bearer tokens against regional base
+    URLs.
   humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
   baseURL: https://app.datarobot.com/api/v2
   version: v2.46
@@ -163,18 +164,16 @@ apis:
   - type: Authentication
     url: authentication/datarobot-authentication.yml
   aid: datarobot:datarobot-rest-api-v2
-- aid: datarobot:datarobot-api
-  name: DataRobot API
-  description: 'DataRobot API as documented publicly: 18 operations. Contract generated from the documentation
-    by API Evangelist (2026-10-03);
-
-    not the provider''s own document.'
-  humanURL: https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html
-  baseURL: https://cli.datarobot.com
+- aid: datarobot:datarobot-datarobot-api-api
+  name: DataRobot DataRobot API
+  description: The DataRobot API API from DataRobot — 2 operation(s) for datarobot api.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - DataRobot API
   properties:
   - type: OpenAPI
-    url: openapi/_ae-authored/datarobot-openapi-generated.yml
-    x-provenance: generated
+    url: openapi/datarobot-datarobot-api-api-openapi.yml
   - type: JSONSchema
     url: json-schema/datarobot-post-oauth2-token-response-schema.json
   - type: JSONSchema
@@ -182,7 +181,238 @@ apis:
   - type: JSONSchema
     url: json-schema/datarobot-get-registereddeployments-response-schema.json
   - type: JSONSchema
-    url: json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-datarobot-oss-api
+  name: DataRobot Datarobot Oss API
+  description: The Datarobot Oss API from DataRobot — 2 operation(s) for datarobot oss.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Datarobot Oss
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-datarobot-oss-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-homebrew-api
+  name: DataRobot Homebrew API
+  description: The Homebrew API from DataRobot — 1 operation(s) for homebrew.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Homebrew
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-homebrew-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-info-api
+  name: DataRobot Info API
+  description: The Info API from DataRobot — 1 operation(s) for info.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Info
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-info-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-install-api
+  name: DataRobot Install API
+  description: The Install API from DataRobot — 2 operation(s) for install.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Install
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-install-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-mcp-api
+  name: DataRobot MCP API
+  description: The Mcp API from DataRobot — 1 operation(s) for mcp.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Mcp
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-mcp-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-memory-api
+  name: DataRobot Memory API
+  description: The Memory API from DataRobot — 1 operation(s) for memory.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Memory
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-memory-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-oauth2-api
+  name: DataRobot Oauth2 API
+  description: The Oauth2 API from DataRobot — 2 operation(s) for oauth2.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Oauth2
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-oauth2-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-projects-api
+  name: DataRobot Projects API
+  description: The Projects API from DataRobot — 1 operation(s) for projects.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Projects
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-projects-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-registereddeployments-api
+  name: DataRobot Registereddeployments API
+  description: The Registereddeployments API from DataRobot — 2 operation(s) for registereddeployments.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Registereddeployments
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-registereddeployments-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-uv-api
+  name: DataRobot Uv API
+  description: The Uv API from DataRobot — 1 operation(s) for uv.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Uv
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-uv-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-response-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-post-oauth2-token-request-schema.json
+  - type: JSONSchema
+    url: json-schema/datarobot-get-registereddeployments-response-schema.json
+  - type: JSONSchema
+    url: >-
+      json-schema/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request-schema.json
   - type: JSONSchema
     url: json-schema/datarobot-post-api-v2-projects-request-schema.json
   - type: JSONSchema
