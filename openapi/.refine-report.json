@@ -32,7 +32,19 @@
     "datarobot-openapi-generated.yml: declared missing tag: Info",
     "datarobot-openapi-generated.yml: declared missing tag: Memory",
     "datarobot-openapi-generated.yml: declared missing tag: Projects",
-    "apis.yml register: written (+11 apis, 12 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "datarobot-datarobot-api-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-datarobot-oss-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-homebrew-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-info-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-install-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-mcp-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-memory-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-oauth2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-projects-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-registereddeployments-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "datarobot-uv-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

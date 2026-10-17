@@ -110,21 +110,6 @@ components:
       properties:
         Accept:
           type: string
-    PostOauth2TokenResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-          description: The DataRobot access token to use on API requests.
-        token_type:
-          type: string
-          description: Always Bearer.
-        expires_in:
-          type: integer
-          description: Lifetime of the token, in seconds.
-        scope:
-          type: string
-          description: The granted scope. Inbound OAuth tokens carry the dr.impersonation scope.
     PostOauth2TokenRequest:
       type: object
       properties:
@@ -141,6 +126,21 @@ components:
       - grant_type
       - subject_token
       - subject_token_type
+    PostOauth2TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The DataRobot access token to use on API requests.
+        token_type:
+          type: string
+          description: Always Bearer.
+        expires_in:
+          type: integer
+          description: Lifetime of the token, in seconds.
+        scope:
+          type: string
+          description: The granted scope. Inbound OAuth tokens carry the dr.impersonation scope.
   securitySchemes:
     bearer:
       type: http
