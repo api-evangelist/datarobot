@@ -47,10 +47,10 @@ modified: '2026-10-06'
 tags:
 - Company
 - Artificial Intelligence
-- Machine-Learning
+- Machine Learning
 - MLOps
 - Data Science
-- Agentic AI
+- AI Agents
 - Predictive Analytics
 - Generative AI
 tags_raw:
@@ -287,6 +287,8 @@ apis:
   humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
   baseURL: https://app.datarobot.com/api/v2
   tags:
+  - MCP
+  tags_raw:
   - Mcp
   properties:
   - type: OpenAPI
@@ -333,6 +335,8 @@ apis:
   humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
   baseURL: https://app.datarobot.com/api/v2
   tags:
+  - Authentication
+  tags_raw:
   - Oauth2
   properties:
   - type: OpenAPI
@@ -356,6 +360,8 @@ apis:
   humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
   baseURL: https://app.datarobot.com/api/v2
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
