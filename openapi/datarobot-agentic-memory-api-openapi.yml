@@ -1,0 +1,3283 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Agentic Memory API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Endpoints for managing agentic memory spaces, sessions, and events.
+  name: agentic_memory
+paths:
+  /:
+    get:
+      description: 'List all Memory Spaces accessible by the authenticated user
+
+
+        * Covers spaces the user created and spaces shared with them, each carrying
+
+        the permissions the caller holds on it.
+
+        * Returns offset/limit pagination with a total count.
+
+        * Soft-deleted spaces, and spaces belonging to another tenant, are excluded.
+
+        * `filter` narrows that set to the spaces whose description or ID contains
+
+        the given text. It is one search box, so the caller does not have to say
+
+        which of the two they mean.
+
+        * `ownership` narrows it to one half of that set: the spaces the caller
+
+        created, or the ones shared with them.'
+      operationId: list_memory_spaces__get
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Filter memory spaces by deduplication key (exact match). Keys are unique per creator, so this filter matches only spaces you created.
+        in: query
+        name: deduplicationKey
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 72
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Filter memory spaces by deduplication key (exact match). Keys are unique per creator, so this filter matches only spaces you created.
+          title: Deduplicationkey
+      - description: Return only the memory spaces you created (`owned`), or only the ones shared with you (`shared`). Omit it for both, which is everything you can reach.
+        in: query
+        name: ownership
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/MemorySpaceOwnership'
+          - type: 'null'
+          description: Return only the memory spaces you created (`owned`), or only the ones shared with you (`shared`). Omit it for both, which is everything you can reach.
+          title: Ownership
+      - description: Filter memory spaces by description or ID (case-insensitive substring match on either). Any length is accepted, and blank means no filter, so a caller can narrow the list from the first character they type. A partial ID matches, so the shortened ID shown to a user is enough to find their space.
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: Filter memory spaces by description or ID (case-insensitive substring match on either). Any length is accepted, and blank means no filter, so a caller can narrow the list from the first character they type. A partial ID matches, so the shortened ID shown to a user is enough to find their space.
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_MemorySpaceResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: List Memory Spaces
+      tags:
+      - agentic_memory
+  /new/:
+    post:
+      description: 'Create a new Memory Space
+
+
+        tenant_id is bound from the authenticated user''s context; clients cannot set or override it.'
+      operationId: create_memory_space_new__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMemorySpaceRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemorySpaceResponse'
+          description: Successful Response
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemorySpaceDeduplicationErrorResponse'
+          description: A memory space with this `deduplicationKey` already exists for the user. Body carries `existingMemorySpaceId` / `existingMemorySpaceUrl` when the live winner can be resolved; the response also sets a `Location` header to its absolute URL.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Create Memory Space
+      tags:
+      - agentic_memory
+  /{memory_space_id}/:
+    delete:
+      description: 'Delete a Memory Space
+
+
+        Returns 404 if already deleted or not accessible by the caller, and 403 if the
+
+        space is shared with them under a role that cannot delete it.
+
+        Sharing grants are revoked asynchronously by the RBAC reconciliation worker.
+
+        The persisted RBAC resource pointer is its durable cleanup marker.'
+      operationId: delete_memory_space__memory_space_id___delete
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Memory Space by memory_space_ ID
+      tags:
+      - agentic_memory
+    get:
+      description: 'Get a Memory Space by ID
+
+
+        Covers spaces the caller created and spaces shared with them, carrying the
+
+        permissions the caller holds on it.
+
+
+        Returns 404 if the space does not exist, is soft-deleted, belongs to another
+
+        tenant, or is not shared with the caller.'
+      operationId: get_memory_space__memory_space_id___get
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemorySpaceResponse'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Get Memory Space by memory_space_ ID
+      tags:
+      - agentic_memory
+    patch:
+      description: Partially update a Memory Space
+      operationId: update_memory_space__memory_space_id___patch
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemorySpaceRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemorySpaceResponse'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Update Memory Space by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/sessions/:
+    get:
+      operationId: list_sessions__memory_space_id__sessions__get
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Filter sessions by participant IDs (ObjectId format).
+        in: query
+        name: participants
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 50
+            type: array
+          - type: 'null'
+          description: Filter sessions by participant IDs (ObjectId format).
+          title: Participants
+      - description: Filter sessions by description (case-insensitive substring match). Must be at least 3 characters.
+        in: query
+        name: description
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 1000
+            minLength: 3
+            type: string
+          - type: 'null'
+          description: Filter sessions by description (case-insensitive substring match). Must be at least 3 characters.
+          title: Description
+      - description: Filter sessions by deduplication key (exact match).
+        in: query
+        name: deduplicationKey
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 72
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Filter sessions by deduplication key (exact match).
+          title: Deduplicationkey
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_SessionResponse_'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: List Sessions by memory_space_ ID
+      tags:
+      - agentic_memory
+    post:
+      operationId: create_session__memory_space_id__sessions__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDeduplicationErrorResponse'
+          description: A session with this `deduplicationKey` already exists in the memory space. Body carries `existingSessionId` / `existingSessionUrl` when the live winner can be resolved; the response also sets a `Location` header to its absolute URL.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Create Session by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/sessions/{session_id}/:
+    delete:
+      description: 'Delete a session.
+
+
+        Performs a soft-delete by setting the deleted_at timestamp.'
+      operationId: delete_session__memory_space_id__sessions__session_id___delete
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space or Session not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Session by memory_space_ ID
+      tags:
+      - agentic_memory
+    get:
+      description: Get a single session by ID
+      operationId: get_session__memory_space_id__sessions__session_id___get
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space or Session not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Get Session by memory_space_ ID
+      tags:
+      - agentic_memory
+    patch:
+      description: 'Patch a session with new description, metadata and/or lifecycle strategies.
+
+
+        Only fields explicitly included in the request body are modified others remain untouched.
+
+        `lifecycleStrategies`, when present, replaces the whole list. A strategy type that
+
+        already executed for this session can never run again, so changing its configuration
+
+        is rejected with 409; re-sending it unchanged is accepted and stays inert.'
+      operationId: update_session__memory_space_id__sessions__session_id___patch
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Optional optimistic-concurrency precondition. Supply the `version` from the prior response (quoted or bare integer, e.g. `"3"` or `3`). Returns 409 if the stored version no longer matches.
+        in: header
+        name: If-Match
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional optimistic-concurrency precondition. Supply the `version` from the prior response (quoted or bare integer, e.g. `"3"` or `3`). Returns 409 if the stored version no longer matches.
+          title: If-Match
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space or Session not found
+        '409':
+          description: Session version does not match the If-Match precondition, or the request changes a lifecycle strategy type that has already been executed
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Update Session by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/sessions/{session_id}/events/:
+    get:
+      operationId: list_events__memory_space_id__sessions__session_id__events__get
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Return the last N events in chronological order. Mutually exclusive with offset
+        in: query
+        name: lastN
+        required: false
+        schema:
+          anyOf:
+          - exclusiveMinimum: 0
+            maximum: 100
+            type: integer
+          - type: 'null'
+          description: Return the last N events in chronological order. Mutually exclusive with offset
+          title: Lastn
+      - description: Filter session events by type. Omit to return events of all types.
+        in: query
+        name: eventType
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/EventType'
+          - type: 'null'
+          description: Filter session events by type. Omit to return events of all types.
+          title: Eventtype
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_EventResponse_'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space or Session not found
+        '422':
+          description: Validation error (e.g. lastN used together with offset)
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: List Events by memory_space_ ID
+      tags:
+      - agentic_memory
+    post:
+      operationId: create_event__memory_space_id__sessions__session_id__events__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space or Session not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Create Event by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/sessions/{session_id}/events/batch/:
+    patch:
+      description: Update up to MAX_BATCH_SIZE events atomically; any failure rolls back the batch.
+      operationId: update_events_batch__memory_space_id__sessions__session_id__events_batch__patch
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateEventRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchEventResponse'
+          description: Successful Response
+        '400':
+          description: An event emitter is not a session participant
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space, Session or one of the events was not found
+        '422':
+          description: Tried to update an outdated version of an event
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Update Events Batch by memory_space_ ID
+      tags:
+      - agentic_memory
+    post:
+      description: Append up to MAX_BATCH_SIZE events to a session atomically.
+      operationId: create_events_batch__memory_space_id__sessions__session_id__events_batch__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateEventRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchEventResponse'
+          description: Successful Response
+        '400':
+          description: An event emitter is not a session participant
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space or Session not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Create Events Batch by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/sessions/{session_id}/events/{sequence_id}/:
+    delete:
+      description: Soft-delete one session event by sequence id.
+      operationId: delete_event__memory_space_id__sessions__session_id__events__sequence_id___delete
+      parameters:
+      - description: Event sequence ID
+        in: path
+        name: sequence_id
+        required: true
+        schema:
+          description: Event sequence ID
+          minimum: 0
+          title: Sequence Id
+          type: integer
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space, Session or event not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Event by memory_space_ ID
+      tags:
+      - agentic_memory
+    patch:
+      operationId: update_event__memory_space_id__sessions__session_id__events__sequence_id___patch
+      parameters:
+      - description: Event sequence ID
+        in: path
+        name: sequence_id
+        required: true
+        schema:
+          description: Event sequence ID
+          minimum: 0
+          title: Sequence Id
+          type: integer
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: Session ID
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Verification of target version of event
+        in: query
+        name: createdAt
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Verification of target version of event
+          title: Createdat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space, Session or event are not found
+        '422':
+          description: Try to update outdated version of event
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Update Event by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v1/memories/:
+    delete:
+      description: 'Delete all memories matching the given filter. At least one filter param is required
+
+        to prevent accidental deletion of all memories across all identities.'
+      operationId: delete_all_memories__memory_space_id__v1_memories__delete
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - in: query
+        name: user_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: User Id
+      - in: query
+        name: agent_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Agent Id
+      - in: query
+        name: run_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Run Id
+      - in: query
+        name: app_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: App Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete All Memories by memory_space_ ID
+      tags:
+      - agentic_memory
+    get:
+      description: Retrieve all memories matching the given identity filters (v1 query-param interface).
+      operationId: get_all_memories_v1__memory_space_id__v1_memories__get
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - in: query
+        name: user_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: User Id
+      - in: query
+        name: agent_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Agent Id
+      - in: query
+        name: run_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Run Id
+      - in: query
+        name: app_id
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: App Id
+      - in: query
+        name: top_k
+        required: false
+        schema:
+          anyOf:
+          - maximum: 50
+            minimum: 1
+            type: integer
+          - type: 'null'
+          title: Top K
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Get All Memories V1 by memory_space_ ID
+      tags:
+      - agentic_memory
+    post:
+      description: Extract facts from a conversation and persist them as memories.
+      operationId: post_memories__memory_space_id__v1_memories__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '409':
+          description: Immutable memory with the same content already exists.
+        '422':
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/HTTPValidationError'
+                - properties:
+                    detail:
+                      oneOf:
+                      - type: string
+                      - type: object
+                  required:
+                  - detail
+                  type: object
+          description: Validation error (request body) or domain conflict (content mismatch).
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+        '502':
+          description: The LLM or the embedding service failed, or the LLM answer could not be parsed.
+        '503':
+          description: Transient condition (insert conflict or upstream LLM rate limit); retry advised.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+        '504':
+          description: The LLM timed out or could not be reached.
+      summary: Post Memories by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v1/memories/search/:
+    post:
+      description: Search memories by semantic similarity to a query string.
+      operationId: search_memories_v1__memory_space_id__v1_memories_search__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemorySearch'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Search Memories V1 by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v1/memories/{memory_id}/:
+    delete:
+      description: Delete a single memory by its ID.
+      operationId: delete_memory__memory_space_id__v1_memories__memory_id___delete
+      parameters:
+      - in: path
+        name: memory_id
+        required: true
+        schema:
+          format: uuid
+          title: Memory Id
+          type: string
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Memory by memory_space_ ID
+      tags:
+      - agentic_memory
+    get:
+      description: Retrieve a single memory by its ID. Returns null if the memory does not exist.
+      operationId: get_memory__memory_space_id__v1_memories__memory_id___get
+      parameters:
+      - in: path
+        name: memory_id
+        required: true
+        schema:
+          format: uuid
+          title: Memory Id
+          type: string
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Get Memory by memory_space_ ID
+      tags:
+      - agentic_memory
+    put:
+      description: 'Replace the text of an existing memory.
+
+        Returns 404 if the memory does not exist.
+
+        Returns 409 if the memory is immutable.'
+      operationId: put_memory__memory_space_id__v1_memories__memory_id___put
+      parameters:
+      - in: path
+        name: memory_id
+        required: true
+        schema:
+          format: uuid
+          title: Memory Id
+          type: string
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory not found.
+        '409':
+          description: Memory is immutable and cannot be updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Put Memory by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v1/memories/{memory_id}/history/:
+    get:
+      description: Retrieve the mutation history (audit trail) for a single memory.
+      operationId: get_memory_history__memory_space_id__v1_memories__memory_id__history__get
+      parameters:
+      - in: path
+        name: memory_id
+        required: true
+        schema:
+          format: uuid
+          title: Memory Id
+          type: string
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 1000
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Get Memory History by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v1/ping/:
+    get:
+      description: Health check endpoint returning fake user context for mem0.MemoryClient compatibility.
+      operationId: ping__memory_space_id__v1_ping__get
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Ping by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v1/reset/:
+    post:
+      description: Delete all memories in the current memory space.
+      operationId: reset_memories__memory_space_id__v1_reset__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Reset Memories by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v2/memories/:
+    post:
+      description: 'Retrieve all memories matching the given filters.
+
+
+        At least one of user_id, agent_id, or run_id is required (as enforced by mem0''s AsyncMemory)'
+      operationId: get_all_memories_v2__memory_space_id__v2_memories__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - in: query
+        name: page_size
+        required: false
+        schema:
+          anyOf:
+          - maximum: 50
+            minimum: 1
+            type: integer
+          - type: 'null'
+          title: Page Size
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryGetAll'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '400':
+          description: At least one of user_id, agent_id, or run_id must be provided.
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/HTTPValidationError'
+                - properties:
+                    detail:
+                      oneOf:
+                      - type: string
+                      - type: object
+                  required:
+                  - detail
+                  type: object
+          description: Validation error (request body) or domain conflict (content mismatch).
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Get All Memories V2 by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v2/memories/search/:
+    post:
+      description: 'Search memories by semantic similarity to a query string.
+
+
+        At least one of user_id, agent_id, or run_id is required to scope the search.'
+      operationId: search_memories_v2__memory_space_id__v2_memories_search__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemorySearch'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '400':
+          description: At least one of user_id, agent_id, or run_id must be provided.
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/HTTPValidationError'
+                - properties:
+                    detail:
+                      oneOf:
+                      - type: string
+                      - type: object
+                  required:
+                  - detail
+                  type: object
+          description: Validation error (request body) or domain conflict (content mismatch).
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Search Memories V2 by memory_space_ ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v3/memories/:
+    post:
+      description: 'Retrieve all memories matching the given filters.
+
+
+        At least one of user_id, agent_id, or run_id is required (as enforced by mem0''s AsyncMemory)'
+      operationId: get_all_memories_v2__memory_space_id__v3_memories__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      - in: query
+        name: page_size
+        required: false
+        schema:
+          anyOf:
+          - maximum: 50
+            minimum: 1
+            type: integer
+          - type: 'null'
+          title: Page Size
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryGetAll'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Create memories by ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v3/memories/add/:
+    post:
+      description: Extract facts from a conversation and persist them as memories.
+      operationId: post_memories__memory_space_id__v3_memories_add__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Create add by ID
+      tags:
+      - agentic_memory
+  /{memory_space_id}/v3/memories/search/:
+    post:
+      description: 'Search memories by semantic similarity to a query string.
+
+
+        At least one of user_id, agent_id, or run_id is required to scope the search.'
+      operationId: search_memories_v2__memory_space_id__v3_memories_search__post
+      parameters:
+      - description: Memory Space ID
+        in: path
+        name: memory_space_id
+        required: true
+        schema:
+          description: Memory Space ID
+          title: Memory Space Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemorySearch'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: Successful Response
+        '403':
+          description: Insufficient permissions on this Memory Space
+        '404':
+          description: Memory Space not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '429':
+          description: 'Trial usage limit reached: the tenant''s monthly read/write request quota or its total storage cap is exhausted. Carries `X-RateLimit-*` headers; quota (not storage) responses also carry `Retry-After`.'
+          headers:
+            Retry-After:
+              description: Seconds until the monthly quota resets. Quota responses only.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: The applicable limit (monthly request quota, or storage cap).
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Units remaining before the limit is reached.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Epoch seconds at which the quota resets. Quota responses only.
+              schema:
+                type: integer
+      summary: Create search by ID
+      tags:
+      - agentic_memory
+components:
+  schemas:
+    UpdateSessionRequest:
+      description: Schema for session partial patch-updates.
+      properties:
+        description:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: New session description.
+          title: Description
+        lifecycleStrategies:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LifecycleStrategiesDataModel'
+            maxItems: 5
+            minItems: 1
+            type: array
+          - type: 'null'
+          description: When present, replaces the session's lifecycle strategies entirely. At least one strategy is required so every session stays controlled by one; null is rejected -- omit the field to leave the strategies unchanged. A strategy type that already executed for this session can never run again, so changing its configuration is rejected with 409; re-sending it unchanged is inert.
+          title: Lifecyclestrategies
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Custom metadata as key-value pairs for storing application-specific data
+          title: Metadata
+      title: UpdateSessionRequest
+      type: object
+    MemorySpaceOwnership:
+      description: 'Which half of the accessible set a listing asks for.
+
+
+        A caller reaches a space either by creating it or by being given a share,
+
+        and the two differ in what they may do with it, so the listing can return
+
+        one without the other. There is no member for both: that is the absence of
+
+        the filter, so it stays None rather than becoming a third value.'
+      enum:
+      - owned
+      - shared
+      title: MemorySpaceOwnership
+      type: string
+    EventBody:
+      additionalProperties: true
+      description: Body for all event types. Content field is mandatory, any additional fields are allowed.
+      properties:
+        content:
+          description: Event body content text.
+          maxLength: 100000
+          minLength: 1
+          title: Content
+          type: string
+      required:
+      - content
+      title: EventBody
+      type: object
+    EventCountTrigger:
+      additionalProperties: false
+      description: 'Trigger based on event count.
+
+
+        Fires when the session''s event count reaches or exceeds the configured threshold.'
+      properties:
+        eventCount:
+          description: Event count threshold
+          exclusiveMinimum: 0.0
+          maximum: 1000000.0
+          title: Eventcount
+          type: integer
+      required:
+      - eventCount
+      title: EventCountTrigger
+      type: object
+    CreateSessionRequest:
+      description: Request to create a new session with optional lifecycle strategies.
+      example:
+        description: Customer support conversation
+        lifecycleStrategies:
+        - trigger:
+            ttl: 604800
+          type: soft_delete
+        metadata:
+          department: sales
+          priority: high
+          region: us-east
+        participants:
+        - 507f1f77bcf86cd799439011
+      properties:
+        deduplicationKey:
+          anyOf:
+          - maxLength: 72
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Optional key, unique within the memory space, for idempotent session creation by coordinating HA agents. A second create with the same key returns 409.
+          title: Deduplicationkey
+        description:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: Optional session description
+          title: Description
+        lifecycleStrategies:
+          description: Lifecycle strategies that automatically manage session lifecycle
+          items:
+            $ref: '#/components/schemas/LifecycleStrategiesDataModel'
+          maxItems: 5
+          title: Lifecyclestrategies
+          type: array
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Custom metadata as key-value pairs for storing application-specific data
+          title: Metadata
+        participants:
+          description: List of participant IDs (ObjectId format)
+          items:
+            type: string
+          maxItems: 50
+          minItems: 1
+          title: Participants
+          type: array
+      required:
+      - participants
+      - lifecycleStrategies
+      title: CreateSessionRequest
+      type: object
+    CreateEventRequest:
+      description: Schema for create event request.
+      properties:
+        body:
+          $ref: '#/components/schemas/EventBody'
+          description: Event body.
+        emitter:
+          $ref: '#/components/schemas/EmitterDataModel'
+          description: Emitter information.
+        type:
+          $ref: '#/components/schemas/EventType'
+          default: message
+          description: Event type.
+      required:
+      - body
+      - emitter
+      title: CreateEventRequest
+      type: object
+    PaginatedResponse_EventResponse_:
+      properties:
+        items:
+          description: List of items for the current page
+          items:
+            $ref: '#/components/schemas/EventResponse'
+          maxItems: 100
+          title: Items
+          type: array
+        limit:
+          description: Maximum number of returned items
+          exclusiveMinimum: 0.0
+          title: Limit
+          type: integer
+        offset:
+          description: Number of skipped items
+          minimum: 0.0
+          title: Offset
+          type: integer
+        total:
+          description: Total number of matching items
+          title: Total
+          type: integer
+      required:
+      - items
+      - offset
+      - limit
+      - total
+      title: PaginatedResponse[EventResponse]
+      type: object
+    BatchUpdateEventItem:
+      description: 'A single item of a batch update: identifies the target event by sequence_id.
+
+
+        Inherits the mutable body/type/emitter fields from UpdateEventRequest. The
+
+        inherited "at least one field present" validator is overridden below because the
+
+        always-present sequence_id would otherwise satisfy it vacuously.'
+      properties:
+        body:
+          anyOf:
+          - $ref: '#/components/schemas/EventBody'
+          - type: 'null'
+          description: Updated event body.
+        createdAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: 'Optional per-item version check: must match the target event''s timestamp.'
+          title: Createdat
+        emitter:
+          anyOf:
+          - $ref: '#/components/schemas/EmitterDataModel'
+          - type: 'null'
+          description: Updated emitter information.
+        sequenceId:
+          description: Target event sequence ID within the session.
+          minimum: 0.0
+          title: Sequenceid
+          type: integer
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/EventType'
+          - type: 'null'
+          description: Updated event type.
+      required:
+      - sequenceId
+      title: BatchUpdateEventItem
+      type: object
+    TTLTrigger:
+      additionalProperties: false
+      description: 'Trigger based on time-to-live (session age).
+
+
+        Fires when the session age exceeds the configured TTL threshold.'
+      properties:
+        ttl:
+          description: Time-to-live in seconds. Values above the environment's configured maximum session TTL are rejected; see MAX_SESSION_TTL_SECONDS.
+          exclusiveMinimum: 0.0
+          maximum: 315360000.0
+          title: Ttl
+          type: integer
+      required:
+      - ttl
+      title: TTLTrigger
+      type: object
+    Message:
+      description: A single conversation message passed to the POST /v1/memory endpoint
+      properties:
+        content:
+          maxLength: 50000
+          minLength: 1
+          title: Content
+          type: string
+        role:
+          enum:
+          - user
+          - assistant
+          - system
+          title: Role
+          type: string
+      required:
+      - role
+      - content
+      title: Message
+      type: object
+    BatchCreateEventRequest:
+      description: Schema for batch event creation. Events are appended in list order.
+      properties:
+        events:
+          description: Events to append, in order.
+          items:
+            $ref: '#/components/schemas/CreateEventRequest'
+          maxItems: 200
+          minItems: 1
+          title: Events
+          type: array
+      required:
+      - events
+      title: BatchCreateEventRequest
+      type: object
+    MemorySpaceResponse:
+      description: Response schema for a single Memory Space
+      properties:
+        createdAt:
+          description: Memory space creation timestamp.
+          format: date-time
+          title: Createdat
+          type: string
+        customInstructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom prompt instructions used for fact extraction. Null means the default mem0 extraction prompt is used.
+          title: Custominstructions
+        deduplicationKey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deduplication key, unique per user, if one was set.
+          title: Deduplicationkey
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Memory space description.
+          title: Description
+        llmBaseUrl:
+          anyOf:
+          - format: uri
+            maxLength: 2083
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Chat API URL to use for memory extraction.
+          title: Llmbaseurl
+        llmModelName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: LLM model configured for memory extraction.
+          title: Llmmodelname
+        memorySpaceId:
+          description: Unique memory space identifier.
+          format: uuid
+          title: Memoryspaceid
+          type: string
+        permissions:
+          description: Actions the authenticated caller may perform on this memory space. The creator of a registered space holds all four; a space shared with the caller carries only what the share granted, and one still awaiting registration cannot be shared at all.
+          items:
+            enum:
+            - CAN_VIEW
+            - CAN_UPDATE
+            - CAN_DELETE
+            - CAN_SHARE
+            type: string
+          maxItems: 4
+          title: Permissions
+          type: array
+        rbacResourceId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of this memory space in the platform's access-control system. Sharing is managed there, and this is the id its API expects. Null while the space has no such record yet, which is the same state that withholds `CAN_SHARE` from `permissions`.
+          title: RBACResourceID
+        tenantId:
+          description: Tenant identifier.
+          format: uuid
+          title: Tenantid
+          type: string
+        userId:
+          description: ID of the user who owns this memory space.
+          title: Userid
+          type: string
+      required:
+      - memorySpaceId
+      - userId
+      - tenantId
+      - createdAt
+      - permissions
+      title: MemorySpaceResponse
+      type: object
+    BatchUpdateEventRequest:
+      description: Schema for batch event update.
+      properties:
+        events:
+          description: Events to update.
+          items:
+            $ref: '#/components/schemas/BatchUpdateEventItem'
+          maxItems: 200
+          minItems: 1
+          title: Events
+          type: array
+      required:
+      - events
+      title: BatchUpdateEventRequest
+      type: object
+    LifecycleStrategiesDataModel:
+      description: Lifecycle strategy configuration that defines when and how to manage session lifecycle.
+      example:
+        trigger:
+          ttl: 86400
+        type: soft_delete
+      properties:
+        opts:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Optional strategy-specific configuration parameters
+          title: Opts
+        trigger:
+          anyOf:
+          - $ref: '#/components/schemas/TTLTrigger'
+          - $ref: '#/components/schemas/EventCountTrigger'
+          - $ref: '#/components/schemas/TokenCountTrigger'
+          - $ref: '#/components/schemas/IdleTimeoutTrigger'
+          - $ref: '#/components/schemas/NeverTrigger'
+          description: 'Trigger condition. Available: ''ttl'' (time in seconds), ''eventCount'', ''tokenCount'', ''idle'', ''never'' (retain indefinitely; only accepted in environments where the never-expire trigger is enabled)'
+          title: Trigger
+        type:
+          description: 'Strategy type. Available: ''soft_delete'''
+          enum:
+          - soft_delete
+          - extract_memories
+          title: Type
+          type: string
+      required:
+      - type
+      - trigger
+      title: LifecycleStrategiesDataModel
+      type: object
+    BatchEventResponse:
+      description: 'Envelope wrapping a list of event responses for batch endpoints.
+
+
+        Per the DataRobot API design policy enforced by adipose, every JSON response must
+
+        be an object. The single-event endpoints already satisfy this; the batch endpoints
+
+        wrap their list in this envelope so the same rule holds.'
+      properties:
+        items:
+          description: Events processed by the batch operation.
+          items:
+            $ref: '#/components/schemas/EventResponse'
+          maxItems: 200
+          title: Items
+          type: array
+      required:
+      - items
+      title: BatchEventResponse
+      type: object
+    TokenCountTrigger:
+      additionalProperties: false
+      description: 'Trigger based on token count.
+
+
+        Fires when the session''s total token count reaches or exceeds the configured threshold.
+
+        Tokens are calculated from event message content using tiktoken.'
+      properties:
+        tokenCount:
+          description: Token count threshold
+          exclusiveMinimum: 0.0
+          maximum: 100000000.0
+          title: Tokencount
+          type: integer
+      required:
+      - tokenCount
+      title: TokenCountTrigger
+      type: object
+    LifecycleStrategyResponse:
+      description: 'Schema for lifecycle strategy in response.
+
+
+        Execution status is tracked in the strategy_executions table and can be
+
+        queried separately if needed.'
+      properties:
+        opts:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Strategy-specific configuration parameters.
+          title: Opts
+        trigger:
+          anyOf:
+          - $ref: '#/components/schemas/TTLTrigger'
+          - $ref: '#/components/schemas/EventCountTrigger'
+          - $ref: '#/components/schemas/TokenCountTrigger'
+          - $ref: '#/components/schemas/IdleTimeoutTrigger'
+          - $ref: '#/components/schemas/NeverTrigger'
+          description: Trigger condition.
+          title: Trigger
+        type:
+          description: Strategy type.
+          enum:
+          - soft_delete
+          - extract_memories
+          title: Type
+          type: string
+      required:
+      - type
+      - trigger
+      title: LifecycleStrategyResponse
+      type: object
+    SessionResponse:
+      description: Schema for session response.
+      properties:
+        createdAt:
+          description: Session creation timestamp.
+          format: date-time
+          title: Createdat
+          type: string
+        deduplicationKey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deduplication key, unique within the memory space, if one was set.
+          title: Deduplicationkey
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Session description.
+          title: Description
+        id:
+          description: Session ID.
+          format: uuid
+          title: Id
+          type: string
+        lifecycleStrategies:
+          description: Lifecycle strategies associated with this session.
+          items:
+            $ref: '#/components/schemas/LifecycleStrategyResponse'
+          maxItems: 5
+          title: Lifecyclestrategies
+          type: array
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Custom metadata as key-value pairs for storing application-specific data
+          title: Metadata
+        participants:
+          description: List of participant IDs.
+          items:
+            type: string
+          maxItems: 50
+          title: Participants
+          type: array
+        version:
+          default: 1
+          description: 'Monotonic version for optimistic concurrency. Echo back as `If-Match: "<version>"` on PATCH to detect lost updates.'
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - id
+      - participants
+      - createdAt
+      title: SessionResponse
+      type: object
+    NeverTrigger:
+      additionalProperties: false
+      description: 'Trigger that never fires.
+
+
+        Marks the session as exempt from automatic lifecycle execution: the data
+
+        is retained until explicitly deleted. Used for app system data and for
+
+        compliance retention beyond the TTL/idle 2-year cap.'
+      properties:
+        never:
+          const: true
+          description: Never fire; retain the session indefinitely
+          title: Never
+          type: boolean
+      required:
+      - never
+      title: NeverTrigger
+      type: object
+    EventType:
+      description: The type of the event that triggers the notification.
+      enum:
+      - message
+      - tool_output
+      - status
+      properties:
+        id:
+          description: The ID of the event type.
+          type: string
+        label:
+          description: The display name of the event type.
+          type: string
+      required:
+      - id
+      - label
+      title: EventType
+      type: object
+    SessionDeduplicationErrorResponse:
+      description: 'Body returned with HTTP 409 when a session create collides on `deduplicationKey`.
+
+
+        Carries enough context for an HA-replica caller to adopt the existing winner
+
+        without a second round-trip: the live session''s id and a path to it.'
+      properties:
+        deduplicationKey:
+          description: The deduplication key that triggered the conflict.
+          title: Deduplicationkey
+          type: string
+        detail:
+          description: Human-readable explanation of the conflict.
+          title: Detail
+          type: string
+        errorName:
+          const: SessionDeduplicationConflict
+          default: SessionDeduplicationConflict
+          description: Stable machine-readable error name. Clients should switch on this, not detail.
+          title: Errorname
+          type: string
+        existingSessionId:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the live session already holding the key, or null if it could not be resolved (e.g. concurrently soft-deleted).
+          title: Existingsessionid
+        existingSessionUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Path to GET the existing session. Null when `existingSessionId` is null. Mirrors the `Location` response header (which is absolute).
+          title: Existingsessionurl
+      required:
+      - detail
+      - deduplicationKey
+      title: SessionDeduplicationErrorResponse
+      type: object
+    PaginatedResponse_MemorySpaceResponse_:
+      properties:
+        items:
+          description: List of items for the current page
+          items:
+            $ref: '#/components/schemas/MemorySpaceResponse'
+          maxItems: 100
+          title: Items
+          type: array
+        limit:
+          description: Maximum number of returned items
+          exclusiveMinimum: 0.0
+          title: Limit
+          type: integer
+        offset:
+          description: Number of skipped items
+          minimum: 0.0
+          title: Offset
+          type: integer
+        total:
+          description: Total number of matching items
+          title: Total
+          type: integer
+      required:
+      - items
+      - offset
+      - limit
+      - total
+      title: PaginatedResponse[MemorySpaceResponse]
+      type: object
+    UpdateEventRequest:
+      description: Schema for create event request.
+      properties:
+        body:
+          anyOf:
+          - $ref: '#/components/schemas/EventBody'
+          - type: 'null'
+          description: Updated event body.
+        emitter:
+          anyOf:
+          - $ref: '#/components/schemas/EmitterDataModel'
+          - type: 'null'
+          description: Updated emitter information.
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/EventType'
+          - type: 'null'
+          description: Updated event type.
+      title: UpdateEventRequest
+      type: object
+    MemorySearch:
+      description: 'Request body for POST /v2/memories/search/
+
+
+        extra="ignore" is set because the mem0 client injects org_id/project_id
+
+        fields that are not relevant for DataRobot.'
+      properties:
+        agentId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Agentid
+        appId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Appid
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Filters
+        query:
+          maxLength: 2000
+          minLength: 1
+          title: Query
+          type: string
+        rerank:
+          default: true
+          title: Rerank
+          type: boolean
+        runId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Runid
+        threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Threshold
+        topK:
+          anyOf:
+          - maximum: 50.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          title: Topk
+        userId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Userid
+      required:
+      - query
+      title: MemorySearch
+      type: object
+    MemorySpaceDeduplicationErrorResponse:
+      description: 'Body returned with HTTP 409 when a memory space create collides on `deduplicationKey`.
+
+
+        Carries enough context for an HA-replica caller to adopt the existing winner
+
+        without a second round-trip: the live space''s id and a path to it.'
+      properties:
+        deduplicationKey:
+          description: The deduplication key that triggered the conflict.
+          title: Deduplicationkey
+          type: string
+        detail:
+          description: Human-readable explanation of the conflict.
+          title: Detail
+          type: string
+        errorName:
+          const: MemorySpaceDeduplicationConflict
+          default: MemorySpaceDeduplicationConflict
+          description: Stable machine-readable error name. Clients should switch on this, not detail.
+          title: Errorname
+          type: string
+        existingMemorySpaceId:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the live memory space already holding the key, or null if it could not be resolved (e.g. concurrently soft-deleted).
+          title: Existingmemoryspaceid
+        existingMemorySpaceUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Path to GET the existing memory space. Null when `existingMemorySpaceId` is null. Mirrors the `Location` response header (which is absolute).
+          title: Existingmemoryspaceurl
+      required:
+      - detail
+      - deduplicationKey
+      title: MemorySpaceDeduplicationErrorResponse
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    CreateMemorySpaceRequest:
+      description: Request body for creating a Memory Space
+      properties:
+        customInstructions:
+          anyOf:
+          - maxLength: 10000
+            type: string
+          - type: 'null'
+          description: Custom prompt instructions used for fact extraction Null leaves mem0 on its default extraction prompt.
+          title: Custominstructions
+        deduplicationKey:
+          anyOf:
+          - maxLength: 72
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Optional key, unique per user, for idempotent memory space creation by coordinating HA agents. A second create with the same key returns 409.
+          title: Deduplicationkey
+        description:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: Optional description for the memory space.
+          title: Description
+        llmBaseUrl:
+          anyOf:
+          - format: uri
+            maxLength: 2083
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Chat API URL to use for memory extraction.
+          title: Llmbaseurl
+        llmModelName:
+          anyOf:
+          - maxLength: 200
+            type: string
+          - type: 'null'
+          description: Name of the LLM model to use for memory extraction. Non-reasoning models such as ``gpt-4o`` are recommended. Reasoning-capable models are significantly slower for fact extraction without producing meaningfully better results.
+          title: Llmmodelname
+      title: CreateMemorySpaceRequest
+      type: object
+    MemoryCreate:
+      description: Request body for POST /v1/memories — extracts facts from a conversation
+      properties:
+        agentId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Agentid
+        appId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Appid
+        expirationDate:
+          anyOf:
+          - maxLength: 40
+            type: string
+          - type: 'null'
+          title: Expirationdate
+        infer:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Infer
+        messages:
+          items:
+            $ref: '#/components/schemas/Message'
+          maxItems: 100
+          minItems: 1
+          title: Messages
+          type: array
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        runId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Runid
+        userId:
+          maxLength: 64
+          minLength: 1
+          title: Userid
+          type: string
+      required:
+      - userId
+      - messages
+      title: MemoryCreate
+      type: object
+    EventResponse:
+      description: Schema for event response.
+      properties:
+        body:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Event body content.
+          title: Body
+        createdAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Event creation timestamp.
+          title: Createdat
+        emitterId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Emitter identifier.
+          title: Emitterid
+        emitterType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Emitter type.
+          title: Emittertype
+        eventType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Event type.
+          title: Eventtype
+        id:
+          description: The event type as an ID.
+          type: string
+        label:
+          description: The event type for display.
+          type: string
+        requireMaxFrequency:
+          description: Indicates if an event requires max frequency setting.
+          type: boolean
+        sequenceId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Event sequence number within the session.
+          title: Sequenceid
+      required:
+      - id
+      - label
+      - requireMaxFrequency
+      title: EventResponse
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PaginatedResponse_SessionResponse_:
+      properties:
+        items:
+          description: List of items for the current page
+          items:
+            $ref: '#/components/schemas/SessionResponse'
+          maxItems: 100
+          title: Items
+          type: array
+        limit:
+          description: Maximum number of returned items
+          exclusiveMinimum: 0.0
+          title: Limit
+          type: integer
+        offset:
+          description: Number of skipped items
+          minimum: 0.0
+          title: Offset
+          type: integer
+        total:
+          description: Total number of matching items
+          title: Total
+          type: integer
+      required:
+      - items
+      - offset
+      - limit
+      - total
+      title: PaginatedResponse[SessionResponse]
+      type: object
+    UpdateMemorySpaceRequest:
+      additionalProperties: false
+      description: Request body for partially updating a Memory Space
+      properties:
+        customInstructions:
+          anyOf:
+          - maxLength: 10000
+            type: string
+          - type: 'null'
+          description: Updated custom prompt instructions used for fact extraction. Pass null to clear and revert to mem0's default extraction prompt.
+          title: Custominstructions
+        description:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: Updated description for the memory space.
+          title: Description
+        llmBaseUrl:
+          anyOf:
+          - format: uri
+            maxLength: 2083
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Chat API URL to use for memory extraction.
+          title: Llmbaseurl
+        llmModelName:
+          anyOf:
+          - maxLength: 200
+            type: string
+          - type: 'null'
+          description: Updated LLM model name. Non-reasoning models such as ``gpt-4o`` are recommended. Reasoning-capable models are significantly slower for fact extraction without producing meaningfully better results.
+          title: Llmmodelname
+      title: UpdateMemorySpaceRequest
+      type: object
+    MemoryGetAll:
+      description: 'Request body for POST /v2/memories
+
+
+        extra="ignore" is set because the mem0 client injects org_id/project_id
+
+        fields that are not relevant for DataRobot.'
+      properties:
+        agentId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Agentid
+        appId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Appid
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Filters
+        pageSize:
+          anyOf:
+          - maximum: 50.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          title: Pagesize
+        runId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Runid
+        topK:
+          anyOf:
+          - maximum: 50.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          title: Topk
+        userId:
+          anyOf:
+          - maxLength: 64
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Userid
+      title: MemoryGetAll
+      type: object
+    MemoryUpdate:
+      description: 'Request body for PUT /v1/memories/{memory_id}.
+
+
+        metadata and timestamp are accepted for mem0 client compatibility but not forwarded.'
+      properties:
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        text:
+          maxLength: 10000
+          minLength: 1
+          title: Text
+          type: string
+        timestamp:
+          anyOf:
+          - maxLength: 40
+            type: string
+          - type: 'null'
+          title: Timestamp
+      required:
+      - text
+      title: MemoryUpdate
+      type: object
+    EmitterDataModel:
+      description: Schema for emitter data.
+      properties:
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Emitter identifier (ObjectId format).
+          title: Id
+        type:
+          description: 'Emitter type. One of: ''user'', ''agent''.'
+          enum:
+          - user
+          - agent
+          title: Type
+          type: string
+      required:
+      - type
+      title: EmitterDataModel
+      type: object
+    IdleTimeoutTrigger:
+      additionalProperties: false
+      description: 'Trigger based on time since the last event in the session.
+
+
+        Fires when no new events were added to the session within the configured TTL.'
+      properties:
+        idle:
+          description: Time in seconds since last event. Values above the environment's configured maximum session TTL are rejected; see MAX_SESSION_TTL_SECONDS.
+          exclusiveMinimum: 0.0
+          maximum: 315360000.0
+          title: Idle
+          type: integer
+      required:
+      - idle
+      title: IdleTimeoutTrigger
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

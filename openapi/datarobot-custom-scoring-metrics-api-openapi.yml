@@ -1,0 +1,747 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Custom Scoring Metrics API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage custom scoring metrics.
+  name: custom_scoring_metrics
+paths:
+  /api/v2/customScoringMetrics/:
+    get:
+      description: List all custom scoring metrics, optionally filtered by target type or search.
+      operationId: customScoringMetrics_list
+      parameters:
+      - description: Filter by target type.
+        in: query
+        name: targetType
+        required: false
+        schema:
+          enum:
+          - Regression
+          - Binary
+          - Multiclass
+          - regression
+          - binary
+          - multiclass
+          type: string
+      - description: Search by metric name.
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+      - description: Include archived metrics.
+        in: query
+        name: isArchived
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: Pagination offset.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+      - description: Pagination limit.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+      - description: 'Field to sort by: ''name'' (alphabetical), ''count'' (metric count, numeric), ''createdAt'' or ''updatedAt'' (chronological).'
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          enum:
+          - name
+          - count
+          - createdAt
+          - updatedAt
+          type:
+          - string
+          - 'null'
+      - description: Sort direction (asc/desc). Defaults to asc.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type:
+          - string
+          - 'null'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricListResponse'
+          description: ''
+      summary: List custom scoring metrics
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+    post:
+      description: Create a new custom scoring metric container for a given target type.
+      operationId: customScoringMetrics_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomScoringMetricCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricResponse'
+          description: ''
+      summary: Create a custom scoring metric
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+  /api/v2/customScoringMetrics/{metricId}/:
+    delete:
+      description: Archive (soft-delete) a custom scoring metric.
+      operationId: customScoringMetrics_delete
+      parameters:
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete a custom scoring metric by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+    get:
+      description: Get details of a single custom scoring metric.
+      operationId: customScoringMetrics_retrieve
+      parameters:
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricResponse'
+          description: ''
+      summary: Retrieve a custom scoring metric by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+    patch:
+      description: Update the name, description, or tags of a custom scoring metric.
+      operationId: customScoringMetrics_patch
+      parameters:
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomScoringMetricUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricResponse'
+          description: ''
+      summary: Update a custom scoring metric by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+  /api/v2/customScoringMetrics/{metricId}/versions/:
+    get:
+      description: List all versions for a given custom scoring metric.
+      operationId: customScoringMetricsVersions_list
+      parameters:
+      - description: Pagination offset.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+      - description: Pagination limit.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricVersionListResponse'
+          description: ''
+      summary: List versions of a custom scoring metric by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+    post:
+      description: Upload metadata.yaml and custom_metrics.py to create a new version. Files are submitted as multipart form data (metadataFile and codeFile).
+      operationId: customScoringMetricsVersions_create
+      parameters:
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomScoringMetricVersionCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricVersionResponse'
+          description: ''
+      summary: Upload a new version of a custom scoring metric by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+  /api/v2/customScoringMetrics/{metricId}/versions/{versionId}/:
+    delete:
+      description: Delete a specific version of a custom scoring metric.
+      operationId: customScoringMetricsVersions_delete
+      parameters:
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom scoring metric version.
+        in: path
+        name: versionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete a custom scoring metric version by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+    get:
+      description: Get details of a single custom scoring metric version.
+      operationId: customScoringMetricsVersions_retrieve
+      parameters:
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom scoring metric version.
+        in: path
+        name: versionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricVersionResponse'
+          description: ''
+      summary: Retrieve a custom scoring metric version by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+  /api/v2/customScoringMetrics/{metricId}/versions/{versionId}/files/:
+    get:
+      description: Get the raw metadata.yaml and custom_metrics.py file contents for a specific custom scoring metric version.
+      operationId: customScoringMetricsVersionsFiles_list
+      parameters:
+      - description: The ID of the custom scoring metric.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom scoring metric version.
+        in: path
+        name: versionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomScoringMetricVersionFilesResponse'
+          description: ''
+      summary: Retrieve a custom scoring metric version's file contents by metric ID
+      tags:
+      - custom_scoring_metrics
+      x-versionadded: v2.47
+components:
+  schemas:
+    CustomScoringMetricResponse:
+      properties:
+        createdAt:
+          description: Creation timestamp.
+          type:
+          - string
+          - 'null'
+        createdByUser:
+          $ref: '#/components/schemas/RegistryUserIdentity'
+          x-versionadded: v2.47
+        description:
+          description: Description.
+          type:
+          - string
+          - 'null'
+        files:
+          default: []
+          description: File names from the latest valid version, if any.
+          items:
+            $ref: '#/components/schemas/RegistryFileItem'
+          maxItems: 2
+          type: array
+          x-versionadded: v2.47
+        id:
+          description: Metric ID.
+          type: string
+        isArchived:
+          description: Archived flag.
+          type: boolean
+        latestVersionNum:
+          description: Latest version number.
+          type: integer
+        metrics:
+          default: []
+          description: Metrics from the latest registered version.
+          items:
+            $ref: '#/components/schemas/RegistryMetricItem'
+          maxItems: 50
+          type: array
+          x-versionadded: v2.47
+        name:
+          description: Name.
+          type: string
+        organizationId:
+          description: Organization ID.
+          type:
+          - string
+          - 'null'
+        tags:
+          default: []
+          description: Tags.
+          items:
+            $ref: '#/components/schemas/CustomMetricTag'
+          maxItems: 50
+          type: array
+        targetType:
+          description: Target type.
+          enum:
+          - Regression
+          - Binary
+          - Multiclass
+          - regression
+          - binary
+          - multiclass
+          type: string
+        updatedAt:
+          description: Last updated timestamp.
+          type:
+          - string
+          - 'null'
+        updatedByUser:
+          $ref: '#/components/schemas/RegistryUserIdentity'
+          x-versionadded: v2.47
+        userId:
+          description: Creator user ID.
+          type: string
+      required:
+      - id
+      - isArchived
+      - latestVersionNum
+      - name
+      - targetType
+      - userId
+      type: object
+      x-versionadded: v2.47
+    CustomMetric:
+      properties:
+        description:
+          default: Untitled
+          description: Custom metric description.
+          type:
+          - string
+          - 'null'
+        entryPoint:
+          description: Custom metric function entry point in the python code on LRS.
+          type: string
+        label:
+          description: Custom metrics label, used as a key to identify the metric. Must be unique within the package.
+          type: string
+        lowerIsBetter:
+          default: true
+          description: Indicates whether to maximize or minimize the metric function.
+          type: boolean
+        name:
+          description: Custom metrics display name. Must be unique within the package and must not match a built-in DataRobot metric name. Independent of the python function name -- see entry_point for that.
+          type: string
+        primaryMetric:
+          description: Indicates whether this metric is used for project gridsearch hyperparameter search.
+          type: boolean
+        useWeights:
+          default: false
+          description: Indicates whether this metric is using weights.
+          type: boolean
+      required:
+      - entryPoint
+      - label
+      - name
+      - primaryMetric
+      type: object
+      x-versionadded: v2.47
+    RegistryMetricItem:
+      properties:
+        label:
+          description: Metric label, used as a key to identify the metric.
+          type: string
+        name:
+          description: Metric name.
+          type: string
+        primaryMetric:
+          description: Whether this metric is the optimization target.
+          type: boolean
+      required:
+      - label
+      - name
+      - primaryMetric
+      type: object
+      x-versionadded: v2.47
+    CustomScoringMetricVersionFilesResponse:
+      properties:
+        codeFileContents:
+          description: Raw contents of the custom metrics Python file.
+          type: string
+        codeFileName:
+          description: Code file name as stored in the catalog.
+          type: string
+        metadataFileContents:
+          description: Raw contents of the metadata file as a UTF-8 string.
+          type: string
+        metadataFileName:
+          description: Metadata file name as stored in the catalog.
+          type: string
+      required:
+      - codeFileContents
+      - codeFileName
+      - metadataFileContents
+      - metadataFileName
+      type: object
+      x-versionadded: v2.47
+    CustomScoringMetricVersionCreate:
+      properties:
+        description:
+          description: Version-level notes.
+          type:
+          - string
+          - 'null'
+      type: object
+      x-versionadded: v2.47
+    CustomScoringMetricUpdate:
+      properties:
+        description:
+          description: Updated description.
+          type:
+          - string
+          - 'null'
+        name:
+          description: Updated name.
+          maxLength: 255
+          minLength: 1
+          type: string
+        tags:
+          description: Updated tags.
+          items:
+            $ref: '#/components/schemas/CustomMetricTag'
+          maxItems: 50
+          type: array
+      type: object
+      x-versionadded: v2.47
+    RegistryUserIdentity:
+      description: Resolved identity of the creator.
+      properties:
+        email:
+          description: User email.
+          type: string
+        id:
+          description: User ID.
+          type: string
+      required:
+      - email
+      - id
+      type: object
+      x-versionadded: v2.47
+    CustomScoringMetricListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: A list of custom scoring metrics.
+          items:
+            $ref: '#/components/schemas/CustomScoringMetricResponse'
+          maxItems: 1000
+          type: array
+        metrics:
+          default: []
+          description: Metrics from the latest registered version.
+          items:
+            $ref: '#/components/schemas/RegistryMetricItem'
+          maxItems: 50
+          type: array
+          x-versionadded: v2.47
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+      x-versionadded: v2.47
+    CustomScoringMetricVersionListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: A list of custom scoring metric versions.
+          items:
+            $ref: '#/components/schemas/CustomScoringMetricVersionResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+      x-versionadded: v2.47
+    CustomMetricTag:
+      properties:
+        name:
+          description: Name of the tag.
+          maxLength: 255
+          minLength: 1
+          type: string
+        value:
+          description: Value of the tag.
+          type: string
+      required:
+      - name
+      - value
+      type: object
+      x-versionadded: v2.47
+    RegistryFileItem:
+      properties:
+        name:
+          description: File name.
+          type: string
+      required:
+      - name
+      type: object
+      x-versionadded: v2.47
+    CustomScoringMetricCreate:
+      properties:
+        description:
+          description: Description of the custom scoring metric.
+          type:
+          - string
+          - 'null'
+        name:
+          description: Name of the custom scoring metric.
+          maxLength: 255
+          minLength: 1
+          type: string
+        tags:
+          default: []
+          description: Optional tags for the custom scoring metric.
+          items:
+            $ref: '#/components/schemas/CustomMetricTag'
+          maxItems: 50
+          type: array
+        targetType:
+          description: Target type for this metric (Regression, Binary, or Multiclass).
+          enum:
+          - Regression
+          - Binary
+          - Multiclass
+          - regression
+          - binary
+          - multiclass
+          type: string
+      required:
+      - name
+      - targetType
+      type: object
+      x-versionadded: v2.47
+    CustomScoringMetricVersionResponse:
+      properties:
+        createdAt:
+          description: Creation timestamp.
+          type:
+          - string
+          - 'null'
+        customScoringMetricRegistryId:
+          description: Parent metric ID.
+          type: string
+        description:
+          description: Version notes.
+          type:
+          - string
+          - 'null'
+        filesCatalogId:
+          description: Files catalog ID backing this version.
+          type: string
+        filesCatalogVersionId:
+          description: Files catalog version ID.
+          type:
+          - string
+          - 'null'
+        id:
+          description: Version ID.
+          type: string
+        metrics:
+          default: []
+          description: Parsed metric definitions.
+          items:
+            $ref: '#/components/schemas/CustomMetric'
+          maxItems: 100
+          type: array
+        stage:
+          description: Lifecycle stage.
+          enum:
+          - draft
+          - Draft
+          - DRAFT
+          - registered
+          - Registered
+          - REGISTERED
+          - archived
+          - Archived
+          - ARCHIVED
+          type: string
+        targetType:
+          description: Target type.
+          enum:
+          - Regression
+          - Binary
+          - Multiclass
+          - regression
+          - binary
+          - multiclass
+          type: string
+        userId:
+          description: Creator user ID.
+          type:
+          - string
+          - 'null'
+        validationStatus:
+          description: Validation status.
+          enum:
+          - pending
+          - Pending
+          - PENDING
+          - valid
+          - Valid
+          - VALID
+          - invalid
+          - Invalid
+          - INVALID
+          type:
+          - string
+          - 'null'
+        versionNum:
+          description: Version number.
+          type: integer
+      required:
+      - customScoringMetricRegistryId
+      - filesCatalogId
+      - id
+      - stage
+      - targetType
+      - versionNum
+      type: object
+      x-versionadded: v2.47
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

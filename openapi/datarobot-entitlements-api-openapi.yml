@@ -1,0 +1,270 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Entitlements API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage entitlements.
+  name: Entitlements
+paths:
+  /api/v2/entitlements/applyEntitlementSets/:
+    post:
+      description: Request temporary entitlement leases for users within a tenant.
+      operationId: entitlementsApplyEntitlementSets_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyEntitlementSetLeaseRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementSetLeaseResponse'
+          description: Entitlement leases applied successfully.
+        '400':
+          description: Invalid request data.
+        '403':
+          description: Access denied.
+        '422':
+          description: Invalid parameters provided.
+        '500':
+          description: Service temporarily unavailable.
+      summary: Apply entitlement set leases
+      tags:
+      - Entitlements
+      x-versionadded: v2.38
+  /api/v2/entitlements/entitlementSetLeases/:
+    get:
+      description: Retrieve entitlement set leases with optional filtering by tenant, entitlement set, and status.
+      operationId: entitlementsEntitlementSetLeases_list
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementSetLeasesRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementSetLeasesResponse'
+          description: Entitlement set leases retrieved successfully.
+        '400':
+          description: Invalid request parameters.
+        '403':
+          description: Access denied.
+        '500':
+          description: Service temporarily unavailable.
+      summary: Retrieve entitlement set leases
+      tags:
+      - Entitlements
+      x-versionadded: v2.38
+  /api/v2/entitlements/evaluate/:
+    post:
+      description: Evaluate entitlements of the client requesting the API.
+      operationId: entitlementsEvaluate_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateEntitlementsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluateEntitlementsResponse'
+          description: Evaluation succeeded.
+      summary: Evaluate entitlements
+      tags:
+      - Entitlements
+      x-versionadded: v2.35
+components:
+  schemas:
+    EntitlementSetLeasesResponse:
+      properties:
+        count:
+          description: Number of items in current page
+          type: integer
+        data:
+          description: List of entitlement set leases
+          items:
+            $ref: '#/components/schemas/EntitlementSetLease'
+          maxItems: 1000
+          type: array
+        next:
+          description: URL for next page
+          type: string
+        previous:
+          description: URL for previous page
+          type: string
+        totalCount:
+          description: Total number of items
+          type: integer
+      required:
+      - count
+      - data
+      - totalCount
+      type: object
+      x-versionadded: v2.38
+    EvaluateEntitlementsRequest:
+      properties:
+        entitlements:
+          description: Entitlements to evaluate
+          items:
+            $ref: '#/components/schemas/Entitlement'
+          maxItems: 100
+          type: array
+      required:
+      - entitlements
+      type: object
+      x-versionadded: v2.35
+    Entitlement:
+      properties:
+        name:
+          description: Name of the entitlement to evaluate
+          type: string
+      required:
+      - name
+      type: object
+      x-versionadded: v2.35
+    EntitlementEvaluateResult:
+      properties:
+        name:
+          description: Name of the entitlement to evaluate
+          type: string
+        value:
+          description: The result of an entitlement evaluation.
+          oneOf:
+          - type: boolean
+      required:
+      - name
+      - value
+      type: object
+      x-versionadded: v2.35
+    EvaluateEntitlementsResponse:
+      properties:
+        entitlements:
+          description: Results of evaluation
+          items:
+            $ref: '#/components/schemas/EntitlementEvaluateResult'
+          maxItems: 100
+          type: array
+      required:
+      - entitlements
+      type: object
+      x-versionadded: v2.35
+    EntitlementSetLease:
+      properties:
+        createdAt:
+          description: Lease creation timestamp
+          type: string
+        createdBy:
+          description: Created by user
+          type: string
+        entitlementSetId:
+          description: UUID of the entitlement set
+          type: string
+        id:
+          description: UUID of the lease
+          type: string
+        lastLeaseEndDate:
+          description: Last lease end date timestamp
+          type: string
+        leaseCount:
+          description: Lease count
+          type: integer
+        status:
+          description: Status of the lease
+          type: string
+        tenantId:
+          description: UUID of the tenant
+          type: string
+        updatedAt:
+          description: Lease last update timestamp
+          type: string
+        updatedBy:
+          description: Updated by user
+          type: string
+        validFrom:
+          description: Lease valid from timestamp
+          type: string
+        validUntil:
+          description: Lease valid until timestamp
+          type: string
+      required:
+      - createdAt
+      - entitlementSetId
+      - id
+      - status
+      - tenantId
+      - updatedAt
+      type: object
+      x-versionadded: v2.38
+    ApplyEntitlementSetLeaseRequest:
+      properties:
+        acceptedTerms:
+          description: Indicates the requesting user has actively accepted the required terms and conditions for starting the trial.
+          type: boolean
+        durationDays:
+          description: Duration of the lease in days.
+          minimum: 1
+          type: integer
+        entitlementSetId:
+          description: UUID of the entitlement set to lease.
+          type: string
+        tenantId:
+          description: UUID of the tenant to apply entitlements to.
+          type: string
+      required:
+      - acceptedTerms
+      - durationDays
+      - entitlementSetId
+      type: object
+      x-versionadded: v2.38
+    EntitlementSetLeasesRequest:
+      properties:
+        entitlementSetId:
+          description: UUID of the entitlement set to filter leases by.
+          type: string
+        limit:
+          default: 100
+          description: Pagination limit (max 100).
+          maximum: 100
+          minimum: 1
+          type: integer
+        offset:
+          default: 0
+          description: Pagination offset.
+          minimum: 0
+          type: integer
+        status:
+          description: Status to filter leases by (e.g., ACTIVE, EXPIRED).
+          type: string
+        tenantId:
+          description: UUID of the tenant to filter leases by.
+          type: string
+      type: object
+      x-versionadded: v2.38
+    EntitlementSetLeaseResponse:
+      type: object
+      x-versionadded: v2.38
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

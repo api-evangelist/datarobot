@@ -1,0 +1,5129 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Blueprints API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: This page outlines DataRobot's endpoints for blueprints, a graphical representation of the many steps involved in transforming input predictors and targets into a model.
+  name: Blueprints
+paths:
+  /api/v2/customTasks/:
+    get:
+      description: 'Retrieve metadata for all accessible custom tasks.
+
+
+        For more information on custom tasks, access the UI documentation.'
+      operationId: customTasks_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Sort order which will be applied to custom task list, valid options are "created", "updated". Prefix the attribute name with a dash to sort in descending order, e.g. orderBy="-created". By default, the orderBy parameter is None which will result in custom tasks being returned in order of creation time descending.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - created
+          - -created
+          - updated
+          - -updated
+          type: string
+      - description: String to search for occurrence in custom task's description, language and name. Search is case insensitive. If not specified, all custom tasks will be returned.
+        in: query
+        name: searchFor
+        required: false
+        schema:
+          maxLength: 10000
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskListResponse'
+          description: OK.
+      summary: List custom tasks
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+    post:
+      description: 'Creates a new custom task and returns the newly created metadata record for it.
+
+
+        A custom task may either be an estimator or a transform. Estimators must support a single
+
+        target type (e.g., binary classification, regression).
+
+        Regression and anomaly detection models are
+
+        expected to produce predictions that are arbitrary floating-point or integer numbers.
+
+        A classification model is expected to return predictions with probability scores for each
+
+        class.
+
+
+        Transforms are expected to return a dataframe or sparse matrix with the same number
+
+        of rows as the input feature matrix. Only numeric outputs are supported
+
+        for custom transforms.'
+      operationId: customTasks_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTaskCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskResponse'
+          description: Custom task successfully created.
+        '403':
+          description: Custom task creation is not enabled.
+        '422':
+          description: Input parameters invalid
+      summary: Create a custom task
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTasks/fromCustomTask/:
+    post:
+      description: Creates a copy of the provided custom task, including metadata, versions of that task, and uploaded files. Associates the new versions with files owned by the custom task.
+      operationId: customTasksFromCustomTask_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTaskCopy'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskResponse'
+          description: Successfully created copy.
+      summary: Clone custom task
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTasks/{customTaskId}/:
+    delete:
+      description: Delete a custom task. Only users who have permission to edit custom task can delete it. Only custom tasks which are not currently deployed, used in a blueprint, or in the AIcatalog can be deleted. Relevant CustomTaskImage will be deleted also.
+      operationId: customTasks_delete
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Record deleted.
+        '409':
+          description: This custom task is currently deployed, trained, or part of a user blueprint, and cannot be deleted. The response body will contain link where these conflicts can be retrieved.
+      summary: Delete custom task by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+    get:
+      description: Retrieve metadata for a custom task
+      operationId: customTasks_retrieve
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskResponse'
+          description: OK.
+      summary: Get custom task by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+    patch:
+      description: 'Updates metadata for an existing custom task.
+
+
+        All custom tasks must support one target type (e.g. binaryClassification, regression, transform).
+
+
+        Setting `positiveClassLabel` and `negativeClassLabel` to null will set
+
+        the labels to their default values (1 and 0 for positiveClassLabel and negativeClassLabel,
+
+        respectively).
+
+
+        Setting `positiveClassLabel`, `negativeClassLabel`, `targetName` is disabled if task
+
+        has active deployments.'
+      operationId: customTasks_patch
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTaskUpdate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskResponse'
+          description: Created.
+        '422':
+          description: Input parameters are invalid.
+      summary: Update custom task by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTasks/{customTaskId}/accessControl/:
+    get:
+      description: Get a list of users who have access to this custom task and their roles on it.
+      operationId: customTasksAccessControl_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskAccessControlListResponse'
+          description: A list of users who have access to this custom task and their roles on it.
+        '400':
+          description: Both username and userId were specified.
+      summary: Get a list of users who have access by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.27
+    patch:
+      description: Grant access or update roles for users on this custom task and appropriate learning data. Up to 100 user roles may be set in a single request.
+      operationId: customTasksAccessControl_patchMany
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharingUpdateOrRemoveWithGrant'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '409':
+          description: The request would leave the custom task without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid.
+      summary: Grant access or update roles by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.27
+  /api/v2/customTasks/{customTaskId}/download/:
+    get:
+      description: Download the latest item bundle from a custom task as a zip compressed archive.
+      operationId: customTasksDownload_list
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The download succeeded.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename for this download ("attachment;filename=model-<model_id>-version-<version_id>.zip").
+              schema:
+                type: string
+      summary: Download the latest custom task version content by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTasks/{customTaskId}/versions/:
+    get:
+      description: List custom task versions.
+      operationId: customTasksVersions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskVersionListResponse'
+          description: OK.
+        '400':
+          description: Query parameters are invalid.
+      summary: List custom task versions by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+    patch:
+      description: Create a new custom task version with files added, replaced or deleted. Files from the previous version of a custom task will be used as a basis.
+      operationId: customTaskVersion_createFromLatest
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTaskVersionCreateFromLatest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskVersionResponse'
+          description: Item successfully created.
+        '413':
+          description: Item or collection of items was too large in size (bytes).
+        '422':
+          description: 'Cannot create the custom task version due to one or more errors. All error responses will have a "message" field and some may have optional fields. The optional fields include: ["errors", "dependencies", "invalidDependencies"]'
+      summary: Update custom task version files by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+    post:
+      description: Create a new custom task version with attached files if supplied.
+      operationId: customTasksVersions_create
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTaskVersionCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskVersionResponse'
+          description: Item successfully created.
+        '413':
+          description: Item or collection of items was too large in size (bytes).
+        '422':
+          description: 'Cannot create the custom task version due to one or more errors. All error responses will have a "message" field and some may have optional fields. The optional fields include: ["errors", "dependencies", "invalidDependencies"]'
+      summary: Create custom task version by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTasks/{customTaskId}/versions/fromRepository/:
+    patch:
+      description: Create a new custom task version with files added from a remote repository. Files from the previous version of a custom task will be used as a basis.
+      operationId: customTasksVersionsFromRepository_patchMany
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTaskVersionCreateFromRepository'
+      responses:
+        '202':
+          description: 'Accepted: request placed to a queue for processing.'
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '422':
+          description: Input parameters are invalid.
+      summary: Create custom task version from remote repository by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+    post:
+      description: Create a new custom task version with only files added from the specified remote repository.
+      operationId: customTasksVersionsFromRepository_create
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTaskVersionCreateFromRepository'
+      responses:
+        '202':
+          description: 'Accepted: request placed to a queue for processing.'
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '422':
+          description: Input parameters are invalid.
+      summary: Create a version from a repository
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTasks/{customTaskId}/versions/{customTaskVersionId}/:
+    get:
+      description: Display a requested version of a custom task along with the files attached to it.
+      operationId: customTasksVersions_retrieve
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom task version.
+        in: path
+        name: customTaskVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskVersionResponse'
+          description: OK.
+      summary: Get custom task version by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+    patch:
+      description: Edit metadata of a specific task version.
+      operationId: customTasksVersions_patch
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom task version.
+        in: path
+        name: customTaskVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTaskVersionMetadataUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskVersionResponse'
+          description: The edit was successful.
+        '404':
+          description: Custom task not found or user does not have edit permissions.
+      summary: Update custom task version by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTasks/{customTaskId}/versions/{customTaskVersionId}/dependencyBuild/:
+    delete:
+      description: Cancel the custom task version's dependency build.
+      operationId: customTasksVersionsDependencyBuild_deleteMany
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom task version.
+        in: path
+        name: customTaskVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Custom task version's dependency build was cancelled.
+        '409':
+          description: Custom task dependency build has reached a terminal state and cannot be cancelled.
+        '422':
+          description: No custom task dependency build started for specified version or dependency image is in use and cannot be deleted
+      summary: Cancel dependency build by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.27
+    get:
+      description: Retrieve the custom task version's dependency build status.
+      operationId: customTasksVersionsDependencyBuild_list
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom task version.
+        in: path
+        name: customTaskVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskVersionDependencyBuildMetadataResponse'
+          description: The metadata from the custom task version's dependency build.
+        '422':
+          description: Custom task dependency build has not started.
+      summary: Retrieve the custom task version's dependency build status by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.27
+    post:
+      description: Start a custom task version's dependency build. This is required to test, deploy, or train custom tasks.
+      operationId: customTasksVersionsDependencyBuild_create
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom task version.
+        in: path
+        name: customTaskVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTaskVersionDependencyBuildMetadataResponse'
+          description: Custom task version's dependency build has started.
+        '422':
+          description: Custom task dependency build has failed.
+      summary: Start a custom task version's dependency build by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.27
+  /api/v2/customTasks/{customTaskId}/versions/{customTaskVersionId}/dependencyBuildLog/:
+    get:
+      description: Retrieve the custom task version's dependency build log.
+      operationId: customTasksVersionsDependencyBuildLog_list
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom task version.
+        in: path
+        name: customTaskVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The log file generated during the custom task version's dependency build.
+        '404':
+          description: Dependency build is in progress or could not be found.
+        '422':
+          description: Custom task dependency build has not started.
+      summary: Retrieve the custom task version's dependency build log by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.27
+  /api/v2/customTasks/{customTaskId}/versions/{customTaskVersionId}/download/:
+    get:
+      description: Download a specific item bundle from a custom task as a zip compressed archive.
+      operationId: customTasksVersionsDownload_list
+      parameters:
+      - description: The ID of the custom task.
+        in: path
+        name: customTaskId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom task version.
+        in: path
+        name: customTaskVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The download succeeded.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename for this download ("attachment;filename=model-<model_id>-version-<version_id>.zip").
+              schema:
+                type: string
+      summary: Download custom task version content by custom task ID
+      tags:
+      - Blueprints
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the development of custom code for estimators and transforms.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TASKS
+      x-versionadded: v2.26
+  /api/v2/customTrainingBlueprints/:
+    get:
+      description: 'List custom training blueprints.
+
+
+        This route retrieves the metadata for all custom training blueprints a user has access to.'
+      operationId: customTrainingBlueprints_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: 'The list of blueprints for a specific model. Default: all.'
+        in: query
+        name: customModelId
+        required: false
+        schema:
+          type: string
+      - description: List blueprints in reverse order.
+        in: query
+        name: reverse
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Custom model target types to return.
+        in: query
+        name: targetTypes
+        required: false
+        schema:
+          items:
+            enum:
+            - Binary
+            - Regression
+            - Multiclass
+            - Anomaly
+            - Transform
+            - TextGeneration
+            - GeoPoint
+            - Unstructured
+            - VectorDatabase
+            - AgenticWorkflow
+            - MCP
+            - Multilabel
+            type: string
+          maxItems: 12
+          type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTrainingBlueprintListResponse'
+          description: Custom training blueprint list returned.
+      summary: List training blueprints
+      tags:
+      - Blueprints
+      x-versionadded: v2.21
+    post:
+      description: 'This route creates a blueprint from a custom training estimator with an environment
+
+        so that it can be trained via blueprint ID.'
+      operationId: customTrainingBlueprints_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTrainingBlueprintCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTrainingBlueprintResponse'
+          description: Blueprint successfully created.
+        '404':
+          description: Any of the entities in the request cannot be retrieved.
+        '422':
+          description: 'Input parameters are invalid: either the custom model is for inference or no environment version ID was specified and the given environment has no versions.'
+      summary: Create a blueprint
+      tags:
+      - Blueprints
+      x-versionadded: v2.21
+  /api/v2/imageAugmentationLists/:
+    get:
+      description: List of augmentation lists that match the specified query.
+      operationId: imageAugmentationLists_list
+      parameters:
+      - description: Project ID to retrieve augmentation lists from
+        in: query
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: Name of the image feature that the augmentation list is associated with
+        in: query
+        name: featureName
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. To specify no limit, use 0. The default may change without notice.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationListsResponse'
+          description: Image Augmentation Lists
+      summary: List of augmentation lists
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+    post:
+      description: Creates a new augmentation list based on the posted payload data.
+      operationId: imageAugmentationLists_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageAugmentationListsCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationListCreateResponse'
+          description: Augmentation list id
+        '422':
+          description: Unable to create image augmentation list with the given input
+      summary: Creates a new augmentation list based
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+  /api/v2/imageAugmentationLists/{augmentationId}/:
+    delete:
+      description: Delete an existing augmentation lists by id
+      operationId: imageAugmentationLists_delete
+      parameters:
+      - description: The id of the augmentation list to fetch
+        in: path
+        name: augmentationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The successful response is empty
+        '400':
+          description: Cannot delete an augmentation list that is marked as in_use.
+      summary: Delete an existing augmentation lists by id by augmentation ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+    get:
+      description: Returns a single augmentation list with the specified id.
+      operationId: imageAugmentationLists_retrieve
+      parameters:
+      - description: The id of the augmentation list to fetch
+        in: path
+        name: augmentationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationListsRetrieve'
+          description: Returns an augmentation list object
+      summary: Returns a single augmentation list by augmentation ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+    patch:
+      description: Update an existing augmentation list, with passed in values.
+      operationId: imageAugmentationLists_patch
+      parameters:
+      - description: The id of the augmentation list to fetch
+        in: path
+        name: augmentationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageAugmentationListPatchParam'
+      responses:
+        '204':
+          description: The successful response is empty
+      summary: Update an existing augmentation list by augmentation ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+  /api/v2/imageAugmentationLists/{augmentationId}/samples/:
+    get:
+      description: Retrieve latest Augmentation Samples generated for list
+      operationId: imageAugmentationListsSamples_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The id of the augmentation list
+        in: path
+        name: augmentationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationListsRetrieveSamplesResponse'
+          description: ''
+        '404':
+          description: Augmentation Samples not found
+      summary: Retrieve latest Augmentation Samples generated by augmentation ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+    post:
+      description: This endpoint will schedule a job to augment the specified images from a project's dataset and return a link to monitor the status of the job, as well as a link to retrieve the resulting augmented images.
+      operationId: imageAugmentationListsSamples_create
+      parameters:
+      - description: The id of the augmentation list
+        in: path
+        name: augmentationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageAugmentationListsCreateSamples'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationSamplesResponse'
+          description: Image Augmentation Samples generation has been successfully requested
+          headers:
+            Location:
+              description: URL that can be polled to check the status of the operation.
+              schema:
+                type: string
+      summary: Requests the creation of sample augmentations based by augmentation ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/imageAugmentationOptions/{projectId}/:
+    get:
+      description: Augmentation list of all available transformations that are supported in the system.
+      operationId: imageAugmentationOptions_retrieve
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationOptionsResponse'
+          description: Augmentation list object
+      summary: Augmentation list of all available transformations that are supported by…
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+  /api/v2/imageAugmentationSamples/:
+    post:
+      description: (Deprecated in v2.28) This endpoint will schedule a job to augment the specified images from a project's dataset and return a link to monitor the status of the job, as well as a link to retrieve the resulting augmented images.
+      operationId: imageAugmentationSamples_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageAugmentationSamplesRequest'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationSamplesResponse'
+          description: Image Augmentation Samples generation has been successfully requested
+          headers:
+            Location:
+              description: URL that can be polled to check the status of the operation.
+              schema:
+                type: string
+      summary: (Deprecated in v2
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+  /api/v2/imageAugmentationSamples/{samplesId}/:
+    get:
+      description: (Deprecated in v2.28) Retrieve previously generated Augmentation Samples. This route is being deprecated please use `GET /imageAugmentationLists//samples` route instead.
+      operationId: imageAugmentationSamples_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Id of the augmentation sample
+        in: path
+        name: samplesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageAugmentationRetrieveSamplesResponse'
+          description: ''
+        '404':
+          description: Augmentation Samples not found
+      summary: (Deprecated in v2 by samples ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.23
+  /api/v2/projects/{projectId}/blueprints/:
+    get:
+      description: List appropriate blueprints for the project.
+      operationId: projectsBlueprints_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BlueprintResponse'
+                type: array
+          description: The list of blueprints
+      summary: List blueprints by project ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.0
+  /api/v2/projects/{projectId}/blueprints/{blueprintId}/:
+    get:
+      description: Retrieve a blueprint by its ID.
+      operationId: projectsBlueprints_retrieve
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The blueprint ID.
+        in: path
+        name: blueprintId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlueprintResponse'
+          description: A blueprint based on its blueprint ID.
+        '404':
+          description: This resource does not exist.
+      summary: Retrieve a blueprint by its ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.6
+  /api/v2/projects/{projectId}/blueprints/{blueprintId}/blueprintChart/:
+    get:
+      description: Retrieve a blueprint chart by blueprint id.
+      operationId: projectsBlueprintsBlueprintChart_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The blueprint ID.
+        in: path
+        name: blueprintId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlueprintChartRetrieveResponse'
+          description: A blueprint chart based on the blueprint id.
+        '404':
+          description: No blueprint data found.
+      summary: Retrieve a blueprint chart by blueprint id
+      tags:
+      - Blueprints
+      x-versionadded: v2.6
+  /api/v2/projects/{projectId}/blueprints/{blueprintId}/blueprintDocs/:
+    get:
+      description: Retrieve blueprint tasks documentation.
+      operationId: projectsBlueprintsBlueprintDocs_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The blueprint ID.
+        in: path
+        name: blueprintId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BlueprintListDocumentsResponse'
+                type: array
+          description: The task documentation for a blueprint.
+        '404':
+          description: Model document missing.
+      summary: Retrieve blueprint tasks documentation by project ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.6
+  /api/v2/projects/{projectId}/blueprints/{blueprintId}/json/:
+    get:
+      description: Retrieve a blueprint json by its ID.
+      operationId: projectsBlueprintsJson_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The blueprint ID.
+        in: path
+        name: blueprintId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlueprintJsonResponse'
+          description: Blueprint json based on its blueprint ID.
+        '404':
+          description: This resource does not exist.
+      summary: Retrieve the JSON representation of a datarobot blueprint by project ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.31
+  /api/v2/projects/{projectId}/models/{modelId}/blueprintChart/:
+    get:
+      description: Retrieve a reduced model blueprint chart by model id. The model blueprint charts are reduced from the full blueprint charts to show only those sections of the blueprint that were actually used in the model, given the selected featurelist.
+      operationId: projectsModelsBlueprintChart_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The model ID.
+        in: path
+        name: modelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlueprintChartRetrieveResponse'
+          description: A reduced model blueprint chart based on the model id.
+        '404':
+          description: No model found for given projectId and modelId.
+      summary: Retrieve a reduced model blueprint chart by model id
+      tags:
+      - Blueprints
+      x-versionadded: v2.8
+  /api/v2/projects/{projectId}/models/{modelId}/blueprintDocs/:
+    get:
+      description: Retrieve task documentation for a reduced model blueprint. The model blueprint is reduced from the full blueprint to show only those sections of the blueprint that were actually used in the model, given the selected featurelist.
+      operationId: projectsModelsBlueprintDocs_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The model ID.
+        in: path
+        name: modelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BlueprintListDocumentsResponse'
+                type: array
+          description: The task documentation for a reduced model blueprint.
+        '404':
+          description: No model found for given projectId and modelId.
+      summary: Retrieve task documentation by project ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.8
+  /api/v2/projects/{projectId}/models/{modelId}/logs/:
+    get:
+      description: Retrieve an archive (tar.gz) of the logs produced and persisted by a model. Note that only blueprints with custom tasks create persistent logs - this will not work with any other type of model.
+      operationId: projectsModelsLogs_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The model ID.
+        in: path
+        name: modelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersistentLogsForModelWithCustomTasksRetrieveResponse'
+          description: An archive (tar.gz) of the logs produced and persisted by a model.
+        '403':
+          description: User does not have permissions to fetch model logs.
+        '404':
+          description: Logs for this model could not be found.
+      summary: Retrieve an archive (tar by project ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.21
+  /api/v2/projects/{projectId}/models/{modelId}/trainingArtifact/:
+    get:
+      description: Retrieve an archive (tar.gz) of the artifacts produced and persisted by a model. Note that only blueprints with custom tasks create these artifacts - this will not work with any other type of model.
+      operationId: projectsModelsTrainingArtifact_list
+      parameters:
+      - description: The project ID.
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+      - description: The model ID.
+        in: path
+        name: modelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactsForModelWithCustomTasksRetrieveResponse'
+          description: An archive (tar.gz) of the artifacts produced by this model.
+        '403':
+          description: User does not have permissions to fetch this artifact.
+        '404':
+          description: The model with this modelID does not have any artifacts.
+      summary: Retrieve training artifact by ID by project ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.21
+  /api/v2/userBlueprints/:
+    delete:
+      description: Delete user blueprints, specified by `userBlueprintIds`.
+      operationId: userBlueprints_deleteMany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintsBulkDelete'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsBulkDeleteResponse'
+          description: The list of user blueprints successfully and unsuccessfully deleted.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '422':
+          description: Unprocessable Entity.
+      summary: Delete user blueprints
+      tags:
+      - Blueprints
+      x-versionadded: v2.28
+    get:
+      description: Fetch the list of the user blueprints the current user has access to.
+      operationId: userBlueprints_list
+      parameters:
+      - description: The number of results to skip (for pagination).
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The max number of results to return.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          minimum: 0
+          type: integer
+      - description: The ID of the project, used to filter for original project_id.
+        in: query
+        name: projectId
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsListResponse'
+          description: Fetched the list of the accessible user blueprints successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+      summary: List user blueprints
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+    post:
+      description: Create a user blueprint.
+      operationId: userBlueprints_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsDetailedItem'
+          description: Created the user blueprint successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Project not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Create a user blueprint
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprints/fromBlueprintId/:
+    post:
+      description: Clone a blueprint from a project.
+      operationId: userBlueprintsFromBlueprintId_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintCreateFromBlueprintId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsDetailedItem'
+          description: Created the user blueprint successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Project or blueprint not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Clone a blueprint
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprints/fromCustomTaskVersionId/:
+    post:
+      description: Create a user blueprint from a single custom task.
+      operationId: userBlueprintsFromCustomTaskVersionId_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintCreateFromCustomTaskVersionIdPayload'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsDetailedItem'
+          description: Created the user blueprint successfully
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Custom task version or custom task not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Create a user blueprint
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprints/fromUserBlueprintId/:
+    post:
+      description: Clone a user blueprint.
+      operationId: userBlueprintsFromUserBlueprintId_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintCreateFromUserBlueprintId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsDetailedItem'
+          description: Created the user blueprint successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: User blueprint or project not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Clone a user blueprint
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprints/{userBlueprintId}/:
+    delete:
+      description: Delete a user blueprint, specified by the `userBlueprintId`.
+      operationId: userBlueprints_delete
+      parameters:
+      - description: Used to identify a specific user-owned blueprint.
+        in: path
+        name: userBlueprintId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successfully deleted the specified blueprint, if it existed.
+      summary: Delete a user blueprint by user blueprint ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+    get:
+      description: Retrieve a user blueprint.
+      operationId: userBlueprints_retrieve
+      parameters:
+      - description: Whether to retrieve the extra blueprint metadata for editing.
+        in: query
+        name: editMode
+        required: true
+        schema:
+          default: false
+          type: boolean
+      - description: Whether to retrieve the blueprint in the decompressed format.
+        in: query
+        name: decompressedBlueprint
+        required: true
+        schema:
+          default: false
+          type: boolean
+      - description: String representation of ObjectId for the currently active project. The user blueprint is retrieved when this project is active.
+        in: query
+        name: projectId
+        required: false
+        schema:
+          type: string
+      - description: Whether the request is sent from the in place user BP editor.
+        in: query
+        name: isInplaceEditor
+        required: true
+        schema:
+          default: false
+          type: boolean
+      - description: Whether to add dynamic labels to a decompressed blueprint.
+        in: query
+        name: getDynamicLabels
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: Used to identify a specific user-owned blueprint.
+        in: path
+        name: userBlueprintId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsRetrieveResponse'
+          description: Retrieved the user blueprint successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Referenced project or user blueprint not found.
+      summary: Retrieve a user blueprint by user blueprint ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+    patch:
+      description: Update a user blueprint.
+      operationId: userBlueprints_patch
+      parameters:
+      - description: Used to identify a specific user-owned blueprint.
+        in: path
+        name: userBlueprintId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsDetailedItem'
+          description: Updated the user blueprint successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: User blueprint not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Update a user blueprint by user blueprint ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprints/{userBlueprintId}/sharedRoles/:
+    get:
+      description: Get the list of users, groups and organizations that have access to this user blueprint.
+      operationId: userBlueprintsSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: Used to identify a specific user-owned blueprint.
+        in: path
+        name: userBlueprintId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintSharedRolesListResponse'
+          description: Successfully retrieved roles.
+      summary: Get the list of users, groups and organizations by user blueprint ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+    patch:
+      description: Share a user blueprint with a user, group, or organization.
+      operationId: userBlueprintsSharedRoles_patchMany
+      parameters:
+      - description: Used to identify a specific user-owned blueprint.
+        in: path
+        name: userBlueprintId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdate'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '400':
+          description: Bad Request
+        '403':
+          description: User can view entity but does not have permission to grant these roles on the entity.
+        '404':
+          description: Either the entity does not exist or the user does not have permissions to view the entity.
+        '409':
+          description: The request would leave the entity without an owner.
+        '422':
+          description: The request was formatted improperly.
+      summary: Share a user blueprint by user blueprint ID
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprintsBulkValidations/:
+    post:
+      description: Validate many user blueprints, optionally using a specific project. Any non-existent or inaccessible user blueprints will be ignored.
+      operationId: userBlueprintsBulkValidations_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintBulkValidationRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsBulkValidationResponse'
+          description: Validated many user blueprints successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Referenced project was not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Validate many user blueprints
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprintsInputTypes/:
+    get:
+      description: Retrieve the input types which can be used with User Blueprints.
+      operationId: userBlueprintsInputTypes_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsInputTypesResponse'
+          description: Successfully retrieved the input types.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+      summary: Retrieve input types
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprintsProjectBlueprints/:
+    post:
+      description: Add the list of user blueprints, by ID, to a specified (by ID) project's repository.
+      operationId: userBlueprintsProjectBlueprints_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintAddToMenu'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintAddToMenuResponse'
+          description: Successfully added the user blueprints to the project's repository.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Referenced project not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Add user blueprints
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprintsTaskParameters/:
+    post:
+      description: Validate that each value assigned to specified task parameters are valid.
+      operationId: userBlueprintsTaskParameters_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintTaskParameterValidation'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsValidateTaskParametersResponse'
+          description: Accepted validation parameters for a task in the context of User Blueprints.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Custom task version not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Validate task parameters
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprintsTasks/:
+    get:
+      description: Retrieve the available tasks, organized into categories, which can be used to create or modify User Blueprints.
+      operationId: userBlueprintsTasks_list
+      parameters:
+      - description: The project ID to use for task retrieval.
+        in: query
+        name: projectId
+        required: false
+        schema:
+          type: string
+      - description: The blueprint ID to use for task retrieval.
+        in: query
+        name: blueprintId
+        required: false
+        schema:
+          type: string
+      - description: The user blueprint ID to use for task retrieval.
+        in: query
+        name: userBlueprintId
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintTasksResponse'
+          description: Successfully retrieved the tasks.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Referenced project or user blueprint not found.
+      summary: Retrieve tasks
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+  /api/v2/userBlueprintsValidations/:
+    post:
+      description: Validate a user blueprint.
+      operationId: userBlueprintsValidations_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBlueprintValidation'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlueprintsValidationResponse'
+          description: Validated the user blueprint successfully.
+        '401':
+          description: User is not authorized.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Referenced project not found.
+        '422':
+          description: Unprocessable Entity.
+      summary: Validate a user blueprint
+      tags:
+      - Blueprints
+      x-versionadded: v2.27
+components:
+  schemas:
+    NodeDescription:
+      properties:
+        id:
+          description: The ID of the node.
+          type: string
+        label:
+          description: The label of the node.
+          type: string
+      required:
+      - id
+      - label
+      type: object
+    ColnameAndType:
+      properties:
+        colname:
+          description: The column name.
+          type: string
+        hex:
+          description: A safe hex representation of the column name.
+          type: string
+        type:
+          description: The data type of the column.
+          type: string
+      required:
+      - colname
+      - hex
+      - type
+      type: object
+    CustomTaskCopy:
+      properties:
+        customTaskId:
+          description: The ID of the custom task to copy.
+          type: string
+      required:
+      - customTaskId
+      type: object
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    UserBlueprintUpdate:
+      properties:
+        blueprint:
+          description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+          oneOf:
+          - description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+            items:
+              $ref: '#/components/schemas/UserBlueprintsBlueprintTask'
+            type: array
+          - $ref: '#/components/schemas/AllowExtra'
+        decompressedBlueprint:
+          default: false
+          description: Whether to retrieve the blueprint in the decompressed format.
+          type: boolean
+        description:
+          description: The description to give to the blueprint.
+          type: string
+        getDynamicLabels:
+          default: false
+          description: Whether to add dynamic labels to a decompressed blueprint.
+          type: boolean
+        isInplaceEditor:
+          default: false
+          description: Whether the request is sent from the in place user BP editor.
+          type: boolean
+        modelType:
+          description: The title to give to the blueprint.
+          maxLength: 1000
+          type: string
+        projectId:
+          description: String representation of ObjectId for the currently active project. The user blueprint is created when this project is active. Necessary in the event of project specific tasks, such as column selection tasks.
+          type:
+          - string
+          - 'null'
+        saveToCatalog:
+          default: true
+          description: Whether to save the blueprint to the catalog.
+          type: boolean
+      required:
+      - decompressedBlueprint
+      - isInplaceEditor
+      - saveToCatalog
+      type: object
+    CustomTaskAccessControlListResponse:
+      properties:
+        count:
+          description: Number of items in current page.
+          type: integer
+        data:
+          description: List of the requested custom task access control entries.
+          items:
+            $ref: '#/components/schemas/CustomTaskAccessControlResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: URL pointing to the next page (if null, there is no next page)
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: URL pointing to the previous page (if null, there is no previous page
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - count
+      - data
+      - next
+      - previous
+      type: object
+    UserBlueprintsListItem:
+      properties:
+        blender:
+          default: false
+          description: Whether the blueprint is a blender.
+          type: boolean
+        blueprintId:
+          description: The deterministic ID of the blueprint, based on its content.
+          type: string
+        customTaskVersionMetadata:
+          description: An association of custom entity ids and task ids.
+          items:
+            items:
+              type: string
+            maxItems: 2
+            minItems: 2
+            type: array
+          type: array
+        decompressedFormat:
+          default: false
+          description: Whether the blueprint is in the decompressed format.
+          type: boolean
+        diagram:
+          description: The diagram used by the UI to display the blueprint.
+          type: string
+        features:
+          description: The list of the names of tasks used in the blueprint.
+          items:
+            type: string
+          type: array
+        featuresText:
+          description: The description of the blueprint via the names of tasks used.
+          type: string
+        hexColumnNameLookup:
+          description: The lookup between hex values and data column names used in the blueprint.
+          items:
+            $ref: '#/components/schemas/UserBlueprintsHexColumnNameLookupEntry'
+          type: array
+        hiddenFromCatalog:
+          description: If true, the blueprint will not show up in the catalog.
+          type: boolean
+        icons:
+          description: The icon(s) associated with the blueprint.
+          items:
+            type: integer
+          type: array
+        insights:
+          description: An indication of the insights generated by the blueprint.
+          type: string
+        isTimeSeries:
+          default: false
+          description: Whether the blueprint contains time-series tasks.
+          type: boolean
+        linkedToProjectId:
+          description: Whether the user blueprint is linked to a project.
+          type: boolean
+        modelType:
+          description: The generated or provided title of the blueprint.
+          type: string
+        projectId:
+          description: The ID of the project the blueprint was originally created with, if applicable.
+          type:
+          - string
+          - 'null'
+        referenceModel:
+          default: false
+          description: Whether the blueprint is a reference model.
+          type: boolean
+        shapSupport:
+          default: false
+          description: Whether the blueprint supports shapley additive explanations.
+          type: boolean
+        supportedTargetTypes:
+          description: The list of supported targets of the current blueprint.
+          items:
+            enum:
+            - binary
+            - multiclass
+            - multilabel
+            - nonnegative
+            - regression
+            - unsupervised
+            - unsupervisedClustering
+            type: string
+          type: array
+        supportsGpu:
+          default: false
+          description: Whether the blueprint supports execution on the GPU.
+          type: boolean
+        supportsNewSeries:
+          description: Whether the blueprint supports new series.
+          type: boolean
+        userBlueprintId:
+          description: The unique ID associated with the user blueprint.
+          type: string
+        userId:
+          description: The ID of the user who owns the blueprint.
+          type: string
+      required:
+      - blender
+      - blueprintId
+      - decompressedFormat
+      - diagram
+      - features
+      - featuresText
+      - icons
+      - insights
+      - isTimeSeries
+      - modelType
+      - referenceModel
+      - shapSupport
+      - supportedTargetTypes
+      - supportsGpu
+      - userBlueprintId
+      - userId
+      type: object
+    VertexContextItemMessages:
+      properties:
+        errors:
+          description: Errors with a specific vertex in the blueprint. Execution of the vertex is expected to fail.
+          items:
+            type: string
+          type: array
+        warnings:
+          description: Warnings about a specific vertex in the blueprint. Execution of the vertex may fail or behave unexpectedly.
+          items:
+            type: string
+          type: array
+      type: object
+    UserBlueprintCreateFromUserBlueprintId:
+      properties:
+        decompressedBlueprint:
+          default: false
+          description: Whether to retrieve the blueprint in the decompressed format.
+          type: boolean
+        description:
+          description: The description to give to the blueprint.
+          type: string
+        getDynamicLabels:
+          default: false
+          description: Whether to add dynamic labels to a decompressed blueprint.
+          type: boolean
+        isInplaceEditor:
+          default: false
+          description: Whether the request is sent from the in place user BP editor.
+          type: boolean
+        modelType:
+          description: The title to give to the blueprint.
+          maxLength: 1000
+          type: string
+        projectId:
+          description: String representation of ObjectId for the currently active project. The user blueprint is created when this project is active. Necessary in the event of project specific tasks, such as column selection tasks.
+          type:
+          - string
+          - 'null'
+        saveToCatalog:
+          default: true
+          description: Whether to save the blueprint to the catalog.
+          type: boolean
+        userBlueprintId:
+          description: The ID of the existing user blueprint to copy.
+          type: string
+      required:
+      - decompressedBlueprint
+      - isInplaceEditor
+      - saveToCatalog
+      - userBlueprintId
+      type: object
+    ArtifactsForModelWithCustomTasksRetrieveResponse:
+      properties:
+        data:
+          description: An archive (tar.gz) of the artifacts produced and persisted by a model.
+          format: binary
+          type: string
+      required:
+      - data
+      type: object
+    ImageAugmentationRetrieveSamplesResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: Augmentation samples list
+          items:
+            $ref: '#/components/schemas/ImageAugmentationRetrieveSamplesItem'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    RequiredMetadataValue:
+      properties:
+        fieldName:
+          description: The required field name. This value will be added as an environment variable when running custom models.
+          type: string
+        value:
+          description: The value for the given field.
+          maxLength: 100
+          type: string
+      required:
+      - fieldName
+      - value
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    UserBlueprintSharedRolesListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of SharedRoles objects.
+          items:
+            $ref: '#/components/schemas/UserBlueprintSharedRolesResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    UserBlueprintTaskArgumentDefinition:
+      properties:
+        default:
+          description: The default value of the argument.
+          oneOf:
+          - anyOf:
+            - type: string
+            - type: integer
+            - type: boolean
+            - type: number
+            - type: 'null'
+          - items:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: boolean
+              - type: number
+              - type: 'null'
+            type: array
+          - type: 'null'
+        name:
+          description: The name of the argument.
+          type: string
+        recommended:
+          description: The recommended value, based on frequently used values.
+          oneOf:
+          - anyOf:
+            - type: string
+            - type: integer
+            - type: boolean
+            - type: number
+            - type: 'null'
+          - items:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: boolean
+              - type: number
+              - type: 'null'
+            type: array
+          - type: 'null'
+        tunable:
+          description: Whether the argument is tunable by the end-user.
+          type: boolean
+        type:
+          description: The type of the argument (e.g., "int", "float", "select", "intgrid", "multi", etc.).
+          type: string
+        values:
+          description: The possible values of the argument, which may be a range, a list, or a dictionary of ranges or lists keyed by type.
+          oneOf:
+          - anyOf:
+            - type: string
+            - type: integer
+            - type: boolean
+            - type: number
+            - type: 'null'
+          - items:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: boolean
+              - type: number
+              - type: 'null'
+            type: array
+          - $ref: '#/components/schemas/AllowExtra'
+      required:
+      - name
+      - type
+      - values
+      type: object
+    ImageAugmentationOptionsTransformation:
+      properties:
+        affectedByTransformationProbability:
+          description: 'If true, whenever this transformation is included in an augmentation list, this transformation will be applied to each image with probability set by the Transformation Probability. If false, whenever this transformation is included in an augmentation list, this transformation will be applied to each image with probability described in the Platform Documentation here: https://docs.datarobot.com/en/docs/modeling/special-workflows/visual-ai/tti-augment/ttia-lists.html#transformations'
+          type: boolean
+        enabledByDefault:
+          description: Determines if the parameter should be default selected in the UI
+          type: boolean
+        name:
+          description: The name of the transformation
+          type: string
+        params:
+          description: The list of parameters that control the transformation
+          items:
+            $ref: '#/components/schemas/ImageAugmentationOptionsTransformationParam'
+          type: array
+        translatedName:
+          description: Translated name of the transformation
+          type: string
+      required:
+      - affectedByTransformationProbability
+      - enabledByDefault
+      - name
+      - params
+      - translatedName
+      type: object
+    ImageAugmentationOptionsTransformationParam:
+      properties:
+        currentValue:
+          anyOf:
+          - type: integer
+          - type: number
+          description: Current transformation value
+        maxValue:
+          anyOf:
+          - type: integer
+          - type: number
+          description: Max transformation value
+        minValue:
+          anyOf:
+          - type: integer
+          - type: number
+          description: Min transformation value
+        name:
+          description: Transformation param name
+          type: string
+        translatedName:
+          description: Translated name of the parameter
+          type: string
+        type:
+          description: The type of the parameter (int, float, etc...)
+          type: string
+      required:
+      - name
+      - translatedName
+      - type
+      type: object
+    UserBlueprintAddedToMenuItem:
+      properties:
+        blueprintId:
+          description: The blueprintId representing the blueprint which was added to the project repository.
+          type: string
+        userBlueprintId:
+          description: The userBlueprintId associated with the blueprintId added to the project repository.
+          type: string
+      required:
+      - blueprintId
+      - userBlueprintId
+      type: object
+    UserBlueprintTaskCustomTaskMetadataWithArguments:
+      properties:
+        id:
+          description: Id of the custom task version. The ID can be latest_<task_id> which implies to use the latest version of that custom task.
+          type: string
+        label:
+          description: The name of the custom task version.
+          type: string
+        versionMajor:
+          description: Major version of the custom task.
+          type: integer
+        versionMinor:
+          description: Minor version of the custom task.
+          type: integer
+      required:
+      - id
+      - label
+      - versionMajor
+      - versionMinor
+      type: object
+    UserBlueprintBulkValidationRequest:
+      properties:
+        projectId:
+          description: String representation of ObjectId for the currently active project. The user blueprint is validated when this project is active. Necessary in the event of project specific tasks, such as column selection tasks.
+          type: string
+        userBlueprintIds:
+          description: The IDs of the user blueprints to validate in bulk.
+          items:
+            description: The ID of one user blueprint to validate.
+            type: string
+          type: array
+      required:
+      - userBlueprintIds
+      type: object
+    CustomModelShortResponse:
+      description: Custom model associated with this deployment.
+      properties:
+        id:
+          description: The ID of the custom model.
+          type: string
+        name:
+          description: User-friendly name of the model.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    CustomTaskVersionMetadataUpdate:
+      properties:
+        description:
+          description: New description for the custom task or model.
+          maxLength: 10000
+          type: string
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          type: object
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          items:
+            $ref: '#/components/schemas/RequiredMetadataValue'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+      type: object
+    TransformationParam:
+      properties:
+        currentValue:
+          anyOf:
+          - type: integer
+          - type: number
+          description: Current transformation value
+        maxValue:
+          anyOf:
+          - type: integer
+          - type: number
+          description: Max transformation value
+        minValue:
+          anyOf:
+          - type: integer
+          - type: number
+          description: Min transformation value
+        name:
+          description: Transformation param name
+          type: string
+      required:
+      - name
+      type: object
+    UserBlueprintsBulkDeleteResponse:
+      properties:
+        failedToDelete:
+          description: The list of IDs of User Blueprints which failed to be deleted.
+          items:
+            description: An ID of a User Blueprint which failed to be deleted.
+            type: string
+          type: array
+        successfullyDeleted:
+          description: The list of IDs of User Blueprints successfully deleted.
+          items:
+            description: An ID of a User Blueprint successfully deleted.
+            type: string
+          type: array
+      required:
+      - failedToDelete
+      - successfullyDeleted
+      type: object
+    BlueprintJsonResponse:
+      properties:
+        blueprint:
+          description: JSON blueprint representation of the model.
+          example: "\n                {\n                    \"1\": [[\"NUM\"], [\"PNI2\"], \"T\"],\n                    \"2\": [[\"1\"], [\"LASSO2\"], \"P\"],\n                }\n            "
+          type: object
+          x-versionadded: v2.31
+      required:
+      - blueprint
+      type: object
+    CustomTrainingBlueprintResponse:
+      properties:
+        createdAt:
+          description: ISO-8601 timestamp of when the blueprint was created.
+          type: string
+        customModel:
+          $ref: '#/components/schemas/CustomModelShortResponse'
+        customModelVersion:
+          $ref: '#/components/schemas/CustomModelVersionShortResponse'
+        executionEnvironment:
+          $ref: '#/components/schemas/ExecutionEnvironmentShortResponse'
+        executionEnvironmentVersion:
+          $ref: '#/components/schemas/ExecutionEnvironmentVersionShortResponse'
+        targetType:
+          description: The target type of the training model.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Anomaly
+          - Transform
+          - TextGeneration
+          - GeoPoint
+          - Unstructured
+          - VectorDatabase
+          - AgenticWorkflow
+          - MCP
+          - Multilabel
+          type: string
+        trainingHistory:
+          description: List of instances of this blueprint having been trained.
+          items:
+            $ref: '#/components/schemas/TrainingHistoryEntry'
+          maxItems: 1000
+          type: array
+        userBlueprintId:
+          description: User Blueprint ID that can be used to train the model.
+          type: string
+      required:
+      - createdAt
+      - customModel
+      - customModelVersion
+      - executionEnvironment
+      - executionEnvironmentVersion
+      - targetType
+      - trainingHistory
+      - userBlueprintId
+      type: object
+    UserBlueprintTaskLookupEntry:
+      properties:
+        taskCode:
+          description: The unique code which represents the task to be constructed and executed
+          type: string
+        taskDefinition:
+          description: A definition of a task in terms of label, arguments, description, and other metadata.
+          oneOf:
+          - $ref: '#/components/schemas/UserBlueprintTask'
+      required:
+      - taskCode
+      - taskDefinition
+      type: object
+    ParamValuePair:
+      properties:
+        param:
+          description: The name of a field associated with the value.
+          type: string
+        value:
+          description: Any value.
+          oneOf:
+          - anyOf:
+            - type: string
+            - type: integer
+            - type: boolean
+            - type: number
+            - type: 'null'
+          - items:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: boolean
+              - type: number
+              - type: 'null'
+            type: array
+      required:
+      - param
+      - value
+      type: object
+    TrainingHistoryEntry:
+      properties:
+        creationDate:
+          description: ISO-8601 timestamp of when the project the blueprint was trained on was created.
+          type: string
+        lid:
+          description: The leaderboard ID the blueprint was trained on.
+          type: string
+        pid:
+          description: The project ID the blueprint was trained on.
+          type: string
+        projectModelsCount:
+          description: Number of models in the project the blueprint was trained on.
+          type: integer
+        projectName:
+          description: The project name the blueprint was trained on.
+          type: string
+        targetName:
+          description: The target name of the project the blueprint was trained on.
+          type: string
+      required:
+      - creationDate
+      - lid
+      - pid
+      - projectModelsCount
+      - projectName
+      - targetName
+      type: object
+    CustomTaskListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of custom tasks.
+          items:
+            $ref: '#/components/schemas/CustomTaskResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ImageAugmentationSamplesResponse:
+      properties:
+        statusId:
+          description: Id of the newly created augmentation samples which can be used to retrieve the full set of sample images.
+          type: string
+      required:
+      - statusId
+      type: object
+    UserBlueprintsBulkValidationResponse:
+      properties:
+        data:
+          description: A list of validation responses with their associated User Blueprint ID.
+          items:
+            $ref: '#/components/schemas/UserBlueprintsBulkValidationResponseItem'
+          type: array
+      required:
+      - data
+      type: object
+    BlueprintChartRetrieveResponse:
+      properties:
+        edges:
+          description: An array of chart edges - tuples of (start_id, end_id).
+          items:
+            items:
+              type: string
+            maxItems: 2
+            minItems: 2
+            type: array
+          type: array
+        nodes:
+          description: An array of node descriptions.
+          items:
+            $ref: '#/components/schemas/NodeDescription'
+          type: array
+      required:
+      - edges
+      - nodes
+      type: object
+    ImageAugmentationListsRetrieveSamplesResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: Augmentation samples list
+          items:
+            $ref: '#/components/schemas/ImageAugmentationRetrieveSamplesItem'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    Transformation:
+      properties:
+        enabled:
+          default: false
+          description: Whether this transformation is enabled by default
+          type: boolean
+        name:
+          description: Transformation name
+          type: string
+        params:
+          description: Config values for transformation
+          items:
+            $ref: '#/components/schemas/TransformationParam'
+          type: array
+      required:
+      - name
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    ImageAugmentationListPatchParam:
+      properties:
+        featureName:
+          description: The name of the image feature containing the data to be augmented
+          type: string
+        inUse:
+          description: This parameter was deprecated. You can still pass a value, but it will be ignored. DataRobot will takes care of the value itself.
+          type: boolean
+          x-versiondeprecated: 2.30.0
+        initialList:
+          description: Whether this list will be used during autopilot to perform image augmentation
+          type: boolean
+        name:
+          description: The name of the image augmentation list
+          type: string
+        numberOfNewImages:
+          description: Number of new rows to add for each existing row
+          minimum: 0
+          type: integer
+        projectId:
+          description: This parameter was deprecated. You can still pass a value, but it will be ignored. If you want to move an augmentation list to another project you can create a new list in the other project and delete the list in this project.
+          type: string
+          x-versiondeprecated: 2.30.0
+        transformationProbability:
+          description: Probability that each enabled transformation will be applied to an image. This does not apply to Horizontal or Vertical Flip, which are set to 50% always.
+          maximum: 1
+          minimum: 0
+          type: number
+        transformations:
+          description: List of Transformations to possibly apply to each image
+          items:
+            $ref: '#/components/schemas/Transformation'
+          type: array
+      type: object
+    UserBlueprintSharedRolesResponse:
+      properties:
+        id:
+          description: The ID of the recipient organization, group or user.
+          type: string
+        name:
+          description: The name of the recipient organization, group or user.
+          type: string
+        role:
+          description: The role of the org/group/user on this dataset or "NO_ROLE" for removing access when used with route to modify access.
+          enum:
+          - CONSUMER
+          - EDITOR
+          - OWNER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    ImageAugmentationListsCreateSamples:
+      properties:
+        numberOfRows:
+          description: Number of images from the original dataset to be augmented
+          minimum: 1
+          type: integer
+      required:
+      - numberOfRows
+      type: object
+    ImageAugmentationListCreateResponse:
+      properties:
+        augmentationListId:
+          description: "\n                Id of the newly created augmentation list which can be used to:\n                - retrieve the full augmentation list details;\n                - retrieve augmentation previews;\n                - to set the list id of a model in advanced tuning;\n                - to delete or rename the list.\n            "
+          type: string
+      required:
+      - augmentationListId
+      type: object
+    ExecutionEnvironmentVersionShortResponse:
+      description: Execution environment version associated with this deployment.
+      properties:
+        id:
+          description: The ID of the execution environment version.
+          type: string
+        label:
+          description: User-friendly name of the execution environment version.
+          type: string
+      required:
+      - id
+      - label
+      type: object
+    CustomTrainingBlueprintListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of training model blueprints.
+          items:
+            $ref: '#/components/schemas/CustomTrainingBlueprintResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    CustomTaskVersionListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of custom task versions.
+          items:
+            $ref: '#/components/schemas/CustomTaskVersionResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    UserBlueprintAddToMenuResponse:
+      properties:
+        addedToMenu:
+          description: The list of userBlueprintId and blueprintId pairs representing blueprints successfully added to the project repository.
+          items:
+            $ref: '#/components/schemas/UserBlueprintAddedToMenuItem'
+          type: array
+        message:
+          description: A success message or a list of reasons why the list of blueprints could not be added to the project repository.
+          type: string
+          x-versionadded: '2.27'
+        notAddedToMenu:
+          description: The list of userBlueprintId and error message representing blueprints which failed to be added to the project repository.
+          items:
+            $ref: '#/components/schemas/UserBlueprintFailedToAddToMenuItem'
+          type: array
+          x-versionadded: '2.27'
+      required:
+      - addedToMenu
+      type: object
+    UserRoleWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        role:
+          description: The role to set on the entity. When it is None, the role of this user will be removedfrom this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the user to update the access role for.
+          type: string
+      required:
+      - role
+      - username
+      type: object
+    UserBlueprintsInputTypesResponse:
+      properties:
+        inputTypes:
+          description: The list of associated pairs of an input type and their human-readable names.
+          items:
+            $ref: '#/components/schemas/UserBlueprintsInputType'
+          type: array
+      required:
+      - inputTypes
+      type: object
+    UserBlueprintTaskParameterValidationRequestParamItem:
+      properties:
+        newValue:
+          description: The proposed value for the task parameter.
+          oneOf:
+          - anyOf:
+            - type: string
+            - type: integer
+            - type: boolean
+            - type: number
+            - type: 'null'
+          - items:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: boolean
+              - type: number
+              - type: 'null'
+            type: array
+        paramName:
+          description: The name of the task parameter to be validated.
+          type: string
+      required:
+      - newValue
+      - paramName
+      type: object
+    UserBlueprintsRetrieveResponse:
+      properties:
+        blender:
+          default: false
+          description: Whether the blueprint is a blender.
+          type: boolean
+        blueprint:
+          description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+          oneOf:
+          - description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+            items:
+              $ref: '#/components/schemas/UserBlueprintsBlueprintTask'
+            type: array
+          - $ref: '#/components/schemas/AllowExtra'
+        blueprintId:
+          description: The deterministic ID of the blueprint, based on its content.
+          type: string
+        bpData:
+          description: Additional blueprint metadata used to render the blueprint in the UI
+          oneOf:
+          - $ref: '#/components/schemas/BpData'
+        customTaskVersionMetadata:
+          description: An association of custom entity ids and task ids.
+          items:
+            items:
+              type: string
+            maxItems: 2
+            minItems: 2
+            type: array
+          type: array
+        decompressedFormat:
+          default: false
+          description: Whether the blueprint is in the decompressed format.
+          type: boolean
+        diagram:
+          description: The diagram used by the UI to display the blueprint.
+          type: string
+        features:
+          description: The list of the names of tasks used in the blueprint.
+          items:
+            type: string
+          type: array
+        featuresText:
+          description: The description of the blueprint via the names of tasks used.
+          type: string
+        hexColumnNameLookup:
+          description: The lookup between hex values and data column names used in the blueprint.
+          items:
+            $ref: '#/components/schemas/UserBlueprintsHexColumnNameLookupEntry'
+          type: array
+        hiddenFromCatalog:
+          description: If true, the blueprint will not show up in the catalog.
+          type: boolean
+        icons:
+          description: The icon(s) associated with the blueprint.
+          items:
+            type: integer
+          type: array
+        insights:
+          description: An indication of the insights generated by the blueprint.
+          type: string
+        isTimeSeries:
+          default: false
+          description: Whether the blueprint contains time-series tasks.
+          type: boolean
+        linkedToProjectId:
+          description: Whether the user blueprint is linked to a project.
+          type: boolean
+        modelType:
+          description: The generated or provided title of the blueprint.
+          type: string
+        projectId:
+          description: The ID of the project the blueprint was originally created with, if applicable.
+          type:
+          - string
+          - 'null'
+        referenceModel:
+          default: false
+          description: Whether the blueprint is a reference model.
+          type: boolean
+        shapSupport:
+          default: false
+          description: Whether the blueprint supports shapley additive explanations.
+          type: boolean
+        supportedTargetTypes:
+          description: The list of supported targets of the current blueprint.
+          items:
+            enum:
+            - binary
+            - multiclass
+            - multilabel
+            - nonnegative
+            - regression
+            - unsupervised
+            - unsupervisedClustering
+            type: string
+          type: array
+        supportsGpu:
+          default: false
+          description: Whether the blueprint supports execution on the GPU.
+          type: boolean
+        supportsNewSeries:
+          description: Whether the blueprint supports new series.
+          type: boolean
+        userBlueprintId:
+          description: The unique ID associated with the user blueprint.
+          type: string
+        userId:
+          description: The ID of the user who owns the blueprint.
+          type: string
+        vertexContext:
+          description: Info about, warnings about, and errors with a specific vertex in the blueprint.
+          items:
+            $ref: '#/components/schemas/VertexContextItem'
+          type: array
+      required:
+      - blender
+      - blueprintId
+      - decompressedFormat
+      - diagram
+      - features
+      - featuresText
+      - icons
+      - insights
+      - isTimeSeries
+      - modelType
+      - referenceModel
+      - shapSupport
+      - supportedTargetTypes
+      - supportsGpu
+      - userBlueprintId
+      - userId
+      type: object
+    ImageAugmentationListsResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The content in the form of an augmentation lists
+          items:
+            $ref: '#/components/schemas/ImageAugmentationListsRetrieve'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    CustomTaskVersionDependencyBuildMetadataResponse:
+      properties:
+        buildEnd:
+          description: The ISO-8601 encoded time when this build completed.
+          type:
+          - string
+          - 'null'
+        buildLogLocation:
+          description: The URL to download the build logs from this build.
+          format: uri
+          type:
+          - string
+          - 'null'
+        buildStart:
+          description: The ISO-8601 encoded time when this build started.
+          type: string
+        buildStatus:
+          description: The current status of the dependency build.
+          enum:
+          - submitted
+          - processing
+          - failed
+          - success
+          - aborted
+          type: string
+        customTaskId:
+          description: The ID of custom task.
+          type: string
+        customTaskVersionId:
+          description: The ID of custom task version.
+          type: string
+      required:
+      - buildEnd
+      - buildLogLocation
+      - buildStart
+      - buildStatus
+      - customTaskId
+      - customTaskVersionId
+      type: object
+    UserBlueprintsListResponse:
+      properties:
+        count:
+          description: The number of records on this page.
+          type: integer
+        data:
+          description: The list of user blueprints.
+          items:
+            $ref: '#/components/schemas/UserBlueprintsListItem'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL to the next page, or `null` if there is no such page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL to the previous page, or `null` if there is no such page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of records.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      type: object
+    ImageAugmentationListsCreate:
+      properties:
+        featureName:
+          description: The name of the image feature containing the data to be augmented
+          type: string
+        inUse:
+          default: false
+          description: This parameter was deprecated. You can still pass a value, but it will be ignored. DataRobot will takes care of the value itself.
+          type: boolean
+          x-versiondeprecated: 2.30.0
+        initialList:
+          default: false
+          description: Whether this list will be used during autopilot to perform image augmentation
+          type: boolean
+        name:
+          description: The name of the image augmentation list
+          type: string
+        numberOfNewImages:
+          description: Number of new rows to add for each existing row
+          minimum: 1
+          type: integer
+        projectId:
+          description: The project containing the image data to be augmented
+          type: string
+        samplesId:
+          default: null
+          description: Image Augmentation list samples ID
+          type:
+          - string
+          - 'null'
+        transformationProbability:
+          description: Probability that each enabled transformation will be applied to an image. This does not apply to Horizontal or Vertical Flip, which are set to 50% always.
+          maximum: 1
+          minimum: 0
+          type: number
+        transformations:
+          description: List of Transformations to possibly apply to each image
+          items:
+            $ref: '#/components/schemas/Transformation'
+          type: array
+      required:
+      - name
+      - numberOfNewImages
+      - projectId
+      - transformationProbability
+      - transformations
+      type: object
+    UserBlueprintsValidationResponse:
+      properties:
+        vertexContext:
+          description: Info about, warnings about, and errors with a specific vertex in the blueprint.
+          items:
+            $ref: '#/components/schemas/VertexContextItem'
+          type: array
+      required:
+      - vertexContext
+      type: object
+    PersistentLogsForModelWithCustomTasksRetrieveResponse:
+      properties:
+        data:
+          description: An archive (tar.gz) of the logs produced and persisted by a model.
+          format: binary
+          type: string
+      required:
+      - data
+      type: object
+    CustomTaskVersionResponse:
+      description: The latest version for the custom task (if this field is empty the task is not ready for use).
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this task version.
+          type:
+          - string
+          - 'null'
+        baseEnvironmentVersionId:
+          description: The base environment version to use with this task version.
+          type:
+          - string
+          - 'null'
+        created:
+          description: ISO-8601 timestamp of when the task was created.
+          type: string
+        customModelId:
+          description: an alias for customTaskId
+          type: string
+          x-versiondeprecated: v2.25
+        customTaskId:
+          description: the ID of the custom task.
+          type: string
+        dependencies:
+          description: The parsed dependencies of the custom task version if the version has a valid requirements.txt file.
+          items:
+            $ref: '#/components/schemas/DependencyResponse'
+          maxItems: 1000
+          type: array
+        description:
+          description: Description of a custom task version.
+          type:
+          - string
+          - 'null'
+        id:
+          description: the ID of the custom model version created.
+          type: string
+        isFrozen:
+          description: If the version is frozen and immutable (i.e. it is either deployed or has been edited, causing a newer version to be yielded).
+          type: boolean
+          x-versiondeprecated: v2.34
+        items:
+          description: List of file items.
+          items:
+            $ref: '#/components/schemas/WorkspaceItemResponse'
+          maxItems: 100
+          type: array
+        label:
+          description: A semantic version number of the major and minor version.
+          type: string
+        maximumMemory:
+          description: DEPRECATED! The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: 2.32.0
+        outboundNetworkPolicy:
+          description: What kind of outbound network calls are allowed. If ISOLATED, then no outbound network calls are allowed.  If PUBLIC, then network calls are allowed to any public ip address.
+          enum:
+          - ISOLATED
+          - PUBLIC
+          type: string
+          x-versionadded: 2.32.0
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you want to change them, make a new version.
+          type: object
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          items:
+            $ref: '#/components/schemas/RequiredMetadataValue'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        versionMajor:
+          description: The major version number, incremented on deployments or larger file changes.
+          type: integer
+        versionMinor:
+          description: The minor version number, incremented on general file changes.
+          type: integer
+        warning:
+          description: Warnings about the custom task version
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      required:
+      - created
+      - customModelId
+      - customTaskId
+      - description
+      - id
+      - isFrozen
+      - items
+      - label
+      - outboundNetworkPolicy
+      - versionMajor
+      - versionMinor
+      type: object
+    UserBlueprintsBlueprintTaskData:
+      properties:
+        inputs:
+          description: The IDs or input data types which will be inputs to the task.
+          items:
+            description: A specific input data type.
+            type: string
+          type: array
+        outputMethod:
+          description: The method which the task will use to produce output.
+          type: string
+        outputMethodParameters:
+          default: []
+          description: The parameters which further define how output will be produced.
+          items:
+            $ref: '#/components/schemas/ParamValuePair'
+          type: array
+        taskCode:
+          description: The unique code representing the python class which will be instantiated and executed.
+          type:
+          - string
+          - 'null'
+        taskParameters:
+          default: []
+          description: The parameters which further define the behavior of the task.
+          items:
+            $ref: '#/components/schemas/ParamValuePair'
+          type: array
+        xTransformations:
+          default: []
+          description: The transformations to apply to the input data before fitting or predicting.
+          items:
+            $ref: '#/components/schemas/ParamValuePair'
+          type: array
+        yTransformations:
+          default: []
+          description: The transformations to apply to the input target before fitting or predicting.
+          items:
+            $ref: '#/components/schemas/ParamValuePair'
+          type: array
+      required:
+      - inputs
+      - outputMethod
+      - outputMethodParameters
+      - taskCode
+      - taskParameters
+      - xTransformations
+      - yTransformations
+      type: object
+    UserBlueprintsBulkDelete:
+      properties:
+        userBlueprintIds:
+          description: The list of IDs of user blueprints to be deleted.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+      required:
+      - userBlueprintIds
+      type: object
+    UserBlueprintTask:
+      properties:
+        arguments:
+          description: The list of definitions of each argument which can be set for the task.
+          items:
+            $ref: '#/components/schemas/UserBlueprintTaskArgument'
+          type: array
+        categories:
+          description: The categories which the task is in.
+          items:
+            type: string
+          type: array
+        colnamesAndTypes:
+          description: The column names, their types, and their hex representation, available in the specified project for the task.
+          items:
+            $ref: '#/components/schemas/ColnameAndType'
+          type:
+          - array
+          - 'null'
+        customTaskId:
+          description: The ID of the custom task, if it is a custom task.
+          type:
+          - string
+          - 'null'
+        customTaskVersions:
+          description: Metadata for all of the custom task's versions.
+          items:
+            $ref: '#/components/schemas/UserBlueprintTaskCustomTaskMetadataWithArguments'
+          type:
+          - array
+          - 'null'
+        description:
+          description: The description of the task.
+          type: string
+        icon:
+          description: The integer representing the ID to be displayed when the blueprint is trained.
+          type: integer
+        isCommonTask:
+          default: false
+          description: Whether the task is a common task.
+          type: boolean
+        isCustomTask:
+          description: Whether the task is custom code written by the user.
+          type: boolean
+        isVisibleInComposableMl:
+          default: true
+          description: Whether the task is visible in the ComposableML menu.
+          type: boolean
+        label:
+          description: The generic / default title or label for the task.
+          type: string
+        outputMethods:
+          description: The methods which the task can use to produce output.
+          items:
+            type: string
+          type: array
+        supportsScoringCode:
+          description: Whether the task supports Scoring Code.
+          type: boolean
+        taskCode:
+          description: The unique code which represents the task to be constructed and executed
+          type: string
+        timeSeriesOnly:
+          description: Whether the task can only be used with time series projects.
+          type: boolean
+        url:
+          description: The URL of the documentation of the task.
+          oneOf:
+          - $ref: '#/components/schemas/AllowExtra'
+          - type: string
+        validInputs:
+          description: The supported input types of the task.
+          items:
+            description: A specific supported input type.
+            type: string
+          type: array
+      required:
+      - arguments
+      - categories
+      - description
+      - icon
+      - label
+      - outputMethods
+      - supportsScoringCode
+      - taskCode
+      - timeSeriesOnly
+      - url
+      - validInputs
+      type: object
+    UserBlueprintsBlueprintTask:
+      properties:
+        taskData:
+          description: The data defining the task / vertex in the blueprint.
+          oneOf:
+          - $ref: '#/components/schemas/UserBlueprintsBlueprintTaskData'
+        taskId:
+          description: The identifier of a task / vertex in the blueprint.
+          type: string
+      required:
+      - taskData
+      - taskId
+      type: object
+    CustomTrainingBlueprintCreate:
+      properties:
+        customModelVersionId:
+          description: The ID of the specific model version from which to create a custom training blueprint.
+          type: string
+      required:
+      - customModelVersionId
+      type: object
+    UserBlueprintTaskParameterValidation:
+      properties:
+        outputMethod:
+          description: The method representing how the task will output data.
+          enum:
+          - P
+          - Pm
+          - S
+          - Sm
+          - T
+          - TS
+          type: string
+        projectId:
+          description: The projectId representing the project where this user blueprint is edited.
+          type:
+          - string
+          - 'null'
+        taskCode:
+          description: The task code representing the task to validate parameter values.
+          type: string
+        taskParameters:
+          description: The list of task parameters and proposed values to be validated.
+          items:
+            $ref: '#/components/schemas/UserBlueprintTaskParameterValidationRequestParamItem'
+          type: array
+      required:
+      - outputMethod
+      - taskCode
+      - taskParameters
+      type: object
+    UserBlueprintTasksResponse:
+      properties:
+        categories:
+          description: The list of the available task categories, sub-categories, and tasks.
+          items:
+            $ref: '#/components/schemas/UserBlueprintTaskCategoryItem'
+          type: array
+        tasks:
+          description: The list of task codes and their task definitions.
+          items:
+            $ref: '#/components/schemas/UserBlueprintTaskLookupEntry'
+          type: array
+      required:
+      - categories
+      - tasks
+      type: object
+    UserBlueprintCreateFromCustomTaskVersionIdPayload:
+      properties:
+        customTaskVersionId:
+          description: The ID of a custom task version.
+          type: string
+        decompressedBlueprint:
+          default: false
+          description: Whether to retrieve the blueprint in the decompressed format.
+          type: boolean
+        description:
+          description: The description for the user blueprint that will be created from this CustomTaskVersion.
+          type: string
+        saveToCatalog:
+          default: true
+          description: Whether to save the blueprint to the catalog.
+          type: boolean
+      required:
+      - customTaskVersionId
+      - decompressedBlueprint
+      - saveToCatalog
+      type: object
+    CustomModelVersionShortResponse:
+      description: Custom model version associated with this deployment.
+      properties:
+        id:
+          description: The ID of the custom model version.
+          type: string
+        label:
+          description: User-friendly name of the model version.
+          type: string
+      required:
+      - id
+      - label
+      type: object
+    SharingUpdateOrRemoveWithGrant:
+      properties:
+        data:
+          description: List of sharing roles to update.
+          items:
+            $ref: '#/components/schemas/UserRoleWithGrant'
+          maxItems: 100
+          type: array
+      required:
+      - data
+      type: object
+    ImageAugmentationRetrieveSamplesItem:
+      properties:
+        height:
+          description: Height of the image in pixels
+          type: integer
+        imageId:
+          description: Id of the image. The augmented image file can be retrieved with :http:get:`/api/v2/projects/(projectId)/images/(imageId)/file/`
+          type: string
+        originalImageId:
+          description: 'Id of the original image that was transformed to produce the augmented image. If this is an original image (from the original training dataset) this value will be null. The id can be used to retrieve the original image file with: :http:get:`/api/v2/projects/(projectId)/images/(imageId)/file/`'
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: The project ID.
+          type: string
+        width:
+          description: Width of the image in pixels
+          type: integer
+      required:
+      - height
+      - imageId
+      - originalImageId
+      - projectId
+      - width
+      type: object
+    SharedRolesUpdate:
+      properties:
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects., up to maximum 100 objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - operation
+      - roles
+      type: object
+    ExecutionEnvironmentShortResponse:
+      description: Execution environment associated with this deployment.
+      properties:
+        id:
+          description: The ID of the execution environment.
+          type: string
+        name:
+          description: User-friendly name of the execution environment.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    VertexContextItemInfo:
+      properties:
+        inputs:
+          description: A specification of requirements of the inputs of the vertex.
+          items:
+            type: string
+          type: array
+        outputs:
+          description: A specification of expectations of the output of the vertex.
+          items:
+            type: string
+          type: array
+      required:
+      - inputs
+      - outputs
+      type: object
+    CustomTaskCreate:
+      properties:
+        calibratePredictions:
+          default: true
+          description: Whether model predictions should be calibrated by DataRobot.Only applies to anomaly detection; we recommend this if you have not already included calibration in your model code.Calibration improves the probability estimates of a model, and modifies the predictions of non-probabilistic models to be interpretable as probabilities. This will facilitate comparison to DataRobot models, and give access to ROC curve insights on external data.
+          type: boolean
+        description:
+          description: The user-friendly description of the task.
+          maxLength: 10000
+          type: string
+        language:
+          description: Programming language name in which task is written.
+          maxLength: 500
+          type: string
+        maximumMemory:
+          description: DEPRECATED! The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: 2.32.0
+        name:
+          description: The user-friendly name for the task.
+          maxLength: 255
+          type: string
+        targetType:
+          description: The target type of the custom task
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Anomaly
+          - Transform
+          - TextGeneration
+          - GeoPoint
+          type: string
+      required:
+      - name
+      - targetType
+      type: object
+    BpData:
+      properties:
+        children:
+          description: A nested dictionary representation of the blueprint DAG.
+          items:
+            $ref: '#/components/schemas/AllowExtra'
+          type: array
+        id:
+          description: The type of the node (e.g., "start", "input", "task").
+          type: string
+        inputs:
+          description: The inputs to the current node.
+          items:
+            type: string
+          type: array
+        output:
+          description: IDs describing the destination of any outgoing edges.
+          oneOf:
+          - description: IDs describing the destination of any outgoing edges.
+            type: string
+          - items:
+              type: string
+            maxItems: 0
+            type: array
+        taskMap:
+          $ref: '#/components/schemas/AllowExtra'
+        taskParameters:
+          description: A stringified JSON object describing the parameters and their values for a task.
+          type: string
+        tasks:
+          description: The task defining the current node.
+          items:
+            type: string
+          type: array
+        type:
+          description: A unique ID to represent the current node.
+          type: string
+      required:
+      - id
+      - taskMap
+      - tasks
+      - type
+      type: object
+    VertexContextItem:
+      properties:
+        information:
+          description: A specification of requirements of the inputs and expectations of the output of the vertex.
+          oneOf:
+          - $ref: '#/components/schemas/VertexContextItemInfo'
+        messages:
+          description: Warnings about and errors with a specific vertex in the blueprint.
+          oneOf:
+          - $ref: '#/components/schemas/VertexContextItemMessages'
+        taskId:
+          description: The ID associated with a specific vertex in the blueprint.
+          type: string
+      required:
+      - taskId
+      type: object
+    UserBlueprintsInputType:
+      properties:
+        name:
+          description: The human-readable name of an input type.
+          type: string
+        type:
+          description: The unique identifier of an input type.
+          type: string
+      required:
+      - name
+      - type
+      type: object
+    BlueprintDocLinks:
+      properties:
+        name:
+          description: The name of the documentation at the link.
+          type: string
+        url:
+          description: The URL at which external documentation can be found.
+          type:
+          - string
+          - 'null'
+      required:
+      - name
+      - url
+      type: object
+    UserBlueprintCreateFromBlueprintId:
+      properties:
+        blueprintId:
+          description: The ID associated with the blueprint to create the user blueprint from.
+          type: string
+        decompressedBlueprint:
+          default: false
+          description: Whether to retrieve the blueprint in the decompressed format.
+          type: boolean
+        description:
+          description: The description to give to the blueprint.
+          type: string
+        getDynamicLabels:
+          default: false
+          description: Whether to add dynamic labels to a decompressed blueprint.
+          type: boolean
+        isInplaceEditor:
+          default: false
+          description: Whether the request is sent from the in place user BP editor.
+          type: boolean
+        modelType:
+          description: The title to give to the blueprint.
+          maxLength: 1000
+          type: string
+        projectId:
+          description: String representation of ObjectId for the currently active project. The user blueprint is created when this project is active.
+          type: string
+        saveToCatalog:
+          default: true
+          description: Whether to save the blueprint to the catalog.
+          type: boolean
+      required:
+      - blueprintId
+      - decompressedBlueprint
+      - isInplaceEditor
+      - projectId
+      - saveToCatalog
+      type: object
+    UserBlueprintValidation:
+      properties:
+        blueprint:
+          description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+          oneOf:
+          - description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+            items:
+              $ref: '#/components/schemas/UserBlueprintsBlueprintTask'
+            type: array
+          - $ref: '#/components/schemas/AllowExtra'
+        isInplaceEditor:
+          default: false
+          description: Whether the request is sent from the in place user BP editor.
+          type: boolean
+        projectId:
+          description: String representation of ObjectId for the currently active project. The user blueprint is validated when this project is active. Necessary in the event of project specific tasks, such as column selection tasks.
+          type:
+          - string
+          - 'null'
+      required:
+      - blueprint
+      - isInplaceEditor
+      type: object
+    UserBlueprintTaskCategoryItem:
+      properties:
+        name:
+          description: The name of the category.
+          type: string
+        subcategories:
+          description: The list of the available task category items.
+          items:
+            $ref: '#/components/schemas/AllowExtra'
+          type: array
+        taskCodes:
+          description: A list of task codes representing the tasks in this category.
+          items:
+            type: string
+          type: array
+      required:
+      - name
+      - taskCodes
+      type: object
+    CustomTaskVersionCreateFromRepository:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this version.
+          type: string
+          x-versionadded: v2.22
+        isMajorUpdate:
+          default: true
+          description: If set to true, new major version will created, otherwise minor version will be created.
+          type: boolean
+        outboundNetworkPolicy:
+          description: What kind of outbound network calls are allowed. If ISOLATED, then no outbound network calls are allowed.  If PUBLIC, then network calls are allowed to any public ip address.
+          enum:
+          - ISOLATED
+          - PUBLIC
+          type: string
+          x-versionadded: 2.32.0
+        ref:
+          description: Remote reference (branch, commit, etc). Latest, if not specified.
+          type: string
+        repositoryId:
+          description: The ID of remote repository used to pull sources. This ID can be found using the /api/v2/remoteRepositories/ endpoint.
+          type: string
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you to change them, make a new version.
+          type: object
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          items:
+            $ref: '#/components/schemas/RequiredMetadataValue'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        sourcePath:
+          description: A remote repository file path to be pulled into a custom model or custom task.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+      required:
+      - baseEnvironmentId
+      - repositoryId
+      type: object
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    UserBlueprintsValidateTaskParameter:
+      properties:
+        message:
+          description: The description of the issue with the proposed task parameter value.
+          type: string
+        paramName:
+          description: The name of the validated task parameter.
+          type: string
+        value:
+          description: The invalid value proposed for the validated task parameter.
+          oneOf:
+          - anyOf:
+            - type: string
+            - type: integer
+            - type: boolean
+            - type: number
+            - type: 'null'
+          - items:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: boolean
+              - type: number
+              - type: 'null'
+            type: array
+      required:
+      - message
+      - paramName
+      - value
+      type: object
+    UserBlueprintsBulkValidationResponseItem:
+      properties:
+        userBlueprintId:
+          description: The unique ID associated with the user blueprint.
+          type: string
+        vertexContext:
+          description: Info about, warnings about, and errors with a specific vertex in the blueprint.
+          items:
+            $ref: '#/components/schemas/VertexContextItem'
+          type: array
+      required:
+      - userBlueprintId
+      - vertexContext
+      type: object
+    UserBlueprintsValidateTaskParametersResponse:
+      properties:
+        errors:
+          description: A list of the task parameters, their proposed values, and messages describing why each is not valid.
+          items:
+            $ref: '#/components/schemas/UserBlueprintsValidateTaskParameter'
+          type: array
+      required:
+      - errors
+      type: object
+    ImageAugmentationOptionsResponse:
+      properties:
+        currentNumberOfNewImages:
+          description: Number of new images to be created for each original image during training
+          type: integer
+        currentTransformationProbability:
+          description: Probability that each transformation included in an augmentation list will be applied to an image, if `affectedByTransformationProbability` for that transformation is True
+          type: number
+        featureName:
+          description: Name of the image feature that the augmentation list is associated with
+          type: string
+        id:
+          description: Augmentation list id
+          type: string
+        maxNumberOfNewImages:
+          description: Maximum number of new images per original image to be generated during training
+          type: integer
+        maxTransformationProbability:
+          description: Maximum probability that each enabled augmentation will be applied to an image
+          maximum: 1.0
+          type: number
+        minNumberOfNewImages:
+          description: Minimum number of new images per original image to be generated during training
+          type: integer
+        minTransformationProbability:
+          description: Minimum probability that each enabled augmentation will be applied to an image
+          minimum: 0.0
+          type: number
+        name:
+          description: The name of the augmentation list
+          type: string
+        projectId:
+          description: The id of the project containing the image data to be augmented
+          type: string
+        transformations:
+          description: List of Transformations to possibly apply to each image
+          items:
+            $ref: '#/components/schemas/ImageAugmentationOptionsTransformation'
+          type: array
+      required:
+      - currentNumberOfNewImages
+      - currentTransformationProbability
+      - id
+      - maxNumberOfNewImages
+      - maxTransformationProbability
+      - minNumberOfNewImages
+      - minTransformationProbability
+      - name
+      - projectId
+      - transformations
+      type: object
+    ImageAugmentationListsRetrieve:
+      properties:
+        featureName:
+          description: The name of the image feature containing the data to be augmented
+          type: string
+        id:
+          description: Image Augmentation list ID
+          type: string
+        inUse:
+          default: false
+          description: This is set to true when the Augmentation List has been used to train a model
+          type: boolean
+        initialList:
+          default: false
+          description: Whether this list will be used during autopilot to perform image augmentation
+          type: boolean
+        name:
+          description: The name of the image augmentation list
+          type: string
+        numberOfNewImages:
+          description: Number of new rows to add for each existing row
+          minimum: 1
+          type: integer
+        projectId:
+          description: The project containing the image data to be augmented
+          type: string
+        samplesId:
+          default: null
+          description: Image Augmentation list samples ID
+          type:
+          - string
+          - 'null'
+        transformationProbability:
+          description: Probability that each enabled transformation will be applied to an image. This does not apply to Horizontal or Vertical Flip, which are set to 50% always.
+          maximum: 1
+          minimum: 0
+          type: number
+        transformations:
+          description: List of Transformations to possibly apply to each image
+          items:
+            $ref: '#/components/schemas/Transformation'
+          type: array
+      required:
+      - id
+      - name
+      - numberOfNewImages
+      - projectId
+      - transformationProbability
+      - transformations
+      type: object
+    UserBlueprintFailedToAddToMenuItem:
+      properties:
+        error:
+          description: The error message representing why the blueprint was not added to the project repository.
+          type: string
+        userBlueprintId:
+          description: The userBlueprintId associated with the blueprint which was not added to the project repository.
+          type: string
+      required:
+      - error
+      - userBlueprintId
+      type: object
+    BlueprintDocReferences:
+      properties:
+        name:
+          description: The name of the reference.
+          type: string
+        url:
+          description: The URL at which the reference can be found.
+          type:
+          - string
+          - 'null'
+      required:
+      - name
+      - url
+      type: object
+    UserBlueprintsHexColumnNameLookupEntry:
+      properties:
+        colname:
+          description: The name of the column.
+          type: string
+        hex:
+          description: A safe hex representation of the column name.
+          type: string
+        projectId:
+          description: The ID of the project from which the column name originates.
+          type: string
+      required:
+      - colname
+      - hex
+      type: object
+    DependencyResponse:
+      properties:
+        constraints:
+          description: Constraints that should be applied to the dependency when installed.
+          items:
+            $ref: '#/components/schemas/DependencyConstraint'
+          maxItems: 100
+          type: array
+        extras:
+          description: The dependency's package extras.
+          type: string
+        line:
+          description: The original line from the requirements.txt file.
+          type: string
+        lineNumber:
+          description: The line number the requirement was on in requirements.txt.
+          type: integer
+        packageName:
+          description: The dependency's package name.
+          type: string
+      required:
+      - constraints
+      - line
+      - lineNumber
+      - packageName
+      type: object
+    ImageAugmentationSamplesRequest:
+      properties:
+        featureName:
+          description: The name of the image feature containing the data to be augmented
+          type: string
+        id:
+          description: Augmentation list id
+          type: string
+        inUse:
+          default: false
+          description: This is set to true when the Augmentation List has been used to train a model
+          type: boolean
+        initialList:
+          default: false
+          description: Whether this list will be used during autopilot to perform image augmentation
+          type: boolean
+        name:
+          description: The name of the image augmentation list
+          type: string
+        numberOfNewImages:
+          description: Number of new rows to add for each existing row
+          minimum: 1
+          type: integer
+        numberOfRows:
+          description: Number of images from the original dataset to be augmented
+          minimum: 1
+          type: integer
+        projectId:
+          description: The project containing the image data to be augmented
+          type: string
+        samplesId:
+          default: null
+          description: Image Augmentation list samples ID
+          type:
+          - string
+          - 'null'
+        transformationProbability:
+          description: Probability that each enabled transformation will be applied to an image. This does not apply to Horizontal or Vertical Flip, which are set to 50% always.
+          maximum: 1
+          minimum: 0
+          type: number
+        transformations:
+          description: List of Transformations to possibly apply to each image
+          items:
+            $ref: '#/components/schemas/Transformation'
+          type: array
+      required:
+      - name
+      - numberOfNewImages
+      - numberOfRows
+      - projectId
+      - transformationProbability
+      - transformations
+      type: object
+    UserBlueprintCreate:
+      properties:
+        blueprint:
+          description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+          oneOf:
+          - description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+            items:
+              $ref: '#/components/schemas/UserBlueprintsBlueprintTask'
+            type: array
+          - $ref: '#/components/schemas/AllowExtra'
+        decompressedBlueprint:
+          default: false
+          description: Whether to retrieve the blueprint in the decompressed format.
+          type: boolean
+        description:
+          description: The description to give to the blueprint.
+          type: string
+        getDynamicLabels:
+          default: false
+          description: Whether to add dynamic labels to a decompressed blueprint.
+          type: boolean
+        isInplaceEditor:
+          default: false
+          description: Whether the request is sent from the in place user BP editor.
+          type: boolean
+        modelType:
+          description: The title to give to the blueprint.
+          maxLength: 1000
+          type: string
+        projectId:
+          description: String representation of ObjectId for the currently active project. The user blueprint is created when this project is active. Necessary in the event of project specific tasks, such as column selection tasks.
+          type:
+          - string
+          - 'null'
+        saveToCatalog:
+          default: true
+          description: Whether to save the blueprint to the catalog.
+          type: boolean
+      required:
+      - blueprint
+      - decompressedBlueprint
+      - isInplaceEditor
+      - saveToCatalog
+      type: object
+    UserBlueprintAddToMenu:
+      properties:
+        deleteAfter:
+          default: false
+          description: Whether to delete the user blueprint(s) after adding it (them) to the project menu.
+          type: boolean
+        describeFailures:
+          default: false
+          description: Whether to include extra fields to describe why any blueprints were not added to the chosen project.
+          type: boolean
+          x-versionadded: v2.27
+        projectId:
+          description: The projectId of the project for the repository to add the specified user blueprints to.
+          type: string
+        userBlueprintIds:
+          description: The IDs of the user blueprints to add to the specified project's repository.
+          items:
+            description: An ID of one user blueprint to add to the specified project's repository.
+            type: string
+          type: array
+      required:
+      - deleteAfter
+      - describeFailures
+      - projectId
+      - userBlueprintIds
+      type: object
+    CustomTaskVersionCreateFromLatest:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this custom task version.
+          type: string
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        filesToDelete:
+          description: The IDs of the files to be deleted.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+        isMajorUpdate:
+          default: 'true'
+          description: If set to true, new major version will created, otherwise minor version will be created.
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        maximumMemory:
+          description: DEPRECATED! The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: 2.32.0
+        outboundNetworkPolicy:
+          description: What kind of outbound network calls are allowed. If ISOLATED, then no outbound network calls are allowed.  If PUBLIC, then network calls are allowed to any public ip address.
+          enum:
+          - ISOLATED
+          - PUBLIC
+          type: string
+          x-versionadded: 2.32.0
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you to change them, make a new version.
+          type: string
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          type: string
+          x-versionadded: v2.26
+      required:
+      - baseEnvironmentId
+      - isMajorUpdate
+      type: object
+    AllowExtra:
+      description: The parameters submitted by the user to the failed job.
+      type: object
+    UserBlueprintsDetailedItem:
+      properties:
+        blender:
+          default: false
+          description: Whether the blueprint is a blender.
+          type: boolean
+        blueprint:
+          description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+          oneOf:
+          - description: The representation of a directed acyclic graph defining a pipeline of data through tasks and a final estimator.
+            items:
+              $ref: '#/components/schemas/UserBlueprintsBlueprintTask'
+            type: array
+          - $ref: '#/components/schemas/AllowExtra'
+        blueprintId:
+          description: The deterministic ID of the blueprint, based on its content.
+          type: string
+        bpData:
+          description: Additional blueprint metadata used to render the blueprint in the UI
+          oneOf:
+          - $ref: '#/components/schemas/BpData'
+        customTaskVersionMetadata:
+          description: An association of custom entity ids and task ids.
+          items:
+            items:
+              type: string
+            maxItems: 2
+            minItems: 2
+            type: array
+          type: array
+        decompressedFormat:
+          default: false
+          description: Whether the blueprint is in the decompressed format.
+          type: boolean
+        diagram:
+          description: The diagram used by the UI to display the blueprint.
+          type: string
+        features:
+          description: The list of the names of tasks used in the blueprint.
+          items:
+            type: string
+          type: array
+        featuresText:
+          description: The description of the blueprint via the names of tasks used.
+          type: string
+        hexColumnNameLookup:
+          description: The lookup between hex values and data column names used in the blueprint.
+          items:
+            $ref: '#/components/schemas/UserBlueprintsHexColumnNameLookupEntry'
+          type: array
+        hiddenFromCatalog:
+          description: If true, the blueprint will not show up in the catalog.
+          type: boolean
+        icons:
+          description: The icon(s) associated with the blueprint.
+          items:
+            type: integer
+          type: array
+        insights:
+          description: An indication of the insights generated by the blueprint.
+          type: string
+        isTimeSeries:
+          default: false
+          description: Whether the blueprint contains time-series tasks.
+          type: boolean
+        linkedToProjectId:
+          description: Whether the user blueprint is linked to a project.
+          type: boolean
+        modelType:
+          description: The generated or provided title of the blueprint.
+          type: string
+        projectId:
+          description: The ID of the project the blueprint was originally created with, if applicable.
+          type:
+          - string
+          - 'null'
+        referenceModel:
+          default: false
+          description: Whether the blueprint is a reference model.
+          type: boolean
+        shapSupport:
+          default: false
+          description: Whether the blueprint supports shapley additive explanations.
+          type: boolean
+        supportedTargetTypes:
+          description: The list of supported targets of the current blueprint.
+          items:
+            enum:
+            - binary
+            - multiclass
+            - multilabel
+            - nonnegative
+            - regression
+            - unsupervised
+            - unsupervisedClustering
+            type: string
+          type: array
+        supportsGpu:
+          default: false
+          description: Whether the blueprint supports execution on the GPU.
+          type: boolean
+        supportsNewSeries:
+          description: Whether the blueprint supports new series.
+          type: boolean
+        userBlueprintId:
+          description: The unique ID associated with the user blueprint.
+          type: string
+        userId:
+          description: The ID of the user who owns the blueprint.
+          type: string
+        vertexContext:
+          description: Info about, warnings about, and errors with a specific vertex in the blueprint.
+          items:
+            $ref: '#/components/schemas/VertexContextItem'
+          type: array
+      required:
+      - blender
+      - blueprint
+      - blueprintId
+      - bpData
+      - decompressedFormat
+      - diagram
+      - features
+      - featuresText
+      - icons
+      - insights
+      - isTimeSeries
+      - modelType
+      - referenceModel
+      - shapSupport
+      - supportedTargetTypes
+      - supportsGpu
+      - userBlueprintId
+      - userId
+      - vertexContext
+      type: object
+    CustomTaskUpdate:
+      properties:
+        description:
+          description: The user-friendly description of the task.
+          maxLength: 10000
+          type: string
+        language:
+          description: Programming language name in which task is written.
+          maxLength: 500
+          type: string
+        maximumMemory:
+          description: DEPRECATED! The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: 2.32.0
+        name:
+          description: The user-friendly name for the task.
+          maxLength: 255
+          type: string
+      type: object
+    UserBlueprintTaskArgument:
+      properties:
+        argument:
+          description: The definition of a task argument, used to specify a certain aspect of the task.
+          oneOf:
+          - $ref: '#/components/schemas/UserBlueprintTaskArgumentDefinition'
+        key:
+          description: The unique key of the argument.
+          type: string
+      required:
+      - argument
+      - key
+      type: object
+    CustomTaskResponse:
+      properties:
+        calibratePredictions:
+          description: Determines whether or not predictions should be calibrated by DataRobot. Only applies to anomaly detection.
+          type: boolean
+        created:
+          description: ISO-8601 timestamp of when the task was created.
+          type: string
+        createdBy:
+          description: The username of the custom task creator.
+          type: string
+        customModelType:
+          description: The type of custom task.
+          enum:
+          - training
+          - inference
+          type: string
+          x-versiondeprecated: v2.25
+        description:
+          description: The description of the task.
+          type: string
+        id:
+          description: The ID of the custom task.
+          type: string
+        language:
+          description: The programming language used by the task.
+          type: string
+        latestVersion:
+          $ref: '#/components/schemas/CustomTaskVersionResponse'
+        maximumMemory:
+          description: DEPRECATED! The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: 2.32.0
+        name:
+          description: The name of the task.
+          type: string
+        targetType:
+          description: The target type of the custom task.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Anomaly
+          - Transform
+          - TextGeneration
+          - GeoPoint
+          type: string
+        updated:
+          description: ISO-8601 timestamp of when task was last updated.
+          type: string
+      required:
+      - created
+      - createdBy
+      - customModelType
+      - description
+      - id
+      - language
+      - latestVersion
+      - name
+      - targetType
+      - updated
+      type: object
+    BlueprintResponse:
+      properties:
+        blueprintCategory:
+          description: describes the category of the blueprint and indicates the kind of model this blueprint produces. Will be either "DataRobot" or "Scaleout DataRobot".
+          type: string
+          x-versionadded: v2.6
+        id:
+          description: the blueprint ID of this blueprint - note that this is not an ObjectId.
+          type: string
+        isCustomModelBlueprint:
+          description: Whether blueprint contains custom task.
+          type: boolean
+        modelType:
+          description: the model this blueprint will produce.
+          type: string
+        monotonicDecreasingFeaturelistId:
+          description: the ID of the featurelist that defines the set of features with a monotonically decreasing relationship to the target. If null, no such constraints are enforced.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.11
+        monotonicIncreasingFeaturelistId:
+          description: null or str, the ID of the featurelist that defines the set of features with a monotonically increasing relationship to the target. If null, no such constraints are enforced.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.11
+        processes:
+          description: a list of strings representing processes the blueprint uses.
+          items:
+            type: string
+          type: array
+        projectId:
+          description: the project the blueprint belongs to.
+          type: string
+        recommendedFeaturelistId:
+          description: The ID of the feature list recommended for this blueprint. If this field is not present, then there is no recommended feature list.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.18
+        supportsComposableMl:
+          description: indicates whether this blueprint is supported in Composable ML.
+          type: boolean
+          x-versionadded: v2.26
+        supportsIncrementalLearning:
+          description: Whether blueprint supports incremental learning.
+          type: boolean
+          x-versionadded: v2.32
+        supportsMonotonicConstraints:
+          description: whether this model supports enforcing monotonic constraints.
+          type: boolean
+          x-versionadded: v2.11
+      required:
+      - blueprintCategory
+      - id
+      - isCustomModelBlueprint
+      - modelType
+      - monotonicDecreasingFeaturelistId
+      - monotonicIncreasingFeaturelistId
+      - processes
+      - projectId
+      - supportsComposableMl
+      - supportsIncrementalLearning
+      - supportsMonotonicConstraints
+      type: object
+    DependencyConstraint:
+      properties:
+        constraintType:
+          description: The constraint type to apply to the version.
+          enum:
+          - <
+          - <=
+          - ==
+          - '>='
+          - '>'
+          type: string
+        version:
+          description: The version label to use in the constraint.
+          type: string
+      required:
+      - constraintType
+      - version
+      type: object
+    WorkspaceItemResponse:
+      properties:
+        commitSha:
+          description: SHA1 hash pointing to the original file revision (set only for files pulled from Git-like repositories).
+          type:
+          - string
+          - 'null'
+        created:
+          description: ISO-8601 timestamp of when the file item was created.
+          type: string
+        fileName:
+          description: The name of the file item.
+          type: string
+        filePath:
+          description: The path of the file item.
+          type: string
+        fileSource:
+          description: The source of the file item.
+          type: string
+        id:
+          description: ID of the file item.
+          type: string
+        ref:
+          description: Remote reference (branch, commit, tag). Branch "master", if not specified.
+          type:
+          - string
+          - 'null'
+        repositoryFilePath:
+          description: Full path to the file in the remote repository.
+          type:
+          - string
+          - 'null'
+        repositoryLocation:
+          description: URL to remote repository from which the file was pulled (e.g. Git server or S3 Bucket name).
+          type:
+          - string
+          - 'null'
+        repositoryName:
+          description: Name of the repository from which the file was pulled.
+          type:
+          - string
+          - 'null'
+      required:
+      - created
+      - fileName
+      - filePath
+      - fileSource
+      - id
+      type: object
+    CustomTaskVersionCreate:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this custom task version.
+          type: string
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        isMajorUpdate:
+          default: 'true'
+          description: If set to true, new major version will created, otherwise minor version will be created.
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        maximumMemory:
+          description: DEPRECATED! The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: 2.32.0
+        outboundNetworkPolicy:
+          description: What kind of outbound network calls are allowed. If ISOLATED, then no outbound network calls are allowed.  If PUBLIC, then network calls are allowed to any public ip address.
+          enum:
+          - ISOLATED
+          - PUBLIC
+          type: string
+          x-versionadded: 2.32.0
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you to change them, make a new version.
+          type: string
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          type: string
+          x-versionadded: v2.26
+      required:
+      - baseEnvironmentId
+      - isMajorUpdate
+      type: object
+    BlueprintDocParameters:
+      properties:
+        description:
+          description: A description of what the parameter does.
+          type: string
+        name:
+          description: The name of the parameter.
+          type: string
+        type:
+          description: The type (and default value) of the parameter.
+          type: string
+      required:
+      - description
+      - name
+      - type
+      type: object
+    CustomTaskAccessControlResponse:
+      properties:
+        canShare:
+          description: Whether this user can share this custom task
+          type: boolean
+        role:
+          description: This users role.
+          type: string
+        userId:
+          description: This user's userId.
+          type: string
+        username:
+          description: The username for this user's entry.
+          type: string
+      required:
+      - canShare
+      - role
+      - userId
+      - username
+      type: object
+    BlueprintListDocumentsResponse:
+      properties:
+        description:
+          description: The task description.
+          type: string
+        links:
+          description: A list of external documentation links.
+          items:
+            $ref: '#/components/schemas/BlueprintDocLinks'
+          type: array
+        parameters:
+          description: An array of task parameters.
+          items:
+            $ref: '#/components/schemas/BlueprintDocParameters'
+          type: array
+        references:
+          description: A list of reference links.
+          items:
+            $ref: '#/components/schemas/BlueprintDocReferences'
+          type: array
+        task:
+          description: The task described in document.
+          type: string
+        title:
+          description: The document title.
+          type: string
+      required:
+      - description
+      - links
+      - parameters
+      - references
+      - task
+      - title
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

@@ -1,0 +1,1431 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Observability Data Exploration API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage data exploration. Use the data you collect from data exploration tab (or data calculated through other custom metrics) to compute and monitor custom business or performance metrics. This feature allows you to implement your organization's specialized metrics, expanding on the insights provided by DataRobot's built-in service health, data drift, and accuracy metrics.
+  name: observability_data_exploration
+paths:
+  /api/v2/deployments/{deploymentId}/actualsDataExports/:
+    get:
+      description: Retrieve a list of asynchronous actuals data exports.
+      operationId: deploymentsActualsDataExports_list
+      parameters:
+      - description: Offset this number of objects to retrieve.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this number of objects to retrieve.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: An actuals data export state overwrite value.
+        in: query
+        name: status
+        required: false
+        schema:
+          default: null
+          enum:
+          - CANCELLED
+          - CREATED
+          - FAILED
+          - SCHEDULED
+          - SUCCEEDED
+          - null
+          type:
+          - string
+          - 'null'
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualsExportListResponse'
+          description: Success
+        '403':
+          description: User does not have permission to access a particular deployment.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Unable to process the actuals data exports list retrieval due to invalid parameter values.
+      summary: Retrieve a list of asynchronous actuals data exports by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+    post:
+      description: Create a deployment actuals data export.
+      operationId: deploymentsActualsDataExports_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualsExportCreatePayload'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualsDataExportEntity'
+          description: Actuals data export successfully created.
+        '403':
+          description: User does not have permission to create an actuals data export.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Unable to process the actuals data export creation request.
+      summary: Create a deployment actuals data export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/actualsDataExports/{exportId}/:
+    delete:
+      description: Delete an actual export.
+      operationId: deploymentsActualsDataExports_delete
+      parameters:
+      - description: ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the actuals data export job.
+        in: path
+        name: exportId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: An actual export was successfully deleted.
+        '403':
+          description: User does not have permission to delete an actual export.
+        '404':
+          description: Actual export was not found.
+      summary: Delete an actual export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+    get:
+      description: Retrieve a single actuals data export.
+      operationId: deploymentsActualsDataExports_retrieve
+      parameters:
+      - description: ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the actuals data export job.
+        in: path
+        name: exportId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualsDataExportEntity'
+          description: A given actuals data export user can view is retrieved.
+        '403':
+          description: User does not have permission to access a particular deployment or actuals data export.
+        '404':
+          description: Resource not found.
+      summary: Retrieve a single actuals data export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+    patch:
+      description: Update actuals data export.
+      operationId: deploymentsActualsDataExports_patch
+      parameters:
+      - description: ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the actuals data export job.
+        in: path
+        name: exportId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualsDataUpdate'
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActualsDataExportEntity'
+          description: Actuals data export updated.
+        '403':
+          description: User does not have permission to update the actuals data export.
+        '404':
+          description: Requested resource does not exist or the user does not have permission to view it.
+        '422':
+          description: Unable to process the actuals data export update.
+      summary: Update actuals data export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/dataQualityView/:
+    get:
+      description: Retrieve metadata of the data to be exported.
+      operationId: deploymentsDataQualityView_list
+      parameters:
+      - description: Specifies the number of rows to skip before starting to return rows from the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Specifies the number of rows to return after the offset.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: Start of the period of prediction data to collect. Defaults to a week before the end time.
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: End of the period of prediction data to collect. Defaults to now, or a week after the start time.
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The ID of the model.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The keywords to search in a predicted value, for text generation target types.
+        in: query
+        name: predictionPattern
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: The keywords to search in a prompt value, for text generation target types.
+        in: query
+        name: promptPattern
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: The keywords to search in an actual value, for text generation target types.
+        in: query
+        name: actualPattern
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: Field by which to order the text generation target types.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: -timestamp
+          enum:
+          - timestamp
+          - associationId
+          - customMetrics
+          - -timestamp
+          - -associationId
+          - -customMetrics
+          type:
+          - string
+          - 'null'
+      - description: Metric name or ID used for metric ordering.
+        in: query
+        name: orderMetric
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: Metric name or ID used for metric filtering.
+        in: query
+        name: filterMetric
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: Metric value required to match value with filter metric name.
+        in: query
+        name: filterValue
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataQualityResponse'
+          description: ''
+      summary: Retrieve metadata of the data by deployment ID
+      tags:
+      - observability_data_exploration
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables special storage for predicted and actual records for text generation target types
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MLOPS_ACTUALS_STORAGE
+      - description: Enables the data quality table for text generation target types.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MMM_DATA_QUALITY
+      x-versionadded: v2.35
+  /api/v2/deployments/{deploymentId}/predictionDataExports/:
+    get:
+      description: A list of asynchronous prediction data exports.
+      operationId: deploymentsPredictionDataExports_list
+      parameters:
+      - description: Specifies the number of rows to skip before starting to return rows from the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Specifies the number of rows to return after the offset.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: A prediction data export processing state.
+        in: query
+        name: status
+        required: false
+        schema:
+          default: null
+          enum:
+          - CANCELLED
+          - CREATED
+          - FAILED
+          - SCHEDULED
+          - SUCCEEDED
+          - null
+          type:
+          - string
+          - 'null'
+      - description: Id of model used for prediction data export.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          default: null
+          type:
+          - string
+          - 'null'
+      - description: If true, returns just the exports associated with batches. If false, just the real-time ones. If not provided, returns both real-time and batch exports.
+        in: query
+        name: batch
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionExportListResponse'
+          description: The prediction data exports.
+        '403':
+          description: User does not have permission to access a particular deployment.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Unable to process the prediction data exports list retrieval due to invalid parameter values.
+      summary: A list prediction data exports by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+    post:
+      description: Create a deployment prediction data export.
+      operationId: deploymentsPredictionDataExports_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportCreatePayload'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportEntity'
+          description: Prediction data export successfully created.
+        '403':
+          description: User does not have permission to create a prediction data export.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Unable to process the prediction data export creation request.
+      summary: Create a deployment prediction data export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/predictionDataExports/{exportId}/:
+    get:
+      description: Retrieve a single prediction data export.
+      operationId: deploymentsPredictionDataExports_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: Unique identifier of the export.
+        in: path
+        name: exportId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportEntity'
+          description: A given prediction data export user can view is retrieved.
+        '403':
+          description: 'User does not have permission to access a particular deployment or prediction data export. '
+        '404':
+          description: Resource not found.
+      summary: Retrieve a single prediction data export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+    patch:
+      description: Update prediction data export.
+      operationId: deploymentsPredictionDataExports_patch
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: Unique identifier of the export.
+        in: path
+        name: exportId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionDataUpdate'
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportEntity'
+          description: Prediction data export successfully updated.
+        '403':
+          description: User does not have permission to update a prediction data export.
+        '404':
+          description: Requested resource does not exist or the user does not have permission to view it.
+        '422':
+          description: Unable to process the prediction data export update.
+      summary: Update prediction data export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/predictionResults/:
+    get:
+      description: Retrieve predictions results of the deployment.
+      operationId: deploymentsPredictionResults_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The id of the model for which prediction results are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Start of the period for which prediction results are being retrieved.
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: End of the period for which prediction results are being retrieved.
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The id of the batch for which prediction results are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+        x-versionadded: v2.31
+      - description: Filters predictions results to only those who have actuals present or with missing actuals.
+        in: query
+        name: actualsPresent
+        required: false
+        schema:
+          type: boolean
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: Requested MIME type for the returned data
+        in: header
+        name: Accept
+        required: false
+        schema:
+          enum:
+          - application/json
+          - text/csv
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResultsListResponse'
+            text/csv:
+              schema:
+                type: string
+          description: ''
+      summary: Retrieve predictions results by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.20
+  /api/v2/deployments/{deploymentId}/trainingDataExports/:
+    get:
+      description: A list of successful training data exports.
+      operationId: deploymentsTrainingDataExports_list
+      parameters:
+      - description: Specifies the number of rows to skip before starting to return rows from the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Specifies the number of rows to return after the offset.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          exclusiveMinimum: 0
+          maximum: 20
+          type: integer
+      - description: ID of model used for training data export.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          default: null
+          type:
+          - string
+          - 'null'
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDataExportListResponse'
+          description: The training data exports.
+        '403':
+          description: User does not have permission to access a particular deployment.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Unable to process the training data exports list retrieval due to invalid parameter values.
+      summary: The list of training data exports by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+    post:
+      description: Create a deployment training data export.
+      operationId: deploymentsTrainingDataExports_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingDataExportCreatePayload'
+      responses:
+        '202':
+          description: Training data export successfully enqueued.
+          headers:
+            Location:
+              description: URL to poll to get status of job that waits for the training data export to finish
+              schema:
+                type: string
+        '403':
+          description: User does not have permission to create a training data export.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Unable to process the training data export request.
+      summary: Create a deployment training data export by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/trainingDataExports/{exportId}/:
+    get:
+      description: Retrieve details for a single training data export.
+      operationId: deploymentsTrainingDataExports_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: Unique identifier of the export.
+        in: path
+        name: exportId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDataExportEntity'
+          description: A given training data export user can view is retrieved.
+        '403':
+          description: 'User does not have permission to access a particular deployment or training data export. '
+        '404':
+          description: Resource not found.
+      summary: Retrieve details by deployment ID
+      tags:
+      - observability_data_exploration
+      x-versionadded: v2.33
+components:
+  schemas:
+    DataQualityResponse:
+      properties:
+        count:
+          description: Number of paginated entries.
+          minimum: 0
+          type: integer
+        data:
+          description: A list of prediction data exports.
+          items:
+            $ref: '#/components/schemas/DataQualityItem'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL to the next page, or null if there is no such page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL to the previous page, or null if there is no such page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of entries.
+          minimum: 0
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    ActualsDataExportEntity:
+      properties:
+        createdAt:
+          description: Actuals data export creation timestamp.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        createdBy:
+          $ref: '#/components/schemas/ActualsCreatedBy'
+          x-versionadded: v2.33
+        data:
+          description: An actuals data export collected data entries. Available only when status is SUCCEEDED.
+          items:
+            $ref: '#/components/schemas/ActualsDataEntry'
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        error:
+          $ref: '#/components/schemas/ActualsError'
+          x-versionadded: v2.33
+        id:
+          description: The ID of the actuals data export.
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The ID of the model (or null if not specified).
+          type: string
+          x-versionadded: v2.33
+        onlyMatchedPredictions:
+          default: true
+          description: If true, exports actuals with matching predictions only.
+          type: boolean
+          x-versionadded: v2.33
+        period:
+          $ref: '#/components/schemas/ActualsDataTimeRange'
+          x-versionadded: v2.33
+        status:
+          description: An actuals data export processing state.
+          enum:
+          - CANCELLED
+          - CREATED
+          - FAILED
+          - SCHEDULED
+          - SUCCEEDED
+          type: string
+          x-versionadded: v2.33
+      required:
+      - createdAt
+      - createdBy
+      - id
+      - modelId
+      - period
+      - status
+      type: object
+    ActualsExportCreatePayload:
+      properties:
+        end:
+          description: End of the period of actuals data to collect.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The ID of the model.
+          type: string
+          x-versionadded: v2.33
+        onlyMatchedPredictions:
+          default: true
+          description: If true, exports actuals with matching predictions only.
+          type: boolean
+          x-versionadded: v2.33
+        start:
+          description: Start of the period of actuals data to collect.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+      required:
+      - end
+      - start
+      type: object
+    PredictionResultsListResponse:
+      properties:
+        associationIdColumnNames:
+          description: List of column names used to represent an association id, which is used to unique identify individual prediction rows.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of prediction requests.
+          items:
+            $ref: '#/components/schemas/PredictionResultResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - associationIdColumnNames
+      - data
+      - next
+      - previous
+      type: object
+    PredictionResultResponse:
+      properties:
+        actual:
+          description: Actual value of the prediction
+          oneOf:
+          - type: integer
+          - type: number
+          - type: string
+        associationId:
+          description: Association id of the prediction, which is used to associate a prediction with its actual value and calculate accuracy.
+          type: string
+        forecastDistance:
+          description: The number of time units this prediction is away from the forecastPoint. The unit of time is determined by the timeUnit of the datetime partition column. For time series models only.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.23
+        modelId:
+          description: ID of the model used to make these predictions
+          type: string
+        predicted:
+          description: Predicted value of the prediction
+          oneOf:
+          - type: integer
+          - type: number
+          - type: string
+        timestamp:
+          description: When the prediction was made.
+          format: date-time
+          type: string
+      required:
+      - actual
+      - associationId
+      - modelId
+      - predicted
+      - timestamp
+      type: object
+    ActualsDataTimeRange:
+      description: An actuals data time range definition.
+      properties:
+        end:
+          description: End of the period of actuals data to collect.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        start:
+          description: Start of the period of actuals data to collect.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+      required:
+      - end
+      - start
+      type: object
+    ContextItem:
+      properties:
+        context:
+          description: Text generation context.
+          type: string
+        link:
+          description: Text generation context link.
+          type:
+          - string
+          - 'null'
+      required:
+      - context
+      type: object
+      x-versionadded: v2.35
+    TrainingDataEntry:
+      description: A training data entry.
+      properties:
+        id:
+          description: The ID of the AI Catalog entry.
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: The name of the AI Catalog entry.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - id
+      - name
+      type: object
+    ExportCreatePayload:
+      properties:
+        augmentationType:
+          default: NO_AUGMENTATION
+          description: Indicates if prediction data is augmented with actuals or metrics
+          enum:
+          - NO_AUGMENTATION
+          - ACTUALS_AND_METRICS
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        batchIds:
+          description: IDs of batches to export. Null for real-time data exports.
+          items:
+            type: string
+          maxItems: 100
+          minItems: 1
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        end:
+          description: End of the period of prediction data to collect. Defaults to now, or a week after the start time.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The ID of the model.
+          type: string
+          x-versionadded: v2.33
+        start:
+          description: Start of the period of prediction data to collect. Defaults to a week before the end time.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+      type: object
+    ActualsCreatedBy:
+      description: The user that created actuals data export.
+      properties:
+        id:
+          description: The ID of user who created actuals data export.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - id
+      type: object
+    TrainingDataExportListResponse:
+      properties:
+        count:
+          description: Number of paginated entries.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: The list of training data exports.
+          items:
+            $ref: '#/components/schemas/TrainingDataExportEntity'
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: URL to the next page, or null if there is no such page.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: URL to the previous page, or null if there is no such page.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: Total number of entries.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    MetricValue:
+      properties:
+        id:
+          description: The ID of the custom metric.
+          type: string
+        metadata:
+          default: null
+          description: Custom metric value metadata.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        name:
+          description: Custom metric name.
+          type: string
+        value:
+          description: Custom metric value.
+          oneOf:
+          - type: number
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - name
+      - value
+      type: object
+      x-versionadded: v2.35
+    ActualsExportListResponse:
+      properties:
+        count:
+          description: Number of paginated entries.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: A list of asynchronous actuals data exports.
+          items:
+            $ref: '#/components/schemas/ActualsDataExportEntity'
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: URL to the next page, or null if there is no such page.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: URL to the previous page, or null if there is no such page
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: Total number of entries.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ActualsDataUpdate:
+      properties:
+        status:
+          description: An actuals data export state overwrite value.
+          enum:
+          - CANCELLED
+          type: string
+          x-versionadded: v2.33
+      type: object
+    PredictionDataUpdate:
+      properties:
+        status:
+          description: A prediction data export processing state.
+          enum:
+          - CANCELLED
+          type: string
+          x-versionadded: v2.33
+      type: object
+    DataQualityItem:
+      properties:
+        actualValue:
+          description: Actual value
+          type:
+          - string
+          - 'null'
+        associationId:
+          description: Association ID of prediction.
+          type: string
+        context:
+          description: A list of contexts used for text generation response.
+          items:
+            $ref: '#/components/schemas/ContextItem'
+          maxItems: 10
+          type: array
+        metrics:
+          description: A list of collected metrics associated with the prediction instance.
+          items:
+            $ref: '#/components/schemas/MetricValue'
+          maxItems: 100
+          type: array
+        predictedValue:
+          description: Predicted value(s)
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+          - type: 'null'
+        prompt:
+          description: Prompt for text generation target types.
+          type:
+          - string
+          - 'null'
+        timestamp:
+          description: Record creation timestamp.
+          format: date-time
+          type: string
+      required:
+      - actualValue
+      - associationId
+      - context
+      - metrics
+      - predictedValue
+      - prompt
+      - timestamp
+      type: object
+      x-versionadded: v2.35
+    PredictionExportListResponse:
+      properties:
+        count:
+          description: Number of paginated entries.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: A list of prediction data exports.
+          items:
+            $ref: '#/components/schemas/ExportEntity'
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: URL to the next page, or null if there is no such page.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: URL to the previous page, or null if there is no such page
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: Total number of entries.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    PredictionDataEntry:
+      properties:
+        id:
+          description: The ID of the AI Catalog entry.
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: The name of the AI Catalog entry.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - id
+      - name
+      type: object
+    PredictionDataTimeRange:
+      description: A prediction data time range definition.
+      properties:
+        end:
+          description: End of the period of prediction data to collect.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        start:
+          description: Start of the period of prediction data to collect.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+      required:
+      - end
+      - start
+      type: object
+    ActualsDataEntry:
+      properties:
+        id:
+          description: The ID of an entry.
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: A name of an entry.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - id
+      - name
+      type: object
+    TrainingDataExportEntity:
+      properties:
+        createdAt:
+          description: Training data export creation timestamp.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        createdBy:
+          description: The user who created the training data export.
+          type: string
+          x-versionadded: v2.33
+        data:
+          $ref: '#/components/schemas/TrainingDataEntry'
+          x-versionadded: v2.33
+        id:
+          description: The ID of the training data export.
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The ID of the model.
+          type: string
+          x-versionadded: v2.33
+        modelPackageId:
+          description: The ID of the related model package.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - createdAt
+      - createdBy
+      - data
+      - id
+      - modelId
+      - modelPackageId
+      type: object
+    PredictionDataBatch:
+      properties:
+        batchId:
+          description: An ID of a batch.
+          type: string
+          x-versionadded: v2.33
+        batchName:
+          description: A name of a batch.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - batchId
+      - batchName
+      type: object
+    ExportError:
+      description: Error description. Appears when prediction data export job failed (status is FAILED).
+      properties:
+        message:
+          description: A human readable error message describing failure cause.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - message
+      type: object
+    TrainingDataExportCreatePayload:
+      properties:
+        modelId:
+          default: null
+          description: (Optional) The ID of the model.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+      type: object
+    ExportEntity:
+      properties:
+        associationIds:
+          description: Association IDs of rows to export
+          items:
+            type: string
+          maxItems: 100
+          minItems: 1
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.35
+        augmentationType:
+          default: NO_AUGMENTATION
+          description: Indicates if prediction data is augmented with actuals or metrics
+          enum:
+          - NO_AUGMENTATION
+          - ACTUALS_AND_METRICS
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        batches:
+          description: Metadata associated with exported batch.
+          items:
+            $ref: '#/components/schemas/PredictionDataBatch'
+          maxItems: 100
+          minItems: 1
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        createdAt:
+          description: Prediction data export creation timestamp.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        createdBy:
+          description: The user that created prediction data export.
+          type: string
+          x-versionadded: v2.33
+        data:
+          description: A prediction data export collected data entries. Available only when status is SUCCEEDED.
+          items:
+            $ref: '#/components/schemas/PredictionDataEntry'
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        error:
+          $ref: '#/components/schemas/ExportError'
+          x-versionadded: v2.33
+        id:
+          description: The ID of the prediction data export.
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The ID of the model (or null if not specified).
+          type: string
+          x-versionadded: v2.33
+        period:
+          $ref: '#/components/schemas/PredictionDataTimeRange'
+          x-versionadded: v2.33
+        status:
+          description: A prediction data export processing state.
+          enum:
+          - CANCELLED
+          - CREATED
+          - FAILED
+          - SCHEDULED
+          - SUCCEEDED
+          type: string
+          x-versionadded: v2.33
+      required:
+      - createdAt
+      - createdBy
+      - id
+      - modelId
+      - period
+      - status
+      type: object
+    ActualsError:
+      description: Error description. Appears when actuals data export job failed (status is FAILED).
+      properties:
+        message:
+          description: A human readable error message describing failure cause.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - message
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

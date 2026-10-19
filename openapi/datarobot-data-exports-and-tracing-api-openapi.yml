@@ -1,0 +1,4076 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Data Exports And Tracing API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage data exports and tracing.
+  name: data_exports_and_tracing
+paths:
+  /api/v2/otel/stats/:
+    get:
+      operationId: otelStats_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Service name, or list of service names, of the process.
+        in: query
+        name: serviceName
+        required: false
+        schema:
+          oneOf:
+          - description: Service name of the process
+            type: string
+          - items:
+              description: Service name of the process
+              type: string
+            maxItems: 100
+            type: array
+      - description: User IDs to view (must be admin to use this field).
+        in: query
+        name: userId
+        required: false
+        schema:
+          oneOf:
+          - description: ID of the user.
+            type: string
+          - items:
+              description: ID of the user.
+              type: string
+            maxItems: 100
+            type: array
+      - description: The start time of the trace
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time of the trace
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelStatsResponse'
+          description: ''
+      summary: Gets OTel statistics
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.43
+  /api/v2/otel/traces/:
+    post:
+      operationId: otelTraces_create
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The minimum duration of the span in nanoseconds.
+        in: query
+        name: minSpanDuration
+        required: false
+        schema:
+          type: integer
+      - description: The maximum duration of the span in nanoseconds.
+        in: query
+        name: maxSpanDuration
+        required: false
+        schema:
+          type: integer
+      - description: The minimum duration of the trace in nanoseconds.
+        in: query
+        name: minTraceDuration
+        required: false
+        schema:
+          type: integer
+      - description: The minimum cost of the trace.
+        in: query
+        name: minTraceCost
+        required: false
+        schema:
+          type: integer
+      - description: The maximum cost of the trace.
+        in: query
+        name: maxTraceCost
+        required: false
+        schema:
+          type: integer
+      - description: Filter by root span name. Accepts a single value or a list of values.
+        in: query
+        name: rootSpanName
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 200
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 200
+              minLength: 1
+              type: string
+            maxItems: 50
+            type: array
+      - description: Filter traces by status. Use 'error' to return only traces with at least one error span, or 'ok' to return only traces with no error spans.
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - error
+          - ok
+          type: string
+      - description: 'Field to sort traces by. One of: ''timestamp'', ''duration'', ''cost''. Defaults to ''timestamp''.'
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          enum:
+          - timestamp
+          - duration
+          - cost
+          type: string
+      - description: 'Sort direction. One of: ''asc'', ''desc''. Defaults to ''desc''.'
+        in: query
+        name: sortDirection
+        required: false
+        schema:
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: Filter traces by trace type. Currently supports only 'gen_ai'.
+        in: query
+        name: traceType
+        required: false
+        schema:
+          enum:
+          - gen_ai
+          type: string
+      - description: Filter by gen_ai.tool.name. Repeat the query parameter for each tool name (up to 50 names, each at most 100 characters). Returns traces that include at least one span using any of the listed tools.
+        in: query
+        name: tools
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 50
+            minItems: 1
+            type: array
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtelEntityList'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracingListResponse'
+          description: ''
+      summary: List OpenTelemetry traces
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.50
+  /api/v2/otel/{entityType}/{entityId}/logs/:
+    delete:
+      operationId: otelLogs_deleteMany
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The type of the entity to which the logs belong.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the logs belong.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: User does not have permission to delete OpenTelemetry logs.
+      summary: Delete all OpenTelemetry logs by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.42
+    get:
+      operationId: otelLogs_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The minimum log level of logs to include.
+        in: query
+        name: level
+        required: false
+        schema:
+          default: debug
+          enum:
+          - debug
+          - info
+          - warn
+          - warning
+          - error
+          - critical
+          type: string
+      - description: The list of strings that must be included in the log entry.
+        in: query
+        name: includes
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of values that must be excluded from the log entry.
+        in: query
+        name: excludes
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The OTel span ID the logs must be associated with (if any).
+        in: query
+        name: spanId
+        required: false
+        schema:
+          type: string
+      - description: The OTel trace ID the logs must be associated with (if any).
+        in: query
+        name: traceId
+        required: false
+        schema:
+          type: string
+      - description: The type of the entity to which the logs belong.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the logs belong.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelLoggingListResponse'
+          description: ''
+      summary: Retrieve OpenTelemetry logs by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.39
+  /api/v2/otel/{entityType}/{entityId}/logs/podInfo/:
+    get:
+      description: List pods and containers found in OpenTelemetry logs of the specified entity.
+      operationId: otelLogsPodInfo_list
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The type of the entity to which the logs belong.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the logs belong.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelPodsInfoResponse'
+          description: ''
+      summary: List pods and containers found by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.46
+  /api/v2/otel/{entityType}/{entityId}/metrics/:
+    delete:
+      operationId: otelMetrics_deleteMany
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Delete all OpenTelemetry metrics by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.42
+  /api/v2/otel/{entityType}/{entityId}/metrics/autocollectedValues/:
+    get:
+      description: Get aggregated values of OpenTelemetry metrics that DataRobot automatically collects for the specified entity.
+      operationId: otelMetricsAutocollectedValues_list
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricAutocollectedValuesResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get aggregated values of OpenTelemetry metrics that DataRobot automatically…
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.39
+  /api/v2/otel/{entityType}/{entityId}/metrics/configs/:
+    get:
+      description: List the OpenTelemetry metric configurations for the specified entity.
+      operationId: otelMetricsConfigs_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricConfigListResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: List the OpenTelemetry metric configurations by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+    post:
+      description: Create an OpenTelemetry metric configuration for the specified entity.
+      operationId: otelMetricsConfigs_create
+      parameters:
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtelMetricConfigCreatePayload'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricConfigObject'
+          description: The resource was created.
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Create an OpenTelemetry metric configuration by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+    put:
+      description: Set all the OpenTelemetry metric configurations for the specified entity.
+      operationId: otelMetricsConfigs_putMany
+      parameters:
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtelMetricConfigSetPayload'
+      responses:
+        '204':
+          description: The metric configurations were set.
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Set all the OpenTelemetry metric configurations by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+  /api/v2/otel/{entityType}/{entityId}/metrics/configs/{otelMetricId}/:
+    delete:
+      description: Delete an OpenTelemetry metric configuration for the specified entity.
+      operationId: otelMetricsConfigs_delete
+      parameters:
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the OpenTelemetry metric configuration.
+        in: path
+        name: otelMetricId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Delete an OpenTelemetry metric configuration by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+    get:
+      description: Get an OpenTelemetry metric configuration for the specified entity.
+      operationId: otelMetricsConfigs_retrieve
+      parameters:
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the OpenTelemetry metric configuration.
+        in: path
+        name: otelMetricId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricConfigObject'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get the OpenTelemetry metric configuration by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+    patch:
+      description: Update an OpenTelemetry metric configuration for the specified entity.
+      operationId: otelMetricsConfigs_patch
+      parameters:
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the OpenTelemetry metric configuration.
+        in: path
+        name: otelMetricId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtelMetricConfigUpdatePayload'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricConfigObject'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Update an OpenTelemetry metric configuration by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+  /api/v2/otel/{entityType}/{entityId}/metrics/consumers/:
+    get:
+      description: Retrieve list of unique agents/users that have made requests to this resource. Only available to resource owners and users with read permissions.
+      operationId: otelMetricsConsumers_list
+      parameters:
+      - description: The type of the entity to which the metrics belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - workload
+          type: string
+      - description: The ID of the entity to which the metrics belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsumersResponse'
+          description: Resource consumer information retrieved.
+      summary: Retrieve resource consumers by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.45
+  /api/v2/otel/{entityType}/{entityId}/metrics/podInfo/:
+    get:
+      description: List pods and containers found in OpenTelemetry metrics of the specified entity.
+      operationId: otelMetricsPodInfo_list
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelPodsInfoResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Retrieve pod info by ID
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.39
+  /api/v2/otel/{entityType}/{entityId}/metrics/summary/:
+    get:
+      description: List reported OpenTelemetry metrics of the specified entity.
+      operationId: otelMetricsSummary_list
+      parameters:
+      - description: Only show reported metrics whose name contains this string.
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+      - description: Only show reported metrics of this type.
+        in: query
+        name: metricType
+        required: false
+        schema:
+          type: string
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricSummaryResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: List reported OpenTelemetry metrics of the specified entity by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+  /api/v2/otel/{entityType}/{entityId}/metrics/valueOverTime/:
+    get:
+      description: Get a single OpenTelemetry metric value of the specified entity over time.
+      operationId: otelMetricsValueOverTime_list
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The period for values of the metric list.
+        in: query
+        name: resolution
+        required: false
+        schema:
+          default: PT1H
+          enum:
+          - PT1M
+          - PT5M
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+      - description: The OTel key of the metric.
+        in: query
+        name: otelName
+        required: true
+        schema:
+          maxLength: 255
+          type: string
+      - description: The aggregation method used for metric display.
+        in: query
+        name: aggregation
+        required: true
+        schema:
+          enum:
+          - sum
+          - average
+          - min
+          - max
+          - cardinality
+          - percentiles
+          - histogram
+          type: string
+      - description: The unit of measurement for the metric.
+        in: query
+        name: units
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: The display name of the metric.
+        in: query
+        name: displayName
+        required: false
+        schema:
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+      - description: The metric percentile for the percentile aggregation of histograms.
+        in: query
+        name: percentile
+        required: false
+        schema:
+          exclusiveMinimum: 0.0
+          maximum: 1.0
+          type:
+          - number
+          - 'null'
+      - description: The bucket size used for histogram aggregation.
+        in: query
+        name: bucketInterval
+        required: false
+        schema:
+          exclusiveMinimum: 0.0
+          type:
+          - number
+          - 'null'
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelSingleMetricValueOverTimeResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get a single OpenTelemetry metric value of the specified entity over time by…
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+  /api/v2/otel/{entityType}/{entityId}/metrics/values/:
+    get:
+      description: Get OpenTelemetry metrics values of the specified entity over a single time period.
+      operationId: otelMetricsValues_list
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: Return histograms as buckets instead of percentile values.
+        in: query
+        name: histogramBuckets
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricAggregatedValuesResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get OpenTelemetry metrics values of the specified entity over a single time by…
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+  /api/v2/otel/{entityType}/{entityId}/metrics/values/segments/{segmentAttribute}/:
+    get:
+      description: Get OpenTelemetry metric values for the specified entity, grouped by the segment attribute name and values over a single time period.
+      operationId: otelMetricsValuesSegments_retrieve
+      parameters:
+      - description: The values for grouping metrics by segment.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 50
+            minItems: 1
+            type: array
+      - description: The maximum number of segment values to return when segmentValues is not provided.
+        in: query
+        name: segmentLimit
+        required: false
+        schema:
+          maximum: 50
+          minimum: 1
+          type: integer
+      - description: The OTel key of the metric.
+        in: query
+        name: otelName
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 255
+            type: string
+          - items:
+              maxLength: 255
+              type: string
+            maxItems: 10
+            minItems: 1
+            type: array
+      - description: The aggregation method used for metric display.
+        in: query
+        name: aggregation
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - sum
+            - average
+            - min
+            - max
+            - cardinality
+            - percentiles
+            - histogram
+            type: string
+          - items:
+              enum:
+              - sum
+              - average
+              - min
+              - max
+              - cardinality
+              - percentiles
+              - histogram
+              type: string
+            maxItems: 10
+            minItems: 1
+            type: array
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The name of the attribute by which to group results.
+        in: path
+        name: segmentAttribute
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricAggregatedValuesSegmentedResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get OpenTelemetry metric values, grouped by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.4
+  /api/v2/otel/{entityType}/{entityId}/metrics/valuesOverTime/:
+    get:
+      description: Get OpenTelemetry configured metrics values of the specified entity over time.
+      operationId: otelMetricsValuesOverTime_list
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The period for values of the metric list.
+        in: query
+        name: resolution
+        required: false
+        schema:
+          default: PT1H
+          enum:
+          - PT1M
+          - PT5M
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricValuesOverTimeResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get OpenTelemetry configured metrics values of the specified entity over time…
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.41
+  /api/v2/otel/{entityType}/{entityId}/metrics/valuesOverTime/segments/:
+    post:
+      description: Get OpenTelemetry metric values for the specified entity, grouped by multiple attributes.
+      operationId: otelMetricsValuesOverTimeSegments_create
+      parameters:
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtelMetricValuesOverTimeSegmentByMultipleAttrsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricValuesOverTimeSegmentByMultipleAttrsResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get OpenTelemetry metric values by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.39
+  /api/v2/otel/{entityType}/{entityId}/metrics/valuesOverTime/segments/{segmentAttribute}/:
+    get:
+      description: Get OpenTelemetry metric values for the specified entity, grouped by the segment attribute name and values.
+      operationId: otelMetricsValuesOverTimeSegments_retrieve
+      parameters:
+      - description: The values for grouping metrics by segment.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 50
+            minItems: 1
+            type: array
+      - description: The maximum number of segment values to return when segmentValues is not provided.
+        in: query
+        name: segmentLimit
+        required: false
+        schema:
+          maximum: 50
+          minimum: 1
+          type: integer
+      - description: The OTel key of the metric.
+        in: query
+        name: otelName
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 255
+            type: string
+          - items:
+              maxLength: 255
+              type: string
+            maxItems: 10
+            minItems: 1
+            type: array
+      - description: The aggregation method used for metric display.
+        in: query
+        name: aggregation
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - sum
+            - average
+            - min
+            - max
+            - cardinality
+            - percentiles
+            - histogram
+            type: string
+          - items:
+              enum:
+              - sum
+              - average
+              - min
+              - max
+              - cardinality
+              - percentiles
+              - histogram
+              type: string
+            maxItems: 10
+            minItems: 1
+            type: array
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The period for values of the metric list.
+        in: query
+        name: resolution
+        required: false
+        schema:
+          default: PT1H
+          enum:
+          - PT1M
+          - PT5M
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+      - description: The type of the entity to which the metric belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the metric belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The name of the attribute by which to group results.
+        in: path
+        name: segmentAttribute
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelMetricSegmentedValueResponse'
+          description: ''
+        '403':
+          description: User does not have permission to access OpenTelemetry metrics.
+      summary: Get OpenTelemetry metric values, grouped by segment attribute by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.4
+  /api/v2/otel/{entityType}/{entityId}/traces/:
+    delete:
+      operationId: otelTraces_deleteMany
+      parameters:
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The type of the entity to which the trace belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the trace belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete OpenTelemetry traces by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.42
+    get:
+      operationId: tracing_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The list of search keys.
+        in: query
+        name: searchKeys
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The list of search values.
+        in: query
+        name: searchValues
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+      - description: The minimum duration of the span in nanoseconds.
+        in: query
+        name: minSpanDuration
+        required: false
+        schema:
+          type: integer
+      - description: The maximum duration of the span in nanoseconds.
+        in: query
+        name: maxSpanDuration
+        required: false
+        schema:
+          type: integer
+      - description: The minimum duration of the trace in nanoseconds.
+        in: query
+        name: minTraceDuration
+        required: false
+        schema:
+          type: integer
+      - description: The minimum cost of the trace.
+        in: query
+        name: minTraceCost
+        required: false
+        schema:
+          type: integer
+      - description: The maximum cost of the trace.
+        in: query
+        name: maxTraceCost
+        required: false
+        schema:
+          type: integer
+      - description: Filter by root span name. Accepts a single value or a list of values.
+        in: query
+        name: rootSpanName
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 200
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 200
+              minLength: 1
+              type: string
+            maxItems: 50
+            type: array
+      - description: Filter traces by status. Use 'error' to return only traces with at least one error span, or 'ok' to return only traces with no error spans.
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - error
+          - ok
+          type: string
+      - description: 'Field to sort traces by. One of: ''timestamp'', ''duration'', ''cost''. Defaults to ''timestamp''.'
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          enum:
+          - timestamp
+          - duration
+          - cost
+          type: string
+      - description: 'Sort direction. One of: ''asc'', ''desc''. Defaults to ''desc''.'
+        in: query
+        name: sortDirection
+        required: false
+        schema:
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: Filter traces by trace type. Currently supports only 'gen_ai'.
+        in: query
+        name: traceType
+        required: false
+        schema:
+          enum:
+          - gen_ai
+          type: string
+      - description: Filter by gen_ai.tool.name. Repeat the query parameter for each tool name (up to 50 names, each at most 100 characters). Returns traces that include at least one span using any of the listed tools.
+        in: query
+        name: tools
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 50
+            minItems: 1
+            type: array
+      - description: The type of the entity to which the trace belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the trace belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracingListResponse'
+          description: ''
+      summary: List OpenTelemetry traces by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.38
+  /api/v2/otel/{entityType}/{entityId}/traces/attributes/:
+    get:
+      operationId: otelTracesAttributes_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The tracing attribute names to get values for.
+        in: query
+        name: attributes
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 200
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 200
+              minLength: 1
+              type: string
+            maxItems: 100
+            minItems: 1
+            type: array
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The type of the entity to which the trace belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the trace belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracingAttributesListResponse'
+          description: ''
+      summary: List attribute values used in OpenTelemetry traces by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.50
+  /api/v2/otel/{entityType}/{entityId}/traces/evaluationNames/:
+    get:
+      operationId: otelTracesEvaluationNames_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The start time to filter data by.
+        in: query
+        name: startTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The end time to filter data by.
+        in: query
+        name: endTime
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The type of the entity to which the trace belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the trace belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracingEvaluationNamesListResponse'
+          description: ''
+      summary: List evaluation names used in OpenTelemetry traces by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.49
+  /api/v2/otel/{entityType}/{entityId}/traces/{traceId}/:
+    get:
+      operationId: tracing_retrieve
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The type of the entity to which the trace belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the trace belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The OTel trace ID.
+        in: path
+        name: traceId
+        required: true
+        schema:
+          maxLength: 32
+          minLength: 32
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracingRetrieveResponse'
+          description: ''
+      summary: Retrieve the specified OpenTelemetry trace by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.38
+  /api/v2/otel/{entityType}/{entityId}/traces/{traceId}/evaluations/:
+    get:
+      operationId: otelTracesEvaluations_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Filter to spans with this evaluation name. Accepts a single value or a list of values.
+        in: query
+        name: evaluationName
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 200
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 200
+              minLength: 1
+              type: string
+            maxItems: 50
+            type: array
+      - description: The type of the entity to which the trace belongs.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      - description: The ID of the entity to which the trace belongs.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The OTel trace ID.
+        in: path
+        name: traceId
+        required: true
+        schema:
+          maxLength: 32
+          minLength: 32
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracingRetrieveResponse'
+          description: ''
+      summary: Retrieve the evaluation spans by entitytype
+      tags:
+      - data_exports_and_tracing
+      x-versionadded: v2.49
+components:
+  schemas:
+    OtelMetricConfigCreatePayload:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          enum:
+          - sum
+          - average
+          - min
+          - max
+          - cardinality
+          - percentiles
+          - histogram
+          type: string
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        enabled:
+          default: true
+          description: Whether the OTel metric is enabled.
+          type: boolean
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        percentile:
+          description: The metric percentile for the percentile aggregation of histograms.
+          exclusiveMinimum: 0.0
+          maximum: 1.0
+          type:
+          - number
+          - 'null'
+        unit:
+          default: null
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          - null
+          type:
+          - string
+          - 'null'
+      required:
+      - otelName
+      type: object
+      x-versionadded: v2.41
+    OtelMetricSegmentPeriod:
+      properties:
+        endTime:
+          description: The end time of the metric value period.
+          format: date-time
+          type: string
+        startTime:
+          description: The start time of the metric value period.
+          format: date-time
+          type: string
+        values:
+          description: The list of OTel metric segment values for the period.
+          items:
+            $ref: '#/components/schemas/OtelMetricSegmentValue'
+          maxItems: 1000
+          type: array
+      required:
+      - endTime
+      - startTime
+      - values
+      type: object
+      x-versionadded: v2.4
+    OtelMetricAggregatedValue:
+      properties:
+        aggregatedValue:
+          description: The aggregated metric value over the period.
+          type:
+          - number
+          - 'null'
+        aggregation:
+          description: The aggregation method used for metric display.
+          type:
+          - string
+          - 'null'
+        buckets:
+          description: The histogram bucket values.
+          items:
+            $ref: '#/components/schemas/OtelMetricHistogramBucketValue'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        currentValue:
+          description: The current metric value at request time.
+          type:
+          - number
+          - 'null'
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        unit:
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          type:
+          - string
+          - 'null'
+      required:
+      - otelName
+      type: object
+      x-versionadded: v2.41
+    OtelPodInfo:
+      properties:
+        containers:
+          description: The list of containers in the pod.
+          items:
+            $ref: '#/components/schemas/OtelContainerInfo'
+          maxItems: 1000
+          type: array
+        name:
+          description: The name of the pod.
+          type: string
+      required:
+      - containers
+      - name
+      type: object
+      x-versionadded: v2.46
+    OtelSingleMetricTimeBucketValue:
+      properties:
+        buckets:
+          description: The histogram bucket values.
+          items:
+            $ref: '#/components/schemas/OtelMetricHistogramBucketValue'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        delta:
+          description: The difference from the previous period (if any).
+          type:
+          - number
+          - 'null'
+        endTime:
+          description: The end time of the metric value period.
+          format: date-time
+          type: string
+        samples:
+          description: The number of OTel metric values for the period.
+          type: integer
+        startTime:
+          description: The start time of the metric value period.
+          format: date-time
+          type: string
+        value:
+          description: The metric value for the period.
+          type:
+          - number
+          - 'null'
+      required:
+      - endTime
+      - samples
+      - startTime
+      type: object
+      x-versionadded: v2.41
+    OtelMetricAutocollectedValuesResponse:
+      properties:
+        data:
+          description: The list of automatically collected OTel metric values.
+          items:
+            $ref: '#/components/schemas/OtelAutocollectedMetricValue'
+          maxItems: 1000
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.39
+    OtelStats:
+      properties:
+        logCount:
+          description: The number of logs used by this entity.
+          type: integer
+        metricCount:
+          description: The number of metrics used by this entity.
+          type: integer
+        serviceName:
+          description: Service name of the process.
+          type: string
+        spanCount:
+          description: The number of spans used by this entity.
+          type: integer
+        userId:
+          description: The user ID.
+          type: string
+      required:
+      - logCount
+      - metricCount
+      - serviceName
+      - spanCount
+      - userId
+      type: object
+      x-versionadded: v2.43
+    OtelMetricTimeBucketValue:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          type:
+          - string
+          - 'null'
+        buckets:
+          description: The histogram bucket values.
+          items:
+            $ref: '#/components/schemas/OtelMetricHistogramBucketValue'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        delta:
+          description: The difference from the previous period (if any).
+          type:
+          - number
+          - 'null'
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        id:
+          description: The metric configuration ID (if any).
+          type:
+          - string
+          - 'null'
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        samples:
+          description: The number of OTel metric values for the period.
+          type: integer
+        unit:
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          type:
+          - string
+          - 'null'
+        value:
+          description: The metric value for the period.
+          type:
+          - number
+          - 'null'
+      required:
+      - otelName
+      - samples
+      type: object
+      x-versionadded: v2.41
+    OtelStatsResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: OTel entity statistics.
+          items:
+            $ref: '#/components/schemas/OtelStats'
+          maxItems: 10000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.43
+    OtelAutocollectedMetricValue:
+      properties:
+        aggregatedValue:
+          description: The aggregated metric value over the period.
+          type:
+          - number
+          - 'null'
+        aggregation:
+          description: The aggregation method used for metric display.
+          type:
+          - string
+          - 'null'
+        currentValue:
+          description: The current metric value at request time.
+          type:
+          - number
+          - 'null'
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        level:
+          description: Indicates whether this metric is logged for an entity, a pod, or a container.
+          enum:
+          - entity
+          - pod
+          - container
+          type: string
+        maximumMetricOtelName:
+          description: The name of a metric that indicates the maximum value for this metric.
+          type:
+          - string
+          - 'null'
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        unit:
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          type:
+          - string
+          - 'null'
+      required:
+      - level
+      - otelName
+      type: object
+      x-versionadded: v2.39
+    TracingEvaluationNamesListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of evaluation names used in traces.
+          items:
+            $ref: '#/components/schemas/TracingEvaluationName'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.49
+    OtelPodsInfoResponse:
+      properties:
+        data:
+          description: The list of pods and containers available in the service's OTel storage.
+          items:
+            $ref: '#/components/schemas/OtelPodInfo'
+          maxItems: 1000
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.46
+    OtelMetricHistogramBucketValue:
+      properties:
+        count:
+          description: The count of the bucket values.
+          type: integer
+        value:
+          description: The value of the bucket.
+          type: number
+      required:
+      - count
+      - value
+      type: object
+      x-versionadded: v2.41
+    OtelLoggingListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of OpenTelemetry log entries.
+          items:
+            $ref: '#/components/schemas/OtelLogEntry'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+      x-versionadded: v2.39
+    OtelSingleMetricValueOverTimeResponse:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          type:
+          - string
+          - 'null'
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        id:
+          description: The metric configuration ID (if any).
+          type:
+          - string
+          - 'null'
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        timeBuckets:
+          description: The list of OTel metric value periods.
+          items:
+            $ref: '#/components/schemas/OtelSingleMetricTimeBucketValue'
+          maxItems: 1000
+          type: array
+        unit:
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          type:
+          - string
+          - 'null'
+      required:
+      - otelName
+      - timeBuckets
+      type: object
+      x-versionadded: v2.41
+    TracingAttributeValue:
+      properties:
+        count:
+          description: The number of traces that contain attribute with this value.
+          type: integer
+        name:
+          description: The attribute name.
+          type: string
+        value:
+          description: The attribute value.
+          type: string
+      required:
+      - count
+      - name
+      - value
+      type: object
+      x-versionadded: v2.50
+    OtelMetricConfigUpdatePayload:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          enum:
+          - sum
+          - average
+          - min
+          - max
+          - cardinality
+          - percentiles
+          - histogram
+          type: string
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type: string
+        enabled:
+          description: Whether the OTel metric is enabled.
+          type: boolean
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        percentile:
+          description: The metric percentile for the percentile aggregation of histograms.
+          exclusiveMinimum: 0.0
+          maximum: 1.0
+          type:
+          - number
+          - 'null'
+        unit:
+          default: null
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          - null
+          type:
+          - string
+          - 'null'
+      type: object
+      x-versionadded: v2.41
+    OtelMetricValuesOverTimeResponse:
+      properties:
+        data:
+          description: The list of OTel metric value periods.
+          items:
+            $ref: '#/components/schemas/OtelMetricValuePeriod'
+          maxItems: 1000
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.41
+    OtelLogEntry:
+      properties:
+        level:
+          description: The log level.
+          type: string
+        message:
+          description: The log message.
+          type: string
+        spanId:
+          description: The OTel span ID with which the log is associated.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.39
+        stacktrace:
+          description: The stack trace (if any).
+          type: string
+        timestamp:
+          description: The log timestamp.
+          format: date-time
+          type: string
+        traceId:
+          description: The OTel trace ID with which the log is associated.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.39
+      required:
+      - level
+      - message
+      - timestamp
+      type: object
+      x-versionadded: v2.39
+    TracingRetrieveResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.46
+        duration:
+          description: The duration of the trace.
+          type:
+          - number
+          - 'null'
+        metrics:
+          $ref: '#/components/schemas/TracingEvaluationMetrics'
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        rootServiceName:
+          description: The root service name.
+          type:
+          - string
+          - 'null'
+        rootSpanName:
+          description: The root span name.
+          type:
+          - string
+          - 'null'
+        spanCount:
+          description: The number of spans.
+          type: integer
+        spans:
+          description: The list of spans.
+          items:
+            $ref: '#/components/schemas/SpanView'
+          maxItems: 1000
+          type: array
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.46
+        traceId:
+          description: The OTel trace ID.
+          maxLength: 32
+          minLength: 32
+          type: string
+      required:
+      - duration
+      - next
+      - previous
+      - rootServiceName
+      - rootSpanName
+      - spanCount
+      - spans
+      - totalCount
+      - traceId
+      type: object
+      x-versionadded: v2.37
+    OtelMetricAggregatedValuesResponse:
+      properties:
+        endTime:
+          description: The end time of the metric value period.
+          format: date-time
+          type: string
+        metricAggregations:
+          description: The list of OTel metric value periods.
+          items:
+            $ref: '#/components/schemas/OtelMetricAggregatedValue'
+          maxItems: 100
+          type: array
+        startTime:
+          description: The start time of the metric value period.
+          format: date-time
+          type: string
+      required:
+      - metricAggregations
+      type: object
+      x-versionadded: v2.41
+    OtelMetricAttributeWithValuesList:
+      properties:
+        attributes:
+          description: The list of attributes for this segment.
+          items:
+            $ref: '#/components/schemas/OtelMetricAttribute'
+          maxItems: 1000
+          type: array
+        values:
+          description: The time buckets with metric values for this segment.
+          items:
+            $ref: '#/components/schemas/OtelMetricAttributeSegmentedValue'
+          maxItems: 1000
+          type: array
+      required:
+      - attributes
+      - values
+      type: object
+      x-versionadded: v2.39
+    TracingListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.44
+        data:
+          description: The list of traces.
+          items:
+            $ref: '#/components/schemas/TraceView'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.44
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.44
+        total:
+          description: The total number of traces.
+          type: integer
+          x-versiondeprecated: v2.44
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.44
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    OtelMetricAggregatedValueSegmented:
+      properties:
+        aggregatedValues:
+          description: The aggregated metric values segmented by attribute.
+          items:
+            type: number
+          maxItems: 50
+          type:
+          - array
+          - 'null'
+        aggregation:
+          description: The aggregation method used for metric display.
+          type:
+          - string
+          - 'null'
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+      required:
+      - otelName
+      type: object
+      x-versionadded: v2.4
+    OtelMetricValuePeriod:
+      properties:
+        endTime:
+          description: The end time of the metric value period.
+          format: date-time
+          type: string
+        startTime:
+          description: The start time of the metric value period.
+          format: date-time
+          type: string
+        values:
+          description: The list of OTel metric values for the period.
+          items:
+            $ref: '#/components/schemas/OtelMetricTimeBucketValue'
+          maxItems: 50
+          type: array
+      required:
+      - endTime
+      - startTime
+      - values
+      type: object
+      x-versionadded: v2.41
+    TracingEvaluationName:
+      properties:
+        count:
+          description: The number of evaluator spans that used this evaluation name.
+          type: integer
+        name:
+          description: The evaluation name.
+          type: string
+      required:
+      - count
+      - name
+      type: object
+      x-versionadded: v2.49
+    LinkView:
+      description: The link object.
+      properties:
+        attributes:
+          additionalProperties:
+            type: string
+          description: The attributes of the link.
+          type: object
+        spanId:
+          description: The span ID.
+          maxLength: 32
+          minLength: 16
+          type: string
+        traceId:
+          description: The OTel trace ID.
+          maxLength: 32
+          minLength: 16
+          type: string
+      required:
+      - attributes
+      - spanId
+      - traceId
+      type: object
+      x-versionadded: v2.37
+    OtelContainerInfo:
+      properties:
+        name:
+          description: The name of the container.
+          type: string
+      required:
+      - name
+      type: object
+      x-versionadded: v2.46
+    OtelMetricSummary:
+      properties:
+        description:
+          description: The description of the reported metric.
+          type:
+          - string
+          - 'null'
+        metricType:
+          description: The reported metric type (e.g., counter, gauge, histogram).
+          type:
+          - string
+          - 'null'
+        otelName:
+          description: The OTel key of the metric.
+          type: string
+        units:
+          description: The units of the reported metric.
+          type:
+          - string
+          - 'null'
+      required:
+      - otelName
+      type: object
+      x-versionadded: v2.41
+    OtelMetricConfigListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of OpenTelemetry metrics.
+          items:
+            $ref: '#/components/schemas/OtelMetricConfigObject'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.41
+    TraceView:
+      properties:
+        completion:
+          description: The completion of the trace.
+          type:
+          - string
+          - 'null'
+        cost:
+          description: The cost of the trace.
+          type: number
+        duration:
+          description: The duration of the trace.
+          type: number
+        errorSpansCount:
+          description: The number of error spans.
+          type: integer
+        genAiUsageInputTokens:
+          description: The number of input tokens used by GenAI operations in the trace.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.47
+        genAiUsageOutputTokens:
+          description: The number of output tokens used by GenAI operations in the trace.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.47
+        prompt:
+          description: The prompt of the trace.
+          type:
+          - string
+          - 'null'
+        rootServiceName:
+          description: The root service name.
+          type: string
+        rootSpanName:
+          description: The root span name.
+          type: string
+        rootUserId:
+          description: The user ID associated with the root span of the trace.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.47
+        spansCount:
+          description: The number of spans.
+          type: integer
+        timestamp:
+          description: The timestamp of the trace.
+          type: number
+        tools:
+          default: null
+          description: A list of tool names used in the trace. Extracted from span attributes, includes all tools encountered in the trace.
+          items:
+            $ref: '#/components/schemas/ToolField'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.39
+        traceId:
+          description: The OTel trace ID.
+          maxLength: 32
+          minLength: 32
+          type: string
+      required:
+      - completion
+      - cost
+      - duration
+      - errorSpansCount
+      - prompt
+      - rootServiceName
+      - rootSpanName
+      - spansCount
+      - timestamp
+      - tools
+      - traceId
+      type: object
+      x-versionadded: v2.37
+    OtelMetricAttributeList:
+      properties:
+        attributes:
+          description: The list of attribute name-value pairs.
+          items:
+            $ref: '#/components/schemas/OtelMetricAttribute'
+          maxItems: 10
+          type: array
+      required:
+      - attributes
+      type: object
+      x-versionadded: v2.39
+    TracingAttributesListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of matched attribute values in traces.
+          items:
+            $ref: '#/components/schemas/TracingAttributeValue'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.50
+    ConsumersResponse:
+      properties:
+        data:
+          description: The span counts for entities.
+          items:
+            $ref: '#/components/schemas/ConsumerInfo'
+          maxItems: 10000
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.45
+    Resource:
+      description: The resource of the span.
+      properties:
+        attributes:
+          additionalProperties:
+            type: string
+          description: The attributes of the resource.
+          type: object
+      required:
+      - attributes
+      type: object
+      x-versionadded: v2.37
+    OtelMetricConfigSetPayload:
+      properties:
+        values:
+          description: The list of OTel metric configurations.
+          items:
+            $ref: '#/components/schemas/OtelMetricConfigPayload'
+          maxItems: 50
+          type: array
+      required:
+      - values
+      type: object
+      x-versionadded: v2.41
+    OtelMetricSegment:
+      description: The segment definition.
+      properties:
+        attribute:
+          description: The segment attribute name.
+          maxLength: 255
+          type: string
+        values:
+          description: The segment values.
+          items:
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+      - attribute
+      - values
+      type: object
+      x-versionadded: v2.4
+    OtelMetricValuesOverTimeSegmentByMultipleAttrsRequest:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          enum:
+          - sum
+          - average
+          - min
+          - max
+          - cardinality
+          - percentiles
+          - histogram
+          type: string
+        endTime:
+          description: The end time to filter data by.
+          format: date-time
+          type: string
+        interval:
+          default: PT1H
+          description: The interval for the metric values.
+          enum:
+          - PT1M
+          - PT5M
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        searchKeys:
+          description: The list of search keys.
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+          x-versionadded: v2.46
+        searchValues:
+          description: The list of search values.
+          oneOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - items:
+              maxLength: 100
+              minLength: 1
+              type: string
+            maxItems: 10
+            type: array
+          x-versionadded: v2.46
+        segments:
+          description: The list of attributes to segment results by.
+          items:
+            $ref: '#/components/schemas/OtelMetricAttributeList'
+          maxItems: 50
+          type: array
+        startTime:
+          description: The start time to filter data by.
+          format: date-time
+          type: string
+      required:
+      - aggregation
+      - otelName
+      - segments
+      type: object
+      x-versionadded: v2.39
+    OtelMetricAggregatedValuesSegmentedResponse:
+      properties:
+        endTime:
+          description: The end time of the metric value period.
+          format: date-time
+          type: string
+        metricAggregations:
+          description: The list of OTel metric value periods.
+          items:
+            $ref: '#/components/schemas/OtelMetricAggregatedValueSegmented'
+          maxItems: 50
+          type: array
+        segment:
+          $ref: '#/components/schemas/OtelMetricSegment'
+        startTime:
+          description: The start time of the metric value period.
+          format: date-time
+          type: string
+      required:
+      - endTime
+      - metricAggregations
+      - segment
+      - startTime
+      type: object
+      x-versionadded: v2.4
+    ConsumerInfo:
+      properties:
+        id:
+          description: Consumer ID
+          type: string
+        name:
+          description: Consumer Name
+          type:
+          - string
+          - 'null'
+        type:
+          description: Consumer Type
+          enum:
+          - deployment
+          - user
+          type: string
+      required:
+      - id
+      - name
+      - type
+      type: object
+      x-versionadded: v2.45
+    OtelEntityList:
+      properties:
+        data:
+          description: The list of OTel entities.
+          items:
+            $ref: '#/components/schemas/OtelEntity'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.50
+    EntityInfo:
+      description: Entity metadata derived from service name.
+      properties:
+        name:
+          description: The display name of the entity.
+          type: string
+        serviceName:
+          description: The service name associated with the entity.
+          type: string
+      required:
+      - name
+      - serviceName
+      type: object
+      x-versionadded: v2.45
+    OtelMetricValuesOverTimeSegmentByMultipleAttrsResponse:
+      properties:
+        data:
+          description: The list of metric values over time segmented by the requested attributes.
+          items:
+            $ref: '#/components/schemas/OtelMetricAttributeWithValuesList'
+          maxItems: 1000
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.39
+    SpanView:
+      description: The span object.
+      properties:
+        attributes:
+          additionalProperties:
+            type: string
+          description: The attributes of the span.
+          type: object
+        completion:
+          description: The completion of the span.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.45
+        duration:
+          description: The duration of the span.
+          type: number
+        entityInfo:
+          $ref: '#/components/schemas/EntityInfo'
+          x-versionadded: v2.45
+        events:
+          description: The list of events.
+          items:
+            $ref: '#/components/schemas/Event'
+          maxItems: 1000
+          type: array
+        hasPermission:
+          description: Whether the user has permission to view the span.
+          type: boolean
+        kind:
+          description: The kind of the span.
+          type: string
+        links:
+          description: The list of links.
+          items:
+            $ref: '#/components/schemas/LinkView'
+          maxItems: 1000
+          type: array
+        name:
+          description: The span name.
+          type: string
+        parentSpanId:
+          description: The parent span ID.
+          maxLength: 32
+          minLength: 16
+          type:
+          - string
+          - 'null'
+        prompt:
+          description: The prompt of the span.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.45
+        resource:
+          $ref: '#/components/schemas/Resource'
+        scope:
+          additionalProperties:
+            type: string
+          description: The scope of the span.
+          type: object
+        serviceName:
+          description: The service name of the span.
+          type: string
+        spanId:
+          description: The span ID.
+          maxLength: 32
+          minLength: 16
+          type: string
+        startTime:
+          description: The start time of the span
+          type: number
+        statusCode:
+          description: The status code of the span.
+          type:
+          - string
+          - 'null'
+        statusMessage:
+          description: The status message of the span.
+          type:
+          - string
+          - 'null'
+        traceId:
+          description: The OTel trace ID.
+          maxLength: 32
+          minLength: 16
+          type: string
+      required:
+      - attributes
+      - duration
+      - events
+      - hasPermission
+      - kind
+      - links
+      - name
+      - resource
+      - scope
+      - serviceName
+      - spanId
+      - startTime
+      - traceId
+      type: object
+      x-versionadded: v2.37
+    OtelMetricSegmentValue:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          type:
+          - string
+          - 'null'
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        segmentValues:
+          description: The values for each segment.
+          items:
+            type: number
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+      - otelName
+      - segmentValues
+      type: object
+      x-versionadded: v2.4
+    OtelMetricConfigPayload:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          enum:
+          - sum
+          - average
+          - min
+          - max
+          - cardinality
+          - percentiles
+          - histogram
+          type: string
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        enabled:
+          default: true
+          description: Whether the OTel metric is enabled.
+          type: boolean
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        percentile:
+          description: The metric percentile for the percentile aggregation of histograms.
+          exclusiveMinimum: 0.0
+          maximum: 1.0
+          type:
+          - number
+          - 'null'
+        unit:
+          default: null
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          - null
+          type:
+          - string
+          - 'null'
+      required:
+      - otelName
+      type: object
+      x-versionadded: v2.41
+    OtelEntity:
+      properties:
+        entityId:
+          description: ID of the entity.
+          type: string
+        entityType:
+          description: The type of the entity.
+          enum:
+          - deployment
+          - use_case
+          - experiment_container
+          - custom_application
+          - workload
+          - execution_environment
+          - custom_job
+          - artifact
+          type: string
+      required:
+      - entityId
+      - entityType
+      type: object
+      x-versionadded: v2.50
+    OtelMetricSegmentedValueResponse:
+      properties:
+        data:
+          description: The list of segmented metric value periods.
+          items:
+            $ref: '#/components/schemas/OtelMetricSegmentPeriod'
+          maxItems: 200
+          type: array
+        interval:
+          description: The interval for the metric values.
+          enum:
+          - PT1M
+          - PT5M
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+        segment:
+          $ref: '#/components/schemas/OtelMetricSegment'
+      required:
+      - data
+      - interval
+      - segment
+      type: object
+      x-versionadded: v2.4
+    OtelMetricAttribute:
+      properties:
+        attributeName:
+          description: The name of this attribute.
+          maxLength: 255
+          type: string
+        attributeValue:
+          description: The value of this attribute.
+          maxLength: 255
+          type: string
+      required:
+      - attributeName
+      - attributeValue
+      type: object
+      x-versionadded: v2.39
+    ToolField:
+      properties:
+        callCount:
+          description: The number of times tools were used in a trace.
+          type: integer
+        name:
+          description: The name of the tool.
+          type: string
+      required:
+      - callCount
+      - name
+      type: object
+      x-versionadded: v2.4
+    OtelMetricSummaryResponse:
+      properties:
+        data:
+          description: The list of information about available OTel metrics.
+          items:
+            $ref: '#/components/schemas/OtelMetricSummary'
+          maxItems: 1000
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.41
+    OtelMetricAttributeSegmentedValue:
+      properties:
+        endTime:
+          description: The end time of the metric value period.
+          format: date-time
+          type: string
+        startTime:
+          description: The start time of the metric value period.
+          format: date-time
+          type: string
+        value:
+          description: The aggregated metric value over the period.
+          type:
+          - number
+          - 'null'
+      required:
+      - endTime
+      - startTime
+      type: object
+      x-versionadded: v2.39
+    Event:
+      description: The event object.
+      properties:
+        attributes:
+          additionalProperties:
+            type: string
+          description: The attributes of the event.
+          type: object
+        name:
+          description: The name of the event.
+          type: string
+      required:
+      - attributes
+      - name
+      type: object
+      x-versionadded: v2.37
+    OtelMetricConfigObject:
+      properties:
+        aggregation:
+          description: The aggregation method used for metric display.
+          enum:
+          - sum
+          - average
+          - min
+          - max
+          - cardinality
+          - percentiles
+          - histogram
+          type: string
+        displayName:
+          description: The display name of the metric.
+          maxLength: 127
+          type:
+          - string
+          - 'null'
+        enabled:
+          default: true
+          description: Whether the OTel metric is enabled.
+          type:
+          - boolean
+          - 'null'
+        id:
+          description: The ID of the metric.
+          type: string
+        otelName:
+          description: The OTel key of the metric.
+          maxLength: 255
+          type: string
+        percentile:
+          description: The metric percentile for the percentile aggregation of histograms.
+          exclusiveMinimum: 0.0
+          maximum: 1.0
+          type:
+          - number
+          - 'null'
+        unit:
+          default: null
+          description: The unit of measurement for the metric.
+          enum:
+          - mebibytes
+          - bytes
+          - nanocores
+          - percentage
+          - percentagedecimal
+          - null
+          type:
+          - string
+          - 'null'
+      required:
+      - displayName
+      - enabled
+      - id
+      - otelName
+      type: object
+      x-versionadded: v2.41
+    TracingEvaluationMetrics:
+      description: Metric values produced by DataRobot moderations.
+      properties:
+        promptGuards:
+          additionalProperties:
+            oneOf:
+            - type: string
+            - type: integer
+            - type: number
+            - type: boolean
+          description: Prompt guard values produced by DataRobot moderations.
+          type: object
+        responseGuards:
+          additionalProperties:
+            oneOf:
+            - type: string
+            - type: integer
+            - type: number
+            - type: boolean
+          description: Prompt guard values produced by DataRobot moderations.
+          type: object
+      type: object
+      x-versionadded: v2.37
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

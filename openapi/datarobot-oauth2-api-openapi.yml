@@ -105,6 +105,21 @@ paths:
         snippet: 'curl --location -X POST  "https://YOUR_DATAROBOT_HOST/oauth2/token/ORGANIZATION_ID"  --header "Accept: application/json"  --header "Content-Type: application/x-www-form-urlencoded"  --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange"  --data-urlencode "subject_token= ${ IDP_ACCESS_TOKEN } "  --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:access_toke'
 components:
   schemas:
+    PostOauth2TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The DataRobot access token to use on API requests.
+        token_type:
+          type: string
+          description: Always Bearer.
+        expires_in:
+          type: integer
+          description: Lifetime of the token, in seconds.
+        scope:
+          type: string
+          description: The granted scope. Inbound OAuth tokens carry the dr.impersonation scope.
     PostOauth2TokenOrganizationidResponse:
       type: object
       properties:
@@ -126,21 +141,6 @@ components:
       - grant_type
       - subject_token
       - subject_token_type
-    PostOauth2TokenResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-          description: The DataRobot access token to use on API requests.
-        token_type:
-          type: string
-          description: Always Bearer.
-        expires_in:
-          type: integer
-          description: Lifetime of the token, in seconds.
-        scope:
-          type: string
-          description: The granted scope. Inbound OAuth tokens carry the dr.impersonation scope.
   securitySchemes:
     bearer:
       type: http

@@ -1,0 +1,769 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public OAuth Providers API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: OAuth Providers Service API enables management of external OAuth providers allowing DataRobot users to connect their workflows with external provider resources.
+  name: OAuth Providers
+paths:
+  /api/v2/externalOAuth/authorizedProviders/:
+    get:
+      description: List OAuth Provider Authorizations for the user.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handler.AuthorizedOAuthProvidersListResponse'
+          description: OK
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: List OAuth Provider Authorizations
+      tags:
+      - OAuth Providers
+      operationId: getApiV2ExternalOAuthAuthorizedProviders
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/authorizedProviders/{authorizedProviderId}/:
+    delete:
+      description: Revoke an OAuth Provider Authorization by ID.
+      parameters:
+      - description: OAuth Provider Authorization ID
+        in: path
+        name: authorizationID
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: OAuth Provider Authorization not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Delete OAuth Provider Authorization by authorized provider ID
+      tags:
+      - OAuth Providers
+      operationId: deleteApiV2ExternalOAuthAuthorizedProvidersByAuthorizedProviderId
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/authorizedProviders/{authorizedProviderId}/token/:
+    post:
+      description: Acquire an access token for the OAuth Provider Authorization.
+      parameters:
+      - description: OAuth Provider Authorization ID
+        in: path
+        name: authorizationID
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handler.GetAccessTokenResponse'
+          description: Created
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Forbidden operation for the given OAuth Provider
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: OAuth Provider Authorization not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Acquire OAuth Provider Authorization's Access Token by authorized provider ID
+      tags:
+      - OAuth Providers
+      operationId: postApiV2ExternalOAuthAuthorizedProvidersByAuthorizedProviderIdToken
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/authorizedProviders/{authorizedProviderId}/userinfo/:
+    get:
+      description: Retrieve user information from the OAuth Provider using the previously obtained authorization.
+      parameters:
+      - description: OAuth Provider Authorization ID
+        in: path
+        name: authorizationID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oauth.User'
+          description: User information
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Forbidden operation for the given OAuth Provider
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: OAuth Provider Authorization not found
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Authorization expired
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Get User Information by authorized provider ID
+      tags:
+      - OAuth Providers
+      operationId: getApiV2ExternalOAuthAuthorizedProvidersByAuthorizedProviderIdUserinfo
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/jobs/{jobId}/:
+    get:
+      description: Retrieve the status of an OAuth Provider Job by ID.
+      parameters:
+      - description: Job ID
+        in: path
+        name: jobID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handler.jobStatusResponse'
+          description: OK
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Job not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Get OAuth Provider Job by job ID
+      tags:
+      - OAuth Providers
+      operationId: getApiV2ExternalOAuthJobsByJobId
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/providers/:
+    get:
+      description: Returns a list of all available OAuth providers.
+      parameters:
+      - description: Filter by provider IDs
+        in: query
+        name: ids
+        schema:
+          items:
+            type: string
+          type: array
+      - description: Filter by provider types
+        in: query
+        name: types
+        schema:
+          items:
+            enum:
+            - github
+            - gitlab
+            - bitbucket
+            - google
+            - box
+            - microsoft
+            - sharepoint
+            - jira
+            - confluence
+            type: string
+          type: array
+      - description: Filter by host
+        in: query
+        name: host
+        schema:
+          items:
+            type: string
+          type: array
+      - description: Order results by field
+        in: query
+        name: orderBy
+        schema:
+          enum:
+          - createdAt
+          - -createdAt
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handler.ListOAuthProvidersResponse'
+          description: OK
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: List OAuth Providers
+      tags:
+      - OAuth Providers
+      operationId: getApiV2ExternalOAuthProviders
+      x-operation-id-source: derived
+    post:
+      description: Creates a new OAuth provider.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/provider.CreateProviderRequest'
+        description: Create provider request body
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.OAuthProvider'
+          description: Created
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Create OAuth Provider
+      tags:
+      - OAuth Providers
+      operationId: postApiV2ExternalOAuthProviders
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/providers/callback/:
+    post:
+      description: Handles the OAuth2 callback, exchanges authorization code for an access/refresh tokens, and creates a new
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/handler.OAuthCallbackRequest'
+        description: OAuth callback request body
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handler.CallbackResponse'
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Invalid authorization data was provided
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Provider not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: OAuth Provider Callback
+      tags:
+      - OAuth Providers
+      operationId: postApiV2ExternalOAuthProvidersCallback
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/providers/{providerID}/:
+    delete:
+      description: Initiates a job to delete an OAuth provider by its ID, along with all associated resources.
+      parameters:
+      - description: OAuth Provider ID
+        in: path
+        name: providerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handler.DeleteOAuthProviderResponse'
+          description: Location of the job that will perform deletion
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Delete OAuth Provider by provider ID
+      tags:
+      - OAuth Providers
+      operationId: deleteApiV2ExternalOAuthProvidersByProviderID
+      x-operation-id-source: derived
+    get:
+      description: Retrieves an OAuth provider by its ID.
+      parameters:
+      - description: OAuth Provider ID
+        in: path
+        name: providerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.OAuthProvider'
+          description: OK
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Provider not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Get OAuth Provider by provider ID
+      tags:
+      - OAuth Providers
+      operationId: getApiV2ExternalOAuthProvidersByProviderID
+      x-operation-id-source: derived
+    patch:
+      description: Updates an existing OAuth provider by its ID.
+      parameters:
+      - description: OAuth Provider ID
+        in: path
+        name: providerId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/provider.UpdateProviderRequest'
+              description: Update provider request body
+              summary: request
+        description: Update provider request body
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.OAuthProvider'
+          description: OK
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Update OAuth Provider by provider ID
+      tags:
+      - OAuth Providers
+      operationId: patchApiV2ExternalOAuthProvidersByProviderID
+      x-operation-id-source: derived
+  /api/v2/externalOAuth/providers/{providerId}/authorize/:
+    post:
+      description: Returns a redirect URL to the OAuth2 provider's authorization page to get user's consent for accessing their data.
+      parameters:
+      - description: OAuth Provider ID
+        in: path
+        name: providerId
+        required: true
+        schema:
+          type: string
+      - description: Client-supplied state to correlate the authorization request with the callback
+        in: query
+        name: state
+        schema:
+          type: string
+      - description: Custom redirect URI which overrides the default callback URL
+        in: query
+        name: redirect_uri
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handler.AuthorizeProviderResponse'
+          description: OK
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Provider not found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Provider is in a conflicting state
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpres.ErrorResponse'
+          description: Validation error
+      summary: Authorize OAuth Provider by provider ID
+      tags:
+      - OAuth Providers
+      operationId: postApiV2ExternalOAuthProvidersByProviderIdAuthorize
+      x-operation-id-source: derived
+components:
+  schemas:
+    handler.AuthorizedOAuthProvidersListResponse:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/models.AuthorizedProvider'
+          type: array
+          uniqueItems: false
+      type: object
+    handler.DeleteOAuthProviderResponse:
+      properties:
+        location:
+          type: string
+      type: object
+    models.OAuthProvider:
+      properties:
+        clientId:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        customScopes:
+          items:
+            type: string
+          type: array
+          uniqueItems: false
+        id:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/models.ProviderMetadata'
+        name:
+          type: string
+        orgId:
+          type: string
+        secureConfigId:
+          type: string
+        skipConsent:
+          type: boolean
+        status:
+          $ref: '#/components/schemas/oauthprovider.Status'
+        type:
+          $ref: '#/components/schemas/oauthprovider.Type'
+        updatedAt:
+          format: date-time
+          type: string
+      type: object
+    models.AuthorizedProvider:
+      properties:
+        createdAt:
+          format: date-time
+          type: string
+        credentialId:
+          type: string
+        id:
+          type: string
+        oauthClientId:
+          type: string
+        orgId:
+          type: string
+        provider:
+          $ref: '#/components/schemas/models.OAuthProvider'
+        refreshTokenExpiresAt:
+          format: date-time
+          type: string
+        status:
+          $ref: '#/components/schemas/models.AuthzStatus'
+        userId:
+          type: string
+      type: object
+    oauthprovider.Type:
+      enum:
+      - github
+      - gitlab
+      - bitbucket
+      - google
+      - box
+      - microsoft
+      - sharepoint
+      - jira
+      - confluence
+      type: string
+      x-enum-varnames:
+      - TypeGithub
+      - TypeGitlab
+      - TypeBitbucket
+      - TypeGoogle
+      - TypeBox
+      - TypeMicrosoft
+      - TypeSharepoint
+      - TypeJira
+      - TypeConfluence
+    handler.GetAccessTokenResponse:
+      properties:
+        accessToken:
+          type: string
+        authorizedOauthProvider:
+          $ref: '#/components/schemas/models.AuthorizedProvider'
+        expiresAt:
+          type: string
+      type: object
+    handler.jobStatusResponse:
+      properties:
+        details:
+          description: "Details is a slice of key-value pairs containing additional information about the job.\nFor example, for a delete provider job, it may include the provider ID and connected authorization IDs.\nExample usage:\nDetails = []struct {\n    Name:  \"provider_id\",\n    Value: \"1234\",\n},\n{\n    Name:  \"authorization_ids\",\n    Value: []string{\"1234\", \"5678\"},\n}"
+          items:
+            $ref: '#/components/schemas/handler.keyValue'
+          type: array
+          uniqueItems: false
+        finishedAt:
+          format: date-time
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        orgId:
+          type: string
+        startedAt:
+          format: date-time
+          type: string
+        status:
+          $ref: '#/components/schemas/models.JobStatus'
+        type:
+          $ref: '#/components/schemas/models.JobType'
+      type: object
+    provider.UpdateProviderRequest:
+      properties:
+        clientSecret:
+          type: string
+        name:
+          type: string
+        skipConsent:
+          type: boolean
+        status:
+          $ref: '#/components/schemas/oauthprovider.Status'
+      type: object
+    handler.CallbackResponse:
+      properties:
+        authorizedProvider:
+          $ref: '#/components/schemas/models.AuthorizedProvider'
+        userInfo:
+          $ref: '#/components/schemas/oauth.User'
+      type: object
+    oauth.User:
+      properties:
+        description:
+          type: string
+        email:
+          type: string
+        familyName:
+          type: string
+        givenName:
+          type: string
+        locale:
+          type: string
+        name:
+          type: string
+        nickName:
+          type: string
+        picture:
+          type: string
+        raw:
+          additionalProperties: {}
+          type: object
+        sub:
+          type: string
+      type: object
+    oauthprovider.Status:
+      enum:
+      - active
+      - invalid
+      - deleting
+      - deletion_failed
+      type: string
+      x-enum-varnames:
+      - StatusActive
+      - StatusInvalid
+      - StatusDeleting
+      - StatusDeletionFailed
+    httpres.ErrorField:
+      properties:
+        message:
+          type: string
+        name:
+          type: string
+      type: object
+    handler.ListOAuthProvidersResponse:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/models.OAuthProvider'
+          type: array
+          uniqueItems: false
+      type: object
+    models.JobType:
+      enum:
+      - DELETE_PROVIDER
+      - STATS
+      type: string
+      x-enum-varnames:
+      - JobTypeDeleteProvider
+      - JobTypeStats
+    models.JobStatus:
+      enum:
+      - PENDING
+      - RUNNING
+      - COMPLETED
+      - ERROR
+      type: string
+      x-enum-varnames:
+      - JobStatusPending
+      - JobStatusRunning
+      - JobStatusCompleted
+      - JobStatusError
+    httpres.ErrorResponse:
+      properties:
+        errorFields:
+          items:
+            $ref: '#/components/schemas/httpres.ErrorField'
+          type: array
+          uniqueItems: false
+        message:
+          type: string
+      type: object
+    handler.AuthorizeProviderResponse:
+      properties:
+        redirectUrl:
+          type: string
+        state:
+          type: string
+      type: object
+    models.AuthzStatus:
+      enum:
+      - active
+      - expired
+      - invalidOAuthClient
+      - invalidProviderState
+      type: string
+      x-enum-varnames:
+      - AuthzStatusActive
+      - AuthzStatusExpired
+      - AuthzStatusInvalidOAuthClient
+      - AuthzInactiveProviderState
+    handler.OAuthCallbackRequest:
+      properties:
+        code:
+          type: string
+        providerId:
+          type: string
+        state:
+          type: string
+      required:
+      - code
+      - providerId
+      - state
+      type: object
+    provider.CreateProviderRequest:
+      properties:
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+        name:
+          type: string
+        scopes:
+          description: Optional custom scopes; when set, overrides the provider's default scopes.
+          items:
+            type: string
+          type: array
+          uniqueItems: false
+        skipConsent:
+          type: boolean
+        type:
+          $ref: '#/components/schemas/oauthprovider.Type'
+      required:
+      - clientId
+      - clientSecret
+      - name
+      - type
+      type: object
+    handler.keyValue:
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      type: object
+    models.ProviderMetadata:
+      properties:
+        baseUrl:
+          type: string
+        host:
+          type: string
+        settingsUrl:
+          type: string
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

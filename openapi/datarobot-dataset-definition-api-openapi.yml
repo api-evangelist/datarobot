@@ -1,0 +1,962 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Dataset Definition API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: The endpoints below outline how to create and manage data source definitions.
+  name: dataset_definition
+paths:
+  /api/v2/datasetDefinitions/:
+    get:
+      description: List all dataset definitions.
+      operationId: datasetDefinitions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetDefPaginatedResponse'
+          description: ''
+      summary: List all dataset definitions
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+    post:
+      description: Create a dataset definition.
+      operationId: datasetDefinitions_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetDefCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetDefResponse'
+          description: Dataset definition created successfully.
+      summary: Create a dataset definition
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+  /api/v2/datasetDefinitions/{datasetDefinitionId}/:
+    delete:
+      description: Soft delete a dataset definition.
+      operationId: datasetDefinitions_delete
+      parameters:
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Soft delete a dataset definition based by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+    get:
+      description: Retrieve a dataset definition.
+      operationId: datasetDefinitions_retrieve
+      parameters:
+      - description: The version of the dataset definition information.
+        in: query
+        name: version
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetDefResponse'
+          description: ''
+      summary: Retrieve a dataset definition based by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+  /api/v2/datasetDefinitions/{datasetDefinitionId}/analyze/:
+    post:
+      description: Analyze a dataset definition.
+      operationId: datasetDefinitionsAnalyze_create
+      parameters:
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Empty'
+      responses:
+        '204':
+          description: ''
+      summary: Analyze a dataset definition by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+  /api/v2/datasetDefinitions/{datasetDefinitionId}/chunkDefinitions/:
+    get:
+      description: Retrieve a list chunk definitions.
+      operationId: datasetDefinitionsChunkDefinitions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChunkDefinitionPaginatedResponse'
+          description: ''
+      summary: Retrieve a list chunk definitions by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+    post:
+      description: Create a chunk definition.
+      operationId: datasetDefinitionsChunkDefinitions_create
+      parameters:
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChunkDefinitionCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChunkDefinitionResponse'
+          description: Chunk definition created successfully.
+      summary: Create a chunk definition based by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+  /api/v2/datasetDefinitions/{datasetDefinitionId}/chunkDefinitions/{chunkDefinitionId}/:
+    delete:
+      description: Soft delete a chunk definition.
+      operationId: datasetDefinitionsChunkDefinitions_delete
+      parameters:
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the chunk definition.
+        in: path
+        name: chunkDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Soft delete a chunk definition based by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+    get:
+      description: Retrieve a chunk definition.
+      operationId: datasetDefinitionsChunkDefinitions_retrieve
+      parameters:
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the chunk definition.
+        in: path
+        name: chunkDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChunkDefinitionResponse'
+          description: ''
+      summary: Retrieve a chunk definition based by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+    patch:
+      description: Update a chunk definition.
+      operationId: datasetDefinitionsChunkDefinitions_patch
+      parameters:
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the chunk definition.
+        in: path
+        name: chunkDefinitionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChunkDefinitionRowsUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChunkDefinitionResponse'
+          description: Chunk definition updated successfully.
+      summary: Update a chunk definition based by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+  /api/v2/datasetDefinitions/{datasetDefinitionId}/chunkDefinitions/{chunkDefinitionId}/analyze/:
+    post:
+      description: Analyze a chunk definition.
+      operationId: datasetDefinitionsChunkDefinitionsAnalyze_create
+      parameters:
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the chunk definition.
+        in: path
+        name: chunkDefinitionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Empty'
+      responses:
+        '204':
+          description: ''
+      summary: Analyze a chunk definition by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+  /api/v2/datasetDefinitions/{datasetDefinitionId}/versions/:
+    get:
+      description: List all dataset definition versions.
+      operationId: datasetDefinitionsVersions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The ID of the dataset definition.
+        in: path
+        name: datasetDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetDefVersionPaginatedResponse'
+          description: ''
+      summary: List all dataset definition versions by dataset definition ID
+      tags:
+      - dataset_definition
+      x-versionadded: v2.37
+components:
+  schemas:
+    DatasetInformationResponse:
+      description: Information about the dataset.
+      properties:
+        columns:
+          description: The list of the dataset column names. This field is auto-generated by the analysis job.
+          items:
+            description: Dataset column name.
+            type: string
+          maxItems: 1000
+          minItems: 2
+          type: array
+        dataSourceId:
+          default: null
+          description: The ID of the SQL table query and the database path, this field is auto-generated by the analysis job.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          default: null
+          description: The ID of the SQL data store, this field is auto-generated by the analysis job.
+          type:
+          - string
+          - 'null'
+        dialect:
+          description: Source type data was retrieved from, this field is auto-generated by the analysis job.
+          enum:
+          - snowflake
+          - bigquery
+          - databricks
+          - spark
+          - postgres
+          type: string
+        estimatedSizePerRow:
+          description: Estimated byte size per row of the dataset, this field is auto-generated by the analysis job.
+          type: integer
+        sourceSize:
+          description: Total dataset byte size, this field is auto-generated by the analysis job.
+          type: integer
+        totalRows:
+          description: Total rows of the dataset, this field is auto-generated by the analysis job.
+          type: integer
+        version:
+          description: The version of the dataset definition information.
+          type: integer
+      required:
+      - columns
+      - dataSourceId
+      - dataStoreId
+      - dialect
+      - estimatedSizePerRow
+      - sourceSize
+      - totalRows
+      - version
+      type: object
+      x-versionadded: v2.37
+    DatasetDefPaginatedResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of user-defined dataset definitions.
+          items:
+            $ref: '#/components/schemas/DatasetDefResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    ChunkDefinitionPaginatedResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of chunk definitions.
+          items:
+            $ref: '#/components/schemas/ChunkDefinitionResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    DatasetDefResponse:
+      properties:
+        creatorUserId:
+          description: The ID of the user who created the dataset definition.
+          type: string
+        datasetInfo:
+          $ref: '#/components/schemas/DatasetInformationResponse'
+        datasetProps:
+          $ref: '#/components/schemas/DatasetPropsResponse'
+        dynamicDatasetProps:
+          $ref: '#/components/schemas/DynamicDatasetPropsResponse'
+        id:
+          description: The ID of the dataset definition.
+          type: string
+        name:
+          description: The name of the dataset definition.
+          type: string
+      required:
+      - creatorUserId
+      - datasetInfo
+      - datasetProps
+      - dynamicDatasetProps
+      - id
+      - name
+      type: object
+      x-versionadded: v2.37
+    DatasetDefCreate:
+      properties:
+        credentialsId:
+          description: The ID of the credentials to access the data store.
+          type: string
+        datasetId:
+          description: The ID of the AI Catalog dataset.
+          type: string
+        datasetVersionId:
+          default: null
+          description: The version ID of the AI Catalog dataset.
+          type:
+          - string
+          - 'null'
+        name:
+          default: null
+          description: The name of the dataset definition.
+          type:
+          - string
+          - 'null'
+      required:
+      - datasetId
+      type: object
+      x-versionadded: v2.37
+    ChunkDefinitionCreate:
+      discriminator:
+        propertyName: partitionMethod
+      oneOf:
+      - properties:
+          chunkingStrategyType:
+            default: rows
+            description: The partition method.
+            enum:
+            - features
+            - rows
+            type: string
+          isDescendingOrder:
+            default: false
+            description: The sorting order.
+            type: boolean
+          name:
+            description: The name of the chunk definition.
+            type:
+            - string
+            - 'null'
+          orderByColumns:
+            default: []
+            description: The list of the sorting column names.
+            items:
+              description: Dataset column name.
+              type: string
+            maxItems: 10
+            type: array
+          partitionMethod:
+            description: The partition method.
+            enum:
+            - random
+            type: string
+        required:
+        - partitionMethod
+        type: object
+      - properties:
+          chunkingStrategyType:
+            default: rows
+            description: The partition method.
+            enum:
+            - features
+            - rows
+            type: string
+          isDescendingOrder:
+            default: false
+            description: The sorting order.
+            type: boolean
+          name:
+            description: The name of the chunk definition.
+            type:
+            - string
+            - 'null'
+          orderByColumns:
+            default: []
+            description: The list of the sorting column names.
+            items:
+              description: Dataset column name.
+              type: string
+            maxItems: 10
+            type: array
+          partitionMethod:
+            description: The partition method.
+            enum:
+            - stratified
+            type: string
+          targetClass:
+            description: Target Class.
+            type: string
+          targetColumn:
+            description: Target column name.
+            type: string
+        required:
+        - partitionMethod
+        - targetClass
+        - targetColumn
+        type: object
+      - properties:
+          chunkingStrategyType:
+            default: rows
+            description: The partition method.
+            enum:
+            - features
+            - rows
+            type: string
+          datetimePartitionColumn:
+            description: Date partition column name.
+            type: string
+          isDescendingOrder:
+            default: false
+            description: The sorting order.
+            type: boolean
+          name:
+            description: The name of the chunk definition.
+            type:
+            - string
+            - 'null'
+          orderByColumns:
+            default: []
+            description: The list of the sorting column names.
+            items:
+              description: Dataset column name.
+              type: string
+            maxItems: 10
+            type: array
+          otvTrainingEndDate:
+            description: The end date of training data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+            format: date-time
+            type:
+            - string
+            - 'null'
+          otvValidationEndDate:
+            description: The end date of validation scoring data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+            format: date-time
+            type:
+            - string
+            - 'null'
+          otvValidationStartDate:
+            description: The start date of validation scoring data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationStartDate`, one must specify `ValidationEndDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+            format: date-time
+            type:
+            - string
+            - 'null'
+          partitionMethod:
+            description: The partition method.
+            enum:
+            - date
+            type: string
+        required:
+        - datetimePartitionColumn
+        - partitionMethod
+        type: object
+      x-versionadded: v2.37
+    RowsChunkDefinitionResponse:
+      description: Row chunk definition properties.
+      properties:
+        datetimePartitionColumn:
+          description: Date partition column name.
+          type:
+          - string
+          - 'null'
+        isDescendingOrder:
+          default: false
+          description: The sorting order.
+          type: boolean
+        orderByColumns:
+          default: []
+          description: The list of the sorting column names.
+          items:
+            description: Dataset column name.
+            type: string
+          maxItems: 10
+          type: array
+        otvEarliestTimestamp:
+          description: The end date of training data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        otvLatestTimestamp:
+          description: The end date of training data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        otvTrainingEndDate:
+          description: The end date of training data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        otvValidationDownsamplingPct:
+          description: Percent by which to downsample the validation data.
+          type:
+          - number
+          - 'null'
+        otvValidationEndDate:
+          description: The end date of validation scoring data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        otvValidationStartDate:
+          description: The start date of validation scoring data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationStartDate`, one must specify `ValidationEndDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        targetClass:
+          description: Target Class.
+          type:
+          - string
+          - 'null'
+        targetColumn:
+          description: Target column name.
+          type:
+          - string
+          - 'null'
+        userGroupColumn:
+          description: User group column name.
+          type:
+          - string
+          - 'null'
+      required:
+      - datetimePartitionColumn
+      - isDescendingOrder
+      - orderByColumns
+      - otvEarliestTimestamp
+      - otvLatestTimestamp
+      - otvTrainingEndDate
+      - otvValidationDownsamplingPct
+      - otvValidationEndDate
+      - otvValidationStartDate
+      - targetClass
+      - targetColumn
+      - userGroupColumn
+      type: object
+      x-versionadded: v2.37
+    ChunkDefinitionRowsUpdate:
+      properties:
+        operations:
+          $ref: '#/components/schemas/ChunkDefinitionUpdateOperation'
+          default: {}
+        updates:
+          $ref: '#/components/schemas/ChunkDefinitionRowsUpdateFields'
+      required:
+      - updates
+      type: object
+      x-versionadded: v2.37
+    DatasetDefVersionPaginatedResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of the dataset definition versions.
+          items:
+            $ref: '#/components/schemas/DatasetDefVersionResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    ChunkDefinitionUpdateOperation:
+      description: Operations to perform on the update chunk definition.
+      properties:
+        forceUpdate:
+          default: false
+          description: Force update the chunk definition. If set to true, the analysis will be reset.
+          type: boolean
+      type: object
+      x-versionadded: v2.37
+    DatasetPropsResponse:
+      description: Dataset properties.
+      properties:
+        datasetId:
+          description: The ID of the AI Catalog dataset.
+          type: string
+        datasetVersionId:
+          description: The version ID of the AI Catalog dataset.
+          type: string
+      required:
+      - datasetId
+      - datasetVersionId
+      type: object
+      x-versionadded: v2.37
+    ChunkDefinitionResponse:
+      properties:
+        chunkDefinitionStats:
+          $ref: '#/components/schemas/ChunkDefinitionStatsResponse'
+        chunkingStrategyType:
+          default: rows
+          description: The partition method.
+          enum:
+          - features
+          - rows
+          type: string
+        datasetDefinitionId:
+          description: The dataset definition ID the definition belongs.
+          type: string
+        datasetDefinitionInfoVersion:
+          description: The version of the dataset definition information.
+          type: integer
+        featuresChunkDefinition:
+          $ref: '#/components/schemas/FeaturesChunkDefinitionResponse'
+        id:
+          description: The ID of the chunk definition.
+          type: string
+        isReadonly:
+          default: false
+          description: Flag the allows or prevents updates.
+          type: boolean
+        name:
+          description: The name of the chunk definition.
+          type: string
+        partitionMethod:
+          default: random
+          description: The partition method.
+          enum:
+          - random
+          - stratified
+          - date
+          type: string
+        rowsChunkDefinition:
+          $ref: '#/components/schemas/RowsChunkDefinitionResponse'
+      required:
+      - chunkDefinitionStats
+      - chunkingStrategyType
+      - datasetDefinitionId
+      - datasetDefinitionInfoVersion
+      - featuresChunkDefinition
+      - id
+      - isReadonly
+      - name
+      - partitionMethod
+      - rowsChunkDefinition
+      type: object
+      x-versionadded: v2.37
+    ChunkDefinitionRowsUpdateFields:
+      description: Fields to be updated in the chunk definition.
+      properties:
+        datetimePartitionColumn:
+          description: Date partition column name.
+          type: string
+        isDescendingOrder:
+          description: The sorting order.
+          type: boolean
+        name:
+          description: The name of the chunk definition.
+          type: string
+        orderByColumns:
+          description: The list of the sorting column names.
+          items:
+            description: Dataset column name.
+            type: string
+          maxItems: 10
+          type: array
+        otvTrainingEndDate:
+          description: The end date of training data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type: string
+        otvValidationEndDate:
+          description: The end date of validation scoring data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationEndDate`, one must specify `ValidationStartDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type: string
+        otvValidationStartDate:
+          description: The start date of validation scoring data in string format. Format can be '%Y-%m-%d %H:%M%S' or '%Y-%m-%d', the timezone defaults to UTC.When specifying `ValidationStartDate`, one must specify `ValidationEndDate`. This attribute cannot be patched for non-OTV incremental learning projects.
+          format: date-time
+          type: string
+        targetClass:
+          description: Target Class.
+          type: string
+        targetColumn:
+          description: Target column name.
+          type: string
+        userGroupColumn:
+          description: User group column name.
+          type: string
+      type: object
+      x-versionadded: v2.37
+    ChunkDefinitionStatsResponse:
+      description: Chunk definition stats. This field is auto-generated by the analysis job.
+      properties:
+        expectedChunkSize:
+          description: Expected chunk size. this field is auto-generated by the analysis job.
+          type: integer
+        numberOfRowsPerChunk:
+          description: Number of rows per chunk. This field is auto-generated by the analysis job.
+          type: integer
+        totalNumberOfChunks:
+          description: Total rows of the chunks. This field is auto-generated by the analysis job.
+          type: integer
+      required:
+      - expectedChunkSize
+      - numberOfRowsPerChunk
+      - totalNumberOfChunks
+      type: object
+      x-versionadded: v2.37
+    DatasetDefVersionResponse:
+      properties:
+        datasetInfo:
+          $ref: '#/components/schemas/DatasetInformationResponse'
+        id:
+          description: The ID of the dataset definition version.
+          type: string
+      required:
+      - datasetInfo
+      - id
+      type: object
+      x-versionadded: v2.37
+    DynamicDatasetPropsResponse:
+      description: Dynamic dataset additional properties.
+      properties:
+        credentialsId:
+          default: null
+          description: The ID of the credentials to access the data store.
+          type:
+          - string
+          - 'null'
+      required:
+      - credentialsId
+      type: object
+      x-versionadded: v2.37
+    FeaturesChunkDefinitionResponse:
+      description: Feature chunk definition properties.
+      type: object
+      x-versionadded: v2.37
+    Empty:
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

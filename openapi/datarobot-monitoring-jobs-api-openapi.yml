@@ -1,0 +1,4460 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Monitoring Jobs API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage monitoring jobs. To integrate more closely with external data sources, monitoring job definitions allow DataRobot to monitor deployments running and storing feature data and predictions outside of DataRobot. For example, you can create a monitoring job to connect to Snowflake, fetch raw data from the relevant Snowflake tables, and send the data to DataRobot for monitoring purposes.
+  name: monitoring_jobs
+paths:
+  /api/v2/batchMonitoring/:
+    post:
+      description: Submit the configuration for the job and it will be submitted to the queue
+      operationId: batchMonitoring_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMonitoringJobCreate'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchJobResponse'
+          description: Job details for the created Batch Monitoring job
+      summary: Creates a new Batch Monitoring job
+      tags:
+      - monitoring_jobs
+      x-versionadded: v2.35
+  /api/v2/batchMonitoringJobDefinitions/:
+    get:
+      description: List all Batch Monitoring jobs definitions available
+      operationId: batchMonitoringJobDefinitions_list
+      parameters:
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          maximum: 10000
+          minimum: 1
+          type: integer
+      - description: A human-readable name for the definition, must be unique across organisations.
+        in: query
+        name: searchName
+        required: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          type: string
+      - description: Includes only definitions for this particular deployment
+        in: query
+        name: deploymentId
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchMonitoringJobDefinitionsListResponse'
+          description: List of all available jobs
+        '422':
+          description: Your input data or query arguments did not work together
+      summary: List Batch Monitoring job definitions
+      tags:
+      - monitoring_jobs
+      x-versionadded: v2.35
+    post:
+      description: Create a Batch Monitoring Job definition. A configuration for a Batch Monitoring job which can either be executed manually upon request or on scheduled intervals, if enabled. The API payload is the same as for `/batchJobs` along with optional ``enabled`` and ``schedule`` items.
+      operationId: batchMonitoringJobDefinitions_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMonitoringJobDefinitionsCreate'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchMonitoringJobDefinitionsResponse'
+          description: Job details for the created Batch Monitoring job definition
+        '403':
+          description: You are not authorized to create a job definition on this deployment due to your permissions role
+        '422':
+          description: You tried to create a job definition with incompatible or missing parameters to create a fully functioning job definition
+      summary: Creates a new Batch Monitoring job definition
+      tags:
+      - monitoring_jobs
+      x-versionadded: v2.35
+  /api/v2/batchMonitoringJobDefinitions/{jobDefinitionId}/:
+    delete:
+      description: Delete a Batch Prediction job definition
+      operationId: batchMonitoringJobDefinitions_delete
+      parameters:
+      - description: ID of the Batch Prediction job definition
+        in: path
+        name: jobDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: You are not authorized to delete this job definition due to your permissions role
+        '404':
+          description: Job was deleted, never existed or you do not have access to it
+        '409':
+          description: Job could not be deleted, as there are currently running jobs in the queue.
+      summary: Delete Batch Prediction job definition by job definition ID
+      tags:
+      - monitoring_jobs
+      x-versionadded: v2.35
+    get:
+      description: Retrieve a Batch Monitoring job definition
+      operationId: batchMonitoringJobDefinitions_retrieve
+      parameters:
+      - description: ID of the Batch Prediction job definition
+        in: path
+        name: jobDefinitionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchMonitoringJobDefinitionsResponse'
+          description: Job details for the requested Batch Monitoring job definition
+        '404':
+          description: Job was deleted, never existed or you do not have access to it
+      summary: Retrieve Batch Monitoring job definition by job definition ID
+      tags:
+      - monitoring_jobs
+      x-versionadded: v2.35
+    patch:
+      description: Update a Batch Monitoring job definition
+      operationId: batchMonitoringJobDefinitions_patch
+      parameters:
+      - description: ID of the Batch Prediction job definition
+        in: path
+        name: jobDefinitionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMonitoringJobDefinitionsUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchMonitoringJobDefinitionsResponse'
+          description: Job details for the updated Batch Monitoring job definition
+        '403':
+          description: You are not authorized to alter the contents of this monitoring job due to your permissions role
+        '404':
+          description: Job was deleted, never existed or you do not have access to it
+        '409':
+          description: You chose a name of your monitoring job that was already existing within your organization
+        '422':
+          description: 'Could not update the monitoring job. Possible reasons: {}'
+      summary: Update Batch Monitoring job definition by job definition ID
+      tags:
+      - monitoring_jobs
+      x-versionadded: v2.35
+components:
+  schemas:
+    DatasphereIntake:
+      description: Stream CSV data chunks from Datasphere using browser-datasphere
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+        credentialId:
+          description: The ID of the credential holding information about a user with read access to the data source.
+          type: string
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - datasphere
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.35
+    CatalogDataStreamer:
+      description: Stream CSV data chunks from AI catalog dataset
+      properties:
+        datasetId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the AI catalog dataset
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        datasetVersionId:
+          description: The ID of the AI catalog dataset version
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - dataset
+          type: string
+      required:
+      - datasetId
+      - type
+      type: object
+    BigQueryOutput:
+      description: Save CSV data chunks to Google BigQuery in bulk
+      properties:
+        bucket:
+          description: The name of gcs bucket for data loading
+          type: string
+        credentialId:
+          description: The ID of the GCP credentials
+          type: string
+        dataset:
+          description: The name of the specified big query dataset to write data back
+          type: string
+        table:
+          description: The name of the specified big query table to write data back
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - bigquery
+          type: string
+      required:
+      - bucket
+      - credentialId
+      - dataset
+      - table
+      - type
+      type: object
+    SynapseDataStreamer:
+      description: Stream CSV data chunks from Azure Synapse
+      properties:
+        cloudStorageCredentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the Azure credential holding information about a user with read access to the cloud storage.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with read access to the JDBC data source.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        externalDataSource:
+          description: External datasource name
+          type: string
+        query:
+          description: 'A self-supplied SELECT statement of the dataset you wish to score. Helpful for supplying a more fine-grained selection of data not achievable through specification of "table" and/or "schema" parameters exclusively.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - synapse
+          type: string
+      required:
+      - dataStoreId
+      - externalDataSource
+      - type
+      type: object
+    TrinoIntake:
+      description: Stream CSV data chunks from Trino using browser-trino
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+        credentialId:
+          description: The ID of the credential holding information about a user with read access to the data source.
+          type: string
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - trino
+          type: string
+      required:
+      - catalog
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.41
+    Catalog:
+      description: Stream CSV data chunks from AI catalog dataset
+      properties:
+        datasetId:
+          description: The ID of the AI catalog dataset
+          type: string
+        datasetVersionId:
+          description: The ID of the AI catalog dataset version
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - dataset
+          type: string
+      required:
+      - datasetId
+      - type
+      type: object
+    BigQueryIntake:
+      description: Stream CSV data chunks from Big Query using GCS
+      properties:
+        bucket:
+          description: The name of gcs bucket for data export
+          type: string
+        credentialId:
+          description: The ID of the GCP credentials
+          type: string
+        dataset:
+          description: The name of the specified big query dataset to read input data from
+          type: string
+        table:
+          description: The name of the specified big query table to read input data from
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - bigquery
+          type: string
+      required:
+      - bucket
+      - credentialId
+      - dataset
+      - table
+      - type
+      type: object
+    JDBCDataStreamer:
+      description: Stream CSV data chunks from JDBC
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+          x-versionadded: v2.22
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with read access to the JDBC data source.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        fetchSize:
+          description: A user specified fetch size. Changing it can be used to balance throughput and memory usage. Deprecated and ignored since v2.21.
+          maximum: 1000000
+          minimum: 1
+          type: integer
+        query:
+          description: 'A self-supplied SELECT statement of the dataset you wish to score. Helpful for supplying a more fine-grained selection of data not achievable through specification of "table" and/or "schema" parameters exclusively.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - jdbc
+          type: string
+      required:
+      - dataStoreId
+      - type
+      type: object
+    SynapseIntake:
+      description: Stream CSV data chunks from Azure Synapse
+      properties:
+        cloudStorageCredentialId:
+          description: The ID of the Azure credential holding information about a user with read access to the cloud storage.
+          type:
+          - string
+          - 'null'
+        credentialId:
+          description: The ID of the credential holding information about a user with read access to the JDBC data source.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        externalDataSource:
+          description: External datasource name
+          type: string
+        query:
+          description: 'A self-supplied SELECT statement of the dataset you wish to score. Helpful for supplying a more fine-grained selection of data not achievable through specification of "table" and/or "schema" parameters exclusively.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - synapse
+          type: string
+      required:
+      - dataStoreId
+      - externalDataSource
+      - type
+      type: object
+    MonitoringColumnsMapping:
+      description: Column names mapping for monitoring
+      properties:
+        actedUponColumn:
+          description: Name of column that contains value for acted_on.
+          type: string
+        actualsTimestampColumn:
+          description: Name of column that contains actual timestamps.
+          type: string
+        actualsValueColumn:
+          description: Name of column that contains actuals value.
+          type: string
+        associationIdColumn:
+          description: Name of column that contains association Id.
+          type: string
+        customMetricId:
+          description: Id of custom metric to process values for.
+          type: string
+        customMetricTimestampColumn:
+          description: Name of column that contains custom metric values timestamps.
+          type: string
+        customMetricTimestampFormat:
+          description: Format of timestamps from customMetricTimestampColumn.
+          type: string
+        customMetricValueColumn:
+          description: Name of column that contains values for custom metric.
+          type: string
+        monitoredStatusColumn:
+          description: Column name used to mark monitored rows.
+          type: string
+        predictionsColumns:
+          description: Name of the column(s) which contain prediction values.
+          oneOf:
+          - description: Map containing column name(s) and class name(s) for multiclass problem.
+            items:
+              $ref: '#/components/schemas/PredictionColumMap'
+            maxItems: 100
+            type: array
+          - description: Column name that contains the prediction for regressions problem.
+            type: string
+        reportDrift:
+          description: True to report drift, False otherwise.
+          type: boolean
+        reportPredictions:
+          description: True to report prediction, False otherwise.
+          type: boolean
+        uniqueRowIdentifierColumns:
+          description: Column(s) name of unique row identifiers.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      type: object
+    DatabricksIntake:
+      description: Stream CSV data chunks from Databricks using browser-databricks
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+        credentialId:
+          description: The ID of the credential holding information about a user with read access to the data source.
+          type: string
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - databricks
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.43
+    JDBCOutput:
+      description: Save CSV data chunks via JDBC
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+          x-versionadded: v2.22
+        commitInterval:
+          default: 600
+          description: Defines a time interval in seconds between each commit is done to the JDBC source. If set to 0, the batch prediction operation will write the entire job before committing.
+          maximum: 86400
+          minimum: 0
+          type: integer
+          x-versionadded: v2.21
+        createTableIfNotExists:
+          default: false
+          description: Attempt to create the table first if no existing one is detected, before writing data with the strategy defined in the `statementType` parameter.
+          type: boolean
+          x-versionadded: v2.24
+        credentialId:
+          description: The ID of the credential holding information about a user with write access to the JDBC data source.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        schema:
+          description: The name of the specified database schema to write the results to.
+          type: string
+        statementType:
+          description: 'The statement type to use when writing the results. Deprecation Warning: Use of `create_table` is now discouraged. Use one of the other possibilities along with the parameter `createTableIfNotExists` set to `true`.'
+          enum:
+          - createTable
+          - create_table
+          - insert
+          - insertUpdate
+          - insert_update
+          - update
+          type: string
+        table:
+          description: 'The name of the specified database table to write the results to.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - jdbc
+          type: string
+        updateColumns:
+          description: The column names to be updated if statementType is set to either update or upsert.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        whereColumns:
+          description: The column names to be used in the where clause if statementType is set to update or upsert.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      required:
+      - dataStoreId
+      - statementType
+      - table
+      - type
+      type: object
+    DSS:
+      description: Stream CSV data chunks from DSS dataset
+      properties:
+        datasetId:
+          description: The ID of the dataset
+          type: string
+        partition:
+          default: null
+          description: Partition used to predict
+          enum:
+          - holdout
+          - validation
+          - allBacktests
+          - null
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: The ID of the project
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - dss
+          type: string
+      required:
+      - projectId
+      - type
+      type: object
+    BigQueryOutputAdaptor:
+      description: Save CSV data chunks to Google BigQuery in bulk
+      properties:
+        bucket:
+          description: The name of gcs bucket for data loading
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the GCP credentials
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataset:
+          description: The name of the specified big query dataset to write data back
+          type: string
+        table:
+          description: The name of the specified big query table to write data back
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - bigquery
+          type: string
+      required:
+      - bucket
+      - credentialId
+      - dataset
+      - table
+      - type
+      type: object
+    PredictionColumMap:
+      properties:
+        className:
+          description: Class name.
+          type: string
+        columnName:
+          description: Column name that contains the prediction for a specific class.
+          type: string
+      required:
+      - className
+      - columnName
+      type: object
+    BatchMonitoringJobDefinitionsResponse:
+      properties:
+        batchMonitoringJob:
+          $ref: '#/components/schemas/BatchJobDefinitionsSpecResponse'
+        created:
+          description: When was this job created
+          format: date-time
+          type: string
+        createdBy:
+          $ref: '#/components/schemas/BatchJobCreatedBy'
+        enabled:
+          default: false
+          description: If this job definition is enabled as a scheduled job.
+          type: boolean
+        id:
+          description: The ID of the Batch job definition
+          type: string
+        lastFailedRunTime:
+          description: Last time this job had a failed run
+          format: date-time
+          type:
+          - string
+          - 'null'
+        lastScheduledRunTime:
+          description: Last time this job was scheduled to run (though not guaranteed it actually ran at that time)
+          format: date-time
+          type:
+          - string
+          - 'null'
+        lastStartedJobStatus:
+          description: The status of the latest job launched to the queue (if any).
+          enum:
+          - INITIALIZING
+          - RUNNING
+          - COMPLETED
+          - ABORTED
+          - FAILED
+          type:
+          - string
+          - 'null'
+        lastStartedJobTime:
+          description: The last time (if any) a job was launched.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        lastSuccessfulRunTime:
+          description: Last time this job had a successful run
+          format: date-time
+          type:
+          - string
+          - 'null'
+        name:
+          description: A human-readable name for the definition, must be unique across organisations
+          type: string
+        nextScheduledRunTime:
+          description: Next time this job is scheduled to run
+          format: date-time
+          type:
+          - string
+          - 'null'
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+        updated:
+          description: When was this job last updated
+          format: date-time
+          type: string
+        updatedBy:
+          $ref: '#/components/schemas/BatchJobCreatedBy'
+      required:
+      - batchMonitoringJob
+      - created
+      - createdBy
+      - enabled
+      - id
+      - lastStartedJobStatus
+      - lastStartedJobTime
+      - name
+      - updated
+      - updatedBy
+      type: object
+      x-versionadded: v2.35
+    S3Output:
+      description: Saves CSV data chunks to Amazon Cloud Storage S3
+      properties:
+        credentialId:
+          description: Use the specified credential to access the url
+          type:
+          - string
+          - 'null'
+        endpointUrl:
+          description: Endpoint URL for the S3 connection (omit to use the default)
+          format: url
+          type: string
+          x-versionadded: v2.29
+        format:
+          default: csv
+          description: Type of output file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        partitionColumns:
+          description: For Parquet directory-scoring only. The column names of the intake data of which to partition the dataset. Columns are partitioned in the order they are given. At least one value is required if scoring to a directory (meaning the output url ends with a slash ("/").
+          items:
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        serverSideEncryption:
+          $ref: '#/components/schemas/ServerSideEncryption'
+          x-versionadded: v2.29
+        type:
+          description: Type name for this output type
+          enum:
+          - s3
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    SynapseOutput:
+      description: Save CSV data chunks to Azure Synapse in bulk
+      properties:
+        cloudStorageCredentialId:
+          description: The ID of the credential holding information about a user with write access to the cloud storage.
+          type:
+          - string
+          - 'null'
+        createTableIfNotExists:
+          default: false
+          description: Attempt to create the table first if no existing one is detected, before writing data with the strategy defined in the `statementType` parameter.
+          type: boolean
+          x-versionadded: v2.25
+        credentialId:
+          description: The ID of the credential holding information about a user with write access to the JDBC data source.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        externalDataSource:
+          description: External data source name
+          type: string
+        schema:
+          description: The name of the specified database schema to write results to.
+          type: string
+        statementType:
+          description: The statement type to use when writing the results.
+          enum:
+          - insert
+          - create_table
+          - createTable
+          type: string
+        table:
+          description: The name of the specified database table to write results to.
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - synapse
+          type: string
+      required:
+      - dataStoreId
+      - externalDataSource
+      - statementType
+      - table
+      - type
+      type: object
+    SnowflakeOutput:
+      description: Save CSV data chunks to Snowflake in bulk
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+          x-versionadded: v2.28
+        cloudStorageCredentialId:
+          description: The ID of the credential holding information about a user with write access to the cloud storage.
+          type:
+          - string
+          - 'null'
+        cloudStorageType:
+          default: s3
+          description: Type name for cloud storage
+          enum:
+          - azure
+          - gcp
+          - s3
+          type: string
+        createTableIfNotExists:
+          default: false
+          description: Attempt to create the table first if no existing one is detected, before writing data with the strategy defined in the `statementType` parameter.
+          type: boolean
+          x-versionadded: v2.25
+        credentialId:
+          description: The ID of the credential holding information about a user with write access to the Snowflake data source.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        externalStage:
+          description: External storage
+          type: string
+        schema:
+          description: The name of the specified database schema to write results to.
+          type: string
+        statementType:
+          description: The statement type to use when writing the results.
+          enum:
+          - insert
+          - create_table
+          - createTable
+          type: string
+        table:
+          description: The name of the specified database table to write results to.
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - snowflake
+          type: string
+      required:
+      - dataStoreId
+      - externalStage
+      - statementType
+      - table
+      - type
+      type: object
+    DSSDataStreamer:
+      description: Stream CSV data chunks from DSS dataset
+      properties:
+        datasetId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the dataset
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        partition:
+          default: null
+          description: Partition used to predict
+          enum:
+          - holdout
+          - validation
+          - allBacktests
+          - null
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: The ID of the project
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - dss
+          type: string
+      required:
+      - projectId
+      - type
+      type: object
+    BatchPredictionJobTimeSeriesSettingsForecast:
+      properties:
+        forecastPoint:
+          description: Used for forecast predictions in order to override the inferred forecast point from the dataset.
+          format: date-time
+          type: string
+        relaxKnownInAdvanceFeaturesCheck:
+          default: false
+          description: If activated, missing values in the known in advance features are allowed in the forecast window at prediction time. If omitted or false, missing values are not allowed.
+          type: boolean
+        type:
+          description: Forecast mode makes predictions using forecastPoint or rows in the dataset without target.
+          enum:
+          - forecast
+          type: string
+      required:
+      - type
+      type: object
+    S3DataStreamer:
+      description: Stream CSV data chunks from Amazon Cloud Storage S3
+      properties:
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: Use the specified credential to access the url
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        endpointUrl:
+          description: Endpoint URL for the S3 connection (omit to use the default)
+          format: url
+          type: string
+          x-versionadded: v2.29
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        type:
+          description: Type name for this intake type
+          enum:
+          - s3
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    BatchJobRemapping:
+      properties:
+        inputName:
+          description: Rename column with this name
+          type: string
+        outputName:
+          description: Rename column to this name (leave as null to remove from the output)
+          type:
+          - string
+          - 'null'
+      required:
+      - inputName
+      - outputName
+      type: object
+    ServerSideEncryption:
+      description: Configure Server-Side Encryption for S3 output
+      properties:
+        algorithm:
+          description: The server-side encryption algorithm used when storing this object in Amazon S3 (for example, AES256, aws:kms).
+          type: string
+        customerAlgorithm:
+          description: Specifies the algorithm to use to when encrypting the object (for example, AES256).
+          type: string
+        customerKey:
+          description: Specifies the customer-provided encryption key for Amazon S3 to use in encrypting data. This value is used to store the object and then it is discarded; Amazon S3 does not store the encryption key. The key must be appropriate for use with the algorithm specified in customerAlgorithm. The key must be sent as an base64 encoded string.
+          type: string
+        kmsEncryptionContext:
+          description: Specifies the Amazon Web Services KMS Encryption Context to use for object encryption. The value of this header is a base64-encoded UTF-8 string holding JSON with the encryption context key-value pairs.
+          type: string
+        kmsKeyId:
+          description: Specifies the ID of the symmetric customer managed key to use for object encryption.
+          type: string
+      type: object
+    DatabricksOutput:
+      description: Saves CSV data chunks to Databricks using browser-databricks
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+        credentialId:
+          description: The ID of the credential holding information about a user with write access to the data destination.
+          type: string
+        dataStoreId:
+          description: The ID of the data store to connect to
+          type: string
+        schema:
+          description: The name of the specified database schema to write output data to.
+          type: string
+        table:
+          description: The name of the specified database table to write output data to.
+          type: string
+        type:
+          description: The type name for this output type
+          enum:
+          - databricks
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.43
+    BatchJobDefinitionResponse:
+      description: The Batch Prediction Job Definition linking to this job, if any.
+      properties:
+        createdBy:
+          description: The ID of creator of this job definition
+          type: string
+        id:
+          description: The ID of the Batch Prediction job definition
+          type: string
+        name:
+          description: A human-readable name for the definition, must be unique across organisations
+          type: string
+      required:
+      - createdBy
+      - id
+      - name
+      type: object
+      x-versionadded: v2.35
+    GCPOutputAdaptor:
+      description: Save CSV data chunks to Google Storage
+      properties:
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: Use the specified credential to access the url
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        partitionColumns:
+          description: For Parquet directory-scoring only. The column names of the intake data of which to partition the dataset. Columns are partitioned in the order they are given. At least one value is required if scoring to a directory (meaning the output url ends with a slash ("/").
+          items:
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        type:
+          description: Type name for this output type
+          enum:
+          - gcp
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    BatchPredictionJobTimeSeriesSettingsHistorical:
+      properties:
+        predictionsEndDate:
+          description: Used for historical predictions in order to override date to which predictions should be calculated. By default value will be inferred automatically from the dataset.
+          format: date-time
+          type: string
+        predictionsStartDate:
+          description: Used for historical predictions in order to override date from which predictions should be calculated. By default value will be inferred automatically from the dataset.
+          format: date-time
+          type: string
+        relaxKnownInAdvanceFeaturesCheck:
+          default: false
+          description: If activated, missing values in the known in advance features are allowed in the forecast window at prediction time. If omitted or false, missing values are not allowed.
+          type: boolean
+        type:
+          description: Historical mode enables bulk predictions which calculates predictions for all possible forecast points and forecast distances in the dataset within the predictionsStartDate/predictionsEndDate range.
+          enum:
+          - historical
+          type: string
+      required:
+      - type
+      type: object
+    TrinoOutputAdaptor:
+      description: Saves CSV data chunks to Trino using browser-trino
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the data destination.
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        schema:
+          description: The name of the specified database schema to write output data to.
+          type: string
+        table:
+          description: The name of the specified database table to write output data to.
+          type: string
+        type:
+          description: The type name for this output type
+          enum:
+          - trino
+          type: string
+      required:
+      - catalog
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.41
+    LocalFileOutputAdaptor:
+      description: Save CSV data chunks to local file storage
+      properties:
+        type:
+          description: Type name for this output type
+          enum:
+          - local_file
+          - localFile
+          type: string
+      required:
+      - type
+      type: object
+    HttpOutputAdaptor:
+      description: Save CSV data chunks to HTTP data endpoint
+      properties:
+        headers:
+          description: Extra headers to send with the request
+          type: object
+        method:
+          description: Method to use when saving the CSV file
+          enum:
+          - POST
+          - PUT
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - http
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - method
+      - type
+      - url
+      type: object
+    SnowflakeOutputAdaptor:
+      description: Save CSV data chunks to Snowflake in bulk
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+          x-versionadded: v2.28
+        cloudStorageCredentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the cloud storage.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        cloudStorageType:
+          default: s3
+          description: Type name for cloud storage
+          enum:
+          - azure
+          - gcp
+          - s3
+          type: string
+        createTableIfNotExists:
+          default: false
+          description: Attempt to create the table first if no existing one is detected, before writing data with the strategy defined in the `statementType` parameter.
+          type: boolean
+          x-versionadded: v2.25
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the Snowflake data source.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        externalStage:
+          description: External storage
+          type: string
+        schema:
+          description: The name of the specified database schema to write results to.
+          type: string
+        statementType:
+          description: The statement type to use when writing the results.
+          enum:
+          - insert
+          - create_table
+          - createTable
+          type: string
+        table:
+          description: The name of the specified database table to write results to.
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - snowflake
+          type: string
+      required:
+      - dataStoreId
+      - externalStage
+      - statementType
+      - table
+      - type
+      type: object
+    AzureIntake:
+      description: Stream CSV data chunks from Azure
+      properties:
+        credentialId:
+          description: Use the specified credential to access the url
+          type:
+          - string
+          - 'null'
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        type:
+          description: Type name for this intake type
+          enum:
+          - azure
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    AzureOutput:
+      description: Save CSV data chunks to Azure Blob Storage
+      properties:
+        credentialId:
+          description: Use the specified credential to access the url
+          type:
+          - string
+          - 'null'
+        format:
+          default: csv
+          description: Type of output file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        partitionColumns:
+          description: For Parquet directory-scoring only. The column names of the intake data of which to partition the dataset. Columns are partitioned in the order they are given. At least one value is required if scoring to a directory (meaning the output url ends with a slash ("/").
+          items:
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        type:
+          description: Type name for this output type
+          enum:
+          - azure
+          type: string
+        url:
+          description: URL for the file or directory
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    BatchJobTimeSeriesSettingsHistorical:
+      properties:
+        predictionsEndDate:
+          description: Used for historical predictions in order to override date to which predictions should be calculated. By default value will be inferred automatically from the dataset.
+          format: date-time
+          type: string
+        predictionsStartDate:
+          description: Used for historical predictions in order to override date from which predictions should be calculated. By default value will be inferred automatically from the dataset.
+          format: date-time
+          type: string
+        relaxKnownInAdvanceFeaturesCheck:
+          default: false
+          description: If activated, missing values in the known in advance features are allowed in the forecast window at prediction time. If omitted or false, missing values are not allowed.
+          type: boolean
+        type:
+          description: Historical mode enables bulk predictions which calculates predictions for all possible forecast points and forecast distances in the dataset within the predictionsStartDate/predictionsEndDate range.
+          enum:
+          - historical
+          type: string
+      required:
+      - type
+      type: object
+    DataStageIntake:
+      description: Stream CSV data chunks from data stage storage
+      properties:
+        dataStageId:
+          description: The ID of the data stage
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - dataStage
+          type: string
+      required:
+      - dataStageId
+      - type
+      type: object
+    BatchJobPredictionInstance:
+      description: Override the default prediction instance from the deployment when scoring this job.
+      properties:
+        apiKey:
+          description: By default, prediction requests will use the API key of the user that created the job. This allows you to make requests on behalf of other users.
+          type: string
+        datarobotKey:
+          description: If running a job against a prediction instance in the Managed AI Cloud, you must provide the organization level DataRobot-Key.
+          type: string
+        hostName:
+          description: Override the default host name of the deployment with this.
+          type: string
+        sslEnabled:
+          default: true
+          description: Use SSL (HTTPS) when communicating with the overriden prediction server.
+          type: boolean
+      required:
+      - hostName
+      - sslEnabled
+      type: object
+    BatchJobCSVSettings:
+      description: The CSV settings used for this job
+      properties:
+        delimiter:
+          default: ','
+          description: CSV fields are delimited by this character. Use the string "tab" to denote TSV (TAB separated values).
+          oneOf:
+          - enum:
+            - tab
+            type: string
+          - maxLength: 1
+            minLength: 1
+            type: string
+        encoding:
+          default: utf-8
+          description: 'The encoding to be used for intake and output. For example (but not limited to): "shift_jis", "latin_1" or "mskanji".'
+          type: string
+        quotechar:
+          default: '"'
+          description: Fields containing the delimiter or newlines must be quoted using this character.
+          maxLength: 1
+          minLength: 1
+          type: string
+      required:
+      - delimiter
+      - encoding
+      - quotechar
+      type: object
+    SnowflakeDataStreamer:
+      description: Stream CSV data chunks from Snowflake
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+          x-versionadded: v2.28
+        cloudStorageCredentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with read access to the cloud storage.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        cloudStorageType:
+          default: s3
+          description: Type name for cloud storage
+          enum:
+          - azure
+          - gcp
+          - s3
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with read access to the Snowflake data source.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        externalStage:
+          description: External storage
+          type: string
+        query:
+          description: 'A self-supplied SELECT statement of the dataset you wish to score. Helpful for supplying a more fine-grained selection of data not achievable through specification of "table" and/or "schema" parameters exclusively.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - snowflake
+          type: string
+      required:
+      - dataStoreId
+      - externalStage
+      - type
+      type: object
+    GCPOutput:
+      description: Save CSV data chunks to Google Storage
+      properties:
+        credentialId:
+          description: Use the specified credential to access the url
+          type:
+          - string
+          - 'null'
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        partitionColumns:
+          description: For Parquet directory-scoring only. The column names of the intake data of which to partition the dataset. Columns are partitioned in the order they are given. At least one value is required if scoring to a directory (meaning the output url ends with a slash ("/").
+          items:
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        type:
+          description: Type name for this output type
+          enum:
+          - gcp
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    FileSystemDataStreamer:
+      properties:
+        path:
+          description: Path to data on host filesystem
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - filesystem
+          type: string
+      required:
+      - path
+      - type
+      type: object
+    AzureOutputAdaptor:
+      description: Save CSV data chunks to Azure Blob Storage
+      properties:
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: Use the specified credential to access the url
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        format:
+          default: csv
+          description: Type of output file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        partitionColumns:
+          description: For Parquet directory-scoring only. The column names of the intake data of which to partition the dataset. Columns are partitioned in the order they are given. At least one value is required if scoring to a directory (meaning the output url ends with a slash ("/").
+          items:
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        type:
+          description: Type name for this output type
+          enum:
+          - azure
+          type: string
+        url:
+          description: URL for the file or directory
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    S3Intake:
+      description: Stream CSV data chunks from Amazon Cloud Storage S3
+      properties:
+        credentialId:
+          description: Use the specified credential to access the url
+          type:
+          - string
+          - 'null'
+        endpointUrl:
+          description: Endpoint URL for the S3 connection (omit to use the default)
+          format: url
+          type: string
+          x-versionadded: v2.29
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        type:
+          description: Type name for this intake type
+          enum:
+          - s3
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    AzureDataStreamer:
+      description: Stream CSV data chunks from Azure
+      properties:
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: Use the specified credential to access the url
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        type:
+          description: Type name for this intake type
+          enum:
+          - azure
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    BatchMonitoringJobCreate:
+      properties:
+        abortOnError:
+          default: true
+          description: Should this job abort if too many errors are encountered
+          type: boolean
+        batchJobType:
+          default: monitoring
+          description: Batch job type.
+          enum:
+          - monitoring
+          - prediction
+          type: string
+        chunkSize:
+          default: auto
+          description: Which strategy should be used to determine the chunk size. Can be either a named strategy or a fixed size in bytes.
+          oneOf:
+          - enum:
+            - auto
+            - fixed
+            - dynamic
+            type: string
+          - maximum: 41943040
+            minimum: 20
+            type: integer
+        columnNamesRemapping:
+          description: Remap (rename or remove columns from) the output from this job
+          oneOf:
+          - description: Provide a dictionary with key/value pairs to remap (deprecated)
+            type: object
+          - description: Provide a list of items to remap
+            items:
+              $ref: '#/components/schemas/BatchPredictionJobRemapping'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+        csvSettings:
+          $ref: '#/components/schemas/BatchPredictionJobCSVSettings'
+          default:
+            delimiter: ','
+            encoding: utf-8
+            quotechar: '"'
+        deploymentId:
+          description: ID of deployment which is used in job for processing predictions dataset
+          type: string
+        disableRowLevelErrorHandling:
+          default: false
+          description: Skip row by row error handling
+          type: boolean
+        explanationAlgorithm:
+          description: Which algorithm will be used to calculate prediction explanations
+          enum:
+          - shap
+          - xemp
+          type: string
+        explanationClassNames:
+          description: Sets a list of selected class names for which corresponding explanations are returned in each row. This setting is mutually exclusive with numTopClasses. If neither parameter is specified, the default setting is numTopClasses=1.
+          items:
+            description: Class name to explain
+            type: string
+          maxItems: 100
+          minItems: 1
+          type: array
+          x-versionadded: v2.29
+        explanationNumTopClasses:
+          description: Sets the number of most probable (top predicted) classes for which corresponding explanations are returned in each row. This setting is mutually exclusive with classNames. If neither parameter is specified, the default setting is numTopClasses=1.
+          maximum: 100
+          minimum: 1
+          type: integer
+          x-versionadded: v2.29
+        includePredictionStatus:
+          default: false
+          description: Include prediction status column in the output
+          type: boolean
+        includeProbabilities:
+          default: true
+          description: Include probabilities for all classes
+          type: boolean
+        includeProbabilitiesClasses:
+          default: []
+          description: Include only probabilities for these specific class names.
+          items:
+            description: Include probability for this class name
+            type: string
+          maxItems: 100
+          type: array
+        intakeSettings:
+          default:
+            type: localFile
+          description: The intake option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryIntake'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/DataStageIntake'
+            x-versionadded: v2.28
+          - $ref: '#/components/schemas/DatabricksIntake'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/Catalog'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/DatasphereIntake'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/DSS'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/FileSystemIntake'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/GCPIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/HTTPIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCIntake'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileIntake'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/S3Intake'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeIntake'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseIntake'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/TrinoIntake'
+            x-versionadded: v2.41
+        maxExplanations:
+          default: 0
+          description: Number of explanations requested. Will be ordered by strength.
+          maximum: 100
+          minimum: 0
+          type: integer
+        modelId:
+          description: ID of leaderboard model which is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.28
+        modelPackageId:
+          description: ID of model package from registry is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.28
+        monitoringAggregation:
+          $ref: '#/components/schemas/MonitoringAggregation'
+        monitoringBatchPrefix:
+          description: Name of the batch to create with this job
+          type:
+          - string
+          - 'null'
+        monitoringColumns:
+          $ref: '#/components/schemas/MonitoringColumnsMapping'
+        monitoringOutputSettings:
+          $ref: '#/components/schemas/MonitoringOutputSettings'
+        numConcurrent:
+          description: Number of simultaneous requests to run against the prediction instance
+          minimum: 1
+          type: integer
+        outputSettings:
+          description: The output option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryOutput'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/DatabricksOutput'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/DatasphereOutput'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/FileSystemOutput'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/GCPOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/HTTPOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCOutput'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileOutput'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/S3Output'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeOutput'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseOutput'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/TrinoOutput'
+            x-versionadded: v2.41
+          - type: 'null'
+        passthroughColumns:
+          description: Pass through columns from the original dataset
+          items:
+            description: A column name from the original dataset to pass through to the resulting predictions
+            maxLength: 50
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        passthroughColumnsSet:
+          description: Pass through all columns from the original dataset
+          enum:
+          - all
+          type: string
+        pinnedModelId:
+          description: Specify a model ID used for scoring
+          type: string
+        predictionInstance:
+          $ref: '#/components/schemas/BatchPredictionJobPredictionInstance'
+        predictionThreshold:
+          description: Threshold is the point that sets the class boundary for a predicted value. The model classifies an observation below the threshold as FALSE, and an observation above the threshold as TRUE. In other words, DataRobot automatically assigns the positive class label to any prediction exceeding the threshold. This value can be set between 0.0 and 1.0.
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        predictionWarningEnabled:
+          description: Enable prediction warnings.
+          type:
+          - boolean
+          - 'null'
+        secondaryDatasetsConfigId:
+          description: Configuration id for secondary datasets to use when making a prediction.
+          type: string
+          x-versionadded: v2.33
+        skipDriftTracking:
+          default: false
+          description: Skip drift tracking for this job.
+          type: boolean
+        thresholdHigh:
+          description: Compute explanations for predictions above this threshold
+          type: number
+        thresholdLow:
+          description: Compute explanations for predictions below this threshold
+          type: number
+        timeseriesSettings:
+          description: Time Series settings included of this job is a Time Series job.
+          oneOf:
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsForecast'
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsHistorical'
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsTraining'
+          x-versionadded: v2.20
+      required:
+      - abortOnError
+      - csvSettings
+      - disableRowLevelErrorHandling
+      - includePredictionStatus
+      - includeProbabilities
+      - includeProbabilitiesClasses
+      - intakeSettings
+      - maxExplanations
+      - skipDriftTracking
+      type: object
+      x-versionadded: v2.35
+    BatchMonitoringJobDefinitionsCreate:
+      properties:
+        abortOnError:
+          default: true
+          description: Should this job abort if too many errors are encountered
+          type: boolean
+        batchJobType:
+          default: monitoring
+          description: Batch job type.
+          enum:
+          - monitoring
+          - prediction
+          type: string
+        chunkSize:
+          default: auto
+          description: Which strategy should be used to determine the chunk size. Can be either a named strategy or a fixed size in bytes.
+          oneOf:
+          - enum:
+            - auto
+            - fixed
+            - dynamic
+            type: string
+          - maximum: 41943040
+            minimum: 20
+            type: integer
+        columnNamesRemapping:
+          description: Remap (rename or remove columns from) the output from this job
+          oneOf:
+          - description: Provide a dictionary with key/value pairs to remap (deprecated)
+            type: object
+          - description: Provide a list of items to remap
+            items:
+              $ref: '#/components/schemas/BatchPredictionJobRemapping'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+        csvSettings:
+          $ref: '#/components/schemas/BatchPredictionJobCSVSettings'
+          default:
+            delimiter: ','
+            encoding: utf-8
+            quotechar: '"'
+        deploymentId:
+          description: ID of deployment that the monitoring jobs is associated with.
+          type: string
+        disableRowLevelErrorHandling:
+          default: false
+          description: Skip row by row error handling
+          type: boolean
+        enabled:
+          description: If this job definition is enabled as a scheduled job. Optional if no schedule is supplied.
+          type: boolean
+        explanationAlgorithm:
+          description: Which algorithm will be used to calculate prediction explanations
+          enum:
+          - shap
+          - xemp
+          type: string
+        explanationClassNames:
+          description: Sets a list of selected class names for which corresponding explanations are returned in each row. This setting is mutually exclusive with numTopClasses. If neither parameter is specified, the default setting is numTopClasses=1.
+          items:
+            description: Class name to explain
+            type: string
+          maxItems: 100
+          minItems: 1
+          type: array
+          x-versionadded: v2.29
+        explanationNumTopClasses:
+          description: Sets the number of most probable (top predicted) classes for which corresponding explanations are returned in each row. This setting is mutually exclusive with classNames. If neither parameter is specified, the default setting is numTopClasses=1.
+          maximum: 100
+          minimum: 1
+          type: integer
+          x-versionadded: v2.29
+        includePredictionStatus:
+          default: false
+          description: Include prediction status column in the output
+          type: boolean
+        includeProbabilities:
+          default: true
+          description: Include probabilities for all classes
+          type: boolean
+        includeProbabilitiesClasses:
+          default: []
+          description: Include only probabilities for these specific class names.
+          items:
+            description: Include probability for this class name
+            type: string
+          maxItems: 100
+          type: array
+        intakeSettings:
+          default:
+            type: localFile
+          description: The intake option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryIntake'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/DataStageIntake'
+            x-versionadded: v2.28
+          - $ref: '#/components/schemas/DatabricksIntake'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/Catalog'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/DatasphereIntake'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/DSS'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/FileSystemIntake'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/GCPIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/HTTPIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCIntake'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileIntake'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/S3Intake'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeIntake'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseIntake'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/TrinoIntake'
+            x-versionadded: v2.41
+        maxExplanations:
+          default: 0
+          description: Number of explanations requested. Will be ordered by strength.
+          maximum: 100
+          minimum: 0
+          type: integer
+        modelId:
+          description: ID of leaderboard model which is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.28
+        modelPackageId:
+          description: ID of model package from registry is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.28
+        monitoringAggregation:
+          $ref: '#/components/schemas/MonitoringAggregation'
+        monitoringBatchPrefix:
+          description: Name of the batch to create with this job
+          type:
+          - string
+          - 'null'
+        monitoringColumns:
+          $ref: '#/components/schemas/MonitoringColumnsMapping'
+        monitoringOutputSettings:
+          $ref: '#/components/schemas/MonitoringOutputSettings'
+        name:
+          description: A human-readable name for the definition, must be unique across organisations, if left out the backend will generate one for you.
+          maxLength: 100
+          minLength: 1
+          type: string
+        numConcurrent:
+          description: Number of simultaneous requests to run against the prediction instance
+          minimum: 1
+          type: integer
+        outputSettings:
+          description: The output option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryOutput'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/DatabricksOutput'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/DatasphereOutput'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/FileSystemOutput'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/GCPOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/HTTPOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCOutput'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileOutput'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/S3Output'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeOutput'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseOutput'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/TrinoOutput'
+            x-versionadded: v2.41
+          - type: 'null'
+        passthroughColumns:
+          description: Pass through columns from the original dataset
+          items:
+            description: A column name from the original dataset to pass through to the resulting predictions
+            maxLength: 50
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        passthroughColumnsSet:
+          description: Pass through all columns from the original dataset
+          enum:
+          - all
+          type: string
+        pinnedModelId:
+          description: Specify a model ID used for scoring
+          type: string
+        predictionInstance:
+          $ref: '#/components/schemas/BatchPredictionJobPredictionInstance'
+        predictionThreshold:
+          description: Threshold is the point that sets the class boundary for a predicted value. The model classifies an observation below the threshold as FALSE, and an observation above the threshold as TRUE. In other words, DataRobot automatically assigns the positive class label to any prediction exceeding the threshold. This value can be set between 0.0 and 1.0.
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        predictionWarningEnabled:
+          description: Enable prediction warnings.
+          type:
+          - boolean
+          - 'null'
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+        secondaryDatasetsConfigId:
+          description: Configuration id for secondary datasets to use when making a prediction.
+          type: string
+          x-versionadded: v2.33
+        skipDriftTracking:
+          default: false
+          description: Skip drift tracking for this job.
+          type: boolean
+        thresholdHigh:
+          description: Compute explanations for predictions above this threshold
+          type: number
+        thresholdLow:
+          description: Compute explanations for predictions below this threshold
+          type: number
+        timeseriesSettings:
+          description: Time Series settings included of this job is a Time Series job.
+          oneOf:
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsForecast'
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsHistorical'
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsTraining'
+          x-versionadded: v2.20
+      required:
+      - abortOnError
+      - csvSettings
+      - deploymentId
+      - disableRowLevelErrorHandling
+      - includePredictionStatus
+      - includeProbabilities
+      - includeProbabilitiesClasses
+      - intakeSettings
+      - maxExplanations
+      - skipDriftTracking
+      type: object
+      x-versionadded: v2.35
+    BatchMonitoringJobDefinitionsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of scheduled jobs
+          items:
+            $ref: '#/components/schemas/BatchMonitoringJobDefinitionsResponse'
+          maxItems: 10000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    TrinoDataStreamer:
+      description: Stream CSV data chunks from Trino using browser-trino
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with read access to the data source.
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - trino
+          type: string
+      required:
+      - catalog
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.41
+    BatchJobTimeSeriesSettingsForecast:
+      properties:
+        forecastPoint:
+          description: Used for forecast predictions in order to override the inferred forecast point from the dataset.
+          format: date-time
+          type: string
+        relaxKnownInAdvanceFeaturesCheck:
+          default: false
+          description: If activated, missing values in the known in advance features are allowed in the forecast window at prediction time. If omitted or false, missing values are not allowed.
+          type: boolean
+        type:
+          description: Forecast mode makes predictions using forecastPoint or rows in the dataset without target.
+          enum:
+          - forecast
+          type: string
+      required:
+      - type
+      type: object
+    MonitoringOutputSettings:
+      description: Output settings for monitoring jobs
+      properties:
+        monitoredStatusColumn:
+          description: Column name used to mark monitored rows.
+          type: string
+        uniqueRowIdentifierColumns:
+          description: Column(s) name of unique row identifiers.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      required:
+      - monitoredStatusColumn
+      - uniqueRowIdentifierColumns
+      type: object
+    S3OutputAdaptor:
+      description: Saves CSV data chunks to Amazon Cloud Storage S3
+      properties:
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: Use the specified credential to access the url
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        endpointUrl:
+          description: Endpoint URL for the S3 connection (omit to use the default)
+          format: url
+          type: string
+          x-versionadded: v2.29
+        format:
+          default: csv
+          description: Type of output file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        partitionColumns:
+          description: For Parquet directory-scoring only. The column names of the intake data of which to partition the dataset. Columns are partitioned in the order they are given. At least one value is required if scoring to a directory (meaning the output url ends with a slash ("/").
+          items:
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        serverSideEncryption:
+          $ref: '#/components/schemas/ServerSideEncryption'
+          x-versionadded: v2.29
+        type:
+          description: Type name for this output type
+          enum:
+          - s3
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    BatchJobLinks:
+      description: Links useful for this job
+      properties:
+        csvUpload:
+          description: The URL used to upload the dataset for this job. Only available for localFile intake.
+          format: url
+          type: string
+        download:
+          description: The URL used to download the results from this job. Only available for localFile outputs. Will be null if the download is not yet available.
+          type:
+          - string
+          - 'null'
+        self:
+          description: The URL used access this job.
+          format: url
+          type: string
+      required:
+      - self
+      type: object
+      x-versionadded: v2.35
+    BatchJobSpecResponse:
+      description: The job configuration used to create this job
+      properties:
+        abortOnError:
+          default: true
+          description: Should this job abort if too many errors are encountered
+          type: boolean
+        batchJobType:
+          description: Batch job type.
+          enum:
+          - monitoring
+          - prediction
+          type: string
+          x-versionadded: v2.30
+        chunkSize:
+          default: auto
+          description: Which strategy should be used to determine the chunk size. Can be either a named strategy or a fixed size in bytes.
+          oneOf:
+          - enum:
+            - auto
+            - fixed
+            - dynamic
+            type: string
+          - maximum: 41943040
+            minimum: 20
+            type: integer
+        columnNamesRemapping:
+          description: Remap (rename or remove columns from) the output from this job
+          oneOf:
+          - description: Provide a dictionary with key/value pairs to remap (deprecated)
+            type: object
+          - description: Provide a list of items to remap
+            items:
+              $ref: '#/components/schemas/BatchJobRemapping'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+        csvSettings:
+          $ref: '#/components/schemas/BatchJobCSVSettings'
+          default:
+            delimiter: ','
+            encoding: utf-8
+            quotechar: '"'
+        deploymentId:
+          description: ID of deployment which is used in job for processing predictions dataset
+          type: string
+        disableRowLevelErrorHandling:
+          default: false
+          description: Skip row by row error handling
+          type: boolean
+        explanationAlgorithm:
+          description: Which algorithm will be used to calculate prediction explanations
+          enum:
+          - shap
+          - xemp
+          type: string
+        explanationClassNames:
+          description: List of class names that will be explained for each row for multiclass. Mutually exclusive with explanationNumTopClasses. If neither specified - we assume explanationNumTopClasses=1
+          items:
+            description: Class name to explain
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+          x-versionadded: v2.30
+        explanationNumTopClasses:
+          description: Number of top predicted classes for each row that will be explained for multiclass. Mutually exclusive with explanationClassNames. If neither specified - we assume explanationNumTopClasses=1
+          maximum: 10
+          minimum: 1
+          type: integer
+          x-versionadded: v2.30
+        includePredictionStatus:
+          default: false
+          description: Include prediction status column in the output
+          type: boolean
+        includeProbabilities:
+          default: true
+          description: Include probabilities for all classes
+          type: boolean
+        includeProbabilitiesClasses:
+          default: []
+          description: Include only probabilities for these specific class names.
+          items:
+            description: Include probability for this class name
+            type: string
+          maxItems: 100
+          type: array
+        intakeSettings:
+          default:
+            type: localFile
+          description: The response option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureDataStreamer'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/DataStageDataStreamer'
+            x-versionadded: v2.28
+          - $ref: '#/components/schemas/CatalogDataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/GCPDataStreamer'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryDataStreamer'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/S3DataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeDataStreamer'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseDataStreamer'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/DSSDataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/FileSystemDataStreamer'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/HTTPDataStreamer'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCDataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileDataStreamer'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/DatabricksDataStreamer'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/DatasphereDataStreamer'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/TrinoDataStreamer'
+            x-versionadded: v2.41
+        maxExplanations:
+          default: 0
+          description: Number of explanations requested. Will be ordered by strength.
+          maximum: 100
+          minimum: 0
+          type: integer
+        maxNgramExplanations:
+          description: The maximum number of text ngram explanations to supply per row of the dataset. The default recommended `maxNgramExplanations` is `all` (no limit)
+          oneOf:
+          - minimum: 0
+            type: integer
+          - enum:
+            - all
+            type: string
+          - type: 'null'
+          x-versionadded: v2.30
+        modelId:
+          description: ID of leaderboard model which is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.30
+        modelPackageId:
+          description: ID of model package from registry is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.30
+        monitoringAggregation:
+          $ref: '#/components/schemas/MonitoringAggregation'
+          x-versionadded: v2.30
+        monitoringBatchPrefix:
+          description: Name of the batch to create with this job
+          type:
+          - string
+          - 'null'
+        monitoringColumns:
+          $ref: '#/components/schemas/MonitoringColumnsMapping'
+          x-versionadded: v2.30
+        monitoringOutputSettings:
+          $ref: '#/components/schemas/MonitoringOutputSettings'
+        numConcurrent:
+          description: Number of simultaneous requests to run against the prediction instance
+          minimum: 1
+          type: integer
+        outputSettings:
+          description: The response option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureOutputAdaptor'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/GCPOutputAdaptor'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryOutputAdaptor'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/S3OutputAdaptor'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeOutputAdaptor'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseOutputAdaptor'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/FileSystemOutputAdaptor'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/HttpOutputAdaptor'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JdbcOutputAdaptor'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileOutputAdaptor'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/DatabricksOutputAdaptor'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/DatasphereOutputAdaptor'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/TrinoOutputAdaptor'
+            x-versionadded: v2.41
+          - type: 'null'
+        passthroughColumns:
+          description: Pass through columns from the original dataset
+          items:
+            description: A column name from the original dataset to pass through to the resulting predictions
+            maxLength: 50
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        passthroughColumnsSet:
+          description: Pass through all columns from the original dataset
+          enum:
+          - all
+          type: string
+        pinnedModelId:
+          description: Specify a model ID used for scoring
+          type: string
+        predictionInstance:
+          $ref: '#/components/schemas/BatchJobPredictionInstance'
+        predictionWarningEnabled:
+          description: Enable prediction warnings.
+          type:
+          - boolean
+          - 'null'
+        redactedFields:
+          description: 'A list of qualified field names from intake- and/or outputSettings that was redacted due to permissions and sharing settings. For example: intakeSettings.dataStoreId'
+          items:
+            description: Field names that are potentially redacted
+            type: string
+          type: array
+          x-versionadded: v2.30
+        skipDriftTracking:
+          default: false
+          description: Skip drift tracking for this job.
+          type: boolean
+        thresholdHigh:
+          description: Compute explanations for predictions above this threshold
+          type: number
+        thresholdLow:
+          description: Compute explanations for predictions below this threshold
+          type: number
+        timeseriesSettings:
+          description: Time Series settings included of this job is a Time Series job.
+          oneOf:
+          - $ref: '#/components/schemas/BatchJobTimeSeriesSettingsForecast'
+          - $ref: '#/components/schemas/BatchJobTimeSeriesSettingsHistorical'
+          x-versionadded: v2.30
+      required:
+      - abortOnError
+      - csvSettings
+      - disableRowLevelErrorHandling
+      - includePredictionStatus
+      - includeProbabilities
+      - includeProbabilitiesClasses
+      - intakeSettings
+      - maxExplanations
+      - redactedFields
+      - skipDriftTracking
+      type: object
+      x-versionadded: v2.35
+    JdbcOutputAdaptor:
+      description: Save CSV data chunks via JDBC
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+          x-versionadded: v2.22
+        commitInterval:
+          default: 600
+          description: Defines a time interval in seconds between each commit is done to the JDBC source. If set to 0, the batch prediction operation will write the entire job before committing.
+          maximum: 86400
+          minimum: 0
+          type: integer
+          x-versionadded: v2.21
+        createTableIfNotExists:
+          default: false
+          description: Attempt to create the table first if no existing one is detected, before writing data with the strategy defined in the `statementType` parameter.
+          type: boolean
+          x-versionadded: v2.24
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the JDBC data source.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        schema:
+          description: The name of the specified database schema to write the results to.
+          type: string
+        statementType:
+          description: 'The statement type to use when writing the results. Deprecation Warning: Use of `create_table` is now discouraged. Use one of the other possibilities along with the parameter `createTableIfNotExists` set to `true`.'
+          enum:
+          - createTable
+          - create_table
+          - insert
+          - insertUpdate
+          - insert_update
+          - update
+          type: string
+        table:
+          description: 'The name of the specified database table to write the results to.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - jdbc
+          type: string
+        updateColumns:
+          description: The column names to be updated if statementType is set to either update or upsert.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        whereColumns:
+          description: The column names to be used in the where clause if statementType is set to update or upsert.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      required:
+      - dataStoreId
+      - statementType
+      - table
+      - type
+      type: object
+    GCPIntake:
+      description: Stream CSV data chunks from Google Storage
+      properties:
+        credentialId:
+          description: Use the specified credential to access the url
+          type:
+          - string
+          - 'null'
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        type:
+          description: Type name for this intake type
+          enum:
+          - gcp
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    BigQueryDataStreamer:
+      description: Stream CSV data chunks from Big Query using GCS
+      properties:
+        bucket:
+          description: The name of gcs bucket for data export
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the GCP credentials
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataset:
+          description: The name of the specified big query dataset to read input data from
+          type: string
+        table:
+          description: The name of the specified big query table to read input data from
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - bigquery
+          type: string
+      required:
+      - bucket
+      - credentialId
+      - dataset
+      - table
+      - type
+      type: object
+    JDBCIntake:
+      description: Stream CSV data chunks from JDBC
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+          x-versionadded: v2.22
+        credentialId:
+          description: The ID of the credential holding information about a user with read access to the JDBC data source.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        fetchSize:
+          description: A user specified fetch size. Changing it can be used to balance throughput and memory usage. Deprecated and ignored since v2.21.
+          maximum: 1000000
+          minimum: 1
+          type: integer
+        query:
+          description: 'A self-supplied SELECT statement of the dataset you wish to score. Helpful for supplying a more fine-grained selection of data not achievable through specification of "table" and/or "schema" parameters exclusively.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - jdbc
+          type: string
+      required:
+      - dataStoreId
+      - type
+      type: object
+    SynapseOutputAdaptor:
+      description: Save CSV data chunks to Azure Synapse in bulk
+      properties:
+        cloudStorageCredentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the cloud storage.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        createTableIfNotExists:
+          default: false
+          description: Attempt to create the table first if no existing one is detected, before writing data with the strategy defined in the `statementType` parameter.
+          type: boolean
+          x-versionadded: v2.25
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the JDBC data source.
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        externalDataSource:
+          description: External data source name
+          type: string
+        schema:
+          description: The name of the specified database schema to write results to.
+          type: string
+        statementType:
+          description: The statement type to use when writing the results.
+          enum:
+          - insert
+          - create_table
+          - createTable
+          type: string
+        table:
+          description: The name of the specified database table to write results to.
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - synapse
+          type: string
+      required:
+      - dataStoreId
+      - externalDataSource
+      - statementType
+      - table
+      - type
+      type: object
+    FileSystemOutputAdaptor:
+      properties:
+        path:
+          description: Path to results on host filesystem
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - filesystem
+          type: string
+      required:
+      - path
+      - type
+      type: object
+    BatchPredictionJobPredictionInstance:
+      description: Override the default prediction instance from the deployment when scoring this job.
+      properties:
+        apiKey:
+          description: By default, prediction requests will use the API key of the user that created the job. This allows you to make requests on behalf of other users.
+          type: string
+        datarobotKey:
+          description: If running a job against a prediction instance in the Managed AI Cloud, you must provide the organization level DataRobot-Key.
+          type: string
+        hostName:
+          description: Override the default host name of the deployment with this.
+          type: string
+        sslEnabled:
+          default: true
+          description: Use SSL (HTTPS) when communicating with the overriden prediction server.
+          type: boolean
+      required:
+      - hostName
+      - sslEnabled
+      type: object
+    BatchPredictionJobCSVSettings:
+      description: The CSV settings used for this job
+      properties:
+        delimiter:
+          default: ','
+          description: CSV fields are delimited by this character. Use the string "tab" to denote TSV (TAB separated values).
+          oneOf:
+          - enum:
+            - tab
+            type: string
+          - maxLength: 1
+            minLength: 1
+            type: string
+        encoding:
+          default: utf-8
+          description: 'The encoding to be used for intake and output. For example (but not limited to): "shift_jis", "latin_1" or "mskanji".'
+          type: string
+        quotechar:
+          default: '"'
+          description: Fields containing the delimiter or newlines must be quoted using this character.
+          maxLength: 1
+          minLength: 1
+          type: string
+      required:
+      - delimiter
+      - encoding
+      - quotechar
+      type: object
+    BatchJobCreatedBy:
+      description: Who created this job
+      properties:
+        fullName:
+          description: The full name of the user who created this job (if defined by the user)
+          type:
+          - string
+          - 'null'
+        userId:
+          description: The User ID of the user who created this job
+          type: string
+        username:
+          description: The username (e-mail address) of the user who created this job
+          type: string
+      required:
+      - fullName
+      - userId
+      - username
+      type: object
+    DatasphereOutput:
+      description: Saves CSV data chunks to Datasphere using browser-datasphere
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+        credentialId:
+          description: The ID of the credential holding information about a user with write access to the data destination.
+          type: string
+        dataStoreId:
+          description: The ID of the data store to connect to
+          type: string
+        schema:
+          description: The name of the specified database schema to write output data to.
+          type: string
+        table:
+          description: The name of the specified database table to write output data to.
+          type: string
+        type:
+          description: The type name for this output type
+          enum:
+          - datasphere
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.35
+    TrinoOutput:
+      description: Saves CSV data chunks to Trino using browser-trino
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+        credentialId:
+          description: The ID of the credential holding information about a user with write access to the data destination.
+          type: string
+        dataStoreId:
+          description: The ID of the data store to connect to
+          type: string
+        schema:
+          description: The name of the specified database schema to write output data to.
+          type: string
+        table:
+          description: The name of the specified database table to write output data to.
+          type: string
+        type:
+          description: The type name for this output type
+          enum:
+          - trino
+          type: string
+      required:
+      - catalog
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.41
+    SnowflakeIntake:
+      description: Stream CSV data chunks from Snowflake
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+          x-versionadded: v2.28
+        cloudStorageCredentialId:
+          description: The ID of the credential holding information about a user with read access to the cloud storage.
+          type:
+          - string
+          - 'null'
+        cloudStorageType:
+          default: s3
+          description: Type name for cloud storage
+          enum:
+          - azure
+          - gcp
+          - s3
+          type: string
+        credentialId:
+          description: The ID of the credential holding information about a user with read access to the Snowflake data source.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: ID of the data store to connect to
+          type: string
+        externalStage:
+          description: External storage
+          type: string
+        query:
+          description: 'A self-supplied SELECT statement of the dataset you wish to score. Helpful for supplying a more fine-grained selection of data not achievable through specification of "table" and/or "schema" parameters exclusively.If this job is executed with a job definition, then template variables are available which will be substituted for timestamps: {{ current_run_timestamp }}, {{ last_completed_run_time }}, {{ last_scheduled_run_time }}, {{ next_scheduled_run_time }}, {{ current_run_time }}'
+          type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - snowflake
+          type: string
+      required:
+      - dataStoreId
+      - externalStage
+      - type
+      type: object
+    DatabricksOutputAdaptor:
+      description: Saves CSV data chunks to Databricks using browser-databricks
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the data destination.
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        schema:
+          description: The name of the specified database schema to write output data to.
+          type: string
+        table:
+          description: The name of the specified database table to write output data to.
+          type: string
+        type:
+          description: The type name for this output type
+          enum:
+          - databricks
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.43
+    FileSystemIntake:
+      properties:
+        path:
+          description: Path to data on host filesystem
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - filesystem
+          type: string
+      required:
+      - path
+      - type
+      type: object
+    LocalFileIntake:
+      description: Stream CSV data chunks from local file storage
+      properties:
+        async:
+          description: 'The default behavior (async: true) will still submit the job to the queue and start processing as soon as the upload is started.Setting it to false will postpone submitting the job to the queue until all data has been uploaded.This is helpful if the user is on a bad connection and bottlednecked by the upload speed. Instead of blocking the queue this will allow others to submit to the queue until the upload has finished.'
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.28
+        multipart:
+          description: specify if the data will be uploaded in multiple parts instead of a single file
+          type: boolean
+          x-versionadded: v2.27
+        type:
+          description: Type name for this intake type
+          enum:
+          - local_file
+          - localFile
+          type: string
+      required:
+      - type
+      type: object
+    DatabricksDataStreamer:
+      description: Stream CSV data chunks from Databricks using browser-databricks
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with read access to the data source.
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - databricks
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.43
+    BatchJobDefinitionsSpecResponse:
+      description: The Batch Monitoring Job specification to be put on the queue in intervals
+      properties:
+        abortOnError:
+          default: true
+          description: Should this job abort if too many errors are encountered
+          type: boolean
+        batchJobType:
+          description: Batch job type.
+          enum:
+          - monitoring
+          - prediction
+          type: string
+          x-versionadded: v2.30
+        chunkSize:
+          default: auto
+          description: Which strategy should be used to determine the chunk size. Can be either a named strategy or a fixed size in bytes.
+          oneOf:
+          - enum:
+            - auto
+            - fixed
+            - dynamic
+            type: string
+          - maximum: 41943040
+            minimum: 20
+            type: integer
+        columnNamesRemapping:
+          description: Remap (rename or remove columns from) the output from this job
+          oneOf:
+          - description: Provide a dictionary with key/value pairs to remap (deprecated)
+            type: object
+          - description: Provide a list of items to remap
+            items:
+              $ref: '#/components/schemas/BatchJobRemapping'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+        csvSettings:
+          $ref: '#/components/schemas/BatchJobCSVSettings'
+          default:
+            delimiter: ','
+            encoding: utf-8
+            quotechar: '"'
+        deploymentId:
+          description: ID of deployment which is used in job for processing predictions dataset
+          type: string
+        disableRowLevelErrorHandling:
+          default: false
+          description: Skip row by row error handling
+          type: boolean
+        explanationAlgorithm:
+          description: Which algorithm will be used to calculate prediction explanations
+          enum:
+          - shap
+          - xemp
+          type: string
+        explanationClassNames:
+          description: List of class names that will be explained for each row for multiclass. Mutually exclusive with explanationNumTopClasses. If neither specified - we assume explanationNumTopClasses=1
+          items:
+            description: Class name to explain
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+          x-versionadded: v2.30
+        explanationNumTopClasses:
+          description: Number of top predicted classes for each row that will be explained for multiclass. Mutually exclusive with explanationClassNames. If neither specified - we assume explanationNumTopClasses=1
+          maximum: 10
+          minimum: 1
+          type: integer
+          x-versionadded: v2.30
+        includePredictionStatus:
+          default: false
+          description: Include prediction status column in the output
+          type: boolean
+        includeProbabilities:
+          default: true
+          description: Include probabilities for all classes
+          type: boolean
+        includeProbabilitiesClasses:
+          default: []
+          description: Include only probabilities for these specific class names.
+          items:
+            description: Include probability for this class name
+            type: string
+          maxItems: 100
+          type: array
+        intakeSettings:
+          default:
+            type: localFile
+          description: The response option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureDataStreamer'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/DataStageDataStreamer'
+            x-versionadded: v2.28
+          - $ref: '#/components/schemas/CatalogDataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/GCPDataStreamer'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryDataStreamer'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/S3DataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeDataStreamer'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseDataStreamer'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/DSSDataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/FileSystemDataStreamer'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/HTTPDataStreamer'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCDataStreamer'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileDataStreamer'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/DatabricksDataStreamer'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/DatasphereDataStreamer'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/TrinoDataStreamer'
+            x-versionadded: v2.41
+        maxExplanations:
+          default: 0
+          description: Number of explanations requested. Will be ordered by strength.
+          maximum: 100
+          minimum: 0
+          type: integer
+        maxNgramExplanations:
+          description: The maximum number of text ngram explanations to supply per row of the dataset. The default recommended `maxNgramExplanations` is `all` (no limit)
+          oneOf:
+          - minimum: 0
+            type: integer
+          - enum:
+            - all
+            type: string
+          - type: 'null'
+          x-versionadded: v2.30
+        modelId:
+          description: ID of leaderboard model which is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.30
+        modelPackageId:
+          description: ID of model package from registry is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.30
+        monitoringAggregation:
+          $ref: '#/components/schemas/MonitoringAggregation'
+          x-versionadded: v2.30
+        monitoringBatchPrefix:
+          description: Name of the batch to create with this job
+          type:
+          - string
+          - 'null'
+        monitoringColumns:
+          $ref: '#/components/schemas/MonitoringColumnsMapping'
+          x-versionadded: v2.30
+        monitoringOutputSettings:
+          $ref: '#/components/schemas/MonitoringOutputSettings'
+        numConcurrent:
+          default: 0
+          description: Number of simultaneous requests to run against the prediction instance
+          minimum: 0
+          type: integer
+        outputSettings:
+          description: The response option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureOutputAdaptor'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/GCPOutputAdaptor'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryOutputAdaptor'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/S3OutputAdaptor'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeOutputAdaptor'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseOutputAdaptor'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/FileSystemOutputAdaptor'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/HttpOutputAdaptor'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JdbcOutputAdaptor'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileOutputAdaptor'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/DatabricksOutputAdaptor'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/DatasphereOutputAdaptor'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/TrinoOutputAdaptor'
+            x-versionadded: v2.41
+          - type: 'null'
+        passthroughColumns:
+          description: Pass through columns from the original dataset
+          items:
+            description: A column name from the original dataset to pass through to the resulting predictions
+            maxLength: 50
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        passthroughColumnsSet:
+          description: Pass through all columns from the original dataset
+          enum:
+          - all
+          type: string
+        pinnedModelId:
+          description: Specify a model ID used for scoring
+          type: string
+        predictionInstance:
+          $ref: '#/components/schemas/BatchJobPredictionInstance'
+        predictionWarningEnabled:
+          description: Enable prediction warnings.
+          type:
+          - boolean
+          - 'null'
+        redactedFields:
+          description: 'A list of qualified field names from intake- and/or outputSettings that was redacted due to permissions and sharing settings. For example: intakeSettings.dataStoreId'
+          items:
+            description: Field names that are potentially redacted
+            type: string
+          type: array
+          x-versionadded: v2.30
+        skipDriftTracking:
+          default: false
+          description: Skip drift tracking for this job.
+          type: boolean
+        thresholdHigh:
+          description: Compute explanations for predictions above this threshold
+          type: number
+        thresholdLow:
+          description: Compute explanations for predictions below this threshold
+          type: number
+        timeseriesSettings:
+          description: Time Series settings included of this job is a Time Series job.
+          oneOf:
+          - $ref: '#/components/schemas/BatchJobTimeSeriesSettingsForecast'
+          - $ref: '#/components/schemas/BatchJobTimeSeriesSettingsHistorical'
+          x-versionadded: v2.30
+      required:
+      - abortOnError
+      - csvSettings
+      - disableRowLevelErrorHandling
+      - includePredictionStatus
+      - includeProbabilities
+      - includeProbabilitiesClasses
+      - intakeSettings
+      - maxExplanations
+      - redactedFields
+      - skipDriftTracking
+      type: object
+      x-versionadded: v2.35
+    DatasphereDataStreamer:
+      description: Stream CSV data chunks from Datasphere using browser-datasphere
+      properties:
+        catalog:
+          description: The name of the specified database catalog to read input data from.
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with read access to the data source.
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        schema:
+          description: The name of the specified database schema to read input data from.
+          type: string
+        table:
+          description: The name of the specified database table to read input data from.
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - datasphere
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.35
+    HTTPDataStreamer:
+      description: Stream CSV data chunks from HTTP
+      properties:
+        type:
+          description: Type name for this intake type
+          enum:
+          - http
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    HTTPOutput:
+      description: Save CSV data chunks to HTTP data endpoint
+      properties:
+        headers:
+          description: Extra headers to send with the request
+          type: object
+        method:
+          description: Method to use when saving the CSV file
+          enum:
+          - POST
+          - PUT
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - http
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - method
+      - type
+      - url
+      type: object
+    FileSystemOutput:
+      properties:
+        path:
+          description: Path to results on host filesystem
+          type: string
+        type:
+          description: Type name for this output type
+          enum:
+          - filesystem
+          type: string
+      required:
+      - path
+      - type
+      type: object
+    LocalFileDataStreamer:
+      description: Stream CSV data chunks from local file storage
+      properties:
+        async:
+          description: 'The default behavior (async: true) will still submit the job to the queue and start processing as soon as the upload is started.Setting it to false will postpone submitting the job to the queue until all data has been uploaded.This is helpful if the user is on a bad connection and bottlednecked by the upload speed. Instead of blocking the queue this will allow others to submit to the queue until the upload has finished.'
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.28
+        multipart:
+          description: specify if the data will be uploaded in multiple parts instead of a single file
+          type: boolean
+          x-versionadded: v2.27
+        type:
+          description: Type name for this intake type
+          enum:
+          - local_file
+          - localFile
+          type: string
+      required:
+      - type
+      type: object
+    GCPDataStreamer:
+      description: Stream CSV data chunks from Google Storage
+      properties:
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: Use the specified credential to access the url
+            type:
+            - string
+            - 'null'
+          - enum:
+            - '[redacted]'
+            type: string
+          - type: 'null'
+        format:
+          default: csv
+          description: Type of input file format
+          enum:
+          - csv
+          - parquet
+          type: string
+          x-versionadded: v2.25
+        type:
+          description: Type name for this intake type
+          enum:
+          - gcp
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    MonitoringAggregation:
+      description: Defines the aggregation policy for monitoring jobs.
+      properties:
+        retentionPolicy:
+          default: percentage
+          description: Monitoring jobs retention policy for aggregation.
+          enum:
+          - samples
+          - percentage
+          type: string
+        retentionValue:
+          default: 0
+          description: Amount/percentage of samples to retain.
+          type: integer
+      type: object
+    DataStageDataStreamer:
+      description: Stream CSV data chunks from data stage storage
+      properties:
+        dataStageId:
+          description: The ID of the data stage
+          type: string
+        type:
+          description: Type name for this intake type
+          enum:
+          - dataStage
+          type: string
+      required:
+      - dataStageId
+      - type
+      type: object
+    DatasphereOutputAdaptor:
+      description: Saves CSV data chunks to Datasphere using browser-datasphere
+      properties:
+        catalog:
+          description: The name of the specified database catalog to write output data to.
+          type: string
+        credentialId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the credential holding information about a user with write access to the data destination.
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        dataStoreId:
+          description: Either the populated value of the field or [redacted] due to permission settings
+          oneOf:
+          - description: The ID of the data store to connect to
+            type: string
+          - enum:
+            - '[redacted]'
+            type: string
+        schema:
+          description: The name of the specified database schema to write output data to.
+          type: string
+        table:
+          description: The name of the specified database table to write output data to.
+          type: string
+        type:
+          description: The type name for this output type
+          enum:
+          - datasphere
+          type: string
+      required:
+      - credentialId
+      - dataStoreId
+      - schema
+      - table
+      - type
+      type: object
+      x-versionadded: v2.42
+    HTTPIntake:
+      description: Stream CSV data chunks from HTTP
+      properties:
+        type:
+          description: Type name for this intake type
+          enum:
+          - http
+          type: string
+        url:
+          description: URL for the CSV file
+          format: url
+          type: string
+      required:
+      - type
+      - url
+      type: object
+    BatchMonitoringJobDefinitionsUpdate:
+      properties:
+        abortOnError:
+          default: true
+          description: Should this job abort if too many errors are encountered
+          type: boolean
+        batchJobType:
+          default: prediction
+          description: Batch job type.
+          enum:
+          - monitoring
+          - prediction
+          type: string
+        chunkSize:
+          default: auto
+          description: Which strategy should be used to determine the chunk size. Can be either a named strategy or a fixed size in bytes.
+          oneOf:
+          - enum:
+            - auto
+            - fixed
+            - dynamic
+            type: string
+          - maximum: 41943040
+            minimum: 20
+            type: integer
+        columnNamesRemapping:
+          description: Remap (rename or remove columns from) the output from this job
+          oneOf:
+          - description: Provide a dictionary with key/value pairs to remap (deprecated)
+            type: object
+          - description: Provide a list of items to remap
+            items:
+              $ref: '#/components/schemas/BatchPredictionJobRemapping'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+        csvSettings:
+          $ref: '#/components/schemas/BatchPredictionJobCSVSettings'
+          default:
+            delimiter: ','
+            encoding: utf-8
+            quotechar: '"'
+        deploymentId:
+          description: ID of deployment which is used in job for processing predictions dataset
+          type: string
+        disableRowLevelErrorHandling:
+          default: false
+          description: Skip row by row error handling
+          type: boolean
+        enabled:
+          description: If this job definition is enabled as a scheduled job. Optional if no schedule is supplied.
+          type: boolean
+        explanationAlgorithm:
+          description: Which algorithm will be used to calculate prediction explanations
+          enum:
+          - shap
+          - xemp
+          type: string
+        explanationClassNames:
+          description: Sets a list of selected class names for which corresponding explanations are returned in each row. This setting is mutually exclusive with numTopClasses. If neither parameter is specified, the default setting is numTopClasses=1.
+          items:
+            description: Class name to explain
+            type: string
+          maxItems: 100
+          minItems: 1
+          type: array
+          x-versionadded: v2.29
+        explanationNumTopClasses:
+          description: Sets the number of most probable (top predicted) classes for which corresponding explanations are returned in each row. This setting is mutually exclusive with classNames. If neither parameter is specified, the default setting is numTopClasses=1.
+          maximum: 100
+          minimum: 1
+          type: integer
+          x-versionadded: v2.29
+        includePredictionStatus:
+          default: false
+          description: Include prediction status column in the output
+          type: boolean
+        includeProbabilities:
+          default: true
+          description: Include probabilities for all classes
+          type: boolean
+        includeProbabilitiesClasses:
+          default: []
+          description: Include only probabilities for these specific class names.
+          items:
+            description: Include probability for this class name
+            type: string
+          maxItems: 100
+          type: array
+        intakeSettings:
+          default:
+            type: localFile
+          description: The intake option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryIntake'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/DataStageIntake'
+            x-versionadded: v2.28
+          - $ref: '#/components/schemas/DatabricksIntake'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/Catalog'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/DatasphereIntake'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/DSS'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/FileSystemIntake'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/GCPIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/HTTPIntake'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCIntake'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileIntake'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/S3Intake'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeIntake'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseIntake'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/TrinoIntake'
+            x-versionadded: v2.41
+        maxExplanations:
+          default: 0
+          description: Number of explanations requested. Will be ordered by strength.
+          maximum: 100
+          minimum: 0
+          type: integer
+        modelId:
+          description: ID of leaderboard model which is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.28
+        modelPackageId:
+          description: ID of model package from registry is used in job for processing predictions dataset
+          type: string
+          x-versionadded: v2.28
+        monitoringAggregation:
+          $ref: '#/components/schemas/MonitoringAggregation'
+        monitoringBatchPrefix:
+          description: Name of the batch to create with this job
+          type:
+          - string
+          - 'null'
+        monitoringColumns:
+          $ref: '#/components/schemas/MonitoringColumnsMapping'
+        monitoringOutputSettings:
+          $ref: '#/components/schemas/MonitoringOutputSettings'
+        name:
+          description: A human-readable name for the definition, must be unique across organisations, if left out the backend will generate one for you.
+          maxLength: 100
+          minLength: 1
+          type: string
+        numConcurrent:
+          description: Number of simultaneous requests to run against the prediction instance
+          minimum: 1
+          type: integer
+        outputSettings:
+          description: The output option configured for this job
+          oneOf:
+          - $ref: '#/components/schemas/AzureOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/BigQueryOutput'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/DatabricksOutput'
+            x-versionadded: v2.42
+          - $ref: '#/components/schemas/DatasphereOutput'
+            x-versionadded: v2.36
+          - $ref: '#/components/schemas/FileSystemOutput'
+            x-versionadded: v2.26
+          - $ref: '#/components/schemas/GCPOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/HTTPOutput'
+            x-versionadded: v2.21
+          - $ref: '#/components/schemas/JDBCOutput'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/LocalFileOutput'
+            x-versionadded: v2.19
+          - $ref: '#/components/schemas/S3Output'
+            x-versionadded: v2.20
+          - $ref: '#/components/schemas/SnowflakeOutput'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/SynapseOutput'
+            x-versionadded: v2.25
+          - $ref: '#/components/schemas/TrinoOutput'
+            x-versionadded: v2.41
+          - type: 'null'
+        passthroughColumns:
+          description: Pass through columns from the original dataset
+          items:
+            description: A column name from the original dataset to pass through to the resulting predictions
+            maxLength: 50
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        passthroughColumnsSet:
+          description: Pass through all columns from the original dataset
+          enum:
+          - all
+          type: string
+        pinnedModelId:
+          description: Specify a model ID used for scoring
+          type: string
+        predictionInstance:
+          $ref: '#/components/schemas/BatchPredictionJobPredictionInstance'
+        predictionThreshold:
+          description: Threshold is the point that sets the class boundary for a predicted value. The model classifies an observation below the threshold as FALSE, and an observation above the threshold as TRUE. In other words, DataRobot automatically assigns the positive class label to any prediction exceeding the threshold. This value can be set between 0.0 and 1.0.
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        predictionWarningEnabled:
+          description: Enable prediction warnings.
+          type:
+          - boolean
+          - 'null'
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+        secondaryDatasetsConfigId:
+          description: Configuration id for secondary datasets to use when making a prediction.
+          type: string
+          x-versionadded: v2.33
+        skipDriftTracking:
+          default: false
+          description: Skip drift tracking for this job.
+          type: boolean
+        thresholdHigh:
+          description: Compute explanations for predictions above this threshold
+          type: number
+        thresholdLow:
+          description: Compute explanations for predictions below this threshold
+          type: number
+        timeseriesSettings:
+          description: Time Series settings included of this job is a Time Series job.
+          oneOf:
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsForecast'
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsHistorical'
+          - $ref: '#/components/schemas/BatchPredictionJobTimeSeriesSettingsTraining'
+          x-versionadded: v2.20
+      type: object
+      x-versionadded: v2.35
+    LocalFileOutput:
+      description: Save CSV data chunks to local file storage
+      properties:
+        type:
+          description: Type name for this output type
+          enum:
+          - local_file
+          - localFile
+          type: string
+      required:
+      - type
+      type: object
+    BatchJobResponse:
+      properties:
+        batchMonitoringJobDefinition:
+          $ref: '#/components/schemas/BatchJobDefinitionResponse'
+          x-versionadded: v2.30
+        batchPredictionJobDefinition:
+          $ref: '#/components/schemas/BatchJobDefinitionResponse'
+          x-versionadded: v2.30
+        created:
+          description: When was this job created
+          format: date-time
+          type: string
+          x-versionadded: v2.30
+        createdBy:
+          $ref: '#/components/schemas/BatchJobCreatedBy'
+          x-versionadded: v2.30
+        elapsedTimeSec:
+          description: Number of seconds the job has been processing for
+          minimum: 0
+          type: integer
+        failedRows:
+          description: Number of rows that have failed scoring
+          minimum: 0
+          type: integer
+        hidden:
+          description: When was this job was hidden last, blank if visible
+          format: date-time
+          type: string
+          x-versionadded: v2.30
+        id:
+          description: The ID of the Batch job
+          type: string
+          x-versionadded: v2.30
+        intakeDatasetDisplayName:
+          description: If applicable (e.g. for AI catalog), will contain the dataset name used for the intake dataset.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.30
+        jobIntakeSize:
+          description: Number of bytes in the intake dataset for this job
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        jobOutputSize:
+          description: Number of bytes in the output dataset for this job
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        jobSpec:
+          $ref: '#/components/schemas/BatchJobSpecResponse'
+        links:
+          $ref: '#/components/schemas/BatchJobLinks'
+        logs:
+          description: The job log.
+          items:
+            description: A log line from the job log.
+            type: string
+          type: array
+        monitoringBatchId:
+          description: Id of the monitoring batch created by this job. Only present if the job runs on a deployment with batch monitoring enabled.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        percentageCompleted:
+          description: Indicates job progress which is based on number of already processed rows in dataset
+          maximum: 100
+          minimum: 0
+          type: number
+        queuePosition:
+          description: To ensure a dedicated prediction instance is not overloaded, only one job will be run against it at a time. This is the number of jobs that are awaiting processing before this job start running. May not be available in all environments.
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.30
+        queued:
+          description: The job has been put on the queue for execution.
+          type: boolean
+          x-versionadded: v2.30
+        resultsDeleted:
+          description: Indicates if the job was subject to garbage collection and had its artifacts deleted (output files, if any, and scoring data on local storage)
+          type: boolean
+          x-versionadded: v2.30
+        scoredRows:
+          description: Number of rows that have been used in prediction computation
+          minimum: 0
+          type: integer
+        skippedRows:
+          description: Number of rows that have been skipped during scoring. May contain non-zero value only in time-series predictions case if provided dataset contains more than required historical rows.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.30
+        source:
+          description: Source from which batch job was started
+          type: string
+          x-versionadded: v2.30
+        status:
+          description: The current job status
+          enum:
+          - INITIALIZING
+          - RUNNING
+          - COMPLETED
+          - ABORTED
+          - FAILED
+          type: string
+        statusDetails:
+          description: Explanation for current status
+          type: string
+      required:
+      - created
+      - createdBy
+      - elapsedTimeSec
+      - failedRows
+      - id
+      - jobIntakeSize
+      - jobOutputSize
+      - jobSpec
+      - links
+      - logs
+      - monitoringBatchId
+      - percentageCompleted
+      - queued
+      - scoredRows
+      - skippedRows
+      - status
+      - statusDetails
+      type: object
+      x-versionadded: v2.35
+    Schedule:
+      description: Data class that represents a cron schedule.
+      properties:
+        dayOfMonth:
+          description: The day(s) of the month to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            type:
+            - number
+            - string
+          maxItems: 31
+          title: Dayofmonth
+          type: array
+        dayOfWeek:
+          description: The day(s) of the week to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - sunday
+            - SUNDAY
+            - Sunday
+            - monday
+            - MONDAY
+            - Monday
+            - tuesday
+            - TUESDAY
+            - Tuesday
+            - wednesday
+            - WEDNESDAY
+            - Wednesday
+            - thursday
+            - THURSDAY
+            - Thursday
+            - friday
+            - FRIDAY
+            - Friday
+            - saturday
+            - SATURDAY
+            - Saturday
+            - sun
+            - SUN
+            - Sun
+            - mon
+            - MON
+            - Mon
+            - tue
+            - TUE
+            - Tue
+            - wed
+            - WED
+            - Wed
+            - thu
+            - THU
+            - Thu
+            - fri
+            - FRI
+            - Fri
+            - sat
+            - SAT
+            - Sat
+            type:
+            - number
+            - string
+          maxItems: 7
+          title: Dayofweek
+          type: array
+        hour:
+          description: The hour(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            type:
+            - number
+            - string
+          maxItems: 24
+          title: Hour
+          type: array
+        minute:
+          description: The minute(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            type:
+            - number
+            - string
+          maxItems: 60
+          title: Minute
+          type: array
+        month:
+          description: The month(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - january
+            - JANUARY
+            - January
+            - february
+            - FEBRUARY
+            - February
+            - march
+            - MARCH
+            - March
+            - april
+            - APRIL
+            - April
+            - may
+            - MAY
+            - May
+            - june
+            - JUNE
+            - June
+            - july
+            - JULY
+            - July
+            - august
+            - AUGUST
+            - August
+            - september
+            - SEPTEMBER
+            - September
+            - october
+            - OCTOBER
+            - October
+            - november
+            - NOVEMBER
+            - November
+            - december
+            - DECEMBER
+            - December
+            - jan
+            - JAN
+            - Jan
+            - feb
+            - FEB
+            - Feb
+            - mar
+            - MAR
+            - Mar
+            - apr
+            - APR
+            - Apr
+            - jun
+            - JUN
+            - Jun
+            - jul
+            - JUL
+            - Jul
+            - aug
+            - AUG
+            - Aug
+            - sep
+            - SEP
+            - Sep
+            - oct
+            - OCT
+            - Oct
+            - nov
+            - NOV
+            - Nov
+            - dec
+            - DEC
+            - Dec
+            type:
+            - number
+            - string
+          maxItems: 12
+          title: Month
+          type: array
+      required:
+      - minute
+      - hour
+      - dayOfMonth
+      - month
+      - dayOfWeek
+      title: Schedule
+      type: object
+    BatchPredictionJobTimeSeriesSettingsTraining:
+      properties:
+        relaxKnownInAdvanceFeaturesCheck:
+          default: false
+          description: If activated, missing values in the known in advance features are allowed in the forecast window at prediction time. If omitted or false, missing values are not allowed.
+          type: boolean
+        type:
+          description: Forecast mode used for making predictions on subsets of training data.
+          enum:
+          - training
+          type: string
+      required:
+      - type
+      type: object
+    BatchPredictionJobRemapping:
+      properties:
+        inputName:
+          description: Rename column with this name
+          type: string
+        outputName:
+          description: Rename column to this name (leave as null to remove from the output)
+          type:
+          - string
+          - 'null'
+      required:
+      - inputName
+      - outputName
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

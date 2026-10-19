@@ -1,0 +1,641 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Seat Licenses API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Manage seat licenses using the endpoints described below.
+  name: seat_licenses
+paths:
+  /api/v2/seatLicenseAllocations/:
+    get:
+      description: List seat license allocations. Org admins can view seat licenses that were allocated to their organization. System admins can view allocations across all organizations.
+      operationId: seatLicenseAllocations_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: List seat license allocations by the specified IDs.
+        in: query
+        name: ids
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 36
+            minLength: 32
+            type: string
+          - items:
+              maxLength: 36
+              minLength: 32
+              type: string
+            maxItems: 100
+            type: array
+      - description: The ID of the organization the seat licenses have been allocated to.
+        in: query
+        name: orgId
+        required: false
+        schema:
+          type: string
+      - description: List seat license allocations by the seat license IDs.
+        in: query
+        name: seatLicenseIds
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 36
+            minLength: 32
+            type: string
+          - items:
+              maxLength: 36
+              minLength: 32
+              type: string
+            maxItems: 100
+            type: array
+      - description: The subject IDs that should be part of the seat license allocations
+        in: query
+        name: subjectIds
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatLicenseAllocationsListResponse'
+          description: The listed seat license allocations.
+      summary: List seat license allocations
+      tags:
+      - seat_licenses
+      x-versionadded: v2.36
+    post:
+      description: Allocate the seat license to the organization, given that the total number of allocated seats in the cluster, including the new organization's limit, does not exceed the cluster-level limit applied through the license key. Available to system admins only.
+      operationId: seatLicenseAllocations_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeatLicenseAllocationCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatLicenseAllocation'
+          description: The allocated seat license for the organization.
+      summary: Allocate seat licenses
+      tags:
+      - seat_licenses
+      x-versionadded: v2.36
+  /api/v2/seatLicenseAllocations/evaluate/:
+    post:
+      description: Evaluate whether the subject has been authorized to use the seat license.
+      operationId: seatLicenseAllocationsEvaluate_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeatLicenseEvaluateRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatLicenseEvaluateResponse'
+          description: The evaluation was performed successfully.
+      summary: Evaluate the seat license
+      tags:
+      - seat_licenses
+      x-versionadded: v2.36
+  /api/v2/seatLicenseAllocations/unassignedUsers/:
+    get:
+      description: List the active users of an organization who hold no seat license of any type, ordered by username. Org admins list their own organization. System admins must pass orgId.
+      operationId: seatLicenseAllocationsUnassignedUsers_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many users are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: The ID of the organization whose users are listed. Required for system admins; org admins default to their own organization.
+        in: query
+        name: orgId
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatLicenseUnassignedUsersListResponse'
+          description: The organization's active users who hold no seat license.
+        '422':
+          description: A system admin did not pass orgId, or an org admin passed another organization.
+        '503':
+          description: Listing the users took too long. Try again later.
+      summary: List users without a seat license
+      tags:
+      - seat_licenses
+      x-versionadded: v2.50
+  /api/v2/seatLicenseAllocations/{allocationId}/:
+    delete:
+      description: Delete the seat license allocation. Only system admins can execute this operation.
+      operationId: seatLicenseAllocations_delete
+      parameters:
+      - description: The ID of the seat license allocation.
+        in: path
+        name: allocationId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      responses:
+        '204':
+          description: The seat license allocation was successfully deleted.
+      summary: Delete a seat license allocation by allocation ID
+      tags:
+      - seat_licenses
+      x-versionadded: v2.36
+    get:
+      description: Retrieve an allocated seat license by ID. Org admins can view seat licenses that were allocated to their organization. System admins can view allocations across all organizations.
+      operationId: seatLicenseAllocations_retrieve
+      parameters:
+      - description: The ID of the seat license allocation.
+        in: path
+        name: allocationId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatLicenseAllocation'
+          description: The seat license allocation was successfully retrieved.
+      summary: Retrieve a seat license allocation by allocation ID
+      tags:
+      - seat_licenses
+      x-versionadded: v2.36
+    patch:
+      description: Update Seat License Allocation.
+      operationId: seatLicenseAllocations_patch
+      parameters:
+      - description: The ID of the seat license allocation.
+        in: path
+        name: allocationId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeatLicenseAllocationUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatLicenseAllocation'
+          description: The updated seat license allocation for the organization.
+      summary: Update a seat license allocation by allocation ID
+      tags:
+      - seat_licenses
+      x-versionadded: v2.36
+  /api/v2/seatLicenses/:
+    get:
+      description: List seat licenses in the current installation. Seat licenses may become available only when applied through the cluster license. Accessible to system admins only.
+      operationId: seatLicenses_list
+      parameters:
+      - description: List seat licenses by the specified IDs.
+        in: query
+        name: ids
+        required: false
+        schema:
+          oneOf:
+          - maxLength: 36
+            minLength: 32
+            type: string
+          - items:
+              maxLength: 36
+              minLength: 32
+              type: string
+            maxItems: 100
+            type: array
+      - description: List seat licenses by the specified names.
+        in: query
+        name: names
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatLicensesListResponse'
+          description: The listed seat licenses.
+      summary: List seat licenses
+      tags:
+      - seat_licenses
+      x-versionadded: v2.36
+components:
+  schemas:
+    SeatLicenseAllocationUpdate:
+      properties:
+        addSubjects:
+          description: The subjects to grant the seat license to.
+          items:
+            $ref: '#/components/schemas/SubjectCreate'
+          maxItems: 100
+          type: array
+        limit:
+          description: The total number of seat license grants available for the organization.
+          exclusiveMinimum: 0
+          type: integer
+        removeSubjects:
+          description: The subjects to remove the seat license from.
+          items:
+            $ref: '#/components/schemas/SubjectCreate'
+          maxItems: 100
+          type: array
+      type: object
+      x-versionadded: v2.36
+    SubjectCreate:
+      description: The subject
+      properties:
+        subjectId:
+          description: The subject ID.
+          type: string
+        subjectType:
+          description: The subject type.
+          enum:
+          - user
+          type: string
+      required:
+      - subjectId
+      - subjectType
+      type: object
+      x-versionadded: v2.36
+    SeatLicense:
+      description: The seat license
+      properties:
+        createdAt:
+          description: The creation date of the seat license.
+          format: date-time
+          type: string
+        currentAllocation:
+          description: The total number of seat license allocations; null if the limit is null (i.e., unlimited).
+          type:
+          - integer
+          - 'null'
+        description:
+          description: The description of the seat license.
+          type: string
+        id:
+          description: The ID of the seat license.
+          maxLength: 36
+          minLength: 32
+          type: string
+        limit:
+          description: The total limit seat licenses available in the cluster, null if unlimited
+          type:
+          - integer
+          - 'null'
+        name:
+          description: The name of the seat license.
+          type: string
+      required:
+      - createdAt
+      - currentAllocation
+      - description
+      - id
+      - limit
+      - name
+      type: object
+      x-versionadded: v2.36
+    SeatLicenseUnassignedUsersListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: Active users of the organization who hold no seat license, ordered by username.
+          items:
+            $ref: '#/components/schemas/SeatLicenseUnassignedUser'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.50
+    SeatLicenseEvaluateRequest:
+      properties:
+        orgId:
+          description: The ID of the organization the seat license was allocated to. Must correspond to the subject's organization.
+          type: string
+        seatName:
+          description: The name of the seat license.
+          type: string
+        subjectId:
+          description: The ID of the subject.
+          type: string
+        subjectType:
+          description: The type of the subject
+          enum:
+          - user
+          type: string
+      required:
+      - orgId
+      - seatName
+      - subjectId
+      - subjectType
+      type: object
+      x-versionadded: v2.36
+    SeatLicenseUnassignedUser:
+      properties:
+        firstName:
+          description: The first name of the user.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the user.
+          type: string
+        lastName:
+          description: The last name of the user.
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the user.
+          type: string
+      required:
+      - firstName
+      - id
+      - lastName
+      - username
+      type: object
+      x-versionadded: v2.50
+    SeatLicenseAllocation:
+      description: The seat license allocation
+      properties:
+        createdAt:
+          description: The creation date of the seat license allocation.
+          format: date-time
+          type: string
+        currentAllocation:
+          description: The current number of seat license grants within the organization, corresponding to the number of subjects.
+          type:
+          - integer
+          - 'null'
+        id:
+          description: The ID of the seat license allocation.
+          maxLength: 36
+          minLength: 32
+          type: string
+        limit:
+          description: The total limit of seat license grants available for the organization.
+          type: integer
+        orgId:
+          description: The ID of the organization the seat license has been allocated to.
+          type: string
+        releasedSubjects:
+          description: Deactivated subjects whose seat license was released and is re-acquired on reactivation if the allocation has room
+          items:
+            $ref: '#/components/schemas/ReleasedSubject'
+          maxItems: 200000
+          type: array
+          x-versionadded: v2.50
+        seatLicense:
+          $ref: '#/components/schemas/SeatLicense'
+        subjects:
+          description: The subjects that have been granted the seat license
+          items:
+            $ref: '#/components/schemas/Subject'
+          maxItems: 1000
+          type: array
+        updatedAt:
+          description: The date when the seat license allocation was last updated.
+          format: date-time
+          type: string
+      required:
+      - createdAt
+      - currentAllocation
+      - id
+      - limit
+      - orgId
+      - releasedSubjects
+      - seatLicense
+      - subjects
+      - updatedAt
+      type: object
+      x-versionadded: v2.36
+    Subject:
+      description: The subject
+      properties:
+        createdAt:
+          description: The date of the seat license allocation to the subject
+          format: date-time
+          type: string
+        subjectId:
+          description: The subject ID.
+          type: string
+        subjectType:
+          description: The subject type.
+          enum:
+          - user
+          type: string
+      required:
+      - createdAt
+      - subjectId
+      - subjectType
+      type: object
+      x-versionadded: v2.36
+    SeatLicensesListResponse:
+      properties:
+        data:
+          description: The queried seat licenses.
+          items:
+            $ref: '#/components/schemas/SeatLicense'
+          maxItems: 100
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.36
+    SeatLicenseAllocationCreate:
+      properties:
+        limit:
+          description: The total number of seat license grants available for the organization.
+          exclusiveMinimum: 0
+          type: integer
+        orgId:
+          description: The ID of the organization to allocate the seat license to.
+          type: string
+        seatLicenseId:
+          description: The ID of the seat license.
+          maxLength: 36
+          minLength: 32
+          type: string
+        subjects:
+          description: The subjects to grant the seat license to.
+          items:
+            $ref: '#/components/schemas/SubjectCreate'
+          maxItems: 1000
+          type: array
+      required:
+      - limit
+      - orgId
+      - seatLicenseId
+      type: object
+      x-versionadded: v2.36
+    SeatLicenseAllocationsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The queried seat license allocations.
+          items:
+            $ref: '#/components/schemas/SeatLicenseAllocation'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    ReleasedSubject:
+      description: The subject
+      properties:
+        createdAt:
+          description: The date of the seat license allocation to the subject
+          format: date-time
+          type: string
+        releasedAt:
+          description: The date the seat was released when the subject was deactivated
+          format: date-time
+          type: string
+        subjectId:
+          description: The subject ID.
+          type: string
+        subjectType:
+          description: The subject type.
+          enum:
+          - user
+          type: string
+      required:
+      - createdAt
+      - releasedAt
+      - subjectId
+      - subjectType
+      type: object
+      x-versionadded: v2.50
+    SeatLicenseEvaluateResponse:
+      properties:
+        allowed:
+          description: 'The result of the evaluation: true if the subject is allowed to use the seat license, false otherwise.'
+          type: boolean
+        seatLicenseAllocation:
+          $ref: '#/components/schemas/SeatLicenseAllocation'
+      required:
+      - allowed
+      - seatLicenseAllocation
+      type: object
+      x-versionadded: v2.36
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

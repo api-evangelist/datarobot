@@ -1,0 +1,739 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Agent Cards API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to discover agents registered within the platform and manage agent cards.
+  name: agent_cards
+paths:
+  /api/v2/agentCards/:
+    get:
+      description: Retrieve the list of agent cards within tenant.
+      operationId: agentCards_list
+      parameters:
+      - description: The number of agent cards to skip. Defaults to 0.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of agent cards (greater than zero, max 100) to return. Defaults to 25.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 25
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: The order to sort the agent cards. Defaults to order by creation time in ascending order.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: createdAt
+          enum:
+          - deploymentId
+          - -deploymentId
+          - externalId
+          - -externalId
+          - workloadId
+          - -workloadId
+          - createdAt
+          - -createdAt
+          - updatedAt
+          - -updatedAt
+          type: string
+      - description: Filter registered agents based on deployment IDs.
+        in: query
+        name: deploymentIds
+        required: false
+        schema:
+          items:
+            type: string
+          maxItems: 20
+          type: array
+      - description: Filter registered agents based on external IDs.
+        in: query
+        name: externalIds
+        required: false
+        schema:
+          type: string
+      - description: Filter registered agents based on workload IDs. This argument is mutually exclusive with deploymentIds.
+        in: query
+        name: workloadIds
+        required: false
+        schema:
+          items:
+            type: string
+          maxItems: 20
+          type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentCardListResponse'
+          description: The list of agent cards registered within tenant.
+      summary: List registered agent cards
+      tags:
+      - agent_cards
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.45
+  /api/v2/deployments/{deploymentId}/agentCard/:
+    delete:
+      description: Delete the agent card associated with an external agent deployment. This operation is idempotent - returns 204 even if no agent card exists.
+      operationId: deploymentsAgentCard_deleteMany
+      parameters:
+      - description: The ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '404':
+          description: Deployment not found.
+        '405':
+          description: Agent card deletion is only allowed for external deployments.
+      summary: Delete the agent card by deployment ID
+      tags:
+      - agent_cards
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.44
+    get:
+      description: Retrieve the agent card associated with an agent deployment. The agent card is returned by this route as it was returned by the agent during deployment creation or as it was uploaded to DataRobot.
+      operationId: deploymentsAgentCard_list
+      parameters:
+      - description: The ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The agent card for the deployment.
+        '404':
+          description: No agent card found for this deployment.
+      summary: Retrieve the agent card by deployment ID
+      tags:
+      - agent_cards
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.44
+    put:
+      description: Upload the agent card for an agent deployment. The request body must be the agent card document as a JSON object. If an agent card already exists for this deployment it will be replaced. This operation is only supported for external deployments. For DataRobot hosted deployments, the agent card document is pulled automatically from the deployment.
+      operationId: deploymentsAgentCard_putMany
+      parameters:
+      - description: The ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The stored agent card for the deployment.
+        '413':
+          description: The agent card exceeds the maximum allowed size.
+        '422':
+          description: Agent card upload is only supported for external deployments.
+      summary: Create by deployment ID
+      tags:
+      - agent_cards
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.44
+components:
+  schemas:
+    HTTPAuthSecurityScheme:
+      properties:
+        bearerFormat:
+          description: A hint to the client about the bearer token format (e.g. 'JWT').
+          type:
+          - string
+          - 'null'
+        description:
+          description: A description of the HTTP auth security scheme.
+          type:
+          - string
+          - 'null'
+        scheme:
+          description: The HTTP authentication scheme (e.g. 'bearer', 'basic').
+          type: string
+        type:
+          default: http
+          description: The security scheme type; must be 'http'.
+          enum:
+          - http
+          type: string
+      required:
+      - scheme
+      type: object
+      x-versionadded: v2.46
+    AgentProvider:
+      description: The service provider of the agent.
+      properties:
+        organization:
+          description: The organization name of the agent provider.
+          type: string
+        url:
+          description: The URL of the agent provider.
+          type: string
+      required:
+      - organization
+      - url
+      type: object
+      x-versionadded: v2.46
+    AgentCapabilities:
+      description: Optional capabilities supported by the agent.
+      properties:
+        extensions:
+          description: Protocol extensions supported by the agent.
+          items:
+            $ref: '#/components/schemas/AgentExtension'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        pushNotifications:
+          description: Whether the agent supports push notifications.
+          type:
+          - boolean
+          - 'null'
+        stateTransitionHistory:
+          description: Whether the agent supports state transition history.
+          type:
+          - boolean
+          - 'null'
+        streaming:
+          description: Whether the agent supports streaming responses.
+          type:
+          - boolean
+          - 'null'
+      type: object
+      x-versionadded: v2.46
+    AgentCardSignature:
+      properties:
+        header:
+          $ref: '#/components/schemas/AllowExtra'
+        protected:
+          description: The base64url-encoded JWS protected header.
+          type: string
+        signature:
+          description: The base64url-encoded JWS signature value.
+          type: string
+      required:
+      - protected
+      - signature
+      type: object
+      x-versionadded: v2.46
+    AgentCard:
+      description: Plain agent card data.
+      properties:
+        additionalInterfaces:
+          description: Additional transport interfaces beyond the primary URL.
+          items:
+            $ref: '#/components/schemas/AgentInterface'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        capabilities:
+          $ref: '#/components/schemas/AgentCapabilities'
+        defaultInputModes:
+          description: Default MIME types or modes accepted as input.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        defaultOutputModes:
+          description: Default MIME types or modes produced as output.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        description:
+          description: A human-readable description of the agent.
+          type: string
+        documentationUrl:
+          description: URL to the agent's documentation.
+          type:
+          - string
+          - 'null'
+        iconUrl:
+          description: URL to an icon representing the agent.
+          type:
+          - string
+          - 'null'
+        name:
+          description: The display name of the agent.
+          type: string
+        preferredTransport:
+          default: JSONRPC
+          description: Preferred transport protocol (e.g. JSONRPC, GRPC, HTTP+JSON). Defaults to 'JSONRPC'.
+          type:
+          - string
+          - 'null'
+        protocolVersion:
+          default: 0.3.0
+          description: The A2A protocol version. Defaults to '0.3.0'.
+          type:
+          - string
+          - 'null'
+        provider:
+          $ref: '#/components/schemas/AgentProvider'
+        security:
+          description: Global security requirements. Each entry maps a scheme name to required scopes.
+          items:
+            $ref: '#/components/schemas/AllowExtra'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        securitySchemes:
+          additionalProperties:
+            oneOf:
+            - $ref: '#/components/schemas/APIKeySecurityScheme'
+            - $ref: '#/components/schemas/HTTPAuthSecurityScheme'
+            - $ref: '#/components/schemas/OAuth2SecurityScheme'
+            - $ref: '#/components/schemas/OpenIdConnectSecurityScheme'
+            - $ref: '#/components/schemas/MutualTLSSecurityScheme'
+          description: Map of security scheme names to their definitions.
+          type: object
+        signatures:
+          description: JWS signatures over this agent card.
+          items:
+            $ref: '#/components/schemas/AgentCardSignature'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        skills:
+          description: The list of skills this agent can perform.
+          items:
+            $ref: '#/components/schemas/AgentSkill'
+          maxItems: 100
+          type: array
+        supportsAuthenticatedExtendedCard:
+          description: Whether the agent exposes an authenticated extended card.
+          type:
+          - boolean
+          - 'null'
+        url:
+          description: The primary endpoint URL for the agent.
+          type: string
+        version:
+          description: The version of the agent (e.g. '1.0.0').
+          type: string
+      required:
+      - capabilities
+      - defaultInputModes
+      - defaultOutputModes
+      - description
+      - name
+      - skills
+      - url
+      - version
+      type: object
+      x-versionadded: v2.46
+    OAuth2SecurityScheme:
+      properties:
+        description:
+          description: A description of the OAuth 2.0 security scheme.
+          type:
+          - string
+          - 'null'
+        flows:
+          $ref: '#/components/schemas/OAuthFlows'
+        oauth2MetadataUrl:
+          description: URL of the OAuth 2.0 server metadata document.
+          type:
+          - string
+          - 'null'
+        type:
+          default: oauth2
+          description: The security scheme type; must be 'oauth2'.
+          enum:
+          - oauth2
+          type: string
+      required:
+      - flows
+      type: object
+      x-versionadded: v2.46
+    AgentCardListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of formatted agent cards.
+          items:
+            $ref: '#/components/schemas/AgentCardResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.46
+    APIKeySecurityScheme:
+      properties:
+        description:
+          description: A description of the API key security scheme.
+          type:
+          - string
+          - 'null'
+        in:
+          description: The location of the API key.
+          enum:
+          - cookie
+          - header
+          - query
+          type: string
+        name:
+          description: The name of the API key parameter.
+          type: string
+        type:
+          default: apiKey
+          description: The security scheme type; must be 'apiKey'.
+          enum:
+          - apiKey
+          type: string
+      required:
+      - in
+      - name
+      type: object
+      x-versionadded: v2.46
+    MutualTLSSecurityScheme:
+      properties:
+        description:
+          description: A description of the mTLS security scheme.
+          type:
+          - string
+          - 'null'
+        type:
+          default: mutualTLS
+          description: The security scheme type; must be 'mutualTLS'.
+          enum:
+          - mutualTLS
+          type: string
+      type: object
+      x-versionadded: v2.46
+    PasswordOAuthFlow:
+      description: Configuration for the OAuth 2.0 Resource Owner Password flow.
+      properties:
+        refreshUrl:
+          description: The URL for refreshing tokens.
+          type:
+          - string
+          - 'null'
+        scopes:
+          additionalProperties:
+            type: string
+          description: Available scopes mapping scope name to description.
+          type: object
+        tokenUrl:
+          description: The token URL for the password flow.
+          type: string
+      required:
+      - scopes
+      - tokenUrl
+      type: object
+      x-versionadded: v2.46
+    AuthorizationCodeOAuthFlow:
+      description: Configuration for the OAuth 2.0 Authorization Code flow.
+      properties:
+        authorizationUrl:
+          description: The authorization URL for the authorization code flow.
+          type: string
+        refreshUrl:
+          description: The URL for refreshing tokens.
+          type:
+          - string
+          - 'null'
+        scopes:
+          additionalProperties:
+            type: string
+          description: Available scopes mapping scope name to description.
+          type: object
+        tokenUrl:
+          description: The token URL for exchanging the authorization code.
+          type: string
+      required:
+      - authorizationUrl
+      - scopes
+      - tokenUrl
+      type: object
+      x-versionadded: v2.46
+    AgentInterface:
+      properties:
+        transport:
+          description: The transport protocol (e.g. JSONRPC, GRPC, HTTP+JSON).
+          type: string
+        url:
+          description: The URL for this transport interface.
+          type: string
+      required:
+      - transport
+      - url
+      type: object
+      x-versionadded: v2.46
+    AllowExtra:
+      description: The parameters submitted by the user to the failed job.
+      type: object
+    AgentExtension:
+      properties:
+        description:
+          description: A human-readable description of the extension.
+          type:
+          - string
+          - 'null'
+        params:
+          $ref: '#/components/schemas/AllowExtra'
+        required:
+          description: Whether this extension is required by the agent.
+          type:
+          - boolean
+          - 'null'
+        uri:
+          description: The URI identifying the extension.
+          type: string
+      required:
+      - uri
+      type: object
+      x-versionadded: v2.46
+    AgentCardResponse:
+      properties:
+        agentCard:
+          $ref: '#/components/schemas/AgentCard'
+        createdAt:
+          description: The date and time of when agent has been deployed and it's agent card registered, in ISO 8601 format
+          format: date-time
+          type: string
+        deploymentId:
+          description: The ID of the agent deployment. Every agent card has exactly one of deploymentId or workloadId set.
+          type:
+          - string
+          - 'null'
+        externalId:
+          description: The external ID of the agent.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the agent card.
+          type: string
+        tenantId:
+          description: The id of the tenant agent card is registered in.
+          maxLength: 36
+          minLength: 32
+          type:
+          - string
+          - 'null'
+        updatedAt:
+          description: The date and time indicating when the agent card was last updated.
+          format: date-time
+          type: string
+        workloadId:
+          description: The ID of the Workload API workload the agent runs as. Every agent card has exactly one of deploymentId or workloadId set.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.48
+      required:
+      - agentCard
+      - createdAt
+      - id
+      - updatedAt
+      type: object
+      x-versionadded: v2.46
+    OpenIdConnectSecurityScheme:
+      properties:
+        description:
+          description: A description of the OpenID Connect security scheme.
+          type:
+          - string
+          - 'null'
+        openIdConnectUrl:
+          description: The OpenID Connect discovery document URL.
+          type: string
+        type:
+          default: openIdConnect
+          description: The security scheme type; must be 'openIdConnect'.
+          enum:
+          - openIdConnect
+          type: string
+      required:
+      - openIdConnectUrl
+      type: object
+      x-versionadded: v2.46
+    AgentSkill:
+      properties:
+        description:
+          description: A human-readable description of the skill.
+          type: string
+        examples:
+          description: Example prompts or inputs for the skill.
+          items:
+            type: string
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        id:
+          description: Unique identifier for the skill.
+          type: string
+        inputModes:
+          description: MIME types or modes accepted as input.
+          items:
+            type: string
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        name:
+          description: The display name of the skill.
+          type: string
+        outputModes:
+          description: MIME types or modes produced as output.
+          items:
+            type: string
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        security:
+          description: Security requirements for the skill. Each entry maps a scheme name to required scopes.
+          items:
+            $ref: '#/components/schemas/AllowExtra'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        tags:
+          description: Categorization tags for the skill.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      required:
+      - description
+      - id
+      - name
+      - tags
+      type: object
+      x-versionadded: v2.46
+    OAuthFlows:
+      description: The supported OAuth 2.0 flows.
+      properties:
+        authorizationCode:
+          $ref: '#/components/schemas/AuthorizationCodeOAuthFlow'
+        clientCredentials:
+          $ref: '#/components/schemas/ClientCredentialsOAuthFlow'
+        implicit:
+          $ref: '#/components/schemas/ImplicitOAuthFlow'
+        password:
+          $ref: '#/components/schemas/PasswordOAuthFlow'
+      type: object
+      x-versionadded: v2.46
+    ClientCredentialsOAuthFlow:
+      description: Configuration for the OAuth 2.0 Client Credentials flow.
+      properties:
+        refreshUrl:
+          description: The URL for refreshing tokens.
+          type:
+          - string
+          - 'null'
+        scopes:
+          additionalProperties:
+            type: string
+          description: Available scopes mapping scope name to description.
+          type: object
+        tokenUrl:
+          description: The token URL for the client credentials flow.
+          type: string
+      required:
+      - scopes
+      - tokenUrl
+      type: object
+      x-versionadded: v2.46
+    ImplicitOAuthFlow:
+      description: Configuration for the OAuth 2.0 Implicit flow.
+      properties:
+        authorizationUrl:
+          description: The authorization URL for the implicit flow.
+          type: string
+        refreshUrl:
+          description: The URL for refreshing tokens.
+          type:
+          - string
+          - 'null'
+        scopes:
+          additionalProperties:
+            type: string
+          description: Available scopes mapping scope name to description.
+          type: object
+      required:
+      - authorizationUrl
+      - scopes
+      type: object
+      x-versionadded: v2.46
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

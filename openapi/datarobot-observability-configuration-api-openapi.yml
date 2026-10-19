@@ -1,0 +1,380 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Observability Configuration API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage deployment configuration. Configure capabilities of your current deployment based on the data provided, for example, training data, prediction data, or actuals. After you create and configure a deployment, you can use the deployment settings to add or update deployment functionality that wasn't configured during deployment creation.
+  name: observability_configuration
+paths:
+  /api/v2/deployments/{deploymentId}/actuals/fromDataset/:
+    post:
+      description: Submit actuals values for processing using catalog item. Submission of actuals is limited to 10,000,000 actuals per hour. For time series deployments, total actuals = number of actuals * number of forecast distances. For example, submitting 10 actuals for a deployment with 50 forecast distances = 500 total actuals. For multiclass deployments, a similar calculation is made where total actuals = number of actuals * number of classes. For example, submitting 10 actuals for a deployment with 20 classes = 200 actuals.
+      operationId: deploymentsActualsFromDataset_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentDatasetCreate'
+      responses:
+        '202':
+          description: Submitted successfully. See Location header.
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '422':
+          description: Unable to process the Actuals submission request.
+        '429':
+          description: The number of actuals uploaded this hour exceeds the limit of 10000000 rows.
+      summary: Submit actuals values by deployment ID
+      tags:
+      - observability_configuration
+      x-versionadded: v2.24
+  /api/v2/deployments/{deploymentId}/actuals/fromJSON/:
+    post:
+      description: Submit actuals values for processing. Values are not processed immediately and may take some time to propagate through deployment systems. Submission of actuals is limited to 10,000,000 actuals per hour. For time series deployments, total actuals = number of actuals * number of forecast distances. For example, submitting 10 actuals for a deployment with 50 forecast distances = 500 total actuals. For multiclass deployments, a similar calculation is made where total actuals = number of actuals * number of classes. For example, submitting 10 actuals for a deployment with 20 classes = 200 actuals.
+      operationId: deploymentsActualsFromJSON_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentActuals'
+      responses:
+        '202':
+          description: Submitted successfully. See Location header.
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '422':
+          description: Unable to process the Actuals submission request.
+        '429':
+          description: The number of actuals uploaded this hour exceeds the limit of 10000000 rows.
+      summary: Create a actuals from a JSON
+      tags:
+      - observability_configuration
+      x-versionadded: v2.17
+  /api/v2/deployments/{deploymentId}/monitoringDataDeletions/:
+    post:
+      description: Delete deployment monitoring data.
+      operationId: deploymentsMonitoringDataDeletions_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitoringDataDeletePayload'
+      responses:
+        '200':
+          description: ''
+        '404':
+          description: Deployment or model not found.
+      summary: Endpoint by deployment ID
+      tags:
+      - observability_configuration
+      x-versionadded: v2.29
+  /api/v2/deployments/{deploymentId}/segmentAttributes/:
+    get:
+      description: Retrieve deployment segment attributes.
+      operationId: deploymentsSegmentAttributes_list
+      parameters:
+      - description: The monitoring type for which segment attributes are being retrieved.
+        in: query
+        name: monitoringType
+        required: false
+        schema:
+          default: serviceHealth
+          enum:
+          - serviceHealth
+          - dataDrift
+          - accuracy
+          - humility
+          - customMetrics
+          - geospatial
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentAttributesRetrieveResponse'
+          description: ''
+      summary: Retrieve Segment attributes by ID
+      tags:
+      - observability_configuration
+      x-versionadded: v2.35
+  /api/v2/deployments/{deploymentId}/segmentValues/:
+    get:
+      description: Retrieve deployment segment values.
+      operationId: deploymentsSegmentValues_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: The name of the segment attribute whose values the user wants to retrieve.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          default: DataRobot-Consumer
+          type: string
+      - description: The search query to filter the list of segment values.
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 100
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentValuesRetrieveResponse'
+          description: ''
+      summary: Retrieve Segment values by ID
+      tags:
+      - observability_configuration
+      x-versionadded: v2.35
+components:
+  schemas:
+    SegmentAttributesRetrieveResponse:
+      properties:
+        data:
+          description: The segment attributes that were retrieved.
+          items:
+            type: string
+          maxItems: 100
+          minItems: 1
+          type: array
+        monitoringType:
+          description: The monitoring type for which segment attributes are being retrieved.
+          enum:
+          - serviceHealth
+          - dataDrift
+          - accuracy
+          - humility
+          - customMetrics
+          - geospatial
+          type: string
+      required:
+      - data
+      - monitoringType
+      type: object
+      x-versionadded: v2.35
+    DeploymentDatasetCreate:
+      properties:
+        actualValueColumn:
+          description: Column name that contains actual values.
+          type: string
+        associationIdColumn:
+          description: Column name that contains unique identifiers used with a predicted rows.
+          type: string
+        datasetId:
+          description: The ID of dataset from catalog.
+          type: string
+        datasetVersionId:
+          description: Version of dataset to retrieve.
+          type:
+          - string
+          - 'null'
+        keepActualsWithoutPredictions:
+          default: true
+          description: Indicates if actual without predictions are kept.
+          type: boolean
+        password:
+          description: The password for database authentication.
+          type: string
+        timestampColumn:
+          description: Column name that contain datetime when actual values were obtained.
+          type: string
+          x-versiondeprecated: v2.32
+        user:
+          description: The username for database authentication.
+          type: string
+        wasActedOnColumn:
+          description: Column name that contains boolean values if any action was made based on predictions data.
+          type: string
+          x-versiondeprecated: v2.32
+      required:
+      - actualValueColumn
+      - associationIdColumn
+      - datasetId
+      type: object
+    DeploymentActuals:
+      properties:
+        data:
+          description: A list of `actual` objects that describes actual values. Minimum size of the list is 1 and maximum size is 10000 items. An `actual` object has the following schema.
+          items:
+            $ref: '#/components/schemas/Actual'
+          minItems: 1
+          type: array
+        keepActualsWithoutPredictions:
+          default: true
+          description: Indicates if actual without predictions are kept.
+          type: boolean
+      required:
+      - data
+      type: object
+    MonitoringDataDeletePayload:
+      properties:
+        end:
+          description: 'End of the period to delete monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        modelId:
+          description: The id of the model for which monitoring data are being deleted.
+          type: string
+        start:
+          description: 'Start of the period to delete monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - modelId
+      type: object
+    SegmentValuesRetrieveResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of segment values.
+          items:
+            $ref: '#/components/schemas/SegmentValue'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    Actual:
+      properties:
+        actualValue:
+          anyOf:
+          - type: integer
+          - type: number
+          - type: string
+          description: The actual value of a prediction. Will be numeric for regression models and a string label for classification models.
+        associationId:
+          description: A unique identifier used with a predicted row.
+          maxLength: 128
+          type: string
+        timestamp:
+          description: The datetime when actual values were obtained, formatted according to RFC3339.
+          format: date-time
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.32
+        wasActedOn:
+          description: Indicates if the prediction was acted on in a way that could have affected the actual outcome. For example, if a hospital patient is predicted to be readmitted in 30 days, extra procedures or new medication might be given to mitigate this problem, influencing the actual outcome of the prediction.
+          type:
+          - boolean
+          - 'null'
+          x-versiondeprecated: v2.32
+      required:
+      - actualValue
+      - associationId
+      type: object
+    SegmentValue:
+      properties:
+        segmentAttribute:
+          description: Name of the segment attribute.
+          type: string
+        value:
+          description: The segment value.
+          type: string
+          x-versionadded: v2.35
+      required:
+      - segmentAttribute
+      - value
+      type: object
+      x-versionadded: v2.35
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

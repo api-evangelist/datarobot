@@ -1,0 +1,1480 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Mitigation Challenger Models API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage challenger models.
+  name: mitigation_challenger_models
+paths:
+  /api/v2/deployments/{deploymentId}/challengerPredictions/:
+    post:
+      description: Score main model prediction requests against challenger model requests.
+      operationId: deploymentsChallengerPredictions_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengerScore'
+      responses:
+        '202':
+          description: Job submitted. See Location header.
+          headers:
+            Location:
+              description: URL to poll to track challenger scoring progress.
+              schema:
+                type: string
+        '422':
+          description: Unable to process the challenger scoring request.
+        '429':
+          description: Another challenger scoring job is running. See the Location header to track the running job.
+      summary: Score challenger models by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/challengerReplaySettings/:
+    get:
+      description: Retrieve challenger replay settings.
+      operationId: deploymentsChallengerReplaySettings_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengersReplaySettings'
+          description: Challenger replay settings.
+      summary: Retrieve challenger replay settings by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.33
+    patch:
+      description: Update challenger replay settings.
+      operationId: deploymentsChallengerReplaySettings_patchMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengersReplaySettings'
+      responses:
+        '200':
+          description: Challenger replay settings updated.
+      summary: Update challenger replay settings by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/challengers/:
+    get:
+      description: List challenger models for deployment.
+      operationId: deploymentsChallengers_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengerListResponse'
+          description: The challenger models
+      summary: List challenger models by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.23
+    post:
+      description: Create new challenger model.
+      operationId: deploymentsChallengers_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengerCreate'
+      responses:
+        '202':
+          description: Job submitted successfully. See Location header.
+          headers:
+            Location:
+              description: URL to poll to track challenger creation has finished.
+              schema:
+                type: string
+        '422':
+          description: Unable to process the challenger creation request.
+      summary: Create challenger model by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/challengers/{challengerId}/:
+    delete:
+      description: Delete challenger model.
+      operationId: deploymentsChallengers_delete
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: Unique identifier of the challenger.
+        in: path
+        name: challengerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Model successfully deleted.
+      summary: Delete challenger model by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.23
+    get:
+      description: Retrieve challenger model.
+      operationId: deploymentsChallengers_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: Unique identifier of the challenger.
+        in: path
+        name: challengerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengerResponse'
+          description: The challenger model
+      summary: Get challenger model by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.23
+    patch:
+      description: Update challenger model.
+      operationId: deploymentsChallengers_patch
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: Unique identifier of the challenger.
+        in: path
+        name: challengerId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengerUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengerResponse'
+          description: Model successfully updated.
+      summary: Update challenger model by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/championModelPackage/:
+    get:
+      description: Retrieve information about the champion model package
+      operationId: deploymentsChampionModelPackage_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPackageRetrieveResponseBase'
+          description: Information retrieved successfully.
+      summary: Retrieve information about the champion model package by deployment ID
+      tags:
+      - mitigation_challenger_models
+      x-versionadded: v2.33
+components:
+  schemas:
+    ChallengerUpdate:
+      properties:
+        name:
+          description: Human-readable name for the challenger.
+          maxLength: 512
+          type: string
+        predictionEnvironmentId:
+          description: ID of the Prediction Environment the challenger should use.
+          type: string
+      type: object
+    ModelPackageImportMeta:
+      description: Information from when this Model Package was first saved
+      properties:
+        containsFearPipeline:
+          description: Exists for imported models only, indicates thatmodel package contains file with fear pipeline.
+          type:
+          - boolean
+          - 'null'
+        containsFeaturelists:
+          description: Exists for imported models only, indicates thatmodel package contains file with featurelists.
+          type:
+          - boolean
+          - 'null'
+        containsLeaderboardMeta:
+          description: Exists for imported models only, indicates thatmodel package contains file with leaderboard meta.
+          type:
+          - boolean
+          - 'null'
+        containsProjectMeta:
+          description: Exists for imported models only, indicates thatmodel package contains file with project meta.
+          type:
+          - boolean
+          - 'null'
+        creatorFullName:
+          description: The full name of the person who created this model package.
+          type:
+          - string
+          - 'null'
+        creatorId:
+          description: The user ID of the person who created this model package.
+          type: string
+        creatorUsername:
+          description: The username of the person who created this model package.
+          type: string
+        dateCreated:
+          description: When this model package was created.
+          type: string
+        originalFileName:
+          description: Exists for imported models only, the original file name that was uploaded
+          type:
+          - string
+          - 'null'
+      required:
+      - creatorFullName
+      - creatorId
+      - creatorUsername
+      - dateCreated
+      - originalFileName
+      type: object
+    ModelPackageSourceMeta:
+      description: Meta information from where this model was generated
+      properties:
+        customModelDetails:
+          $ref: '#/components/schemas/CustomModelDetails'
+          x-versionadded: v2.34
+        environmentUrl:
+          description: If available, URL of the source model
+          format: uri
+          type:
+          - string
+          - 'null'
+        fips_140_2Enabled:
+          description: true if the model was built with FIPS-140-2
+          type: boolean
+        fips_140_3Enabled:
+          description: true if the model was built with FIPS-140-3
+          type: boolean
+        projectCreatedAt:
+          description: If available, the time when the project was created.
+          type:
+          - string
+          - 'null'
+        projectCreatorEmail:
+          description: If available, the email of the user who created the project.
+          type:
+          - string
+          - 'null'
+        projectCreatorId:
+          default: null
+          description: If available, the ID of the creator of the project.
+          type:
+          - string
+          - 'null'
+        projectCreatorName:
+          description: If available, the name of the user who created the project.
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: If available, the project ID used for this model.
+          type:
+          - string
+          - 'null'
+        projectName:
+          description: If available, the project name for this model.
+          type:
+          - string
+          - 'null'
+        scoringCode:
+          $ref: '#/components/schemas/ModelPackageScoringCodeMeta'
+        useCaseDetails:
+          $ref: '#/components/schemas/UseCaseDetails'
+      required:
+      - environmentUrl
+      - projectId
+      - projectName
+      - scoringCode
+      type: object
+    ModelPackageTarget:
+      description: target information for the model package
+      properties:
+        classCount:
+          description: Number of classes for classification models.
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        classNames:
+          description: Class names for prediction results. When target type is Binary, two class names are returned. The first element is the minority (positive) class and the second element is the majority (negative) class. Limited to 100 returned for Multiclass.
+          items:
+            type: string
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        name:
+          description: Name of the target column
+          type:
+          - string
+          - 'null'
+        predictionProbabilitiesColumn:
+          description: Field or column name containing prediction probabilities
+          type:
+          - string
+          - 'null'
+        predictionThreshold:
+          description: Prediction threshold used for binary classification models
+          maximum: 1
+          minimum: 0
+          type:
+          - number
+          - 'null'
+        type:
+          description: Target type of the model.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Multilabel
+          - TextGeneration
+          - GeoPoint
+          - AgenticWorkflow
+          - MCP
+          type: string
+      required:
+      - classCount
+      - classNames
+      - name
+      - predictionProbabilitiesColumn
+      - predictionThreshold
+      - type
+      type: object
+    MlpkgFileContents:
+      description: Information about the content of .mlpkg artifact
+      properties:
+        allTimeSeriesPredictionIntervals:
+          description: Whether .mlpkg contains TS prediction intervals computed for all percentiles
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.31
+      type: object
+    UseCaseDetails:
+      description: Details of the use-case associated to this registered model version
+      properties:
+        createdAt:
+          description: The time when the use case was created.
+          type: string
+        creatorEmail:
+          description: The email of the user who created the use case.
+          type:
+          - string
+          - 'null'
+        creatorId:
+          description: The ID of the creator of the use case.
+          type: string
+        creatorName:
+          description: The name of the user who created the use case.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the associated use case.
+          type: string
+        name:
+          description: The name of the use case at the moment of creation.
+          type:
+          - string
+          - 'null'
+      required:
+      - createdAt
+      - creatorId
+      - id
+      type: object
+    PredictionEnvironmentResponse:
+      description: Prediction environment used by the challenger
+      properties:
+        id:
+          description: ID of the prediction environment.
+          type: string
+        name:
+          description: Name of the prediction environment.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    CustomModelDetails:
+      description: Details of the custom model associated to this registered model version
+      properties:
+        createdAt:
+          description: The time when the custom model was created.
+          type: string
+        creatorEmail:
+          description: The email of the user who created the custom model.
+          type:
+          - string
+          - 'null'
+        creatorId:
+          description: The ID of the creator of the custom model.
+          type: string
+        creatorName:
+          description: The name of the user who created the custom model.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the associated custom model.
+          type: string
+        versionLabel:
+          description: The label of the associated custom model version.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+      required:
+      - createdAt
+      - creatorId
+      - id
+      type: object
+    ChallengerCreate:
+      properties:
+        modelPackageId:
+          description: ID of the model package to add as a challenger.
+          type: string
+        name:
+          description: Human-readable name for the challenger.
+          maxLength: 512
+          type: string
+        predictionEnvironmentId:
+          description: ID of the Prediction Environment the challenger should use. If prediction environments are enabled, this is required
+          type: string
+      required:
+      - modelPackageId
+      - name
+      type: object
+    ModelPackageResponse:
+      description: modelPackage of the challenger.
+      properties:
+        id:
+          description: ID of the model package.
+          type: string
+        name:
+          description: Type of the current model.
+          type: string
+        registeredModelId:
+          description: ID of the associated registered model
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - name
+      type: object
+    ModelPackageScoringCodeMeta:
+      description: If available, information about the model's scoring code
+      properties:
+        dataRobotPredictionVersion:
+          description: The DataRobot prediction API version for the scoring code.
+          type:
+          - string
+          - 'null'
+        location:
+          description: The location of the scoring code.
+          enum:
+          - local_leaderboard
+          - mlpkg
+          type:
+          - string
+          - 'null'
+      required:
+      - dataRobotPredictionVersion
+      - location
+      type: object
+    ChallengerListResponse:
+      properties:
+        data:
+          description: List of challengers.
+          items:
+            $ref: '#/components/schemas/ChallengerResponse'
+          type: array
+      required:
+      - data
+      type: object
+    ModelPackageRetrieveResponseBase:
+      properties:
+        buildStatus:
+          description: Model package build status
+          enum:
+          - inProgress
+          - complete
+          - failed
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        capabilities:
+          $ref: '#/components/schemas/ModelPackageCapabilities'
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        datasets:
+          $ref: '#/components/schemas/ModelPackageDatasets'
+          x-versionadded: v2.33
+        id:
+          description: The ID of the model package.
+          type: string
+          x-versionadded: v2.33
+        importMeta:
+          $ref: '#/components/schemas/ModelPackageImportMeta'
+          x-versionadded: v2.33
+        isArchived:
+          description: Whether the model package is permanently archived (cannot be used in deployment or replacement)
+          type: boolean
+          x-versionadded: v2.33
+        isDeprecated:
+          description: Whether the model package is deprecated. eg. python2 models are deprecated.
+          type: boolean
+          x-versionadded: v2.29
+        mlpkgFileContents:
+          $ref: '#/components/schemas/MlpkgFileContents'
+          x-versionadded: v2.31
+        modelDescription:
+          $ref: '#/components/schemas/ModelPackageModelDescription'
+          x-versionadded: v2.33
+        modelExecutionType:
+          description: Type of model package. `dedicated` (native DataRobot models) and `custom_inference_model` (user added inference models) both execute on DataRobot prediction servers, `external` do not
+          enum:
+          - dedicated
+          - custom_inference_model
+          - external
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The ID of the model.
+          type: string
+          x-versionadded: v2.33
+        modelKind:
+          $ref: '#/components/schemas/ModelPackageModelKind'
+          x-versionadded: v2.33
+        name:
+          description: The model package name.
+          type: string
+          x-versionadded: v2.33
+        sourceMeta:
+          $ref: '#/components/schemas/ModelPackageSourceMeta'
+          x-versionadded: v2.33
+        target:
+          $ref: '#/components/schemas/ModelPackageTarget'
+          x-versionadded: v2.33
+        timeseries:
+          $ref: '#/components/schemas/ModelPackageTimeseries'
+          x-versionadded: v2.33
+        updatedBy:
+          $ref: '#/components/schemas/UserMetadata'
+          x-versionadded: v2.33
+        userProvidedId:
+          description: A user-provided unique ID associated with the given custom inference model.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - capabilities
+      - datasets
+      - id
+      - importMeta
+      - isArchived
+      - isDeprecated
+      - modelDescription
+      - modelExecutionType
+      - modelId
+      - modelKind
+      - name
+      - sourceMeta
+      - target
+      - timeseries
+      - updatedBy
+      type: object
+    ChallengersReplaySettings:
+      properties:
+        enabled:
+          description: Identifies whether scheduled replay is enabled.
+          type: boolean
+          x-versionadded: v2.33
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+          x-versionadded: v2.33
+      type: object
+    ModelPackageCapabilities:
+      description: Capabilities of the current model package.
+      properties:
+        supportsAutomaticActuals:
+          description: Whether inferring actual values from time series history data and automatically feeding them back for accuracy estimation is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsChallengerModels:
+          description: Whether Challenger Models are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsFeatureDriftTracking:
+          description: Whether Feature Drift is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsHumilityRecommendedRules:
+          description: Whether calculating values for recommended Humility Rules is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsHumilityRules:
+          description: Whether Humility Rules are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsHumilityRulesDefaultCalculations:
+          description: Whether calculating default values for Humility Rules is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+        supportsPredictionWarning:
+          description: Whether Prediction Warnings are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsRetraining:
+          description: Whether deployment supports retraining.
+          type: boolean
+          x-versionadded: v2.28
+          x-versiondeprecated: v2.29
+        supportsScoringCodeDownload:
+          description: Whether scoring code download is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsSecondaryDatasets:
+          description: If the deployments supports secondary datasets.
+          type: boolean
+          x-versionadded: v2.28
+          x-versiondeprecated: v2.29
+        supportsSegmentedAnalysisDriftAndAccuracy:
+          description: Whether tracking features in training and predictions data for segmented analysis is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsShapBasedPredictionExplanations:
+          description: Whether shap-based prediction explanations are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsTargetDriftTracking:
+          description: Whether Target Drift is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+      required:
+      - supportsChallengerModels
+      - supportsFeatureDriftTracking
+      - supportsHumilityRecommendedRules
+      - supportsHumilityRules
+      - supportsHumilityRulesDefaultCalculations
+      - supportsPredictionWarning
+      - supportsSecondaryDatasets
+      - supportsSegmentedAnalysisDriftAndAccuracy
+      - supportsShapBasedPredictionExplanations
+      - supportsTargetDriftTracking
+      type: object
+    ModelPackageModelDescription:
+      description: model description information for the model package
+      properties:
+        buildEnvironmentType:
+          description: build environment type of the model
+          enum:
+          - DataRobot
+          - Python
+          - R
+          - Java
+          - Other
+          type: string
+        description:
+          description: a description of the model
+          type:
+          - string
+          - 'null'
+        location:
+          description: location of the model
+          type:
+          - string
+          - 'null'
+        modelCreatedAt:
+          description: time when the model was created
+          type:
+          - string
+          - 'null'
+        modelCreatorEmail:
+          description: email of the user who created the model
+          type:
+          - string
+          - 'null'
+        modelCreatorId:
+          default: null
+          description: ID of the creator of the model
+          type:
+          - string
+          - 'null'
+        modelCreatorName:
+          description: name of the user who created the model
+          type:
+          - string
+          - 'null'
+        modelName:
+          description: model name
+          type: string
+      required:
+      - buildEnvironmentType
+      - description
+      - location
+      type: object
+    ModelPackageDatasets:
+      description: dataset information for the model package
+      properties:
+        baselineSegmentedBy:
+          description: Names of categorical features by which the training baseline was segmented. This allows for deployment prediction requests to be segmented by those same features. Segmenting the training baseline by these features allows for users to perform segmented analysis of Data Drift and Accuracy, and to compare the same subset of training and scoring data based on the selected segment attribute and segment value.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        datasetName:
+          description: Name of dataset used to train the model
+          type:
+          - string
+          - 'null'
+        holdoutDataCatalogId:
+          description: ID for holdout data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        holdoutDataCatalogVersionId:
+          description: Version ID for holdout data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        holdoutDataCreatedAt:
+          description: Time when the holdout data item was created
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDataCreatorEmail:
+          description: Email of the user who created the holdout data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDataCreatorId:
+          default: null
+          description: ID of the creator of the holdout data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDataCreatorName:
+          description: Name of the user who created the holdout data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDatasetName:
+          description: Name of dataset used for model holdout
+          type:
+          - string
+          - 'null'
+        targetHistogramBaseline:
+          description: Values used to establish the training baseline
+          enum:
+          - predictions
+          - actuals
+          type: string
+        trainingDataCatalogId:
+          description: ID for training data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        trainingDataCatalogVersionId:
+          description: Version ID for training data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        trainingDataCreatedAt:
+          description: Time when the training data item was created
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataCreatorEmail:
+          description: Email of the user who created the training data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataCreatorId:
+          default: null
+          description: ID of the creator of the training data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataCreatorName:
+          description: Name of the user who created the training data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataSize:
+          description: Number of rows in training data (used by DR models)
+          type: integer
+      required:
+      - baselineSegmentedBy
+      - datasetName
+      - holdoutDataCatalogId
+      - holdoutDataCatalogVersionId
+      - holdoutDatasetName
+      - trainingDataCatalogId
+      - trainingDataCatalogVersionId
+      type: object
+    ChallengerScore:
+      properties:
+        timestamp:
+          description: The date and time in ISO8601 format, challenger models will be scored on data starting from deployment creation until timestamp. If not specified UTC current time is used.
+          format: date-time
+          type: string
+      type: object
+    ModelPackageTimeseries:
+      description: time series information for the model package
+      properties:
+        datetimeColumnFormat:
+          description: Date format for forecast date and forecast point column
+          type:
+          - string
+          - 'null'
+        datetimeColumnName:
+          description: Name of the forecast date column
+          type:
+          - string
+          - 'null'
+        effectiveFeatureDerivationWindowEnd:
+          description: Same concept as `featureDerivationWindowEnd` which is chosen by the user and based on the initial sampled data from the eda sample. When the dataset goes through aim, the pipeline reads the full dataset and figures out the "real" FDW (i.e., the effective FDW). For most models, eFDW is approximately the same as the FDW.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.25
+        effectiveFeatureDerivationWindowStart:
+          description: Same concept as `featureDerivationWindowStart` which is chosen by the user and based on the initial sampled data from the eda sample. When the dataset goes through aim, the pipeline reads the full dataset and figures out the "real" FDW (i.e., the effective FDW). For most models, eFDW is approximately the same as the FDW.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.25
+        featureDerivationWindowEnd:
+          description: Negative number or zero defining how many time units of the forecast distances time unit into the past relative to the forecast point the feature derivation window should end.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+        featureDerivationWindowStart:
+          description: Negative number or zero defining how many time units of the forecast distances time unit into the past relative to the forecast point the feature derivation window should begin.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+        forecastDistanceColumnName:
+          description: Name of the forecast distance column
+          type:
+          - string
+          - 'null'
+        forecastDistances:
+          description: List of integer forecast distances
+          items:
+            type: integer
+          type:
+          - array
+          - 'null'
+        forecastDistancesTimeUnit:
+          description: The time unit of forecast distances
+          enum:
+          - MICROSECOND
+          - MILLISECOND
+          - SECOND
+          - MINUTE
+          - HOUR
+          - DAY
+          - WEEK
+          - MONTH
+          - QUARTER
+          - YEAR
+          type:
+          - string
+          - 'null'
+        forecastPointColumnName:
+          description: Name of the forecast point column
+          type:
+          - string
+          - 'null'
+        isCrossSeries:
+          description: true if the model is cross-series.
+          type:
+          - boolean
+          - 'null'
+        isNewSeriesSupport:
+          description: true if the model is optimized to support new series.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.25
+        isTraditionalTimeSeries:
+          description: true if the model is traditional time series.
+          type:
+          - boolean
+          - 'null'
+        seriesColumnName:
+          description: Name of the series column in case of multi-series date
+          type:
+          - string
+          - 'null'
+      required:
+      - datetimeColumnFormat
+      - datetimeColumnName
+      - effectiveFeatureDerivationWindowEnd
+      - effectiveFeatureDerivationWindowStart
+      - featureDerivationWindowEnd
+      - featureDerivationWindowStart
+      - forecastDistanceColumnName
+      - forecastDistances
+      - forecastDistancesTimeUnit
+      - forecastPointColumnName
+      - isCrossSeries
+      - isNewSeriesSupport
+      - isTraditionalTimeSeries
+      - seriesColumnName
+      type: object
+    ModelPackageModelKind:
+      description: Model attribute information
+      properties:
+        isAnomalyDetectionModel:
+          description: true if this is an anomaly detection model
+          type: boolean
+        isCombinedModel:
+          description: true if model is a combined model
+          type: boolean
+          x-versionadded: v2.27
+        isFeatureDiscovery:
+          description: true if this model uses the Feature Discovery feature
+          type: boolean
+        isMultiseries:
+          description: true if model is multiseries
+          type: boolean
+        isTimeSeries:
+          description: true if model is time series
+          type: boolean
+        isUnsupervisedClustering:
+          description: true if this is an unsupervised clustering model
+          type: boolean
+          x-versionadded: v2.47
+        isUnsupervisedLearning:
+          description: true if model used unsupervised learning
+          type: boolean
+      required:
+      - isAnomalyDetectionModel
+      - isCombinedModel
+      - isFeatureDiscovery
+      - isMultiseries
+      - isTimeSeries
+      - isUnsupervisedClustering
+      - isUnsupervisedLearning
+      type: object
+    ModelResponse:
+      description: Model of the challenger.
+      properties:
+        datasetName:
+          description: Name of dataset used to train challenger model
+          type: string
+        description:
+          description: Description of the model.
+          type: string
+        executionType:
+          description: Type of the current model.
+          type: string
+        id:
+          description: ID of the current model.
+          type: string
+        isDeprecated:
+          description: Whether the current model is deprecated model. eg. python2 based model.
+          type: boolean
+          x-versionadded: v2.29
+        name:
+          description: Name of the model.
+          type: string
+        projectId:
+          description: Project ID of the current model.
+          type: string
+        projectName:
+          description: Project name of the current model.
+          type: string
+      required:
+      - datasetName
+      - description
+      - executionType
+      - id
+      - isDeprecated
+      - name
+      - projectId
+      - projectName
+      type: object
+    ChallengerResponse:
+      properties:
+        id:
+          description: ID of the challenger.
+          type: string
+        model:
+          $ref: '#/components/schemas/ModelResponse'
+        modelPackage:
+          $ref: '#/components/schemas/ModelPackageResponse'
+        name:
+          description: Name of the challenger.
+          type: string
+        predictionEnvironment:
+          $ref: '#/components/schemas/PredictionEnvironmentResponse'
+      required:
+      - id
+      - model
+      - modelPackage
+      - name
+      type: object
+    UserMetadata:
+      description: Information on the user who last modified the registered model
+      properties:
+        email:
+          description: The email of the user.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the user.
+          type: string
+        name:
+          description: The full name of the user.
+          type:
+          - string
+          - 'null'
+      required:
+      - email
+      - id
+      - name
+      type: object
+    Schedule:
+      description: Data class that represents a cron schedule.
+      properties:
+        dayOfMonth:
+          description: The day(s) of the month to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            type:
+            - number
+            - string
+          maxItems: 31
+          title: Dayofmonth
+          type: array
+        dayOfWeek:
+          description: The day(s) of the week to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - sunday
+            - SUNDAY
+            - Sunday
+            - monday
+            - MONDAY
+            - Monday
+            - tuesday
+            - TUESDAY
+            - Tuesday
+            - wednesday
+            - WEDNESDAY
+            - Wednesday
+            - thursday
+            - THURSDAY
+            - Thursday
+            - friday
+            - FRIDAY
+            - Friday
+            - saturday
+            - SATURDAY
+            - Saturday
+            - sun
+            - SUN
+            - Sun
+            - mon
+            - MON
+            - Mon
+            - tue
+            - TUE
+            - Tue
+            - wed
+            - WED
+            - Wed
+            - thu
+            - THU
+            - Thu
+            - fri
+            - FRI
+            - Fri
+            - sat
+            - SAT
+            - Sat
+            type:
+            - number
+            - string
+          maxItems: 7
+          title: Dayofweek
+          type: array
+        hour:
+          description: The hour(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            type:
+            - number
+            - string
+          maxItems: 24
+          title: Hour
+          type: array
+        minute:
+          description: The minute(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            type:
+            - number
+            - string
+          maxItems: 60
+          title: Minute
+          type: array
+        month:
+          description: The month(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - january
+            - JANUARY
+            - January
+            - february
+            - FEBRUARY
+            - February
+            - march
+            - MARCH
+            - March
+            - april
+            - APRIL
+            - April
+            - may
+            - MAY
+            - May
+            - june
+            - JUNE
+            - June
+            - july
+            - JULY
+            - July
+            - august
+            - AUGUST
+            - August
+            - september
+            - SEPTEMBER
+            - September
+            - october
+            - OCTOBER
+            - October
+            - november
+            - NOVEMBER
+            - November
+            - december
+            - DECEMBER
+            - December
+            - jan
+            - JAN
+            - Jan
+            - feb
+            - FEB
+            - Feb
+            - mar
+            - MAR
+            - Mar
+            - apr
+            - APR
+            - Apr
+            - jun
+            - JUN
+            - Jun
+            - jul
+            - JUL
+            - Jul
+            - aug
+            - AUG
+            - Aug
+            - sep
+            - SEP
+            - Sep
+            - oct
+            - OCT
+            - Oct
+            - nov
+            - NOV
+            - Nov
+            - dec
+            - DEC
+            - Dec
+            type:
+            - number
+            - string
+          maxItems: 12
+          title: Month
+          type: array
+      required:
+      - minute
+      - hour
+      - dayOfMonth
+      - month
+      - dayOfWeek
+      title: Schedule
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

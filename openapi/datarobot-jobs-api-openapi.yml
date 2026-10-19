@@ -1,0 +1,192 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Jobs API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: This page outlines the endpoints that create and manage DataRobot model evaluation jobs.
+  name: Jobs
+paths:
+  /api/v2/status/:
+    get:
+      description: List the async tasks that are currently running for your account
+      operationId: status_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. If 0, all results.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusListResponse'
+          description: The list of statuses
+      summary: List tasks
+      tags:
+      - Jobs
+      x-versionadded: v2.15
+  /api/v2/status/{statusId}/:
+    delete:
+      description: Destroy an async status object
+      operationId: status_delete
+      parameters:
+      - description: The ID of the status object.
+        in: path
+        name: statusId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successfully deleted
+      summary: Delete a task by status ID
+      tags:
+      - Jobs
+      x-versionadded: v2.3
+    get:
+      description: Check the status of an asynchronous task such as project creation
+      operationId: status_retrieve
+      parameters:
+      - description: The ID of the status object.
+        in: path
+        name: statusId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusRetrieveResponse'
+          description: The status of the asynchronous task
+          headers:
+            Location:
+              description: A url that can be polled to check the status.
+              schema:
+                type: string
+        '303':
+          description: Task is completed, see Location header for the location of a new resource
+      summary: Get task status by status ID
+      tags:
+      - Jobs
+      x-versionadded: v2.3
+components:
+  schemas:
+    StatusListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of currently running async status jobs.
+          items:
+            $ref: '#/components/schemas/StatusRetrieveResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+    StatusRetrieveResponse:
+      properties:
+        code:
+          description: If no error occurred, 0.  Otherwise, may contain a status code reflecting the error.
+          type: integer
+        created:
+          description: The time the status record was created.
+          format: date-time
+          type: string
+        description:
+          description: A description of the task being performed, if applicable
+          type:
+          - string
+          - 'null'
+        message:
+          description: May contain further information about the status.
+          type:
+          - string
+          - 'null'
+        status:
+          description: The status of the task.
+          enum:
+          - ABORTED
+          - COMPLETED
+          - ERROR
+          - EXPIRED
+          - INITIALIZED
+          - RUNNING
+          type: string
+        statusId:
+          description: The ID of the status object.
+          type: string
+        statusType:
+          description: The type of thing being created by the Task, if applicable.
+          type:
+          - string
+          - 'null'
+        type:
+          description: The type of thing being created by the Task, if applicable.
+          enum:
+          - CustomModelBlueprintBuild
+          - CustomModelFeatureImpact
+          - Testing
+          - customModelWaitForServer
+          - ManagedImageBuild
+          - Dataset
+          - LongRunningServiceControllerOperation
+          - ProjectPermanentDeletion
+          type:
+          - string
+          - 'null'
+      required:
+      - code
+      - created
+      - description
+      - message
+      - status
+      - statusId
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

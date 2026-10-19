@@ -425,6 +425,858 @@ apis:
     url: json-schema/datarobot-post-api-v2-projects-request-schema.json
   - type: JSONSchema
     url: json-schema/datarobot-post-api-v2-projects-response-schema.json
+- aid: datarobot:datarobot-agent-cards-api
+  name: DataRobot Agent Cards API
+  description: >-
+    Use the endpoints described below to discover agents registered within the platform and manage agent
+    cards.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - agent_cards
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-agent-cards-api-openapi.yml
+- aid: datarobot:datarobot-agentic-memory-api
+  name: DataRobot Agentic Memory API
+  description: Endpoints for managing agentic memory spaces, sessions, and events.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - agentic_memory
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-agentic-memory-api-openapi.yml
+- aid: datarobot:datarobot-agents-api
+  name: DataRobot Agents API
+  description: The following endpoints outline how to manage agents.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Agents
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-agents-api-openapi.yml
+- aid: datarobot:datarobot-ai-robustness-tests-api
+  name: DataRobot AI Robustness Tests API
+  description: The following endpoints outline how to manage AI robustness tests.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - AI Robustness Tests
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-ai-robustness-tests-api-openapi.yml
+- aid: datarobot:datarobot-analytics-api
+  name: DataRobot Analytics API
+  description: Use analytics endpoints to retrieve and audit and event logs.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - analytics
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-analytics-api-openapi.yml
+- aid: datarobot:datarobot-application-templates-api
+  name: DataRobot Application Templates API
+  description: Use the endpoints described below to manage application templates.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - application_templates
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-application-templates-api-openapi.yml
+- aid: datarobot:datarobot-approval-workflows-api
+  name: DataRobot Approval Workflows API
+  description: >-
+    This page describes the endpoints for enacting workflow requirements to ensure quality and comply
+    with regulatory obligations. When you create a new or change an existing deployment, if the approval
+    workflow is enabled, an MLOps administrator within your organization must approve your changes. [Approval
+    policies](deploy-approval) affect the users who have permissions to review deployments and provide
+    automated actions when reviews time out. Approval policies also affect users whose deployment events
+    are governed by a configured policy (e.g., new deployment creation, model replacement).
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - approval_workflows
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-approval-workflows-api-openapi.yml
+- aid: datarobot:datarobot-artifacts-api
+  name: DataRobot Artifacts API
+  description: Manage artifact definitions and container specifications.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - artifacts
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-artifacts-api-openapi.yml
+- aid: datarobot:datarobot-batch-predictions-api
+  name: DataRobot Batch Predictions API
+  description: Use the endpoints described below to generate predictions for a project.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - batch_predictions
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-batch-predictions-api-openapi.yml
+- aid: datarobot:datarobot-blueprints-api
+  name: DataRobot Blueprints API
+  description: >-
+    This page outlines DataRobot's endpoints for blueprints, a graphical representation of the many steps
+    involved in transforming input predictors and targets into a model.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - blueprints
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-blueprints-api-openapi.yml
+- aid: datarobot:datarobot-compliance-documentation-api
+  name: DataRobot Compliance Documentation API
+  description: >-
+    DataRobot automates many critical compliance tasks associated with developing a model and, by doing
+    so, decreases the time-to-deployment in highly regulated industries. You can generate, for each model,
+    individualized documentation to provide comprehensive guidance on what constitutes effective model
+    risk management. Then, you can download the report as an editable Microsoft Word document (.docx).
+    The generated report includes the appropriate level of information and transparency necessitated by
+    regulatory compliance demands.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - compliance_documentation
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-compliance-documentation-api-openapi.yml
+- aid: datarobot:datarobot-credentials-api
+  name: DataRobot Credentials API
+  description: The following endpoints outline how to manage user credentials.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - credentials
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-credentials-api-openapi.yml
+- aid: datarobot:datarobot-custom-applications-api
+  name: DataRobot Custom Applications API
+  description: Use the endpoints described below to manage custom applications.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - custom_applications
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-custom-applications-api-openapi.yml
+- aid: datarobot:datarobot-custom-jobs-api
+  name: DataRobot Custom Jobs API
+  description: >-
+    Use the endpoints described below to manage custom jobs. Use custom jobs to implement automation (for
+    example, custom tests) for your models and deployments. Each job serves as an automated workload,
+    and the exit code determines if it passed or failed. You can run the custom jobs you create for one
+    or more models or deployments. The automated workloads you define through custom jobs can make prediction
+    requests, fetch inputs, and store outputs using DataRobot's Public API.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - custom_jobs
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-custom-jobs-api-openapi.yml
+- aid: datarobot:datarobot-custom-models-api
+  name: DataRobot Custom Models API
+  description: Assemble, test and deploy your own custom model with a custom environment.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - custom_models
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-custom-models-api-openapi.yml
+- aid: datarobot:datarobot-custom-scoring-metrics-api
+  name: DataRobot Custom Scoring Metrics API
+  description: Use the endpoints described below to manage custom scoring metrics.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - custom_scoring_metrics
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-custom-scoring-metrics-api-openapi.yml
+- aid: datarobot:datarobot-data-connectivity-api
+  name: DataRobot Data Connectivity API
+  description: >-
+    This page outlines how to integrate with a variety of enterprise databases, using a 'self-service'
+    JDBC platform.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - data_connectivity
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-data-connectivity-api-openapi.yml
+- aid: datarobot:datarobot-data-exports-and-tracing-api
+  name: DataRobot Data Exports And Tracing API
+  description: Use the endpoints described below to manage data exports and tracing.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - data_exports_and_tracing
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-data-exports-and-tracing-api-openapi.yml
+- aid: datarobot:datarobot-data-registry-api
+  name: DataRobot Data Registry API
+  description: >-
+    Read below to learn about DataRobot's endpoints for managing data, including topics such as the Data
+    Registry, datasets, feature lists, and blueprints. Reference the [Glossary](glossary/index) and UI
+    documentation for more information about these topics.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - data_registry
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-data-registry-api-openapi.yml
+- aid: datarobot:datarobot-data-wrangling-api
+  name: DataRobot Data Wrangling API
+  description: This page outlines the operations and endpoints for data wrangling (preparation).
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - data_wrangling
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-data-wrangling-api-openapi.yml
+- aid: datarobot:datarobot-datarobot-models-api
+  name: DataRobot Datarobot Models API
+  description: Use the endpoints described below to manage DataRobot models.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - datarobot_models
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-datarobot-models-api-openapi.yml
+- aid: datarobot:datarobot-dataset-definition-api
+  name: DataRobot Dataset Definition API
+  description: The endpoints below outline how to create and manage data source definitions.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - dataset_definition
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-dataset-definition-api-openapi.yml
+- aid: datarobot:datarobot-deployment-configuration-api
+  name: DataRobot Deployment Configuration API
+  description: >-
+    Use the endpoints described below to manage deployment configuration. Configure capabilities of your
+    current deployment based on the data provided, for example, training data, prediction data, or actuals.
+    After you create and configure a deployment, you can use the deployment settings to add or update
+    deployment functionality that wasn't configured during deployment creation.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - deployment_configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-deployment-configuration-api-openapi.yml
+- aid: datarobot:datarobot-deployment-management-api
+  name: DataRobot Deployment Management API
+  description: Use the endpoints described below to manage deployments.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - deployment_management
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-deployment-management-api-openapi.yml
+- aid: datarobot:datarobot-deployment-model-replacement-api
+  name: DataRobot Deployment Model Replacement API
+  description: Use the endpoints described below to manage deployment model replacement.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - deployment_model_replacement
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-deployment-model-replacement-api-openapi.yml
+- aid: datarobot:datarobot-deployment-runtime-parameters-api
+  name: DataRobot Deployment Runtime Parameters API
+  description: >-
+    Use the endpoints described below to manage deployment runtime parameters for deployed custom models.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - deployment_runtime_parameters
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-deployment-runtime-parameters-api-openapi.yml
+- aid: datarobot:datarobot-entitlements-api
+  name: DataRobot Entitlements API
+  description: Use the endpoints described below to manage entitlements.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - entitlements
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-entitlements-api-openapi.yml
+- aid: datarobot:datarobot-entity-tags-api
+  name: DataRobot Entity Tags API
+  description: Use the endpoints described below to configure tags for your entities (e.g., use cases).
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - entity_tags
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-entity-tags-api-openapi.yml
+- aid: datarobot:datarobot-features-api
+  name: DataRobot Features API
+  description: Use the endpoints described below to manage features.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - features
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-features-api-openapi.yml
+- aid: datarobot:datarobot-guardrails-api
+  name: DataRobot Guardrails API
+  description: >-
+    Use the endpoints described below to manage guardrails. Model guardrails are a set of rules or machine
+    learning models that ensure the output of a language model is safe, accurate, and ethical.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - guardrails
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-guardrails-api-openapi.yml
+- aid: datarobot:datarobot-health-api
+  name: DataRobot Health API
+  description: The health API from DataRobot — 1 operation(s) for health.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - health
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-health-api-openapi.yml
+- aid: datarobot:datarobot-infrastructure-api
+  name: DataRobot Infrastructure API
+  description: Use the endpoints described below to manage cluster licenses.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - infrastructure
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-infrastructure-api-openapi.yml
+- aid: datarobot:datarobot-insights-api
+  name: DataRobot Insights API
+  description: >-
+    Use the endpoints described below to generate and interpret insights for specific models.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - insights
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-insights-api-openapi.yml
+- aid: datarobot:datarobot-jobs-api
+  name: DataRobot Jobs API
+  description: This page outlines the endpoints that create and manage DataRobot model evaluation jobs.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - jobs
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-jobs-api-openapi.yml
+- aid: datarobot:datarobot-llm-generation-api
+  name: DataRobot LLM Generation API
+  description: The following endpoints outline how to manage LLM generation.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - LLM Generation
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-llm-generation-api-openapi.yml
+- aid: datarobot:datarobot-meta-memory-space-api
+  name: DataRobot Meta Memory Space API
+  description: >-
+    Use the endpoints described below to manage meta memory spaces, which represent Memory Spaces for
+    role-based access control (RBAC) purposes.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - meta_memory_space
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-meta-memory-space-api-openapi.yml
+- aid: datarobot:datarobot-mitigation-challenger-models-api
+  name: DataRobot Mitigation Challenger Models API
+  description: Use the endpoints described below to manage challenger models.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - mitigation_challenger_models
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-mitigation-challenger-models-api-openapi.yml
+- aid: datarobot:datarobot-mitigation-humility-api
+  name: DataRobot Mitigation Humility API
+  description: Use the endpoints described below to manage humility.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - mitigation_humility
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-mitigation-humility-api-openapi.yml
+- aid: datarobot:datarobot-mitigation-retraining-api
+  name: DataRobot Mitigation Retraining API
+  description: >-
+    Use the endpoints described below to manage retraining. To maintain model performance after deployment
+    without extensive manual work, DataRobot provides an automatic retraining capability for deployments.
+    Upon providing a retraining dataset registered in the Data Registry, you can define up to five retraining
+    policies on each deployment. Each policy consists of a trigger, a modeling strategy, modeling settings,
+    and a replacement action. When triggered, retraining will produce a new model based on these settings
+    and notify you to consider promoting it.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - mitigation_retraining
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-mitigation-retraining-api-openapi.yml
+- aid: datarobot:datarobot-model-management-api
+  name: DataRobot Model Management API
+  description: Use the endpoints described below to for model management.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - model_management
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-model-management-api-openapi.yml
+- aid: datarobot:datarobot-models-api
+  name: DataRobot Models API
+  description: Use the endpoints described below to create and manage DataRobot models.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - models
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-models-api-openapi.yml
+- aid: datarobot:datarobot-monitoring-jobs-api
+  name: DataRobot Monitoring Jobs API
+  description: >-
+    Use the endpoints described below to manage monitoring jobs. To integrate more closely with external
+    data sources, monitoring job definitions allow DataRobot to monitor deployments running and storing
+    feature data and predictions outside of DataRobot. For example, you can create a monitoring job to
+    connect to Snowflake, fetch raw data from the relevant Snowflake tables, and send the data to DataRobot
+    for monitoring purposes.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - monitoring_jobs
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-monitoring-jobs-api-openapi.yml
+- aid: datarobot:datarobot-no-code-applications-api
+  name: DataRobot No Code Applications API
+  description: >-
+    Read below to learn about DataRobot's endpoints for no-code applications. Reference the [AI App Builder](app-builder/index)
+    documentation for more information.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - no_code_applications
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-no-code-applications-api-openapi.yml
+- aid: datarobot:datarobot-notebooks-api
+  name: DataRobot Notebooks API
+  description: >-
+    Endpoints for notebooks which offer an in-browser editor to create and execute code for data science
+    analysis and modeling.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - notebooks
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-notebooks-api-openapi.yml
+- aid: datarobot:datarobot-notifications-api
+  name: DataRobot Notifications API
+  description: This page outlines how to manage notifications received by users.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-notifications-api-openapi.yml
+- aid: datarobot:datarobot-oauth-providers-api
+  name: DataRobot OAuth Providers API
+  description: >-
+    OAuth Providers Service API enables management of external OAuth providers allowing DataRobot users
+    to connect their workflows with external provider resources.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - OAuth Providers
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-oauth-providers-api-openapi.yml
+- aid: datarobot:datarobot-observability-accuracy-api
+  name: DataRobot Observability Accuracy API
+  description: >-
+    Use the endpoints described below to manage accuracy. Accuracy allows you to analyze the performance
+    of model deployments over time using standard statistical measures and exportable visualizations.
+    Use this tool to determine whether a model's quality is decaying and if you should consider replacing
+    it.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_accuracy
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-accuracy-api-openapi.yml
+- aid: datarobot:datarobot-observability-batch-monitoring-api
+  name: DataRobot Observability Batch Monitoring API
+  description: >-
+    Use the endpoints described below to manage batch monitoring. You can view monitoring statistics organized
+    by batch, instead of by time, with batch-enabled deployments. To do this, you can create batches,
+    add predictions to those batches, and view service health, data drift, and accuracy statistics for
+    the batches in your deployment.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_batch_monitoring
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-batch-monitoring-api-openapi.yml
+- aid: datarobot:datarobot-observability-bias-fairness-api
+  name: DataRobot Observability Bias Fairness API
+  description: >-
+    Use the endpoints described below to manage Bias and Fairness.  Bias and Fairness testing provides
+    methods to calculate fairness for a binary classification model and attempt to identify any biases
+    in the model's predictive behavior. In DataRobot, bias represents the difference between a model's
+    predictions for different populations (or groups) while fairness is the measure of the model's bias.
+    Select protected features in the dataset and choose fairness metrics and mitigation techniques either
+    [before model building](fairness-metrics#configure-metrics-and-mitigation-pre-autopilot) or [from
+    the Leaderboard](fairness-metrics#configure-metrics-and-mitigation-post-autopilot) once models are
+    built. [Bias and Fairness insights](bias/index) help identify bias in a model and visualize the root-cause
+    analysis, explaining why the model is learning bias from the training data and from where.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_bias_fairness
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-bias-fairness-api-openapi.yml
+- aid: datarobot:datarobot-observability-configuration-api
+  name: DataRobot Observability Configuration API
+  description: >-
+    Use the endpoints described below to manage deployment configuration. Configure capabilities of your
+    current deployment based on the data provided, for example, training data, prediction data, or actuals.
+    After you create and configure a deployment, you can use the deployment settings to add or update
+    deployment functionality that wasn't configured during deployment creation.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-configuration-api-openapi.yml
+- aid: datarobot:datarobot-observability-custom-metrics-api
+  name: DataRobot Observability Custom Metrics API
+  description: >-
+    Use the endpoints described below to manage custom metrics. Use the data you collect from data exploration
+    (or data calculated through other custom metrics) to compute and monitor custom business or performance
+    metrics. This feature allows you to implement your organization's specialized metrics, expanding on
+    the insights provided by DataRobot's built-in service health, data drift, and accuracy metrics.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_custom_metrics
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-custom-metrics-api-openapi.yml
+- aid: datarobot:datarobot-observability-data-exploration-api
+  name: DataRobot Observability Data Exploration API
+  description: >-
+    Use the endpoints described below to manage data exploration. Use the data you collect from data exploration
+    tab (or data calculated through other custom metrics) to compute and monitor custom business or performance
+    metrics. This feature allows you to implement your organization's specialized metrics, expanding on
+    the insights provided by DataRobot's built-in service health, data drift, and accuracy metrics.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_data_exploration
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-data-exploration-api-openapi.yml
+- aid: datarobot:datarobot-observability-drift-api
+  name: DataRobot Observability Drift API
+  description: >-
+    Use the endpoints described below to manage drift. When deploying a model, there is a chance that
+    the dataset used for training and validation differs from the prediction data. DataRobot monitors
+    both target and feature drift information.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_drift
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-drift-api-openapi.yml
+- aid: datarobot:datarobot-observability-service-health-api
+  name: DataRobot Observability Service Health API
+  description: >-
+    Use the endpoints described below to manage service health. Service health tracks metrics about a
+    deployment's ability to respond to prediction requests quickly and reliably. This helps identify bottlenecks
+    and assess capacity, which is critical to proper provisioning.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - observability_service_health
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-observability-service-health-api-openapi.yml
+- aid: datarobot:datarobot-permadelete-api
+  name: DataRobot Permadelete API
+  description: Administrative control plane for permanent deletion jobs.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - permadelete
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-permadelete-api-openapi.yml
+- aid: datarobot:datarobot-pipeline-dispatches-api
+  name: DataRobot Pipeline Dispatches API
+  description: The pipeline-dispatches API from DataRobot — 11 operation(s) for pipeline-dispatches.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - pipeline-dispatches
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-pipeline-dispatches-api-openapi.yml
+- aid: datarobot:datarobot-pipeline-execution-images-api
+  name: DataRobot Pipeline Execution Images API
+  description: >-
+    The pipeline-execution-images API from DataRobot — 4 operation(s) for pipeline-execution-images.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - pipeline-execution-images
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-pipeline-execution-images-api-openapi.yml
+- aid: datarobot:datarobot-pipeline-inputs-api
+  name: DataRobot Pipeline Inputs API
+  description: The pipeline-inputs API from DataRobot — 4 operation(s) for pipeline-inputs.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - pipeline-inputs
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-pipeline-inputs-api-openapi.yml
+- aid: datarobot:datarobot-pipeline-schedules-api
+  name: DataRobot Pipeline Schedules API
+  description: The pipeline-schedules API from DataRobot — 2 operation(s) for pipeline-schedules.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - pipeline-schedules
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-pipeline-schedules-api-openapi.yml
+- aid: datarobot:datarobot-pipeline-schedules-internal-api
+  name: DataRobot Pipeline Schedules Internal API
+  description: >-
+    The pipeline-schedules-internal API from DataRobot — 1 operation(s) for pipeline-schedules-internal.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - pipeline-schedules-internal
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-pipeline-schedules-internal-api-openapi.yml
+- aid: datarobot:datarobot-pipeline-task-execution-internal-api
+  name: DataRobot Pipeline Task Execution Internal API
+  description: >-
+    The pipeline-task-execution-internal API from DataRobot — 2 operation(s) for pipeline-task-execution-internal.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - pipeline-task-execution-internal
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-pipeline-task-execution-internal-api-openapi.yml
+- aid: datarobot:datarobot-pipelines-api
+  name: DataRobot Pipelines API
+  description: The pipelines API from DataRobot — 12 operation(s) for pipelines.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - pipelines
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-pipelines-api-openapi.yml
+- aid: datarobot:datarobot-predictions-info-api
+  name: DataRobot Predictions Info API
+  description: Use the endpoints described below to manage predictions information.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - predictions_info
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-predictions-info-api-openapi.yml
+- aid: datarobot:datarobot-prompting-api
+  name: DataRobot Prompting API
+  description: The following endpoints outline how to manage prompts.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Prompting
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-prompting-api-openapi.yml
+- aid: datarobot:datarobot-quotas-api
+  name: DataRobot Quotas API
+  description: >-
+    Use the endpoints described below to manage resource quotas. Quotas provide limits on resource consumption
+    for deployments, models, and other DataRobot resources to ensure fair usage and prevent resource exhaustion.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - quotas
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-quotas-api-openapi.yml
+- aid: datarobot:datarobot-seat-licenses-api
+  name: DataRobot Seat Licenses API
+  description: Manage seat licenses using the endpoints described below.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - seat_licenses
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-seat-licenses-api-openapi.yml
+- aid: datarobot:datarobot-secure-config-api
+  name: DataRobot Secure Config API
+  description: >-
+    Use the endpoints described below to configure and manage Secure Configuration objects. This abstraction
+    allows system and organization administrations to securely store and manage credentials. Users with
+    lesser permissions can have the credentials shared with them, but be unable to view or edit their
+    contents.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - secure_config
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-secure-config-api-openapi.yml
+- aid: datarobot:datarobot-sso-configuration-api
+  name: DataRobot SSO Configuration API
+  description: Use the endpoints described below to configure single sign-on for your organization.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - sso_configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-sso-configuration-api-openapi.yml
+- aid: datarobot:datarobot-tracking-agent-api
+  name: DataRobot Tracking Agent API
+  description: >-
+    Use the endpoints described below to manage tracking agent. When you enable the monitoring agent feature,
+    you have access to the agent installation and MLOps components, all packaged within a single tarball.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - tracking_agent
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-tracking-agent-api-openapi.yml
+- aid: datarobot:datarobot-use-cases-api
+  name: DataRobot Use Cases API
+  description: >-
+    The endpoints below outline how to create and manage Workbench Use Cases. They are not associated
+    with the Value Tracker, which was formerly called Use Cases.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - use_cases
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-use-cases-api-openapi.yml
+- aid: datarobot:datarobot-user-management-api
+  name: DataRobot User Management API
+  description: This page describes the endpoints for handling users, groups, and organizations.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - user_management
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-user-management-api-openapi.yml
+- aid: datarobot:datarobot-utilities-api
+  name: DataRobot Utilities API
+  description: Use the endpoints described below to configure and manage encrypted credentials.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - utilities
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-utilities-api-openapi.yml
+- aid: datarobot:datarobot-value-tracker-api
+  name: DataRobot Value Tracker API
+  description: >-
+    Use the endpoints described below to manage Value Trackers, as well as add comments and host discussions.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - value_tracker
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-value-tracker-api-openapi.yml
+- aid: datarobot:datarobot-vector-databases-api
+  name: DataRobot Vector Databases API
+  description: The following endpoints outline how to manage vector databases.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - Vector Databases
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-vector-databases-api-openapi.yml
+- aid: datarobot:datarobot-workloads-api
+  name: DataRobot Workloads API
+  description: Manage AI workload deployments and their lifecycle.
+  humanURL: https://docs.datarobot.com/en/docs/api/reference/index.html
+  baseURL: https://app.datarobot.com/api/v2
+  tags:
+  - workloads
+  properties:
+  - type: OpenAPI
+    url: openapi/datarobot-workloads-api-openapi.yml
 x-enrichment:
   date: '2026-07-19'
   status: backfilled

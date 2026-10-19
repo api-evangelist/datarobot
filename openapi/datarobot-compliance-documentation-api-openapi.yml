@@ -1,0 +1,1572 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Compliance Documentation API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: DataRobot automates many critical compliance tasks associated with developing a model and, by doing so, decreases the time-to-deployment in highly regulated industries. You can generate, for each model, individualized documentation to provide comprehensive guidance on what constitutes effective model risk management. Then, you can download the report as an editable Microsoft Word document (.docx). The generated report includes the appropriate level of information and transparency necessitated by regulatory compliance demands.
+  name: compliance_documentation
+paths:
+  /api/v2/automatedDocumentOptions/:
+    get:
+      description: Check which document types and locales are available for generation with your account.
+      operationId: automatedDocumentOptions_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomatedDocOptionsResponse'
+          description: Available document types and locales retrieved.
+      summary: List all available document types
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.24
+  /api/v2/automatedDocuments/:
+    get:
+      description: 'Get information about all previously generated documents available for your account. The
+
+        information includes document ID and type, ID of the entity it was generated for, time of
+
+        creation, and other information.
+
+
+        Example request to get a list of all documents:
+
+
+        .. code-block:: text
+
+
+        GET https://app.datarobot.com/api/v2/automatedDocuments/ HTTP/1.1
+
+        Authorization: Bearer DnwzBUSTOtKBO5Sp1hoUByG4YgZwCCw4
+
+
+        Query for specific documents. For example, request a list of documents
+
+        generated for a specific model in ``docx`` and ``html`` formats:
+
+
+        .. code-block:: text
+
+
+        GET https://app.datarobot.com/api/v2/automatedDocuments?entityId=
+
+        5ec4ea7e41054c158c5b002f&outputFormat=docx&outputFormat=html HTTP/1.1
+
+        Authorization: Bearer DnwzBUSTOtKBO5Sp1hoUByG4YgZwCCw4
+
+
+        In response body, you will get a page with queried documents. This is an example response
+
+        with one document returned:
+
+
+        .. code-block:: json
+
+
+        {
+
+        "totalCount": 1,
+
+        "count": 1,
+
+        "previous": null,
+
+        "next": null,
+
+        "data": [
+
+        {
+
+        "id": "5ebdb5e911a5fb85edff2b3c",
+
+        "documentType": "MODEL_COMPLIANCE",
+
+        "entityId": "5ebbb5e7d9d7b96e3d48e3b5",
+
+        "templateId": "5bd812e5f750edd392fa880f",
+
+        "locale": "EN_US",
+
+        "outputFormat": "DOCX",
+
+        "createdAt": "2019-11-07T11:12:13.141516Z"
+
+        }
+
+        ]
+
+        }
+
+
+        If there are no matching documents, you will get a page with an empty data array.'
+      operationId: automatedDocuments_list
+      parameters:
+      - description: Number of items to skip. Defaults to 0 if not provided.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Number of items to return, defaults to 100 if not provided.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          maximum: 1000
+          minimum: 1
+          type: integer
+      - description: Query for one or more document types.
+        in: query
+        name: documentType
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - AUTOPILOT_SUMMARY
+            - MODEL_COMPLIANCE
+            - DEPLOYMENT_REPORT
+            - MODEL_COMPLIANCE_GEN_AI
+            type: string
+            x-enum-versionadded:
+            - value: DEPLOYMENT_REPORT
+              x-versionadded: v2.24
+            - value: MODEL_COMPLIANCE_GEN_AI
+              x-versionadded: v2.35
+          - items:
+              enum:
+              - AUTOPILOT_SUMMARY
+              - MODEL_COMPLIANCE
+              - DEPLOYMENT_REPORT
+              - MODEL_COMPLIANCE_GEN_AI
+              type: string
+              x-enum-versionadded:
+              - value: DEPLOYMENT_REPORT
+                x-versionadded: v2.24
+              - value: MODEL_COMPLIANCE_GEN_AI
+                x-versionadded: v2.35
+            type: array
+      - description: Query for one or more output formats.
+        in: query
+        name: outputFormat
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - docx
+            - html
+            type: string
+          - items:
+              enum:
+              - docx
+              - html
+              type: string
+            type: array
+      - description: Query generated documents by one or more locales.
+        in: query
+        name: locale
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - EN_US
+            - JA_JP
+            type: string
+          - items:
+              enum:
+              - EN_US
+              - JA_JP
+              type: string
+            type: array
+      - description: Query generated documents by one or more entity IDs. For Model Compliance docs, the entity ID is a model ID. For Autopilot Summary reports, query by project IDs.
+        in: query
+        name: entityId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomatedDocListResponse'
+          description: List of found documents retrieved.
+      summary: List all generated documents
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.24
+    post:
+      description: 'Request generation of an automated document that''s available for your account. Below is an
+
+        example request body to generate Model Compliance documentation:
+
+
+        .. sourcecode:: json
+
+
+        {
+
+        "documentType": "MODEL_COMPLIANCE",
+
+        "entityId": "507f191e810c19729de860ea",
+
+        "outputFormat": "docx"
+
+        }
+
+
+        For Autopilot Summary, set a corresponding document type, ``AUTOPILOT_SUMMARY``, and assign a
+
+        needed project ID to the ``entityId`` value.
+
+
+        After the request is sent, the jobs needed for document generation are queued. You can see the
+
+        status of the generation by polling the URL in the ``Location`` headers. After the generation is
+
+        complete, the status URL will automatically redirect you to the resource location to download
+
+        the document.'
+      operationId: automatedDocuments_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutomatedDocCreate'
+      responses:
+        '202':
+          description: Document generation request accepted.
+          headers:
+            Location:
+              description: 'URL to poll document generation status: :http:get:`/api/v2/status/(statusId)/`'
+              schema:
+                type: string
+        '422':
+          description: Unable to process document generation request.
+      summary: Request generation of automated document
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.24
+  /api/v2/automatedDocuments/{documentId}/:
+    delete:
+      description: 'Delete a document using its ID. Example request:
+
+
+        .. code-block:: text
+
+
+        DELETE https://app.datarobot.com/api/v2/automatedDocuments/5ec4ea7e41054c158c5b002f/ HTTP/1.1
+
+        Authorization: Bearer DnwzBUSTOtKBO5Sp1hoUByG4YgZwCCw4'
+      operationId: automatedDocuments_delete
+      parameters:
+      - description: Unique identifier of the generated document.
+        in: path
+        name: documentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Document successfully deleted.
+        '404':
+          description: Provided document ID not found.
+      summary: Delete automated document by document ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.24
+    get:
+      description: 'Download a generated Automated Documentation file.
+
+
+        .. code-block:: text
+
+
+        GET https://app.datarobot.com/api/v2/automatedDocuments/5ec4ea7e41054c158c5b002f/ HTTP/1.1
+
+        Authorization: Bearer DnwzBUSTOtKBO5Sp1hoUByG4YgZwCCw4
+
+
+        In response, you will get a file containing the generated documentation.'
+      operationId: automatedDocuments_retrieve
+      parameters:
+      - description: Unique identifier of the generated document.
+        in: path
+        name: documentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Download request succeeded.
+          headers:
+            Content-Disposition:
+              description: Autogenerated filename ("attachment;filename=report_name.outputFormat").
+              schema:
+                type: string
+            Content-Type:
+              description: MIME type corresponding to document file format
+              schema:
+                enum:
+                - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+                - text/html
+                type: string
+        '404':
+          description: Documentation record not found.
+      summary: Download generated document by document ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.24
+  /api/v2/complianceDocTemplates/:
+    get:
+      description: List user's custom-built compliance documentation templates.
+      operationId: complianceDocTemplates_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: When present, only return templates with names that contain the given substring.
+        in: query
+        name: namePart
+        required: false
+        schema:
+          default: ''
+          type: string
+      - description: Sort order to apply to the dataset list. Prefix the attribute name with a dash to sort in descending order (e.g., orderBy='-id').
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: id
+          enum:
+          - id
+          - -id
+          type: string
+      - description: Name of labels to filter by.
+        in: query
+        name: labels
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.22
+      - description: Type of project templates to search for. If not specified, returns all project templates types.
+        in: query
+        name: projectType
+        required: false
+        schema:
+          enum:
+          - autoMl
+          - textGeneration
+          - timeSeries
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.22
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceDocTemplateListResponse'
+          description: Successfully returned list of templates
+      summary: List compliance documentation templates
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.14
+    post:
+      description: Create a new compliance documentation template. One can retrieve the default DataRobot template via ``GET /api/v2/complianceDocTemplates/default/`` endpoint.
+      operationId: complianceDocTemplates_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplianceDocTemplateCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceDocTemplateCreateResponse'
+          description: Model compliance documentation template created successfully
+          headers:
+            Location:
+              description: URL location of the newly created template.
+              schema:
+                format: url
+                type: string
+        '422':
+          description: Template cannot be created, e.g., invalid sections or name already exists
+      summary: Create a new compliance documentation template
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.14
+  /api/v2/complianceDocTemplates/default/:
+    get:
+      description: Retrieve the default documentation template.
+      operationId: complianceDocTemplatesDefault_list
+      parameters:
+      - description: Specifies the type of the default template to retrieve. The ``normal`` template is applicable for all AutoML projects that are not time series. The ``timeSeries`` template is only applicable to time series projects.The ``textGeneration`` template is only applicable to text generation registry models.
+        in: query
+        name: type
+        required: true
+        schema:
+          default: normal
+          enum:
+          - normal
+          - textGeneration
+          - timeSeries
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceDocTemplateDefaultRetrieveResponse'
+          description: Successfully retrieved default template
+      summary: Retrieve the default documentation template
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.14
+  /api/v2/complianceDocTemplates/{templateId}/:
+    delete:
+      description: 'Delete a compliance documentation template.
+
+        Documentation previously generated using this template will remain unchanged.'
+      operationId: complianceDocTemplates_delete
+      parameters:
+      - description: The Id of a model compliance document template accessible by the user
+        in: path
+        name: templateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Template deleted successfully
+        '403':
+          description: Insufficient permissions to delete template
+        '404':
+          description: Template not found
+      summary: Delete a compliance documentation template by template ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.14
+    get:
+      description: Retrieve a JSON representation of a custom Compliance Documentation template.
+      operationId: complianceDocTemplates_retrieve
+      parameters:
+      - description: The Id of a model compliance document template accessible by the user
+        in: path
+        name: templateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+          description: Successfully retrieved template
+        '404':
+          description: No matching template owned by this user was found
+      summary: Retrieve a documentation template by template ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.14
+    patch:
+      description: 'Update an existing model compliance documentation template with the given ``templateId``. The template must be accessible by the user. If the ``templateId`` is not found for the user, the update cannot be performed.
+
+        For a description of the template ``sections`` object options, see the sample ``sections`` on the schema below.'
+      operationId: complianceDocTemplates_patch
+      parameters:
+      - description: The Id of a model compliance document template accessible by the user
+        in: path
+        name: templateId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplianceDocTemplateUpdate'
+      responses:
+        '204':
+          description: Model compliance documentation template updated successfully
+        '403':
+          description: Not enough permissions to edit template
+        '404':
+          description: Template not found
+      summary: Update an existing model compliance documentation template by template ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.14
+  /api/v2/complianceDocTemplates/{templateId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups and organizations who have access to this template and their roles on the template.
+      operationId: complianceDocTemplatesSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The template identifier
+        in: path
+        name: templateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListV2Response'
+          description: The template's access control list.
+        '404':
+          description: Either the template does not exist or the user does not have permissions to view the template.
+        '422':
+          description: Both username and userId were specified
+      summary: Get the template's access control list by template ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.21
+    patch:
+      description: Set roles for users on this template.
+      operationId: complianceDocTemplatesSharedRoles_patchMany
+      parameters:
+      - description: The template identifier
+        in: path
+        name: templateId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdate'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '409':
+          description: The request would leave the template without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid
+      summary: Update the template's access controls by template ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.22
+  /api/v2/modelComplianceDocsInitializations/{entityId}/:
+    get:
+      description: Check if compliance documentation pre-processing is initialized for the current model. This is only required for custom models.
+      operationId: modelComplianceDocsInitializations_retrieve
+      parameters:
+      - description: The ID of the model or model package the document corresponds to.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelComplianceDocsInitializationsResponse'
+          description: Retrieve information about the status of the compliance documentation pre-preprocessing initialization.
+        '404':
+          description: Model not found.
+      summary: Check if compliance documentation pre-processing is initialized by entity ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.27
+    post:
+      description: Initialize compliance documentation pre-processing for the current model. This route must be called before generating documentation for a custom model.
+      operationId: modelComplianceDocsInitializations_createOne
+      parameters:
+      - description: The ID of the model or model package the document corresponds to.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Empty'
+      responses:
+        '202':
+          description: Job to initialize compliance documentation pre-processing successfully started.
+          headers:
+            Location:
+              description: 'URL to poll for getting a status of the job: :http:get:`/api/v2/status/(statusId)/`'
+              schema:
+                type: string
+        '404':
+          description: Model not found.
+        '422':
+          description: Cannot prepare model for compliance document generation.
+      summary: Initialize compliance documentation pre-processing by entity ID
+      tags:
+      - compliance_documentation
+      x-versionadded: v2.27
+components:
+  schemas:
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    AutomatedDocListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of generated documents.
+          items:
+            $ref: '#/components/schemas/AutomatedDocItem'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ModelComplianceDocsInitializationsResponse:
+      properties:
+        initialized:
+          description: Whether compliance documentation pre-preprocessing is initialized for the model
+          type: boolean
+        status:
+          description: Compliance documentation pre-processing initialization status
+          enum:
+          - initialized
+          - initializationInProgress
+          - notRequested
+          - noTrainingData
+          - trainingDataAssignmentInProgress
+          - initializationError
+          type: string
+      required:
+      - initialized
+      - status
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    SampleSection:
+      type: object
+    AutomatedDocOptions:
+      properties:
+        documentType:
+          description: Type of document available for generation.
+          enum:
+          - AUTOPILOT_SUMMARY
+          - MODEL_COMPLIANCE
+          - DEPLOYMENT_REPORT
+          - MODEL_COMPLIANCE_GEN_AI
+          type: string
+          x-enum-versionadded:
+          - value: DEPLOYMENT_REPORT
+            x-versionadded: v2.24
+          - value: MODEL_COMPLIANCE_GEN_AI
+            x-versionadded: v2.35
+        locale:
+          description: Locale available for the document generation.
+          enum:
+          - EN_US
+          - JA_JP
+          type: string
+      required:
+      - documentType
+      - locale
+      type: object
+    DocTypeSpecificInfoModelCompliance:
+      type: object
+    ComplianceDocTemplateListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of templates.
+          items:
+            $ref: '#/components/schemas/TemplateResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    TemplatePermissionsResponse:
+      description: The level of permissions for the user viewing this template.
+      properties:
+        CAN_DELETE_TEMPLATE:
+          description: Whether the current user can delete this template
+          type: boolean
+        CAN_EDIT_TEMPLATE:
+          description: Whether the current user can edit this template
+          type: boolean
+        CAN_SHARE:
+          description: Whether the current user can share this template
+          type: boolean
+        CAN_USE_TEMPLATE:
+          description: Whether the current user can generate documents with this template
+          type: boolean
+        CAN_VIEW:
+          description: Whether the current user can view this template
+          type: boolean
+      required:
+      - CAN_DELETE_TEMPLATE
+      - CAN_EDIT_TEMPLATE
+      - CAN_SHARE
+      - CAN_USE_TEMPLATE
+      - CAN_VIEW
+      type: object
+    ComplianceDocTemplateUpdate:
+      properties:
+        description:
+          description: New description for the template.
+          type: string
+        labels:
+          description: Names of the labels to assign to the template.
+          items:
+            type: string
+          type: array
+          x-versionadded: v2.22
+        name:
+          description: New name for the template. Must be unique among templates created by the user.
+          type: string
+        projectType:
+          description: Type of project template.
+          enum:
+          - autoMl
+          - textGeneration
+          - timeSeries
+          type: string
+          x-versionadded: v2.22
+        sections:
+          description: 'List of section objects representing the structure of the document. Each section can have sub-sections that have the same schema as the parent section, i.e., the structure is recursive. The number of nested sections allowed is 5. The total number of sections allowed is 500. '
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SectionDataRobot'
+            - $ref: '#/components/schemas/SectionUser'
+            - $ref: '#/components/schemas/SectionCustom'
+            - $ref: '#/components/schemas/SectionTableOfContents'
+          type: array
+      type: object
+    AutomatedDocCreate:
+      properties:
+        documentType:
+          description: Type of the automated document you want to generate.
+          enum:
+          - AUTOPILOT_SUMMARY
+          - MODEL_COMPLIANCE
+          - DEPLOYMENT_REPORT
+          - MODEL_COMPLIANCE_GEN_AI
+          type: string
+          x-enum-versionadded:
+          - value: DEPLOYMENT_REPORT
+            x-versionadded: v2.24
+          - value: MODEL_COMPLIANCE_GEN_AI
+            x-versionadded: v2.35
+        documentTypeSpecificParameters:
+          description: 'Set parameters unique for a specific document type. Currently, only these document types can have document-specific parameters: [''DEPLOYMENT_REPORT'']'
+          oneOf:
+          - $ref: '#/components/schemas/AutomatedDocCreateDeploymentReport'
+          - $ref: '#/components/schemas/AutomatedDocCreateModelComplianceDocs'
+          - type: 'null'
+          x-versionadded: v.2.24
+        entityId:
+          description: ID of the entity to generate the document for. It can be a model ID, a project ID.
+          type: string
+        locale:
+          description: Localization of the document. Defaults to EN_US.
+          enum:
+          - EN_US
+          - JA_JP
+          type: string
+        outputFormat:
+          description: Format to generate the document in.
+          enum:
+          - docx
+          - html
+          type: string
+        templateId:
+          description: Template ID to use for the document outline. Defaults to standard Datarobot template.
+          type: string
+      required:
+      - documentType
+      - entityId
+      - outputFormat
+      type: object
+    InstructionsField:
+      description: Section instructions
+      properties:
+        owner:
+          description: Instructions owner
+          type: string
+        user:
+          description: Instructions user
+          type: string
+      required:
+      - owner
+      - user
+      type: object
+    AccessControlV2:
+      properties:
+        id:
+          description: The identifier of the recipient.
+          type: string
+        name:
+          description: The name of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The type of the recipient.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    DocTypeSpecificInfoDeploymentReport:
+      properties:
+        endDate:
+          description: End date of selected data in the document.
+          format: date-time
+          type: string
+        modelName:
+          description: Name of the deployed model.
+          type: string
+        startDate:
+          description: Start date of selected data in the document.
+          format: date-time
+          type: string
+      required:
+      - endDate
+      - startDate
+      type: object
+    SharedRolesUpdate:
+      properties:
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects., up to maximum 100 objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - operation
+      - roles
+      type: object
+    AutomatedDocOptionsResponse:
+      properties:
+        data:
+          description: List of document types available for generation.
+          items:
+            $ref: '#/components/schemas/AutomatedDocOptions'
+          type: array
+      required:
+      - data
+      type: object
+    AutomatedDocItem:
+      properties:
+        createdAt:
+          description: Timestamp for the document creation time.
+          format: date-time
+          type: string
+        docTypeSpecificInfo:
+          description: Information that is specific for a certain document type.
+          oneOf:
+          - $ref: '#/components/schemas/DocTypeSpecificInfoDeploymentReport'
+          - $ref: '#/components/schemas/DocTypeSpecificInfoModelCompliance'
+        documentType:
+          description: Type of the generated document.
+          enum:
+          - AUTOPILOT_SUMMARY
+          - MODEL_COMPLIANCE
+          - DEPLOYMENT_REPORT
+          - MODEL_COMPLIANCE_GEN_AI
+          type: string
+          x-enum-versionadded:
+          - value: DEPLOYMENT_REPORT
+            x-versionadded: v2.24
+          - value: MODEL_COMPLIANCE_GEN_AI
+            x-versionadded: v2.35
+        entityId:
+          description: Unique identifier of the entity the document was generated for.
+          type: string
+        id:
+          description: Unique identifier of the generated document.
+          type: string
+        locale:
+          description: Locale of the generated document.
+          enum:
+          - EN_US
+          - JA_JP
+          type: string
+        outputFormat:
+          description: File format of the generated document.
+          enum:
+          - docx
+          - html
+          type: string
+        templateId:
+          description: Unique identifier of the template used for the document outline.
+          type: string
+      required:
+      - createdAt
+      - documentType
+      - entityId
+      - id
+      - outputFormat
+      - templateId
+      type: object
+    SectionDataRobot:
+      properties:
+        contentId:
+          description: The identifier of the content in the section. This attribute identifies what is going to be rendered in the section.
+          enum:
+          - MODEL_DESCRIPTION_AND_OVERVIEW
+          - MODEL_DESCRIPTION_AND_OVERVIEW_EXTERNAL_PREDICTION
+          - OVERVIEW_OF_MODEL_RESULTS
+          - MODEL_DEVELOPMENT_OVERVIEW_SUB
+          - TS_MODEL_DEVELOPMENT_OVERVIEW_SUB
+          - AD_MODEL_DEVELOPMENT_OVERVIEW_SUB
+          - MODEL_DEVELOPMENT_OVERVIEW_SUB_EXTERNAL_PREDICTION
+          - MODEL_METHODOLOGY
+          - MODEL_METHODOLOGY_EXTERNAL_PREDICTION
+          - LITERATURE_REVIEW_AND_REFERENCES
+          - ALTERNATIVE_MODEL_FRAMEWORKS_AND_THEORIES_CONSIDERED
+          - PERSONALLY_IDENTIFIABLE_INFORMATION
+          - DATA_PARTITIONING_METHODOLOGY
+          - AD_DATA_PARTITIONING_METHODOLOGY
+          - TS_DATA_PARTITIONING_METHODOLOGY
+          - QUANTITATIVE_ANALYSIS
+          - FINAL_MODEL_VARIABLES
+          - VALIDATION_STABILITY
+          - MODEL_PERFORMANCE
+          - ACCURACY_LIFT_CHART
+          - MULTICLASS_ACCURACY_LIFT_CHART
+          - SENSITIVITY_ANALYSIS
+          - SENSITIVITY_ANALYSIS_NO_NULL_IMPUTATION
+          - AD_SENSITIVITY_ANALYSIS
+          - ACCURACY_OVER_TIME
+          - ANOMALY_OVER_TIME
+          - ACCURACY_ROC
+          - MULTICLASS_CONFUSION
+          - MODEL_VERSION_CONTROL
+          - CUSTOM_INFERENCE_VERSION_CONTROL
+          - FEATURE_ASSOCIATION_MATRIX
+          - BIAS_AND_FAIRNESS
+          - BIAS_AND_FAIRNESS_EXTERNAL_PREDICTION
+          - HOW_TO_USE
+          - PREFACE
+          - TS_MODEL_PERFORMANCE
+          - EXECUTIVE_SUMMARY_AND_MODEL_OVERVIEW
+          - MODEL_DATA_OVERVIEW
+          - MODEL_THEORETICAL_FRAMEWORK_AND_METHODOLOGY
+          - MODEL_PERFORMANCE_AND_STABILITY
+          - CUSTOM_INFERENCE_PERFORMANCE_AND_STABILITY
+          - SENSITIVITY_TESTING_AND_ANALYSIS
+          - MODEL_IMPLEMENTATION_AND_OUTPUT_REPORTING
+          - MODEL_STAKEHOLDERS
+          - MODEL_DEVELOPMENT_PURPOSE_AND_INTENDED_USE
+          - MODEL_INTERDEPENDENCIES
+          - DATA_SOURCE_OVERVIEW_AND_APPROPRIATENESS
+          - INPUT_DATA_EXTRACTION_PREPARATION
+          - DATA_ASSUMPTIONS
+          - CUSTOM_INFERENCE_MODELING_FEATURES
+          - MODEL_ASSUMPTIONS
+          - VARIABLE_SELECTION
+          - VARIABLE_SELECTION_EXTERNAL_PREDICTION
+          - TS_VARIABLE_SELECTION
+          - EXPERT_JUDGEMENT_AND_VAR_SELECTION
+          - KEY_RELATIONSHIPS
+          - AD_KEY_RELATIONSHIPS
+          - LLM_SYSTEM_STAKEHOLDERS
+          - LLM_DEVELOPMENT_PURPOSE_AND_INTENDED_USE
+          - GEN_AI_LLM_SYSTEM_DESCRIPTION_AND_OVERVIEW
+          - LLM_DATA_OVERVIEW
+          - LLM_RAG_DATA
+          - LLM_FINE_TUNING_DATA
+          - LLM_OVERVIEW
+          - LLM_MODEL_CARD
+          - LLM_RISKS_AND_LIMITATIONS
+          - LLM_INTERDEPENDENCIES
+          - LLM_LITERATURE_REFERENCES
+          - LLM_EVALUATION
+          - LLM_COPYRIGHT_CONCERNS
+          - LLM_REGISTRY_GOVERNANCE
+          - LLM_REGISTRY_VERSION_CONTROL
+          type: string
+        description:
+          description: Section description
+          type:
+          - string
+          - 'null'
+        instructions:
+          $ref: '#/components/schemas/InstructionsField'
+        locked:
+          description: Locked section flag
+          type: boolean
+        sections:
+          description: 'List of section objects representing the structure of the document. Each section can have sub-sections that have the same schema as the parent section, e.g. the structure is recursive. The limit of nesting sections is 5. Total number of sections is limited to 500. '
+          items:
+            $ref: '#/components/schemas/SampleSection'
+          type:
+          - array
+          - 'null'
+        title:
+          description: Section Title
+          maxLength: 500
+          type: string
+        type:
+          description: Section owned by DataRobot. The content of this section type is controlled by DataRobot (see ``contentId`` attribute). Users can add sub-sections to it.
+          enum:
+          - datarobot
+          type: string
+      required:
+      - contentId
+      - title
+      - type
+      type: object
+    AutomatedDocCreateDeploymentReport:
+      properties:
+        bucketSize:
+          description: You can regulate the size of the buckets in charts. One bucket reflects some duration period and you can set the exact duration with this parameter. Bucket size gets defaulted to either a month, a week, or a day, based on the time range of the report. We use `ISO 8601 <https://www.digi.com/resources/documentation/digidocs/90001437-13/reference/r_iso_8601_duration_format.htm>`_ duration format to specify values.
+          format: duration
+          type: string
+        end:
+          description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        modelId:
+          description: Provide a model ID to generate a report for a previously deployed model.
+          type: string
+        start:
+          description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      type: object
+    SharingListV2Response:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControlV2'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items matching the condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ComplianceDocTemplateDefaultRetrieveResponse:
+      properties:
+        sections:
+          description: 'List of section objects representing the structure of the document. Each section can have sub-sections that have the same schema as the parent section, i.e., the structure is recursive. The number of nested sections allowed is 5. The total number of sections allowed is 500. '
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SectionDataRobot'
+            - $ref: '#/components/schemas/SectionUser'
+            - $ref: '#/components/schemas/SectionCustom'
+            - $ref: '#/components/schemas/SectionTableOfContents'
+          type: array
+      required:
+      - sections
+      type: object
+    TemplateResponse:
+      properties:
+        creatorId:
+          description: The ID of the user who created the template
+          type: string
+        creatorUsername:
+          description: The username of the user who created the template
+          type: string
+        dateModified:
+          description: Last date/time of template modification.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        description:
+          description: An overview of the template
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the template accessible by the user
+          type: string
+        instructions:
+          description: Currently always returns ``null``. Maintained as a placeholder for future functionality.
+          type:
+          - string
+          - 'null'
+        labels:
+          description: User-added filtering labels for the template
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        name:
+          description: The name of the template
+          type: string
+        orgId:
+          description: The ID of the organization the user who created the template belongs to
+          type: string
+        permissions:
+          $ref: '#/components/schemas/TemplatePermissionsResponse'
+        projectType:
+          description: Type of project template.
+          enum:
+          - autoMl
+          - textGeneration
+          - timeSeries
+          type:
+          - string
+          - 'null'
+        sections:
+          description: 'List of section objects representing the structure of the document. Each section can have sub-sections that have the same schema as the parent section, i.e., the structure is recursive. The number of nested sections allowed is 5. The total number of sections allowed is 500. '
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SectionDataRobot'
+            - $ref: '#/components/schemas/SectionUser'
+            - $ref: '#/components/schemas/SectionCustom'
+            - $ref: '#/components/schemas/SectionTableOfContents'
+          type: array
+      required:
+      - creatorId
+      - creatorUsername
+      - dateModified
+      - description
+      - id
+      - instructions
+      - labels
+      - name
+      - orgId
+      - permissions
+      - projectType
+      - sections
+      type: object
+    ComplianceDocTemplateCreate:
+      properties:
+        labels:
+          description: Names of the labels to assign to the template.
+          items:
+            type: string
+          type: array
+          x-versionadded: v2.22
+        name:
+          description: Name of the new template. Must be unique among templates created by the user.
+          type: string
+        projectType:
+          description: Type of project template.
+          enum:
+          - autoMl
+          - textGeneration
+          - timeSeries
+          type: string
+          x-versionadded: v2.22
+        sections:
+          description: 'List of section objects representing the structure of the document. Each section can have sub-sections that have the same schema as the parent section, i.e., the structure is recursive. The number of nested sections allowed is 5. The total number of sections allowed is 500. '
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SectionDataRobot'
+            - $ref: '#/components/schemas/SectionUser'
+            - $ref: '#/components/schemas/SectionCustom'
+            - $ref: '#/components/schemas/SectionTableOfContents'
+          type: array
+      required:
+      - name
+      - sections
+      type: object
+    AutomatedDocCreateModelComplianceDocs:
+      type: object
+    SectionUser:
+      properties:
+        description:
+          description: Section description
+          type:
+          - string
+          - 'null'
+        highlightedText:
+          description: Highlighted text of the section, optionally separated by ``\n`` to split paragraphs.
+          maxLength: 5000
+          type: string
+        instructions:
+          $ref: '#/components/schemas/InstructionsField'
+        locked:
+          description: Locked section flag
+          type: boolean
+        regularText:
+          description: Regular text of the section, optionally separated by ``\n`` to split paragraphs.
+          maxLength: 5000
+          type: string
+        sections:
+          description: 'List of section objects representing the structure of the document. Each section can have sub-sections that have the same schema as the parent section, e.g. the structure is recursive. The limit of nesting sections is 5. Total number of sections is limited to 500. '
+          items:
+            $ref: '#/components/schemas/SampleSection'
+          type:
+          - array
+          - 'null'
+        title:
+          description: Section Title
+          maxLength: 500
+          type: string
+        type:
+          description: Section with user-defined content. Those sections may contain text generated by the user.
+          enum:
+          - user
+          type: string
+      required:
+      - highlightedText
+      - regularText
+      - title
+      - type
+      type: object
+    SectionTableOfContents:
+      properties:
+        locked:
+          description: Locked section flag
+          type: boolean
+        title:
+          description: Section Title
+          maxLength: 500
+          type: string
+        type:
+          description: Table of contents. This section has no additional attributes.
+          enum:
+          - table_of_contents
+          type: string
+      required:
+      - title
+      - type
+      type: object
+    SectionCustom:
+      properties:
+        description:
+          description: Section description
+          type:
+          - string
+          - 'null'
+        highlightedText:
+          description: Highlighted text of the section, optionally separated by ``\n`` to split paragraphs.
+          maxLength: 5000
+          type: string
+        instructions:
+          $ref: '#/components/schemas/InstructionsField'
+        locked:
+          description: Locked section flag
+          type: boolean
+        regularText:
+          description: Regular text of the section, optionally separated by ``\n`` to split paragraphs.
+          maxLength: 5000
+          type: string
+        sections:
+          description: 'List of section objects representing the structure of the document. Each section can have sub-sections that have the same schema as the parent section, e.g. the structure is recursive. The limit of nesting sections is 5. Total number of sections is limited to 500. '
+          items:
+            $ref: '#/components/schemas/SampleSection'
+          type:
+          - array
+          - 'null'
+        title:
+          description: Section Title
+          maxLength: 500
+          type: string
+        type:
+          description: 'Section with user-defined content. It can be a section title or summary. '
+          enum:
+          - custom
+          type: string
+      required:
+      - highlightedText
+      - regularText
+      - title
+      - type
+      type: object
+    Empty:
+      type: object
+    ComplianceDocTemplateCreateResponse:
+      properties:
+        dateModified:
+          description: Timestamp of the created template
+          format: date-time
+          type: string
+        id:
+          description: Created template Id
+          type: string
+      required:
+      - dateModified
+      - id
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

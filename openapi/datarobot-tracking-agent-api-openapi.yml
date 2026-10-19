@@ -1,0 +1,66 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Tracking Agent API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage tracking agent. When you enable the monitoring agent feature, you have access to the agent installation and MLOps components, all packaged within a single tarball.
+  name: tracking_agent
+paths:
+  /api/v2/deployments/{deploymentId}/predictionInputs/fromDataset/:
+    post:
+      description: Assigns prediction dataset to the external deployment to enable the analysis of historical model performance. Multiple datasets containing historical predictions for the external deployment can be uploaded. This requires one request for each dataset. For a regression deployment, predictions can be either an int or float. For a classification (binary/multiclass) deployment, predictions must be lists with each list containing probabilities for each class.
+      operationId: deploymentsPredictionInputsFromDataset_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionDatasetAssignment'
+      responses:
+        '202':
+          description: Submitted successfully.
+        '405':
+          description: Data can only be uploaded to an external deployment.
+        '422':
+          description: Unable to process predictions upload.
+      summary: Submit external deployment prediction data by deployment ID
+      tags:
+      - tracking_agent
+      x-versionadded: v2.23
+components:
+  schemas:
+    PredictionDatasetAssignment:
+      properties:
+        datasetId:
+          description: the ID of the dataset
+          type: string
+        datasetVersionId:
+          description: the ID of the dataset version
+          type: string
+      required:
+      - datasetId
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

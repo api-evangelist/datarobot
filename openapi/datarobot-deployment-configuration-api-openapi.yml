@@ -1,0 +1,1020 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Deployment Configuration API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage deployment configuration. Configure capabilities of your current deployment based on the data provided, for example, training data, prediction data, or actuals. After you create and configure a deployment, you can use the deployment settings to add or update deployment functionality that wasn't configured during deployment creation.
+  name: deployment_configuration
+paths:
+  /api/v2/deployments/{deploymentId}/healthSettings/:
+    get:
+      description: Retrieve deployment health settings.
+      operationId: deploymentsHealthSettings_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthSettings'
+          description: Deployment health settings.
+      summary: Retrieve deployment health settings by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.33
+    patch:
+      description: Update deployment health settings.
+      operationId: deploymentsHealthSettings_patchMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthSettings'
+      responses:
+        '200':
+          description: Updated deployment health settings.
+      summary: Update deployment health settings by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/healthSettings/defaults/:
+    get:
+      description: Retrieve default deployment health settings.
+      operationId: deploymentsHealthSettingsDefaults_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthSettings'
+          description: Default deployment health settings.
+      summary: Retrieve default deployment health settings by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/model/secondaryDatasetConfiguration/:
+    get:
+      description: Retrieve the secondary datasets configuration used by a deployed Feature Discovery model.
+      operationId: deploymentsModelSecondaryDatasetConfiguration_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecondaryDatasetConfigResponse'
+          description: Secondary datasets configuration.
+        '404':
+          description: Deployment or secondary datasets configuration cannot be found for the deployed model.
+      summary: Retrieve secondary datasets configuration by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.23
+    patch:
+      description: Update the secondary datasets configuration used by the deployed feature discovery model.
+      operationId: deploymentsModelSecondaryDatasetConfiguration_patchMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecondaryDatasetConfigUpdate'
+      responses:
+        '204':
+          description: Secondary Datasets Configuration updated successfully.
+        '403':
+          description: Invalid credentials for secondary datasets configuration.
+      summary: Update the secondary datasets configuration by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/model/secondaryDatasetConfigurationHistory/:
+    get:
+      description: List all the secondary datasets configuration used by a given Feature Discovery deployment.
+      operationId: deploymentsModelSecondaryDatasetConfigurationHistory_list
+      parameters:
+      - description: Number of items to skip. Defaults to 0 if not provided.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Number of items to return, defaults to 100 if not provided.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          maximum: 1000
+          minimum: 1
+          type: integer
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecondaryDatasetsConfigListResponse'
+          description: Secondary Datasets Configuration history.
+      summary: List the secondary datasets configuration history by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/settings/:
+    get:
+      description: Retrieve deployment settings.
+      operationId: deploymentsSettings_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentSettingsResponse'
+          description: The deployment settings
+      summary: Retrieve deployment settings by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.17
+    patch:
+      description: Updates deployment settings.
+      operationId: deploymentsSettings_patchMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentSettingsUpdate'
+      responses:
+        '202':
+          description: Job submitted. See Location header.
+          headers:
+            Location:
+              description: A url that can be polled to check the status.
+              schema:
+                type: string
+      summary: Update deployment settings by deployment ID
+      tags:
+      - deployment_configuration
+      x-versionadded: v2.17
+components:
+  schemas:
+    SecondaryDatasetConfigResponse:
+      properties:
+        created:
+          description: DR-formatted datetime, null for legacy (before DR 6.0) db records.
+          format: date-time
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.24
+        creatorFullName:
+          description: Full name or email of the user who created this config. Null for legacy (before DR 6.0) db records.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.24
+        creatorUserId:
+          description: ID of the user who created this config, null for legacy (before DR 6.0) db records.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.24
+        credentialIds:
+          description: The list of credentials used by the secondary datasets if the datasets used in the configuration are from a datasource.
+          items:
+            $ref: '#/components/schemas/DatasetsCredential'
+          type:
+          - array
+          - 'null'
+        featurelistId:
+          description: ID of the feature list.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.24
+        isDefault:
+          description: Whether the secondary datasets config is the default config.
+          type: boolean
+        isDeleted:
+          description: Whether the secondary datasets config is soft-deleted.
+          type: boolean
+        name:
+          description: Name of the secondary datasets config.
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: ID of the project.
+          type:
+          - string
+          - 'null'
+        secondaryDatasetConfigId:
+          description: ID of the secondary datasets configuration.
+          type: string
+        secondaryDatasets:
+          description: The list of secondary datasets used in the config.
+          items:
+            $ref: '#/components/schemas/DeploymentSecondaryDataset'
+          type: array
+          x-versionadded: v2.24
+      required:
+      - created
+      - creatorFullName
+      - creatorUserId
+      - featurelistId
+      - isDefault
+      - isDeleted
+      - name
+      - projectId
+      - secondaryDatasetConfigId
+      type: object
+    DeploymentSettingsResponse:
+      properties:
+        associationId:
+          $ref: '#/components/schemas/AssociationID'
+          x-versionadded: v2.19
+        automaticActuals:
+          $ref: '#/components/schemas/AutomaticActuals'
+          x-versionadded: v2.25
+        biasAndFairness:
+          $ref: '#/components/schemas/BiasAndFairness'
+          x-versionadded: v2.31
+        challengerModels:
+          $ref: '#/components/schemas/Challengers'
+          x-versionadded: v2.23
+        featureDrift:
+          $ref: '#/components/schemas/FeatureDriftSetting'
+        humility:
+          $ref: '#/components/schemas/Humility'
+          x-versionadded: v2.21
+        predictionIntervals:
+          $ref: '#/components/schemas/PredictionIntervals'
+          x-versionadded: v2.19
+        predictionWarning:
+          $ref: '#/components/schemas/PredictionWarning'
+          x-versionadded: v2.19
+        predictionsByForecastDate:
+          $ref: '#/components/schemas/PredictionsByForecastDate'
+          x-versionadded: v2.23
+        predictionsDataCollection:
+          $ref: '#/components/schemas/PredictionsDataCollection'
+          x-versionadded: v2.19
+        processingLimits:
+          $ref: '#/components/schemas/ProcessingLimits'
+          x-versionadded: v2.34
+        segmentAnalysis:
+          $ref: '#/components/schemas/SegmentAnalysis'
+          x-versionadded: v2.20
+        targetDrift:
+          $ref: '#/components/schemas/TargetDriftSetting'
+      required:
+      - associationId
+      - featureDrift
+      - predictionIntervals
+      - targetDrift
+      type: object
+    DataDriftHealth:
+      description: Data drift health status setting.
+      properties:
+        batchCount:
+          description: Number of recent batches used to compute data drift health status, only applicable to deployments with batch monitoring enabled.
+          enum:
+          - 1
+          - 5
+          - 10
+          - 50
+          - 100
+          - 1000
+          - 10000
+          type: integer
+          x-versionadded: v2.33
+        driftThreshold:
+          description: The drift metric threshold above which the feature is considered as drifted.
+          maximum: 1
+          minimum: 0
+          type: number
+          x-versionadded: v2.33
+        excludedFeatures:
+          description: Features that are excluded from data drift status consideration.
+          items:
+            maxLength: 256
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.33
+        highImportanceFailingCount:
+          description: Threshold of drifted high importance feature count for failing status.
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        highImportanceWarningCount:
+          description: Threshold of drifted high importance feature count for warning status.
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        importanceThreshold:
+          description: The feature importance threshold above which the feature is considered as important.
+          maximum: 1
+          minimum: 0
+          type: number
+          x-versionadded: v2.33
+        lowImportanceFailingCount:
+          description: Threshold of drifted low importance feature count for failing status.
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        lowImportanceWarningCount:
+          description: Threshold of drifted low importance feature count for warning status.
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        starredFeatures:
+          description: Features that are deemed to be of high importance, regardless of how their feature importance values compare against the threshold.
+          items:
+            maxLength: 256
+            type: string
+          maxItems: 100
+          type: array
+          x-versionadded: v2.33
+        timeInterval:
+          description: Time duration used to compute data drift health status, only applicable to deployments with batch monitoring disabled.
+          enum:
+          - T2H
+          - P1D
+          - P7D
+          - P30D
+          - P90D
+          - P180D
+          - P365D
+          type: string
+          x-versionadded: v2.33
+      type: object
+    Humility:
+      description: Humility setting for the deployment.
+      properties:
+        enabled:
+          description: Indicates whether humility rules are enabled for the deployment.
+          type: boolean
+      required:
+      - enabled
+      type: object
+    TargetDriftSetting:
+      description: The target drift setting for the deployment.
+      properties:
+        enabled:
+          description: Indicates whether target drift tracking is enabled for this deployment.
+          type: boolean
+      required:
+      - enabled
+      type: object
+    FairnessHealth:
+      description: Fairness health status setting. Only available if deployment supports fairness.
+      properties:
+        protectedClassFailingCount:
+          description: Number of protected class below fairness threshold for failing status.
+          minimum: 1
+          type: integer
+          x-versionadded: v2.33
+        protectedClassWarningCount:
+          description: Number of protected class below fairness threshold for warning status.
+          minimum: 1
+          type: integer
+          x-versionadded: v2.33
+      type: object
+    ProcessingLimits:
+      description: Processing limits setting for the deployment.
+      properties:
+        interval:
+          description: A time interval that is applied when calculating processing limits.
+          enum:
+          - hour
+          - day
+          - week
+          type: string
+      required:
+      - interval
+      type: object
+    PredictionWarning:
+      description: The prediction warning setting for the deployment.
+      properties:
+        customBoundaries:
+          $ref: '#/components/schemas/CustomBoundaries'
+        enabled:
+          description: Indicates whether prediction warnings are enabled for this deployment.
+          type: boolean
+      required:
+      - enabled
+      type: object
+    Challengers:
+      description: Challenger models setting for the deployment.
+      properties:
+        enabled:
+          description: Indicates whether challenger models are enabled for the deployment.
+          type: boolean
+      required:
+      - enabled
+      type: object
+    SecondaryDatasetsConfig:
+      properties:
+        configId:
+          description: ID of the secondary datasets configuration.
+          type: string
+        configName:
+          description: The name of the secondary datasets config.
+          type: string
+        updated:
+          description: Timestamp when configuration was updated on the given deployment.
+          type: string
+        username:
+          description: The name of the user who made the update.
+          type: string
+      required:
+      - configId
+      - configName
+      - updated
+      - username
+      type: object
+    FeatureDriftSetting:
+      description: The feature drift setting for the deployment.
+      properties:
+        enabled:
+          description: Indicates whether feature drift tracking is enabled for this deployment.
+          type: boolean
+      required:
+      - enabled
+      type: object
+    HealthSettings:
+      properties:
+        accuracy:
+          $ref: '#/components/schemas/AccuracyHealth'
+          x-versionadded: v2.33
+        actualsTimeliness:
+          $ref: '#/components/schemas/TimelinessSettings'
+          x-versionadded: v2.33
+        customMetrics:
+          $ref: '#/components/schemas/CustomMetricsHealth'
+          x-versionadded: v2.33
+        dataDrift:
+          $ref: '#/components/schemas/DataDriftHealth'
+          x-versionadded: v2.33
+        fairness:
+          $ref: '#/components/schemas/FairnessHealth'
+          x-versionadded: v2.33
+        predictionsTimeliness:
+          $ref: '#/components/schemas/TimelinessSettings'
+          x-versionadded: v2.33
+        service:
+          $ref: '#/components/schemas/ServiceHealth'
+          x-versionadded: v2.33
+      type: object
+    PredictionsByForecastDate:
+      description: Forecast date setting for the deployment.
+      properties:
+        columnName:
+          description: The column name in prediction datasets to be used as forecast date
+          type:
+          - string
+          - 'null'
+        datetimeFormat:
+          description: 'The datetime format of the forecast date column in prediction datasets.
+
+            For time series deployments using the datetime format `%Y-%m-%d %H:%M:%S.%f`,
+
+            DataRobot automatically populates a `v2` in front of the timestamp format.
+
+            Date/time values submitted in prediction data should not include this `v2` prefix.
+
+            Other timestamp formats are not affected.
+
+            '
+          type:
+          - string
+          - 'null'
+        enabled:
+          description: Indicates whether predictions by forecast dates is enabled for the deployment.
+          type: boolean
+      required:
+      - enabled
+      type: object
+      x-versionadded: v2.35
+    SecondaryDatasetConfigUpdate:
+      properties:
+        credentialsIds:
+          description: The list of credentials used by the secondary datasets.
+          items:
+            $ref: '#/components/schemas/DatasetsCredential'
+          type: array
+        secondaryDatasetConfigId:
+          description: ID of the secondary datasets configuration to be used at the time of prediction.
+          type: string
+      required:
+      - secondaryDatasetConfigId
+      type: object
+    AccuracyHealth:
+      description: Accuracy health status setting.
+      properties:
+        batchCount:
+          description: Number of recent batches used to compute accuracy health status, only applicable to deployments with batch monitoring enabled.
+          enum:
+          - 1
+          - 5
+          - 10
+          - 50
+          - 100
+          - 1000
+          - 10000
+          type: integer
+          x-versionadded: v2.33
+        failingThreshold:
+          description: Threshold for failing status.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        measurement:
+          description: Measurement for calculating accuracy health status.
+          enum:
+          - percent
+          - value
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        metric:
+          description: Metric used for calculating accuracy health status.
+          enum:
+          - AUC
+          - Accuracy
+          - Balanced Accuracy
+          - F1
+          - FPR
+          - FVE Binomial
+          - FVE Gamma
+          - FVE Multinomial
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - MAE
+          - MAPE
+          - MCC
+          - NPV
+          - PPV
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Rate@Top10%
+          - Rate@Top5%
+          - TNR
+          - TPR
+          - Tweedie Deviance
+          - WGS84 MAE
+          - WGS84 RMSE
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        warningThreshold:
+          description: Threshold for warning status.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+      type: object
+    DeploymentSettingsUpdate:
+      properties:
+        associationId:
+          $ref: '#/components/schemas/AssociationID'
+          x-versionadded: v2.19
+        automaticActuals:
+          $ref: '#/components/schemas/AutomaticActuals'
+          x-versionadded: v2.25
+        biasAndFairness:
+          $ref: '#/components/schemas/BiasAndFairness'
+          x-versionadded: v2.31
+        challengerModels:
+          $ref: '#/components/schemas/Challengers'
+          x-versionadded: v2.23
+        featureDrift:
+          $ref: '#/components/schemas/FeatureDriftSetting'
+        humility:
+          $ref: '#/components/schemas/Humility'
+          x-versionadded: v2.21
+        predictionIntervals:
+          $ref: '#/components/schemas/PredictionIntervals'
+          x-versionadded: v2.19
+        predictionWarning:
+          $ref: '#/components/schemas/PredictionWarning'
+          x-versionadded: v2.19
+        predictionsByForecastDate:
+          $ref: '#/components/schemas/PredictionsByForecastDate'
+          x-versionadded: v2.23
+        predictionsDataCollection:
+          $ref: '#/components/schemas/PredictionsDataCollection'
+          x-versionadded: v2.19
+        processingLimits:
+          $ref: '#/components/schemas/ProcessingLimits'
+          x-versionadded: v2.34
+        segmentAnalysis:
+          $ref: '#/components/schemas/SegmentAnalysis'
+          x-versionadded: v2.20
+        targetDrift:
+          $ref: '#/components/schemas/TargetDriftSetting'
+      type: object
+    ServiceHealth:
+      description: Service health status setting.
+      properties:
+        batchCount:
+          description: Number of recent batches used to compute the service health status. Only applicable to deployments with batch monitoring enabled.
+          enum:
+          - 1
+          - 5
+          - 10
+          - 50
+          - 100
+          - 1000
+          - 10000
+          type: integer
+          x-versionadded: v2.33
+        failingConditions:
+          description: Conditions for "failing" status.
+          items:
+            $ref: '#/components/schemas/ServiceHealthMetricCondition'
+          maxItems: 25
+          type: array
+          x-versionadded: v2.41
+        timeInterval:
+          description: Amount of time used to compute service health status. Only applicable to deployments with batch monitoring disabled.
+          enum:
+          - T1H
+          - T2H
+          - P1D
+          - P7D
+          - P30D
+          - P90D
+          - P180D
+          - P365D
+          type: string
+          x-versionadded: v2.41
+        warningConditions:
+          description: Conditions for "warning" status.
+          items:
+            $ref: '#/components/schemas/ServiceHealthMetricCondition'
+          maxItems: 25
+          type: array
+          x-versionadded: v2.41
+      type: object
+    ServiceHealthMetricCondition:
+      properties:
+        compareOperator:
+          description: Defines how the metric value is compared against the threshold.
+          enum:
+          - lt
+          - lte
+          - gt
+          - gte
+          type: string
+        metric:
+          description: Service health metric to evaluate.
+          enum:
+          - dataErrorCount
+          - serverErrorCount
+          - dataErrorPercent
+          - serverErrorPercent
+          - medianResponseTimeMs
+          - medianExecutionTimeMs
+          type: string
+        threshold:
+          description: Threshold value used to determine if the condition is met.
+          type: number
+      required:
+      - compareOperator
+      - metric
+      - threshold
+      type: object
+      x-versionadded: v2.41
+    AssociationID:
+      description: The association ID setting for the deployment.
+      properties:
+        columnNames:
+          description: List of column names used to represent an association ID.
+          items:
+            type: string
+          maxItems: 1
+          minItems: 1
+          type:
+          - array
+          - 'null'
+        requiredInPredictionRequests:
+          description: Indicates whether the association ID is required in prediction requests.Note that you may not change an association ID's column names after they have been set and predictions including those columns have been made.
+          type: boolean
+      type: object
+    CustomMetricCondition:
+      properties:
+        categoryName:
+          description: Category name for the custom metric. Only relevant for categorical metrics.
+          maxLength: 256
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.36
+        compareOperator:
+          description: Defines how the custom metric value is compared against the threshold.
+          enum:
+          - lt
+          - lte
+          - gt
+          - gte
+          type: string
+          x-versionadded: v2.33
+        metricId:
+          description: Custom metric ID.
+          type: string
+          x-versionadded: v2.33
+        threshold:
+          description: Threshold value used to determine if the condition is met.
+          type: number
+          x-versionadded: v2.33
+      required:
+      - compareOperator
+      - metricId
+      - threshold
+      type: object
+    PredictionIntervals:
+      description: The prediction intervals setting for the deployment.
+      properties:
+        enabled:
+          description: 'Indicates whether prediction intervals are enabled for this deployment. '
+          type: boolean
+        percentiles:
+          description: The percentiles used for this deployment. Currently, we support at most one percentile at a time.
+          items:
+            type: integer
+          type: array
+      required:
+      - enabled
+      type: object
+    CustomMetricsHealth:
+      description: Custom metrics health status setting.
+      properties:
+        failingConditions:
+          description: Conditions for failing status.
+          items:
+            $ref: '#/components/schemas/CustomMetricCondition'
+          maxItems: 25
+          type: array
+          x-versionadded: v2.33
+        warningConditions:
+          description: Conditions for warning status.
+          items:
+            $ref: '#/components/schemas/CustomMetricCondition'
+          maxItems: 25
+          type: array
+          x-versionadded: v2.33
+      type: object
+    AutomaticActuals:
+      description: Automatic actuals setting for the deployment.
+      properties:
+        enabled:
+          description: Indicates whether automatic actuals is enabled for the deployment.
+          type: boolean
+      required:
+      - enabled
+      type: object
+      x-versionadded: v2.25
+    CustomBoundaries:
+      description: Null if default boundaries for the model are used
+      properties:
+        lower:
+          description: All predictions less than provided value are considered anomalous.
+          type: number
+        upper:
+          description: All predictions greater than provided value are considered anomalous.
+          type: number
+      required:
+      - lower
+      - upper
+      type: object
+    SecondaryDatasetsConfigListResponse:
+      properties:
+        count:
+          description: Number of items.
+          type: integer
+        data:
+          description: Secondary datasets configuration history.
+          items:
+            $ref: '#/components/schemas/SecondaryDatasetsConfig'
+          type: array
+        next:
+          description: URL pointing to the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: URL pointing to the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - count
+      - data
+      - next
+      - previous
+      type: object
+    DeploymentSecondaryDataset:
+      properties:
+        catalogId:
+          description: ID of the catalog item.
+          type: string
+        catalogVersionId:
+          description: ID of the catalog version.
+          type: string
+        identifier:
+          description: Short name of this table (used directly as part of generated feature names).
+          maxLength: 45
+          minLength: 1
+          type: string
+        snapshotPolicy:
+          description: Policy to use by a dataset while making prediction.
+          enum:
+          - specified
+          - latest
+          - dynamic
+          type: string
+      required:
+      - catalogId
+      - catalogVersionId
+      - identifier
+      - snapshotPolicy
+      type: object
+    PredictionsDataCollection:
+      description: The predictions data collection setting for the deployment.
+      properties:
+        enabled:
+          description: Indicates whether incoming prediction requests and results should be stored in record-level storage.
+          type: boolean
+      required:
+      - enabled
+      type: object
+    TimelinessSettings:
+      description: Predictions timeliness health setting.
+      properties:
+        enabled:
+          description: Indicates if timeliness status is enabled.
+          type: boolean
+          x-versionadded: v2.33
+        expectedFrequency:
+          description: Expected frequency for receiving data as an ISO 8601 duration string.
+          type: string
+          x-versionadded: v2.33
+      type: object
+    SegmentAnalysis:
+      description: The segment analysis setting for the deployment.
+      properties:
+        attributes:
+          description: The segment attributes to be tracked. Note that only categorical columns can be specified as tracked segment attributes. The target column may not be specified
+          items:
+            type: string
+          type: array
+        enabled:
+          description: Indicates whether service health, drift, and accuracy are tracked for segments of prediction data.
+          type: boolean
+      required:
+      - enabled
+      type: object
+    BiasAndFairness:
+      description: Bias and fairness setting for the deployment.
+      properties:
+        fairnessMetricsSet:
+          description: A set of fairness metrics to use for calculating fairness.
+          enum:
+          - proportionalParity
+          - equalParity
+          - predictionBalance
+          - trueFavorableAndUnfavorableRateParity
+          - favorableAndUnfavorablePredictiveValueParity
+          type: string
+        fairnessThreshold:
+          description: Threshold value of the fairness metric.
+          maximum: 1
+          minimum: 0
+          type: number
+        preferableTargetValue:
+          anyOf:
+          - type: boolean
+          - type: integer
+          - type: string
+          description: A target value that should be treated as a positive outcome for the prediction.
+        protectedFeatures:
+          description: A list of features to mark as protected for bias and fairness measurement.
+          items:
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+      - fairnessMetricsSet
+      - fairnessThreshold
+      - preferableTargetValue
+      - protectedFeatures
+      type: object
+    DatasetsCredential:
+      properties:
+        catalogVersionId:
+          description: ID of the catalog version.
+          type: string
+        credentialId:
+          description: ID of the credential store to be used for the given catalog version.
+          type: string
+        url:
+          description: The URL of the datasource.
+          type:
+          - string
+          - 'null'
+      required:
+      - catalogVersionId
+      - credentialId
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

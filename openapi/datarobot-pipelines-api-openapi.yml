@@ -1,0 +1,1404 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Pipelines API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- name: Pipelines
+paths:
+  /api/v2/pipelines:
+    get:
+      description: List all pipelines for the authenticated user.
+      operationId: list_all_pipelines_api_v2_pipelines_get
+      parameters:
+      - in: query
+        name: mode
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineMode'
+          - type: 'null'
+          title: Mode
+      - in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineListItem_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List All Pipelines
+      tags:
+      - Pipelines
+    post:
+      description: 'Upload a ``.py`` file to create a pipeline in draft mode.
+
+
+        An optional ``name`` form field sets the pipeline''s human-readable
+
+        display label (``display_name``). When omitted the label defaults to
+
+        the title-cased ``@pipeline`` function name (e.g. ``my_workflow`` →
+
+        ``My Workflow``). The underlying ``Pipeline.pipeline_entrypoint_method``
+
+        column always stores the raw AST-extracted function name and is never
+
+        overwritten by this field.
+
+
+        An optional ``image_id`` form field associates the pipeline with a
+
+        specific execution image. When provided, the pipeline''s
+
+        ``image_version_id`` is set to the image''s latest active version so
+
+        dispatch can inject the covalent environment name.
+
+
+        No ``PipelineVersion`` row is created at this point — the pipeline
+
+        stays in draft until the user POSTs to ``/pipelines/{id}/mode`` to
+
+        lock it, which creates v1.'
+      operationId: create_pipeline_api_v2_pipelines_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_create_pipeline_api_v2_pipelines_post'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineCreateResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Pipeline
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}:
+    delete:
+      description: Soft-delete a pipeline.
+      operationId: delete_pipeline_endpoint_api_v2_pipelines__pipeline_id__delete
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Pipeline Endpoint
+      tags:
+      - Pipelines
+    get:
+      description: Get full pipeline details including versions.
+      operationId: get_pipeline_detail_api_v2_pipelines__pipeline_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineDetailResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Pipeline Detail
+      tags:
+      - Pipelines
+    patch:
+      description: 'Update a draft pipeline''s file, name, description, and/or image association.
+
+
+        Only draft pipelines can be updated — a PATCH on a locked pipeline returns
+
+        409. A caller may re-upload the ``.py`` file (including one whose
+
+        ``@pipeline`` function has been renamed), rename the pipeline, change its
+
+        description, (re-)associate an image, or any combination, in a single
+
+        PATCH. Omitting a field (or sending an empty string for
+
+        ``name``/``description``) leaves that attribute unchanged. A PATCH with no
+
+        fields set is a no-op that returns the pipeline''s current state.'
+      operationId: update_pipeline_api_v2_pipelines__pipeline_id__patch
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_update_pipeline_api_v2_pipelines__pipeline_id__patch'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineCreateResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Pipeline
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/clone:
+    post:
+      description: 'Clone an existing pipeline into a new draft.
+
+
+        Copies the source pipeline''s source code, description, latest input
+
+        params, and latest assigned image (if any) into a brand-new draft. The
+
+        clone is named ``Clone of `` by default; supply an optional
+
+        ``name`` in the JSON body to override it. On a name collision with an
+
+        existing draft, a numeric `` (2)``/`` (3)`` suffix is appended so repeated
+
+        clones never fail.
+
+
+        The clone is always a fresh draft — versions, schedules, dispatches, and
+
+        run history are not carried over. The whole operation is atomic: either
+
+        the full clone commits, or nothing does.'
+      operationId: clone_pipeline_api_v2_pipelines__pipeline_id__clone_post
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/PipelineCloneRequest'
+              - type: 'null'
+              title: Body
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineCreateResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Clone Pipeline
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/graph:
+    get:
+      description: Return a JSON graph of the draft pipeline's DAG.
+      operationId: get_draft_graph_api_v2_pipelines__pipeline_id__graph_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineGraph'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Draft Graph
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/mode:
+    patch:
+      description: Promote a draft pipeline to locked, creating an immutable version.
+      operationId: promote_pipeline_mode_api_v2_pipelines__pipeline_id__mode_patch
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineCreateResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Promote Pipeline Mode
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/source:
+    get:
+      description: 'Return the full source file for a draft pipeline.
+
+
+        Returns the raw text of the ``source.py`` asset uploaded by the user —
+
+        the complete file including imports, all ``@task`` functions, and the
+
+        ``@pipeline`` function. Intended for UI editing workflows where the
+
+        caller needs the entire file content rather than per-task excerpts.'
+      operationId: get_draft_source_api_v2_pipelines__pipeline_id__source_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineSourceResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Draft Source
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/tasks/{task_id}:
+    get:
+      description: Return detail for a task in a draft pipeline.
+      operationId: get_draft_task_api_v2_pipelines__pipeline_id__tasks__task_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          title: Task Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Draft Task
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/versions:
+    get:
+      description: List all versions of a pipeline.
+      operationId: list_pipeline_versions_api_v2_pipelines__pipeline_id__versions_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineVersionResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Pipeline Versions
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}:
+    get:
+      description: Get details of a specific pipeline version.
+      operationId: get_pipeline_version_api_v2_pipelines__pipeline_id__versions__version_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineVersionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Pipeline Version
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/graph:
+    get:
+      description: Return a JSON graph of a locked pipeline version's DAG.
+      operationId: get_version_graph_api_v2_pipelines__pipeline_id__versions__version_id__graph_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineGraph'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Version Graph
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/source:
+    get:
+      description: 'Return the full source file for a specific locked pipeline version.
+
+
+        Returns the raw ``source.py`` snapshotted at lock time for the given
+
+        version. The version must be in ``READY`` status.'
+      operationId: get_version_source_api_v2_pipelines__pipeline_id__versions__version_id__source_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineSourceResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Version Source
+      tags:
+      - Pipelines
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/tasks/{task_id}:
+    get:
+      description: Return detail for a task in a specific locked pipeline version.
+      operationId: get_version_task_api_v2_pipelines__pipeline_id__versions__version_id__tasks__task_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          title: Task Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Version Task
+      tags:
+      - Pipelines
+components:
+  schemas:
+    PipelineListItem:
+      description: 'Single item in a pipeline list response.
+
+
+        ``name`` is the pipeline''s display label: the user-supplied value when
+
+        one was provided on upload, or the title-cased ``@pipeline`` function
+
+        name otherwise.
+
+
+        ``total_runs`` is the total number of dispatches across all versions.
+
+        ``schedule`` is the most recently created ACTIVE schedule for the
+
+        pipeline, or ``None`` when no active schedule exists.'
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        isActive:
+          title: Isactive
+          type: boolean
+        latestVersion:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Latestversion
+        mode:
+          $ref: '#/components/schemas/PipelineMode'
+        name:
+          title: Name
+          type: string
+        schedule:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineListSchedule'
+          - type: 'null'
+        totalRuns:
+          default: 0
+          title: Totalruns
+          type: integer
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        userId:
+          title: Userid
+          type: string
+      required:
+      - id
+      - name
+      - mode
+      - isActive
+      - userId
+      - createdAt
+      - updatedAt
+      title: PipelineListItem
+      type: object
+    PipelineGraphEdge:
+      description: A directed data-flow edge between two task nodes.
+      properties:
+        argIndex:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Argindex
+        edgeName:
+          default: ''
+          title: Edgename
+          type: string
+        paramType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Paramtype
+        source:
+          title: Source
+          type: integer
+        target:
+          title: Target
+          type: integer
+      required:
+      - source
+      - target
+      title: PipelineGraphEdge
+      type: object
+    TaskResponse:
+      description: Response schema for a pipeline task detail endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+        name:
+          title: Name
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/TaskParameter'
+          title: Parameters
+          type: array
+        pipelineId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipelineid
+          type: string
+        resourceBundle:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Resourcebundle
+        resourceBundleId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resourcebundleid
+        source:
+          title: Source
+          type: string
+        taskGroupId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Taskgroupid
+        versionId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Versionid
+      required:
+      - id
+      - pipelineId
+      - name
+      - parameters
+      - source
+      title: TaskResponse
+      type: object
+    DataPage_PipelineVersionResponse_:
+      properties:
+        count:
+          readOnly: true
+          title: Count
+          type: integer
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineVersionResponse'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous
+        totalCount:
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - totalCount
+      - count
+      title: DataPage[PipelineVersionResponse]
+      type: object
+    PipelineListSchedule:
+      description: Active schedule summary surfaced on the pipeline list.
+      properties:
+        cronExpression:
+          title: Cronexpression
+          type: string
+        timezone:
+          title: Timezone
+          type: string
+      required:
+      - cronExpression
+      - timezone
+      title: PipelineListSchedule
+      type: object
+    PipelineVersionStatus:
+      description: Status of a pipeline version.
+      enum:
+      - PENDING
+      - READY
+      - FAILED
+      title: PipelineVersionStatus
+      type: string
+    PipelineGraphMeta:
+      description: Pipeline metadata in the graph response.
+      properties:
+        name:
+          title: Name
+          type: string
+        parameters:
+          items:
+            additionalProperties: true
+            type: object
+          title: Parameters
+          type: array
+        pythonVersion:
+          title: Pythonversion
+          type: string
+      required:
+      - name
+      - pythonVersion
+      title: PipelineGraphMeta
+      type: object
+    LinkedImageBlock:
+      description: 'Snapshot of the image version a pipeline is currently bound to.
+
+
+        Embedded inline in ``PipelineDetailResponse`` so the wizard can drive
+
+        the Run-button affordance without a second round-trip. ``None`` when
+
+        the pipeline has no image bound.'
+      properties:
+        errorDetail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errordetail
+        imageId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Imageid
+          type: string
+        name:
+          title: Name
+          type: string
+        status:
+          $ref: '#/components/schemas/PipelineImageStatus'
+        version:
+          title: Version
+          type: integer
+      required:
+      - imageId
+      - name
+      - version
+      - status
+      title: LinkedImageBlock
+      type: object
+    PipelineVersionResponse:
+      description: Response schema for a single pipeline version.
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        errorDetail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errordetail
+        pythonVersion:
+          title: Pythonversion
+          type: string
+        resourceBundle:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Resourcebundle
+        status:
+          $ref: '#/components/schemas/PipelineVersionStatus'
+        taskNames:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tasknames
+        version:
+          title: Version
+          type: integer
+      required:
+      - version
+      - status
+      - pythonVersion
+      - createdAt
+      title: PipelineVersionResponse
+      type: object
+    DataPage_PipelineListItem_:
+      properties:
+        count:
+          readOnly: true
+          title: Count
+          type: integer
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineListItem'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous
+        totalCount:
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - totalCount
+      - count
+      title: DataPage[PipelineListItem]
+      type: object
+    TaskParameter:
+      description: A single parameter from a ``@task`` function signature.
+      properties:
+        annotation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Annotation
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: TaskParameter
+      type: object
+    PipelineImageStatus:
+      description: Build status of a pipeline image version.
+      enum:
+      - CREATING
+      - READY
+      - ERROR
+      title: PipelineImageStatus
+      type: string
+    PipelineMode:
+      description: Pipeline lifecycle mode.
+      enum:
+      - draft
+      - locked
+      title: PipelineMode
+      type: string
+    PipelineDetailResponse:
+      description: 'Full pipeline detail including versions.
+
+
+        Draft pipelines surface their in-progress pipeline metadata via the
+
+        top-level ``task_names`` / ``python_version`` / ``resource_bundle``
+
+        fields and have an empty ``versions`` array.  Locked pipelines leave
+
+        the top-level draft fields ``None`` and expose the same data through
+
+        one or more ``versions``.
+
+
+        ``name`` is the pipeline''s display label: the user-supplied value when
+
+        one was provided on upload, or the title-cased ``@pipeline`` function
+
+        name otherwise.
+
+
+        ``input_set_template`` is a ready-to-submit YAML body for
+
+        ``POST /pipelines/{id}/inputs``: a top-level ``payload`` mapping with a
+
+        ``null`` placeholder per ``@pipeline`` parameter, derived from the
+
+        latest available graph (the latest locked version''s, or the draft''s).
+
+        It is ``None`` when the pipeline graph is not yet available (e.g.
+
+        object storage disabled).'
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        imageId:
+          anyOf:
+          - maxLength: 24
+            minLength: 24
+            pattern: ^[0-9a-fA-F]{24}$
+            type: string
+          - type: 'null'
+          title: Imageid
+        inputSetTemplate:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Inputsettemplate
+        isActive:
+          title: Isactive
+          type: boolean
+        linkedImage:
+          anyOf:
+          - $ref: '#/components/schemas/LinkedImageBlock'
+          - type: 'null'
+        mode:
+          $ref: '#/components/schemas/PipelineMode'
+        name:
+          title: Name
+          type: string
+        pythonVersion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pythonversion
+        resourceBundle:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Resourcebundle
+        taskNames:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tasknames
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        userId:
+          title: Userid
+          type: string
+        versions:
+          items:
+            $ref: '#/components/schemas/PipelineVersionResponse'
+          title: Versions
+          type: array
+      required:
+      - id
+      - name
+      - mode
+      - isActive
+      - userId
+      - createdAt
+      - updatedAt
+      title: PipelineDetailResponse
+      type: object
+    Body_update_pipeline_api_v2_pipelines__pipeline_id__patch:
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        file:
+          anyOf:
+          - contentMediaType: application/octet-stream
+            type: string
+          - type: 'null'
+          title: File
+        image_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      title: Body_update_pipeline_api_v2_pipelines__pipeline_id__patch
+      type: object
+    PipelineGraph:
+      description: 'Graph representation of a pipeline''s DAG for UI rendering.
+
+
+        ``warnings`` is populated by the static AST builder when statically-
+
+        unresolvable constructs (loops, comprehensions, helper indirection,
+
+        ``*args``/``**kwargs`` splats) are encountered. It is empty for graphs
+
+        produced post-dispatch from the traced ``TransportGraph``.'
+      properties:
+        edges:
+          items:
+            $ref: '#/components/schemas/PipelineGraphEdge'
+          title: Edges
+          type: array
+        nodes:
+          items:
+            $ref: '#/components/schemas/PipelineGraphNode'
+          title: Nodes
+          type: array
+        pipeline:
+          $ref: '#/components/schemas/PipelineGraphMeta'
+        warnings:
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - pipeline
+      title: PipelineGraph
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    PipelineCloneRequest:
+      description: 'Request body for cloning an existing pipeline.
+
+
+        ``name`` is an optional override for the clone''s display label. When
+
+        omitted or blank, the clone is named ``Clone of <source name>`` (with a
+
+        numeric `` (2)``/`` (3)`` suffix appended on collision). The request body
+
+        itself is optional — ``POST /pipelines/{id}/clone`` with no body clones
+
+        under the default name.'
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      title: PipelineCloneRequest
+      type: object
+    PipelineCreateResponse:
+      description: 'Response after creating, updating, or locking a pipeline.
+
+
+        ``version`` and ``status`` are ``None`` while the pipeline is in
+
+        draft mode (since no ``PipelineVersion`` row exists yet); they
+
+        populate to ``1`` / ``READY`` (and beyond) after lock.
+
+
+        ``name`` is the pipeline''s display label: the user-supplied value when
+
+        one was provided on upload, or the title-cased ``@pipeline`` function
+
+        name otherwise (e.g. ``my_workflow`` → ``My Workflow``).
+
+
+        ``image_id`` is the public ObjectId of the execution image associated
+
+        with this pipeline, or ``None`` if no image has been linked.'
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        imageId:
+          anyOf:
+          - maxLength: 24
+            minLength: 24
+            pattern: ^[0-9a-fA-F]{24}$
+            type: string
+          - type: 'null'
+          title: Imageid
+        mode:
+          $ref: '#/components/schemas/PipelineMode'
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineVersionStatus'
+          - type: 'null'
+        taskNames:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tasknames
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Version
+      required:
+      - id
+      - name
+      - mode
+      - createdAt
+      title: PipelineCreateResponse
+      type: object
+    PipelineGraphNode:
+      description: A single task node in the pipeline DAG.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        resourceBundle:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Resourcebundle
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+        taskGroupId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Taskgroupid
+        taskId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Taskid
+        type:
+          default: function
+          title: Type
+          type: string
+      required:
+      - id
+      - name
+      title: PipelineGraphNode
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PipelineSourceResponse:
+      description: 'Full source code of an uploaded pipeline file.
+
+
+        ``source`` is the raw text of the ``source.py`` asset stored in object
+
+        storage at upload / re-upload time.  It is identical to what the user
+
+        originally uploaded, preserving comments, imports, and all task
+
+        definitions — not just the ``@pipeline``-decorated function.'
+      properties:
+        source:
+          title: Source
+          type: string
+      required:
+      - source
+      title: PipelineSourceResponse
+      type: object
+    Body_create_pipeline_api_v2_pipelines_post:
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        file:
+          contentMediaType: application/octet-stream
+          title: File
+          type: string
+        image_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - file
+      title: Body_create_pipeline_api_v2_pipelines_post
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

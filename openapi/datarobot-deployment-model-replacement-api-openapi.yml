@@ -1,0 +1,219 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Deployment Model Replacement API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage deployment model replacement.
+  name: deployment_model_replacement
+paths:
+  /api/v2/deployments/{deploymentId}/model/:
+    patch:
+      description: 'Replace the model used to make predictions for the deployment.
+
+        A validation process will be performed to make sure the new model is eligible as a replacement. If the validation fails, the model replacement will not occur.The Model Replacement Validation endpoint can be used to confirm the new model is eligible as a replacement.'
+      operationId: deploymentsModel_patchMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelReplacementSubmission'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReplacementValidationResponse'
+          description: Job submitted. See Location header.
+          headers:
+            Location:
+              description: A url that can be polled to check the status.
+              schema:
+                type: string
+      summary: Model Replacement by deployment ID
+      tags:
+      - deployment_model_replacement
+      x-versionadded: v2.17
+  /api/v2/deployments/{deploymentId}/model/validation/:
+    post:
+      description: Validate that a model can be used to replace the current model of the deployment.
+      operationId: deploymentsModelValidation_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelReplacementValidationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReplacementValidationResponse'
+          description: ''
+      summary: Model Replacement Validation by deployment ID
+      tags:
+      - deployment_model_replacement
+      x-versionadded: v2.17
+components:
+  schemas:
+    ModelReplacementSubmission:
+      properties:
+        modelId:
+          description: ID of the model used to replace deployment's champion model. Required if modelPackageId is not provided.
+          type: string
+          x-versiondeprecated: v2.33
+        modelPackageId:
+          description: ID of the model package used to replace deployment's champion model. Required if modelId is not provided.
+          type: string
+          x-versionadded: v2.21
+        reason:
+          description: Reason for the model replacement.
+          enum:
+          - ACCURACY
+          - DATA_DRIFT
+          - ERRORS
+          - SCHEDULED_REFRESH
+          - SCORING_SPEED
+          - DEPRECATION
+          - OTHER
+          type: string
+        runtimeParameterValues:
+          description: "Inject values into a model at runtime. The fieldName must match a fieldName defined in the model package. This list is merged with any existing runtime values set through the deployed model package.\n                    <blockquote>This property is gated behind the feature flags **`['CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT']`**.\n                    To enable this feature, you can contact your DataRobot representative or administrator.\n                    </blockquote>"
+          feature_flags:
+          - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+            enabled_by_default: true
+            maturity: PUBLIC_PREVIEW
+            name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+          public_preview: true
+          type: string
+          x-datarobot-public-preview: true
+          x-datarobot-required-feature-flags:
+          - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+            enabled_by_default: true
+            maturity: PUBLIC_PREVIEW
+            name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+          x-versionadded: v2.35
+      required:
+      - reason
+      type: object
+    ModelReplacementValidationRequest:
+      properties:
+        modelId:
+          description: ID of the model used to replace deployment's champion model. Required if modelPackageId is not provided.
+          type: string
+          x-versiondeprecated: v2.33
+        modelPackageId:
+          description: ID of the model package used to replace deployment's champion model. Required if modelId is not provided.
+          type: string
+          x-versionadded: v2.21
+      type: object
+    ModelReplacementValidationResponse:
+      properties:
+        checks:
+          $ref: '#/components/schemas/ValidationChecks'
+        message:
+          description: Message of the overall validation check.
+          type: string
+        status:
+          description: Status of the overall validation check.
+          enum:
+          - failing
+          - passing
+          - warning
+          type: string
+      required:
+      - checks
+      - message
+      - status
+      type: object
+    ValidationChecks:
+      description: A more granular explanation of why the replacement model was eligible or ineligible.
+      properties:
+        combinedModelSegments:
+          $ref: '#/components/schemas/ValidationCheck'
+        containsTrackedSegmentAttributes:
+          $ref: '#/components/schemas/ValidationCheck'
+        driftTracking:
+          $ref: '#/components/schemas/ValidationCheck'
+          x-versionadded: v2.29
+        featureDataTypes:
+          $ref: '#/components/schemas/ValidationCheck'
+        features:
+          $ref: '#/components/schemas/ValidationCheck'
+        humilityRules:
+          $ref: '#/components/schemas/ValidationCheck'
+        modelCanBeDeployed:
+          $ref: '#/components/schemas/ValidationCheck'
+        modelStatus:
+          $ref: '#/components/schemas/ValidationCheck'
+        notCurrentModel:
+          $ref: '#/components/schemas/ValidationCheck'
+        permission:
+          $ref: '#/components/schemas/ValidationCheck'
+        predictionIntervals:
+          $ref: '#/components/schemas/ValidationCheck'
+        predictionReady:
+          $ref: '#/components/schemas/ValidationCheck'
+        seriesType:
+          $ref: '#/components/schemas/ValidationCheck'
+        supported:
+          $ref: '#/components/schemas/ValidationCheck'
+        target:
+          $ref: '#/components/schemas/ValidationCheck'
+        targetClasses:
+          $ref: '#/components/schemas/ValidationCheck'
+        targetType:
+          $ref: '#/components/schemas/ValidationCheck'
+        timeSeriesCompatibility:
+          $ref: '#/components/schemas/ValidationCheck'
+        validChallenger:
+          $ref: '#/components/schemas/ValidationCheck'
+      type: object
+    ValidationCheck:
+      description: Whether the replacement model has the same target name as the current model.
+      properties:
+        message:
+          description: Message of the validation check.
+          type: string
+        status:
+          description: Status of the validation check.
+          enum:
+          - failing
+          - passing
+          - warning
+          type: string
+      required:
+      - message
+      - status
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

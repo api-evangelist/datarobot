@@ -1,0 +1,126 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Predictions Info API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage predictions information.
+  name: predictions_info
+paths:
+  /api/v2/predictionServers/:
+    get:
+      description: The list of prediction servers available for a user.
+      operationId: predictionServers_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionServerListResponse'
+          description: ''
+      summary: List prediction servers
+      tags:
+      - predictions_info
+      x-versionadded: v2.17
+components:
+  schemas:
+    BatchPredictionStatus:
+      description: The batch prediction status for this instance.
+      properties:
+        processing:
+          description: The number of jobs processing.
+          minimum: 0
+          type: integer
+        queued:
+          description: The number of jobs queued.
+          minimum: 0
+          type: integer
+      required:
+      - processing
+      - queued
+      type: object
+    PredictionServerListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of prediction servers.
+          items:
+            $ref: '#/components/schemas/PredictionServerResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+    PredictionServerResponse:
+      properties:
+        batchPredictions:
+          $ref: '#/components/schemas/BatchPredictionStatus'
+          x-versionadded: v2.28
+        datarobot-key:
+          description: The `datarobot-key` header used in requests to this prediction server.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the prediction server.
+          type:
+          - string
+          - 'null'
+        url:
+          description: The URL of the prediction server.
+          type: string
+      required:
+      - batchPredictions
+      - datarobot-key
+      - id
+      - url
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

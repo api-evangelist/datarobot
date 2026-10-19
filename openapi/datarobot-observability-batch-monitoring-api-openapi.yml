@@ -1,0 +1,675 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Observability Batch Monitoring API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage batch monitoring. You can view monitoring statistics organized by batch, instead of by time, with batch-enabled deployments. To do this, you can create batches, add predictions to those batches, and view service health, data drift, and accuracy statistics for the batches in your deployment.
+  name: observability_batch_monitoring
+paths:
+  /api/v2/deployments/{deploymentId}/monitoringBatchLimits/:
+    get:
+      description: Get the limits related to monitoring batches.
+      operationId: deploymentsMonitoringBatchLimits_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+      summary: Get the limits related by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/monitoringBatches/:
+    get:
+      description: List monitoring batches in a deployment.
+      operationId: deploymentsMonitoringBatches_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: ID of the user who created a batch.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          type: string
+      - description: Search by matching batch name in a case-insensitive manner or exact match of batch ID.
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+      - description: Order of the returning batches.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: -latestPredictionTimestamp
+          enum:
+          - name
+          - -name
+          - createdAt
+          - -createdAt
+          - earliestPredictionTimestamp
+          - -earliestPredictionTimestamp
+          - latestPredictionTimestamp
+          - -latestPredictionTimestamp
+          type: string
+      - description: Filter for batches created after the given time
+        in: query
+        name: createdAfter
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter for batches created before the given time
+        in: query
+        name: createdBefore
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter for batches with a start time after the given time
+        in: query
+        name: startAfter
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter for batches with an end time before the given time
+        in: query
+        name: endBefore
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringBatchListResponse'
+          description: ''
+      summary: List monitoring batches by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+    post:
+      description: Create a monitoring batch for a deployment.
+      operationId: deploymentsMonitoringBatches_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitoringBatchCreateUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringBatch'
+          description: ''
+      summary: Create a monitoring batch by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/monitoringBatches/{monitoringBatchId}/:
+    delete:
+      description: Delete a monitoring batch in a deployment.
+      operationId: deploymentsMonitoringBatches_delete
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the monitoring batch.
+        in: path
+        name: monitoringBatchId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+      summary: Delete a monitoring batch by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+    get:
+      description: Retrieve a monitoring batch in a deployment.
+      operationId: deploymentsMonitoringBatches_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the monitoring batch.
+        in: path
+        name: monitoringBatchId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringBatch'
+          description: ''
+      summary: Retrieve a monitoring batch by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+    patch:
+      description: Update a monitoring batch in a deployment.
+      operationId: deploymentsMonitoringBatches_patch
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the monitoring batch.
+        in: path
+        name: monitoringBatchId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitoringBatchCreateUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringBatch'
+          description: ''
+      summary: Update a monitoring batch by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/monitoringBatches/{monitoringBatchId}/models/:
+    get:
+      description: List information about models that have data in a monitoring batch.
+      operationId: deploymentsMonitoringBatchesModels_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: ID of the model associated with a batch.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the monitoring batch.
+        in: path
+        name: monitoringBatchId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringBatchModelListResponse'
+          description: ''
+      summary: List information about models that have data by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/monitoringBatches/{monitoringBatchId}/models/{modelId}/:
+    get:
+      description: Get information about a model that has data in a monitoring batch.
+      operationId: deploymentsMonitoringBatchesModels_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the monitoring batch.
+        in: path
+        name: monitoringBatchId
+        required: true
+        schema:
+          type: string
+      - description: ID of the model.
+        in: path
+        name: modelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringBatchModel'
+          description: ''
+      summary: Get information about a model that has data by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+    patch:
+      description: Update information about model data in a batch.
+      operationId: deploymentsMonitoringBatchesModels_patch
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the monitoring batch.
+        in: path
+        name: monitoringBatchId
+        required: true
+        schema:
+          type: string
+      - description: ID of the model.
+        in: path
+        name: modelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitoringBatchModelUpdate'
+      responses:
+        '200':
+          description: ''
+      summary: Update information about model data by deployment ID
+      tags:
+      - observability_batch_monitoring
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables batch monitoring for deployments.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: MMM_BATCH_MONITORING
+      x-versionadded: v2.33
+components:
+  schemas:
+    MonitoringBatchCreator:
+      description: Creator of the monitoring batch.
+      properties:
+        id:
+          description: ID of the user who created the monitoring batch.
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: Name of the user who created monitoring batch.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - id
+      - name
+      type: object
+    MonitoringBatch:
+      properties:
+        batchPredictionJobId:
+          description: ID of the batch prediction job associated with the batch.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        batchPredictionJobStatus:
+          default: null
+          description: Status of the batch prediction job associated with the batch
+          enum:
+          - INITIALIZING
+          - RUNNING
+          - COMPLETED
+          - ABORTED
+          - FAILED
+          - null
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        createdAt:
+          description: Creation timestamp of the monitoring batch.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        createdBy:
+          $ref: '#/components/schemas/MonitoringBatchCreator'
+          x-versionadded: v2.33
+        description:
+          description: Description of the monitoring batch.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        earliestPredictionTimestamp:
+          description: Earliest prediction request timestamp in the monitoring batch.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        externalContextUrl:
+          description: External URL associated with the batch.
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        id:
+          description: ID of the monitoring batch.
+          type: string
+          x-versionadded: v2.33
+        isLocked:
+          description: Whether or not predictions can be added to the batch
+          type: boolean
+          x-versionadded: v2.33
+        latestPredictionTimestamp:
+          description: Latest prediction request timestamp in the monitoring batch.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: Name of the monitoring batch.
+          type: string
+          x-versionadded: v2.33
+        predictionsCount:
+          description: Count of predictions rows in the monitoring batch.
+          type: integer
+          x-versionadded: v2.33
+        serviceHealth:
+          $ref: '#/components/schemas/MonitoringBatchServiceHealth'
+          x-versionadded: v2.33
+      required:
+      - batchPredictionJobId
+      - createdAt
+      - createdBy
+      - description
+      - earliestPredictionTimestamp
+      - externalContextUrl
+      - id
+      - isLocked
+      - latestPredictionTimestamp
+      - name
+      - predictionsCount
+      - serviceHealth
+      type: object
+    MonitoringBatchModelListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: List of models with data on a monitoring batch.
+          items:
+            $ref: '#/components/schemas/MonitoringBatchModel'
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    MonitoringBatchServiceHealth:
+      description: Service health of the monitoring batch.
+      properties:
+        message:
+          description: Monitoring batch service health message.
+          type: string
+          x-versionadded: v2.33
+        status:
+          description: Monitoring batch service health status.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - message
+      - status
+      type: object
+    MonitoringBatchModelUpdate:
+      properties:
+        endTime:
+          description: Latest time of predictions on this model in this batch.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        startTime:
+          description: Earliest time of predictions on this model in this batch.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+      type: object
+    MonitoringBatchListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: List of monitoring batches.
+          items:
+            $ref: '#/components/schemas/MonitoringBatch'
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    MonitoringBatchModel:
+      properties:
+        batchId:
+          description: ID of this monitoring batch.
+          type: string
+          x-versionadded: v2.33
+        endTime:
+          description: Latest time of a prediction on this model in this batch
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: ID of a model with data on this batch
+          type: string
+          x-versionadded: v2.33
+        predictionsCount:
+          description: Count of predictions rows on this model in this batch
+          type: integer
+          x-versionadded: v2.33
+        startTime:
+          description: Earliest time of a prediction on this model in this batch
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+      required:
+      - batchId
+      - endTime
+      - modelId
+      - predictionsCount
+      - startTime
+      type: object
+    MonitoringBatchCreateUpdate:
+      properties:
+        batchName:
+          description: Name of the monitoring batch.
+          type: string
+          x-versionadded: v2.33
+        description:
+          description: Description of the monitoring batch.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        externalContextUrl:
+          description: External URL associated with the batch.
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        isLocked:
+          description: Whether or not predictions can be added to the batch
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.33
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

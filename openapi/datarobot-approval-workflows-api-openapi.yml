@@ -1,0 +1,2149 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Approval Workflows API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: This page describes the endpoints for enacting workflow requirements to ensure quality and comply with regulatory obligations. When you create a new or change an existing deployment, if the approval workflow is enabled, an MLOps administrator within your organization must approve your changes. Approval policies affect the users who have permissions to review deployments and provide automated actions when reviews time out. Approval policies also affect users whose deployment events are governed by a configured policy (e.g., new deployment creation, model replacement).
+  name: approval_workflows
+paths:
+  /api/v2/approvalPolicies/:
+    get:
+      description: List Approval Policies.
+      operationId: approvalPolicies_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Type of entity to filter policies by.
+        in: query
+        name: entityType
+        required: false
+        schema:
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          - deploymentModel
+          - DeploymentModel
+          - DEPLOYMENT_MODEL
+          - deploymentConfig
+          - DeploymentConfig
+          - DEPLOYMENT_CONFIG
+          - deploymentStatus
+          - DeploymentStatus
+          - DEPLOYMENT_STATUS
+          - deploymentMonitoringData
+          - DeploymentMonitoringData
+          - DEPLOYMENT_MONITORING_DATA
+          type: string
+      - description: Part of the policy name to search by.
+        in: query
+        name: namePart
+        required: false
+        schema:
+          minLength: 1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalPolicyListResponse'
+          description: Approval Policy has been successfully updated.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+      summary: List Approval Policies
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+    post:
+      description: Create a new Approval Policy.
+      operationId: approvalPolicies_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalPolicy'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalPolicyResponse'
+          description: Approval Policy has been successfully created.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+        '422':
+          description: Approval Policy could not be created with the given input.
+      summary: Create a new Approval Policy
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+  /api/v2/approvalPolicies/{approvalPolicyId}/:
+    delete:
+      description: Delete the policy with the given ID.
+      operationId: approvalPolicies_delete
+      parameters:
+      - description: ID of the Approval Policy.
+        in: path
+        name: approvalPolicyId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Approval Policy has been successfully deleted.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+        '404':
+          description: Approval Policy does not exist or the user doesn't have access to it.
+      summary: Delete an Approval Policy by approval policy ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+    get:
+      description: Retrieve the policy with the given ID.
+      operationId: approvalPolicies_retrieve
+      parameters:
+      - description: ID of the Approval Policy.
+        in: path
+        name: approvalPolicyId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalPolicyResponse'
+          description: Approval Policy has been successfully retrieved.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+        '404':
+          description: Approval Policy does not exist or the user doesn't have access to it.
+      summary: Retrieve an Approval Policy by approval policy ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+    put:
+      description: Update the policy with the given ID.
+      operationId: approvalPolicies_put
+      parameters:
+      - description: ID of the Approval Policy.
+        in: path
+        name: approvalPolicyId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalPolicy'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalPolicyResponse'
+          description: Approval Policy has been successfully updated.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+        '404':
+          description: Approval Policy does not exist or the user doesn't have access to it.
+        '422':
+          description: Approval Policy could not be created with the given input.
+      summary: Update an Approval Policy by approval policy ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+  /api/v2/approvalPolicies/{approvalPolicyId}/shareableChangeRequests/:
+    get:
+      description: Get information about Change Requests submitted for a certain Approval Policy.
+      operationId: approvalPoliciesShareableChangeRequests_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Attribute to order Change Requests by.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: ''
+          type: string
+      - description: ID of the Approval Policy.
+        in: path
+        name: approvalPolicyId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeRequestInfoListResponse'
+          description: Change Requests information has been successfully retrieved.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+        '404':
+          description: Approval Policy does not exist or the user doesn't have access to it.
+      summary: Retrieve associated Change Requests Info by approval policy ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+  /api/v2/approvalPolicyMatch/:
+    get:
+      operationId: approvalPolicyMatch_list
+      parameters:
+      - description: Searched typed of the entity.
+        in: query
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          - deploymentModel
+          - DeploymentModel
+          - DEPLOYMENT_MODEL
+          - deploymentConfig
+          - DeploymentConfig
+          - DEPLOYMENT_CONFIG
+          - deploymentStatus
+          - DeploymentStatus
+          - DEPLOYMENT_STATUS
+          - deploymentMonitoringData
+          - DeploymentMonitoringData
+          - DEPLOYMENT_MONITORING_DATA
+          type: string
+      - description: Searched policy action.
+        in: query
+        name: action
+        required: true
+        schema:
+          enum:
+          - create
+          - Create
+          - CREATE
+          - update
+          - Update
+          - UPDATE
+          - delete
+          - Delete
+          - DELETE
+          type: string
+      - description: Name of the entity field to filter policies by.
+        in: query
+        name: fieldName
+        required: false
+        schema:
+          maxLength: 50
+          type:
+          - string
+          - 'null'
+      - description: Value of the entity field to filter policies by.
+        in: query
+        name: fieldValue
+        required: false
+        schema:
+          maxLength: 50
+          type:
+          - string
+          - 'null'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalPolicyMatchResponse'
+          description: Search executed successfully.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+      summary: Get policy ID matching the query
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+  /api/v2/approvalPolicyTriggers/:
+    get:
+      description: Get a list of available policy triggers.
+      operationId: approvalPolicyTriggers_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalWorkflowListTriggerResponse'
+          description: The list of triggers is successfully generated.
+        '403':
+          description: Approval Policy management feature is disabled for the user.
+      summary: Get a list of available policy triggers
+      tags:
+      - approval_workflows
+      x-versionadded: v2.22
+  /api/v2/changeRequests/:
+    get:
+      description: List all Change Requests accessible by the user for the given product entity type.
+      operationId: changeRequests_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Type of the entity to filter requests by.
+        in: query
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          type: string
+      - description: ID of the entity to filter change requests by.
+        in: query
+        name: entityId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+      - description: Filter change requests by the owner. If `true`, only returns change requests owned by the user. If `false`, only returns change requests owned by other users but accessible to the requester.
+        in: query
+        name: myRequests
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Filter change requests by status. If `true`, only returns approved change requests. If `false`, only returns not approved change requests.
+        in: query
+        name: showApproved
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Filter change requests by status. If `true`, only returns cancelled change requests. If `false`, only returns not cancelled change requests.
+        in: query
+        name: showCancelled
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Filter change requests by status.
+        in: query
+        name: status
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - pending
+            - Pending
+            - PENDING
+            - approved
+            - Approved
+            - APPROVED
+            - changesRequested
+            - ChangesRequested
+            - CHANGES_REQUESTED
+            - resolved
+            - Resolved
+            - RESOLVED
+            - cancelled
+            - Cancelled
+            - CANCELLED
+            type: string
+          - items:
+              enum:
+              - pending
+              - Pending
+              - PENDING
+              - approved
+              - Approved
+              - APPROVED
+              - changesRequested
+              - ChangesRequested
+              - CHANGES_REQUESTED
+              - resolved
+              - Resolved
+              - RESOLVED
+              - cancelled
+              - Cancelled
+              - CANCELLED
+              type: string
+            type: array
+      - description: The order that the results should be retrieved in.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - createdAt
+          - -createdAt
+          - processedAt
+          - -processedAt
+          - updatedAt
+          - -updatedAt
+          type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeRequestsListResponse'
+          description: ''
+      summary: List Change Requests
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+    post:
+      description: Request changes for a supported product entity. For now, you can request changes for deployments only.
+      operationId: changeRequests_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRequestCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeRequestResponse'
+          description: Change Request Created.
+      summary: Create Change Request
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+  /api/v2/changeRequests/{changeRequestId}/:
+    get:
+      description: Retrieve Change Request by ID.
+      operationId: changeRequests_retrieve
+      parameters:
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeRequestResponse'
+          description: ''
+      summary: Retrieve Change Request by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+    patch:
+      description: Update Change Request with the given ID.
+      operationId: changeRequests_patch
+      parameters:
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRequestUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeRequestResponse'
+          description: ''
+      summary: Update Change Request by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+  /api/v2/changeRequests/{changeRequestId}/requestReview/:
+    post:
+      description: Request review for Change Request with the given ID.
+      operationId: changeRequestsRequestReview_create
+      parameters:
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRequestRequestReview'
+      responses:
+        '202':
+          description: ''
+      summary: Request Change Request Review by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.38
+  /api/v2/changeRequests/{changeRequestId}/reviews/:
+    get:
+      description: List Change Request reviews.
+      operationId: changeRequestsReviews_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Review status to filter by.
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - approved
+          - Approved
+          - APPROVED
+          - changesRequested
+          - ChangesRequested
+          - CHANGES_REQUESTED
+          - commented
+          - Commented
+          - COMMENTED
+          type: string
+      - description: ID of the change version to filter by
+        in: query
+        name: changeVersionId
+        required: false
+        schema:
+          type: string
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewsListResponse'
+          description: ''
+      summary: List Change Request reviews by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+    post:
+      description: Review the Change Request.
+      operationId: changeRequestsReviews_create
+      parameters:
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+      summary: Create review by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+  /api/v2/changeRequests/{changeRequestId}/reviews/{reviewId}/:
+    get:
+      description: Retrieve a review by ID.
+      operationId: changeRequestsReviews_retrieve
+      parameters:
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      - description: ID of the review.
+        in: path
+        name: reviewId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+      summary: Retrieve review by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+  /api/v2/changeRequests/{changeRequestId}/status/:
+    patch:
+      description: Resolve or Cancel the Change Request.
+      operationId: changeRequestsStatus_patchMany
+      parameters:
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRequestUpdateStatus'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeRequestUpdateStatus'
+          description: ''
+          headers:
+            Location:
+              description: A url that can be polled to check the status.
+              schema:
+                type: string
+      summary: Resolve by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+  /api/v2/changeRequests/{changeRequestId}/suggestedReviewers/:
+    get:
+      description: List users, suggested to review the Change Request.
+      operationId: changeRequestsSuggestedReviewers_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: ID of the Change Request.
+        in: path
+        name: changeRequestId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestedReviewersResponse'
+          description: ''
+      summary: List suggested reviewers by change request ID
+      tags:
+      - approval_workflows
+      x-versionadded: v2.28
+  /api/v2/recommendedSettings/{entityType}/:
+    get:
+      description: Retrieve configured recommended settings for an entity.
+      operationId: recommendedSettings_retrieve
+      parameters:
+      - description: The type of the entity to create or get the recommended settings for.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendedSettingsResponse'
+          description: ''
+      summary: Retrieve configured recommended settings by entitytype
+      tags:
+      - approval_workflows
+      x-versionadded: v2.38
+    put:
+      description: Update recommended settings for an entity.
+      operationId: recommendedSettings_put
+      parameters:
+      - description: The type of the entity to create or get the recommended settings for.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendedSettingsUpdate'
+      responses:
+        '200':
+          description: ''
+      summary: Update recommended settings by entitytype
+      tags:
+      - approval_workflows
+      x-versionadded: v2.38
+  /api/v2/recommendedSettings/{entityType}/choices/:
+    get:
+      description: Retrieve the list of available setting choices for an entity.
+      operationId: recommendedSettingsChoices_list
+      parameters:
+      - description: The type of the entity to create or get the recommended settings for.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendedSettingsChoices'
+          description: ''
+      summary: Retrieve the list of available setting choices by entitytype
+      tags:
+      - approval_workflows
+      x-versionadded: v2.38
+components:
+  schemas:
+    ApprovalPolicyTriggerLabel:
+      description: Trigger Labels.
+      properties:
+        groupLabel:
+          description: Group Label.
+          type: string
+        label:
+          description: Label.
+          type: string
+      required:
+      - groupLabel
+      - label
+      type: object
+    RecommendedSettingChoice:
+      properties:
+        label:
+          description: The label of the setting.
+          maxLength: 80
+          type: string
+        setting:
+          description: The internal name of the setting.
+          maxLength: 30
+          type: string
+      required:
+      - label
+      - setting
+      type: object
+      x-versionadded: v2.38
+    ApprovalPolicyReview:
+      description: An object describing review requirements for Change Requests, related to a specific policy. If ``null``, no additional review requirements are added to the related Change Requests.
+      properties:
+        groups:
+          description: A list of user groups that will be added as required reviewers on Change Requests for the entities that match the policy.
+          items:
+            $ref: '#/components/schemas/PolicyUserGroup'
+          maxItems: 100
+          minItems: 1
+          type:
+          - array
+          - 'null'
+        reminderPeriod:
+          description: Duration period in ISO 8601 format that indicates when to send a reminder for reviewing a Change Request after its creation or last reminder if it hasn't been approved yet. If ``null``, no review reminders are sent to the reviewers.
+          format: duration
+          type:
+          - string
+          - 'null'
+      type: object
+    UserOperations:
+      description: A set operations the user can or can not make with the Change Request.
+      properties:
+        canCancel:
+          description: Whether the user can cancel the Change Request.
+          type: boolean
+        canComment:
+          description: Whether the user can create commenting review on the Change Request.
+          type: boolean
+        canResolve:
+          description: Whether the user can resolve the Change Request.
+          type: boolean
+        canReview:
+          description: Whether the user can review (approve or request updates) the Change Request.
+          type: boolean
+        canUpdate:
+          description: Whether the user can update the Change Request.
+          type: boolean
+      required:
+      - canCancel
+      - canComment
+      - canResolve
+      - canReview
+      - canUpdate
+      type: object
+    ChangeRequestUpdate:
+      properties:
+        autoApply:
+          description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+          type: boolean
+        change:
+          description: 'Change that the user wants to apply to the entity. Needs to be provided if the action, like `approve` action for a deployment, requires additional parameters . `null` if the action does not require any additional parameters to be applied. '
+          oneOf:
+          - $ref: '#/components/schemas/DeploymentApproveChange'
+          - $ref: '#/components/schemas/DeploymentChangeStatusChange'
+          - $ref: '#/components/schemas/DeploymentChangeImportanceChange'
+          - $ref: '#/components/schemas/DeploymentCleanupStatsChange'
+          - $ref: '#/components/schemas/DeploymentReplaceModelChange'
+          - $ref: '#/components/schemas/DeploymentReplaceModelPackageChange'
+          - $ref: '#/components/schemas/DeploymentUpdateSecondaryDatasetConfigChange'
+        comment:
+          description: Free form text to comment on the requested changes.
+          maxLength: 10000
+          type: string
+      type: object
+    RecommendedSettingsUpdate:
+      properties:
+        data:
+          description: The list of recommended settings to update.
+          items:
+            $ref: '#/components/schemas/RecommendedSettingItem'
+          maxItems: 20
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.38
+    ChangeRequestRequestReview:
+      properties:
+        comment:
+          description: Free form text to comment on the requested changes.
+          maxLength: 10000
+          type: string
+      type: object
+      x-versionadded: v2.38
+    ApprovalPolicyResponse:
+      properties:
+        active:
+          default: true
+          description: Whether this policy is active.
+          type: boolean
+        automaticAction:
+          $ref: '#/components/schemas/ApprovalPolicyAutomaticAction'
+        id:
+          description: ID of the Approval Policy.
+          type: string
+        name:
+          description: Name of the Approval Policy.
+          maxLength: 50
+          type: string
+        openRequests:
+          description: Number of open Change Requests associated with the policy.
+          minimum: 0
+          type: integer
+        review:
+          $ref: '#/components/schemas/ApprovalPolicyReview'
+        trigger:
+          $ref: '#/components/schemas/ApprovalPolicyTrigger'
+      required:
+      - active
+      - id
+      - name
+      - openRequests
+      - trigger
+      type: object
+    ReviewResponse:
+      properties:
+        changeRequestId:
+          description: ID of the Change Request.
+          type: string
+        changeVersionId:
+          description: ID of the change version.
+          type: string
+        comment:
+          description: Free form text to comment on the review.
+          maxLength: 10000
+          type: string
+        createdAt:
+          description: Timestamp when the review was created.
+          format: date-time
+          type: string
+        id:
+          description: ID of the review.
+          type: string
+        status:
+          description: Status of the review.
+          enum:
+          - approved
+          - Approved
+          - APPROVED
+          - changesRequested
+          - ChangesRequested
+          - CHANGES_REQUESTED
+          - commented
+          - Commented
+          - COMMENTED
+          type: string
+        userId:
+          description: ID of the user, who created the review.
+          type: string
+        userName:
+          description: Email of the user, who created the review
+          type:
+          - string
+          - 'null'
+      required:
+      - changeRequestId
+      - changeVersionId
+      - createdAt
+      - id
+      - status
+      - userId
+      - userName
+      type: object
+    RecommendedSettingsChoices:
+      properties:
+        data:
+          description: The list of recommended settings.
+          items:
+            $ref: '#/components/schemas/RecommendedSettingChoice'
+          maxItems: 20
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.38
+    DeploymentChangeStatusChange:
+      description: Change deployment status.
+      properties:
+        status:
+          description: Deployment status to set.
+          enum:
+          - active
+          - inactive
+          type: string
+      required:
+      - status
+      type: object
+    RecommendedSetting:
+      properties:
+        hint:
+          description: An optional hint for the setting.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        label:
+          description: The label of the setting.
+          maxLength: 80
+          type: string
+        setting:
+          description: The internal name of the setting.
+          maxLength: 30
+          type: string
+      required:
+      - label
+      - setting
+      type: object
+      x-versionadded: v2.38
+    ApprovalPolicyIntendedAction:
+      description: An object, describing the approvals workflow intended action.
+      properties:
+        action:
+          description: Type of action to trigger on.
+          enum:
+          - create
+          - Create
+          - CREATE
+          - update
+          - Update
+          - UPDATE
+          - delete
+          - Delete
+          - DELETE
+          type: string
+        condition:
+          $ref: '#/components/schemas/ApprovalPolicyIntendedActionCondition'
+      required:
+      - action
+      type: object
+    DeploymentReplaceModelChange:
+      description: Replace model in deployment.
+      properties:
+        modelId:
+          description: ID of the Model to deploy.
+          type: string
+        replacementReason:
+          default: other
+          description: Reason for replacement.
+          enum:
+          - accuracy
+          - data_drift
+          - errors
+          - scheduled_refresh
+          - scoring_speed
+          - deprecation
+          - other
+          type: string
+      required:
+      - modelId
+      - replacementReason
+      type: object
+    PolicyUserGroup:
+      properties:
+        id:
+          description: ID of the user group.
+          type: string
+        name:
+          description: Name of the user group.
+          maxLength: 50
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      type: object
+    RecommendedSettingsResponse:
+      properties:
+        data:
+          description: The list of recommended settings.
+          items:
+            $ref: '#/components/schemas/RecommendedSetting'
+          maxItems: 20
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.38
+    RecommendedSettingItem:
+      properties:
+        hint:
+          description: An optional hint for the setting.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        setting:
+          description: The internal name of the setting.
+          maxLength: 30
+          type: string
+      required:
+      - setting
+      type: object
+      x-versionadded: v2.38
+    ChangeRequestDiff:
+      description: The difference between the current entity state and the state of the entity if the Change Request gets applied.
+      properties:
+        changesFrom:
+          description: List of human readable messages describing the state of the entity before changes are applied.
+          items:
+            description: Single message line.
+            type: string
+          maxItems: 1000
+          type: array
+        changesTo:
+          description: List of human readable messages describing the state of the entity after changes are applied.
+          items:
+            description: Single message line.
+            type: string
+          maxItems: 1000
+          type: array
+      required:
+      - changesFrom
+      - changesTo
+      type: object
+    ChangeRequestInfoResponse:
+      properties:
+        changeRequestId:
+          description: ID of the Change Request.
+          type: string
+        createDate:
+          description: Change Request creation date.
+          format: date-time
+          type: string
+        entityId:
+          description: ID of the modified entity.
+          type: string
+        entityName:
+          description: Name of the modified entity.
+          type:
+          - string
+          - 'null'
+        requester:
+          description: Username of the account that initiated a Change Request.
+          type: string
+        state:
+          description: Status of the Change Request.
+          enum:
+          - OPENED
+          - RESOLVED
+          - CANCELLED
+          type: string
+        updateDate:
+          description: Last date when Change Request was modified.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        updatedBy:
+          description: Username of the account that last updated the Change Request.
+          type:
+          - string
+          - 'null'
+      required:
+      - changeRequestId
+      - createDate
+      - entityId
+      - entityName
+      - requester
+      - state
+      - updateDate
+      - updatedBy
+      type: object
+    ApprovalWorkflowListTriggerResponse:
+      properties:
+        data:
+          description: List of available Approval Policy Triggers.
+          items:
+            $ref: '#/components/schemas/ApprovalPolicyTrigger'
+          type: array
+      required:
+      - data
+      type: object
+    ChangeRequestInfoListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of Approval Policies.
+          items:
+            $ref: '#/components/schemas/ChangeRequestInfoResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeploymentChangeImportanceChange:
+      description: Change deployment importance.
+      properties:
+        importance:
+          description: Deployment Importance to set.
+          enum:
+          - CRITICAL
+          - HIGH
+          - MODERATE
+          - LOW
+          type: string
+      required:
+      - importance
+      type: object
+    ReviewsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of change request reviews.
+          items:
+            $ref: '#/components/schemas/ReviewResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    SuggestedReviewersResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of suggested change request reviewers.
+          items:
+            $ref: '#/components/schemas/UserInfo'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeploymentApproveChange:
+      description: Approve a deployment.
+      properties:
+        approvalStatus:
+          description: Deployment approval status to set.
+          enum:
+          - APPROVED
+          type: string
+      required:
+      - approvalStatus
+      type: object
+    ApprovalPolicy:
+      properties:
+        active:
+          default: true
+          description: Whether this policy is active.
+          type: boolean
+        automaticAction:
+          $ref: '#/components/schemas/ApprovalPolicyAutomaticAction'
+        name:
+          description: Name of the Approval Policy.
+          maxLength: 50
+          type: string
+        review:
+          $ref: '#/components/schemas/ApprovalPolicyReview'
+        trigger:
+          $ref: '#/components/schemas/ApprovalPolicyTrigger'
+      required:
+      - active
+      - name
+      - trigger
+      type: object
+    ApprovalPolicyIntendedActionCondition:
+      description: An object, describing the condition to trigger on.
+      properties:
+        condition:
+          description: Condition for the field content to trigger on.
+          enum:
+          - equals
+          - Equals
+          - EQUALS
+          type: string
+        fieldName:
+          description: Name of the attribute of the entity to filter entities by. An example value is ``importance`` attribute for the deployment entity.
+          maxLength: 50
+          type: string
+        values:
+          description: Array of field values to apply condition to trigger on. If ``null`` for ``equals`` condition, then any value for the field is accepted.
+          items:
+            maxLength: 50
+            type: string
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+      required:
+      - condition
+      - fieldName
+      - values
+      type: object
+    ChangeRequestCreate:
+      discriminator:
+        propertyName: action
+      oneOf:
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - approve
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentApproveChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - change
+        - entityId
+        - entityType
+        type: object
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - changeStatus
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentChangeStatusChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - change
+        - entityId
+        - entityType
+        type: object
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - changeImportance
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentChangeImportanceChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - change
+        - entityId
+        - entityType
+        type: object
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - cleanupStats
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentCleanupStatsChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - change
+        - entityId
+        - entityType
+        type: object
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - delete
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentDeleteChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - entityId
+        - entityType
+        type: object
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - replaceModel
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentReplaceModelChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - change
+        - entityId
+        - entityType
+        type: object
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - replaceModelPackage
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentReplaceModelPackageChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - change
+        - entityId
+        - entityType
+        type: object
+      - properties:
+          action:
+            description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+            enum:
+            - updateSecondaryDatasetConfigs
+            type: string
+          autoApply:
+            default: false
+            description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+            type: boolean
+          change:
+            $ref: '#/components/schemas/DeploymentUpdateSecondaryDatasetConfigChange'
+          comment:
+            description: Free form text to comment on the requested changes.
+            maxLength: 10000
+            type: string
+          entityId:
+            description: ID of the Product Entity the request is intended to change.
+            type: string
+          entityType:
+            description: Type of the Product Entity that is requested to be changed.
+            enum:
+            - deployment
+            - Deployment
+            - DEPLOYMENT
+            type: string
+        required:
+        - action
+        - autoApply
+        - change
+        - entityId
+        - entityType
+        type: object
+    ApprovalPolicyListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of Approval Policies.
+          items:
+            $ref: '#/components/schemas/ApprovalPolicyResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeploymentCleanupStatsChange:
+      description: Cleanup deployment stats.
+      properties:
+        dataType:
+          description: Type of stats to cleanup.
+          enum:
+          - monitoring
+          type: string
+        end:
+          description: If specified, the stats will be cleaned up to this timestamp. If ``null`` all stats till the deployment end forecast date will be cleaned up. Defaults to ``null``.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        modelId:
+          default: null
+          description: ID of the model to remove deployment stats for. If ``null``, the stats will be cleaned up for all models in the mathcing period. Defaults to ``null``.
+          type:
+          - string
+          - 'null'
+        start:
+          description: If specified, the stats will be cleaned up from this timestamp. If ``null`` all stats from the deployment start forecast date will be cleaned up. Defaults to ``null``.
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - dataType
+      - end
+      - modelId
+      - start
+      type: object
+    DeploymentDeleteChange:
+      description: Delete a deployment.
+      properties:
+        defaultDeploymentId:
+          description: Used by management agent to recalculate endpoint traffic. Traffic from the deploymentbeing deleted flipped to a default deployment.
+          type: string
+        ignoreManagementAgent:
+          default: 'false'
+          description: Do not wait for management agent to delete the deployment first.
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      type: object
+    ApprovalPolicyMatchResponse:
+      properties:
+        action:
+          description: Searched policy action.
+          enum:
+          - create
+          - Create
+          - CREATE
+          - update
+          - Update
+          - UPDATE
+          - delete
+          - Delete
+          - DELETE
+          type: string
+        entityType:
+          description: Searched typed of the entity.
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          - deploymentModel
+          - DeploymentModel
+          - DEPLOYMENT_MODEL
+          - deploymentConfig
+          - DeploymentConfig
+          - DEPLOYMENT_CONFIG
+          - deploymentStatus
+          - DeploymentStatus
+          - DEPLOYMENT_STATUS
+          - deploymentMonitoringData
+          - DeploymentMonitoringData
+          - DEPLOYMENT_MONITORING_DATA
+          type: string
+        fieldName:
+          description: Name of the entity field to filter policies by.
+          maxLength: 50
+          type:
+          - string
+          - 'null'
+        fieldValue:
+          description: Value of the entity field to filter policies by.
+          maxLength: 50
+          type:
+          - string
+          - 'null'
+        policyId:
+          description: ID of the matching approval policy. ``null`` if no matching policies found.
+          type:
+          - string
+          - 'null'
+      required:
+      - action
+      - entityType
+      - policyId
+      type: object
+    UserInfo:
+      description: User information.
+      properties:
+        activated:
+          default: true
+          description: Whether the user is activated.
+          title: Activated
+          type: boolean
+        firstName:
+          description: The first name of the user.
+          title: Firstname
+          type: string
+          x-versionadded: v2.45
+        gravatarHash:
+          description: The gravatar hash of the user.
+          title: Gravatarhash
+          type: string
+        id:
+          description: The ID of the user.
+          title: Id
+          type: string
+        lastName:
+          description: The last name of the user.
+          title: Lastname
+          type: string
+          x-versionadded: v2.45
+        orgId:
+          description: The ID of the organization the user belongs to.
+          title: Orgid
+          type: string
+        tenantPhase:
+          description: The tenant phase of the user.
+          title: Tenantphase
+          type: string
+        userId:
+          description: ID of the User.
+          type: string
+        username:
+          description: The username of the user.
+          title: Username
+          type: string
+      required:
+      - id
+      title: UserInfo
+      type: object
+    ReviewCreate:
+      properties:
+        changeVersionId:
+          description: ID of the change version.
+          type: string
+        comment:
+          description: Free form text to comment on the review.
+          maxLength: 10000
+          type: string
+        status:
+          description: Status of the review.
+          enum:
+          - approved
+          - Approved
+          - APPROVED
+          - changesRequested
+          - ChangesRequested
+          - CHANGES_REQUESTED
+          - commented
+          - Commented
+          - COMMENTED
+          type: string
+      required:
+      - changeVersionId
+      - status
+      type: object
+    ApprovalPolicyAutomaticAction:
+      description: An object describing the automated action on the Change Request that will be performed if the request is not resolved within a given time period after its creation. If ``null``, no automated actions will be taken on the related Change Requests.
+      properties:
+        action:
+          description: Action of the workflow automation.
+          enum:
+          - cancel
+          - Cancel
+          - CANCEL
+          - approve
+          - Approve
+          - APPROVE
+          type: string
+        period:
+          description: Period (ISO 8601) after which an action is executed on a Change Request if it is not resolved or cancelled.
+          format: duration
+          type: string
+      required:
+      - action
+      - period
+      type: object
+    ChangeRequestUpdateStatus:
+      properties:
+        status:
+          description: Change Request status to set.
+          enum:
+          - cancelled
+          - resolving
+          type: string
+      required:
+      - status
+      type: object
+    DeploymentUpdateSecondaryDatasetConfigChange:
+      description: Update secondary dataset config for deployment.
+      properties:
+        secondaryDatasetsConfigId:
+          description: ID of the secondary dataset configs.
+          type: string
+      required:
+      - secondaryDatasetsConfigId
+      type: object
+    ChangeRequestsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of Change Requests
+          items:
+            $ref: '#/components/schemas/ChangeRequestResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeploymentReplaceModelPackageChange:
+      description: Replace model package in deployment.
+      properties:
+        modelPackageId:
+          description: ID of the Model Package to deploy.
+          type: string
+        replacementReason:
+          default: other
+          description: Reason for replacement.
+          enum:
+          - accuracy
+          - data_drift
+          - errors
+          - scheduled_refresh
+          - scoring_speed
+          - deprecation
+          - other
+          type: string
+      required:
+      - modelPackageId
+      - replacementReason
+      type: object
+    ApprovalPolicyTrigger:
+      description: An object describing the trigger for the Approval Policy.
+      properties:
+        entityType:
+          description: Type of entity to trigger on.
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          - deploymentModel
+          - DeploymentModel
+          - DEPLOYMENT_MODEL
+          - deploymentConfig
+          - DeploymentConfig
+          - DEPLOYMENT_CONFIG
+          - deploymentStatus
+          - DeploymentStatus
+          - DEPLOYMENT_STATUS
+          - deploymentMonitoringData
+          - DeploymentMonitoringData
+          - DEPLOYMENT_MONITORING_DATA
+          type: string
+        filterGroups:
+          description: A list of user groups to apply Approval Policy for. If User 'A' and User 'B' are both members of the same organisation, and User 'A' is a member of one of the groups listed in this field,but User 'B' is not, then an approval workflow will be triggerred for User 'A' on an action to the entity that matches policy condition, but not for User 'B'. If ``null``, approvals workflow will be triggered for all users.
+          items:
+            $ref: '#/components/schemas/PolicyUserGroup'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        intendedAction:
+          $ref: '#/components/schemas/ApprovalPolicyIntendedAction'
+        labels:
+          $ref: '#/components/schemas/ApprovalPolicyTriggerLabel'
+      required:
+      - entityType
+      - intendedAction
+      type: object
+    ChangeRequestResponse:
+      properties:
+        action:
+          description: Actions the user can take on the entity. Each entity type has a specific set of actions.
+          enum:
+          - approve
+          - Approve
+          - APPROVE
+          - changeStatus
+          - ChangeStatus
+          - CHANGE_STATUS
+          - changeImportance
+          - ChangeImportance
+          - CHANGE_IMPORTANCE
+          - cleanupStats
+          - CleanupStats
+          - CLEANUP_STATS
+          - delete
+          - Delete
+          - DELETE
+          - replaceModel
+          - ReplaceModel
+          - REPLACE_MODEL
+          - replaceModelPackage
+          - ReplaceModelPackage
+          - REPLACE_MODEL_PACKAGE
+          - updateSecondaryDatasetConfigs
+          - UpdateSecondaryDatasetConfigs
+          - UPDATE_SECONDARY_DATASET_CONFIGS
+          type: string
+        autoApply:
+          default: false
+          description: Whether to automatically apply the change when the request is approved. If `true`, the requested changes will be applied on approval.
+          type: boolean
+        change:
+          description: 'Change that the user wants to apply to the entity. Needs to be provided if the action, like `approve` action for a deployment, requires additional parameters . `null` if the action does not require any additional parameters to be applied. '
+          oneOf:
+          - $ref: '#/components/schemas/DeploymentApproveChange'
+          - $ref: '#/components/schemas/DeploymentChangeStatusChange'
+          - $ref: '#/components/schemas/DeploymentChangeImportanceChange'
+          - $ref: '#/components/schemas/DeploymentCleanupStatsChange'
+          - $ref: '#/components/schemas/DeploymentReplaceModelChange'
+          - $ref: '#/components/schemas/DeploymentReplaceModelPackageChange'
+          - $ref: '#/components/schemas/DeploymentUpdateSecondaryDatasetConfigChange'
+          - type: 'null'
+        changeVersionId:
+          description: ID of the current version of change within this Change Request. It's possible to modify the changes that have been requested. At the same time, we need to make sure that review is associated with the correct changes, that's why we implement versioning on the changes and associate user reviews with the specific Change Request versions.
+          type: string
+        comment:
+          description: Free form text to comment on the requested changes.
+          maxLength: 10000
+          type: string
+        createdAt:
+          description: Timestamp when the request was created.
+          format: date-time
+          type: string
+        diff:
+          $ref: '#/components/schemas/ChangeRequestDiff'
+        entityId:
+          description: ID of the Product Entity the request is intended to change.
+          type: string
+        entityType:
+          description: Type of the Product Entity that is requested to be changed.
+          enum:
+          - deployment
+          - Deployment
+          - DEPLOYMENT
+          type: string
+        id:
+          description: ID of the Change Request.
+          type: string
+        numApprovalsRequired:
+          description: Number of approving reviews required for the Change Request to be considered approved.
+          minimum: 0
+          type: integer
+        processedAt:
+          description: Timestamp when the request was processed.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        status:
+          description: Change Request Status.
+          enum:
+          - pending
+          - Pending
+          - PENDING
+          - approved
+          - Approved
+          - APPROVED
+          - changesRequested
+          - ChangesRequested
+          - CHANGES_REQUESTED
+          - resolved
+          - Resolved
+          - RESOLVED
+          - cancelled
+          - Cancelled
+          - CANCELLED
+          type: string
+        statusChangedAt:
+          description: Timestamp when the current request status was set. `null` if status is set by the system.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        statusChangedBy:
+          description: ID of the user who set the current request status. `null` if the status was set by the system.
+          type:
+          - string
+          - 'null'
+        updatedAt:
+          description: Timestamp when the request was last modified.
+          format: date-time
+          type: string
+        userId:
+          description: ID of the user, who created the Change Request.
+          type: string
+        userName:
+          description: Email of the user, who created the Change Request
+          type:
+          - string
+          - 'null'
+        userOperations:
+          $ref: '#/components/schemas/UserOperations'
+      required:
+      - action
+      - autoApply
+      - change
+      - changeVersionId
+      - createdAt
+      - diff
+      - entityId
+      - entityType
+      - id
+      - numApprovalsRequired
+      - processedAt
+      - status
+      - statusChangedAt
+      - statusChangedBy
+      - updatedAt
+      - userId
+      - userName
+      - userOperations
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

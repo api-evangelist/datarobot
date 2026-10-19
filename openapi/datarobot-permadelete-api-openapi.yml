@@ -1,0 +1,120 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Permadelete API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Administrative control plane for permanent deletion jobs.
+  name: permadelete
+paths:
+  /api/v2/workloads/permadelete/{job_id}:
+    get:
+      operationId: getPermadeleteJob
+      parameters:
+      - description: Permadelete job ID
+        in: path
+        name: job_id
+        required: true
+        schema:
+          description: Permadelete job ID
+          title: Job Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Caller is not a system admin or internal service
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '501':
+          description: Permadelete job APIs are not implemented yet
+      summary: Get Permadelete Job by job_ ID
+      tags:
+      - permadelete
+components:
+  schemas:
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

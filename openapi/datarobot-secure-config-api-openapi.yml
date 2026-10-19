@@ -1,0 +1,834 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Secure Config API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to configure and manage Secure Configuration objects. This abstraction allows system and organization administrations to securely store and manage credentials. Users with lesser permissions can have the credentials shared with them, but be unable to view or edit their contents.
+  name: secure_config
+paths:
+  /api/v2/secureConfigSchemas/:
+    get:
+      description: Retrieve all secure configuration schemas.
+      operationId: secureConfigSchemas_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The order to sort the secure configuration schemas. Defaults to the order by the name in descending order.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: name
+          enum:
+          - name
+          - -name
+          type: string
+      - description: Filter for a specific secure configuration schema name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigSchemaListResponse'
+          description: The list of secure configuration schemas.
+      summary: Retrieve a list of secure configuration schemas
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+  /api/v2/secureConfigSchemas/{secureConfigSchemaId}/:
+    get:
+      description: Retrieve a secure configuration schema.
+      operationId: secureConfigSchemas_retrieve
+      parameters:
+      - description: The ID of the secure configuration schema.
+        in: path
+        name: secureConfigSchemaId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigSchema'
+          description: The configuration schema.
+      summary: Retrieve a secure configuration schema by secure config schema ID
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+  /api/v2/secureConfigs/:
+    get:
+      description: Retrieve all secure configurations.
+      operationId: secureConfigs_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The order to sort the secure configurations. Defaults to the order by the name in descending order.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: name
+          enum:
+          - name
+          - -name
+          - createdAt
+          - -createdAt
+          type: string
+      - description: Filter for a specific secure configuration name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: Filter for a secure configuration name.
+        in: query
+        name: namePart
+        required: false
+        schema:
+          type: string
+      - description: A comma-separated list of schema names to filter on.
+        in: query
+        name: schemas
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigListResponse'
+          description: The list of secure configurations.
+      summary: Retrieve a list of secure configurations
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+    post:
+      description: Create a secure configuration.
+      operationId: secureConfigs_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureConfigCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigResponse'
+          description: The created secure configuration.
+        '403':
+          description: The caller is not permitted to perform this operation.
+        '422':
+          description: The request is invalid.
+      summary: Create a secure configuration
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+  /api/v2/secureConfigs/{secureConfigId}/:
+    delete:
+      description: Delete secure configuration and its values.
+      operationId: secureConfigs_delete
+      parameters:
+      - description: The ID of the secure configuration.
+        in: path
+        name: secureConfigId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      responses:
+        '204':
+          description: Secure configuration deleted successfully.
+      summary: Delete secure configuration by secure config ID
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+    get:
+      description: Retrieve a secure configuration.
+      operationId: secureConfigs_retrieve
+      parameters:
+      - description: The ID of the secure configuration.
+        in: path
+        name: secureConfigId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigResponse'
+          description: The secure configuration.
+      summary: Retrieve a secure configuration by secure config ID
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+    patch:
+      description: Update a secure configuration.
+      operationId: secureConfigs_patch
+      parameters:
+      - description: The ID of the secure configuration.
+        in: path
+        name: secureConfigId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureConfigUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigResponse'
+          description: The updated secure configuration.
+        '403':
+          description: The caller is not permitted to perform this operation.
+        '422':
+          description: The request is invalid.
+      summary: Update a secure configuration by secure config ID
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+  /api/v2/secureConfigs/{secureConfigId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups, and organizations that have access to this secure configuration.
+      operationId: secureConfigsSharedRoles_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Only return roles for a user, group, or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: Only return roles for a user, group, or organization with this ID.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: 'The recipient type: one of ''user'', ''group'', or ''organization''.'
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the secure configuration.
+        in: path
+        name: secureConfigId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigSharedRolesList'
+          description: ''
+      summary: Get a list of users, groups, and organizations that have access by secure…
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+    patch:
+      description: Share a secure configuration with a user, group or organization.
+      operationId: secureConfigsSharedRoles_patchMany
+      parameters:
+      - description: The ID of the secure configuration.
+        in: path
+        name: secureConfigId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureConfigSharingUpdate'
+      responses:
+        '204':
+          description: The roles were updated successfully.
+        '422':
+          description: The request was formatted improperly.
+      summary: Share a secure configuration by secure config ID
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+  /api/v2/secureConfigs/{secureConfigId}/values/:
+    get:
+      description: Retrieve all values created for the secure configuration.
+      operationId: secureConfigsValues_list
+      parameters:
+      - description: Consumer access to the Secure Config values.
+        in: query
+        name: consumer
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: The ID of the secure configuration.
+        in: path
+        name: secureConfigId
+        required: true
+        schema:
+          maxLength: 36
+          minLength: 32
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureConfigListValuesResponse'
+          description: A list of values for the secure configuration.
+      summary: Retrieve a list of values by secure config ID
+      tags:
+      - secure_config
+      x-versionadded: v2.36
+components:
+  schemas:
+    SecureConfigSchema:
+      description: Secure config schema definition.
+      properties:
+        $id:
+          description: Secure config schema identifier.
+          format: uri
+          type: string
+        $schema:
+          default: http://json-schema.org/draft-07/schema#
+          description: The JSON schema meta schema version.
+          enum:
+          - http://json-schema.org/draft-07/schema#
+          type: string
+        additionalProperties:
+          default: false
+          description: Allows properties other than schema defined in corresponding secure configs.
+          type: boolean
+        description:
+          description: Secure config schema description.
+          type: string
+        properties:
+          additionalProperties:
+            $ref: '#/components/schemas/SecureConfigSchemaProperty'
+          description: Secure config properties' definitions.
+          type: object
+        required:
+          description: The list of required properties.
+          items:
+            type: string
+          type: array
+        title:
+          description: Secure config schema title.
+          type: string
+        type:
+          default: object
+          description: Secure config definition type.
+          enum:
+          - object
+          type: string
+      required:
+      - $id
+      - $schema
+      - additionalProperties
+      - description
+      - properties
+      - required
+      - title
+      type: object
+      x-versionadded: v2.36
+    SecureConfigSharedRolesList:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: Details about the Shared Role entries.
+          items:
+            $ref: '#/components/schemas/SecureConfigSharedRolesEntry'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    SecureConfigKeyValue:
+      properties:
+        key:
+          description: The name of the key for the secure configuration value.
+          type: string
+        value:
+          description: The value of the secure configuration.
+          type: string
+      required:
+      - key
+      - value
+      type: object
+      x-versionadded: v2.36
+    SecureConfigGrantAccessControlWithUsernameWithGrantValidators:
+      properties:
+        canShare:
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        role:
+          description: The role of the recipient on this entity. One of OWNER, EDITOR, CONSUMER.
+          enum:
+          - OWNER
+          - EDITOR
+          - CONSUMER
+          - NO_ROLE
+          type: string
+        shareRecipientType:
+          description: Describes the recipient type, either user, group, or organization.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      type: object
+      x-versionadded: v2.36
+    SecureConfigUpdate:
+      properties:
+        name:
+          description: The name of the secure configuration.
+          type: string
+        schemaName:
+          description: The name of the schema used for validating the secure configuration. Immutable after creation; must match the configuration's current schema if provided.
+          type:
+          - string
+          - 'null'
+        secretReferences:
+          description: External references to upsert on an 'externalReference' configuration, matched by 'fieldName'. Only the provided fields are changed; others are left untouched.
+          items:
+            $ref: '#/components/schemas/SecureConfigSecretReference'
+          maxItems: 100
+          minItems: 1
+          type: array
+          x-versionadded: v2.47
+        values:
+          description: The values to associate with the secure configuration.
+          items:
+            $ref: '#/components/schemas/SecureConfigKeyValue'
+          maxItems: 100
+          type: array
+      type: object
+      x-versionadded: v2.36
+    SecureConfigListValuesResponse:
+      properties:
+        secureConfigId:
+          description: The ID of the SecureConfig.
+          maxLength: 36
+          minLength: 32
+          type: string
+        values:
+          description: The secure configuration values.
+          items:
+            $ref: '#/components/schemas/SecureConfigKeyValue'
+          type: array
+      required:
+      - secureConfigId
+      - values
+      type: object
+      x-versionadded: v2.36
+    SecureConfigGrantAccessControlWithIdWithGrantValidators:
+      properties:
+        canShare:
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        id:
+          description: The ID of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity. One of OWNER, EDITOR, CONSUMER.
+          enum:
+          - OWNER
+          - EDITOR
+          - CONSUMER
+          - NO_ROLE
+          type: string
+        shareRecipientType:
+          description: Describes the recipient type, either user, group, or organization.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      type: object
+      x-versionadded: v2.36
+    SecureConfigSecretReference:
+      properties:
+        fieldName:
+          description: The secure configuration field this reference resolves -- the same field name used in platform-managed mode (e.g., 'clientId', 'clientSecret', 'userName').
+          maxLength: 255
+          type: string
+        location:
+          description: Storage-aware locator string pointing at the secret in the external store, e.g., 'secret/path' or 'secret/path#key'. Interpreted by the configured secret store backend.
+          maxLength: 1000
+          type: string
+      required:
+      - fieldName
+      - location
+      type: object
+      x-versionadded: v2.47
+    SecureConfigSchemaProperty:
+      properties:
+        description:
+          description: Property description.
+          type: string
+        format:
+          description: Property value format.
+          enum:
+          - uri
+          type: string
+        title:
+          description: Property title.
+          type: string
+        type:
+          description: Property type.
+          enum:
+          - string
+          - array
+          type: string
+      required:
+      - description
+      - title
+      - type
+      type: object
+      x-versionadded: v2.36
+    SecureConfigSharingUpdate:
+      properties:
+        roles:
+          description: An array of RoleRequest objects. May contain at most 100 such objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SecureConfigGrantAccessControlWithUsernameWithGrantValidators'
+            - $ref: '#/components/schemas/SecureConfigGrantAccessControlWithIdWithGrantValidators'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - roles
+      type: object
+      x-versionadded: v2.36
+    SecureConfigCreate:
+      properties:
+        name:
+          description: The name of the secure configuration.
+          type: string
+        schemaName:
+          description: The name of the schema used for validating the secure configuration.
+          type: string
+        secretReferences:
+          description: External references to associate with the secure configuration, one per field. Providing this registers an 'externalReference' configuration whose secret values stay in the customer's own external store.
+          items:
+            $ref: '#/components/schemas/SecureConfigSecretReference'
+          maxItems: 100
+          minItems: 1
+          type: array
+          x-versionadded: v2.47
+        values:
+          description: The values to associate with the secure configuration. Provide this for a platform-managed configuration.
+          items:
+            $ref: '#/components/schemas/SecureConfigKeyValue'
+          maxItems: 100
+          type: array
+      required:
+      - name
+      - schemaName
+      type: object
+      x-versionadded: v2.36
+    SecureConfigSchemaResponse:
+      properties:
+        id:
+          description: The ID of the secure configuration.
+          maxLength: 36
+          minLength: 32
+          type: string
+        name:
+          description: The name of the secure configuration.
+          type: string
+        schemaDefinition:
+          $ref: '#/components/schemas/SecureConfigSchema'
+      required:
+      - id
+      - name
+      - schemaDefinition
+      type: object
+      x-versionadded: v2.36
+    SecureConfigListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of secure configurations.
+          items:
+            $ref: '#/components/schemas/SecureConfigResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    SecureConfigSchemaListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of secure configuration schemas.
+          items:
+            $ref: '#/components/schemas/SecureConfigSchemaResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    SecureConfigResponse:
+      properties:
+        createdAt:
+          description: When this secure configuration was created.
+          format: date-time
+          type: string
+        id:
+          description: The ID of the secure configuration.
+          maxLength: 36
+          minLength: 32
+          type: string
+        name:
+          description: The name of the secure configuration.
+          type: string
+        ownerId:
+          description: The ID of the secure configuration owner.
+          type: string
+        schemaName:
+          description: The name of the schema used for the secure configuration.
+          type: string
+        secretReferences:
+          description: The external references backing this secure configuration. Non-null only for 'externalReference' configurations the caller may see the values of; null otherwise (including 'platformManaged' configurations and list views).
+          items:
+            $ref: '#/components/schemas/SecureConfigSecretReference'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.47
+        storageMode:
+          description: 'Where the underlying secret lives: ''platformManaged'' when DataRobot manages the secret value in its configured secret storage, or ''externalReference'' when it points to a secret held in the customer''s own external store. ''externalReference'' is only available when external-reference support is enabled on the cluster.'
+          enum:
+          - externalReference
+          - platformManaged
+          type: string
+          x-versionadded: v2.47
+        valuesHref:
+          description: Relative URI that points to the values for this secure configuration.
+          type: string
+      required:
+      - createdAt
+      - id
+      - name
+      - ownerId
+      - schemaName
+      - secretReferences
+      - storageMode
+      - valuesHref
+      type: object
+      x-versionadded: v2.36
+    SecureConfigSharedRolesEntry:
+      properties:
+        id:
+          description: The ID of the recipient.
+          type: string
+        name:
+          description: The name of the user, group, or organization.
+          type: string
+        role:
+          description: The assigned role
+          enum:
+          - OWNER
+          - EDITOR
+          - CONSUMER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The recipient type.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+      x-versionadded: v2.36
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

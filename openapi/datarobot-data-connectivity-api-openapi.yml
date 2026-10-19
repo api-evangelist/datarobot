@@ -1,0 +1,4355 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Data Connectivity API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: This page outlines how to integrate with a variety of enterprise databases, using a 'self-service' JDBC platform.
+  name: data_connectivity
+paths:
+  /api/v2/aclConnections/:
+    get:
+      description: A list of all ACL management connections for the user organization.
+      operationId: aclConnections_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ACLAdminConnectionList'
+          description: ''
+      summary: List all ACL management connections
+      tags:
+      - data_connectivity
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Synchronize access permissions to VDB and GDrive/SharePoint source files.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: ACL_SYNC
+      x-versionadded: v2.43
+    put:
+      description: Create or update the ACL management connection. Default credentials must be defined for the data store in advance.
+      operationId: aclConnections_putMany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ACLAdminConnectionBase'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ACLAdminConnectionResponse'
+          description: ''
+      summary: Define the connection as ACL management
+      tags:
+      - data_connectivity
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Synchronize access permissions to VDB and GDrive/SharePoint source files.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: ACL_SYNC
+      x-versionadded: v2.43
+  /api/v2/aclConnections/{dataStoreId}/:
+    delete:
+      operationId: aclConnections_delete
+      parameters:
+      - description: The ACL management connection ID.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Deactivate ACL management by data store ID
+      tags:
+      - data_connectivity
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Synchronize access permissions to VDB and GDrive/SharePoint source files.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: ACL_SYNC
+      x-versionadded: v2.43
+  /api/v2/dataStages/:
+    post:
+      description: Create a data stage.
+      operationId: dataStages_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDataStageRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDataStageResponse'
+          description: Created data stage
+        '403':
+          description: Permission denied.
+        '422':
+          description: The request cannot be processed.
+      summary: Create a data stage
+      tags:
+      - data_connectivity
+      x-versionadded: v2.35
+  /api/v2/dataStages/{dataStageId}/finalize/:
+    post:
+      description: Finalize a data stage.
+      operationId: dataStagesFinalize_create
+      parameters:
+      - description: The ID of the data stage.
+        in: path
+        name: dataStageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStageFinalizeResponse'
+          description: Finalize data stage
+        '403':
+          description: Permission denied.
+        '404':
+          description: The entity is not found.
+        '406':
+          description: The request is not acceptable.
+        '409':
+          description: The request conflicts with the server state.
+        '410':
+          description: The requested entity has been deleted.
+        '422':
+          description: The request cannot be processed.
+      summary: Finalize a data stage by data stage ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.35
+  /api/v2/dataStages/{dataStageId}/parts/{partNumber}/:
+    put:
+      description: Upload a part to the data stage.
+      operationId: dataStagesParts_put
+      parameters:
+      - description: The ID of the data stage.
+        in: path
+        name: dataStageId
+        required: true
+        schema:
+          type: string
+      - description: The part number associated with the part.
+        in: path
+        name: partNumber
+        required: true
+        schema:
+          maximum: 1000
+          minimum: 1
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartUploadRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartUploadResponse'
+          description: Upload part to a data stage
+        '403':
+          description: Permission denied.
+        '404':
+          description: The entity is not found.
+        '409':
+          description: The request conflicts with the server state.
+        '410':
+          description: The requested entity has been deleted.
+        '422':
+          description: The request cannot be processed.
+      summary: Upload a part by data stage ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.35
+  /api/v2/externalDataDriverFile/:
+    post:
+      description: Upload JDBC driver from file. Only Java archive (.jar) files are supported.
+      operationId: externalDataDriverFile_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverUploadRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverUploadResponse'
+          description: ''
+        '413':
+          description: JDBC driver JAR file size exceeds the configured limit.
+      summary: Upload JDBC driver
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataDrivers/:
+    get:
+      description: Fetch all drivers a user has access to.
+      operationId: externalDataDrivers_list
+      parameters:
+      - description: Driver type. Either 'jdbc' or 'dr-database-v1'.
+        in: query
+        name: type
+        required: true
+        schema:
+          default: jdbc
+          enum:
+          - all
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+        x-versionadded: v2.30
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverListResponse'
+          description: Drivers accessible by the user.
+      summary: List drivers
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    post:
+      description: Create a new JDBC driver. To create connections from fields, rather than supplying a JDBC URL, use 'configurationId'. When using 'configurationId', do not include 'canonicalName' or 'className' as they are part of the driver configuration. Specifying a 'version' is required as it is used in the construction of the canonicalName.
+      operationId: externalDataDrivers_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDriverRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+          description: Details about new driver entity.
+      summary: Create a new JDBC driver
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataDrivers/{driverId}/:
+    delete:
+      description: Delete the driver with given ID if it is not used by any data store or data source.
+      operationId: externalDataDrivers_delete
+      parameters:
+      - description: Driver ID.
+        in: path
+        name: driverId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Driver deleted successfully.
+        '409':
+          description: Driver is in use by one or more data store or data source
+      summary: Delete the driver by driver ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    get:
+      description: Retrieve driver details by ID.
+      operationId: externalDataDrivers_retrieve
+      parameters:
+      - description: Driver ID.
+        in: path
+        name: driverId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+          description: Driver details retrieved successfully.
+      summary: Retrieve driver details by driver ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    patch:
+      description: Update properties of an existing JDBC driver. To change the canonicalName and className, you must first remove the driver configuration, if it exists, as its properties will otherwise override name changes.
+      operationId: externalDataDrivers_patch
+      parameters:
+      - description: Driver ID.
+        in: path
+        name: driverId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDriverRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+          description: Driver properties updated successfully.
+      summary: Update properties of an existing JDBC Driver by driver ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataDrivers/{driverId}/configuration/:
+    get:
+      description: Retrieve the driver configuration with the specified ID.
+      operationId: externalDataDriversConfiguration_list
+      parameters:
+      - description: Driver ID.
+        in: path
+        name: driverId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverConfigurationRetrieveResponse'
+          description: Driver configuration retrieved successfully.
+      summary: Driver configuration details by driver ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.19
+  /api/v2/externalDataSources/:
+    get:
+      description: Return the detailed list of available data sources.
+      operationId: externalDataSources_list
+      parameters:
+      - description: The data source type to filter by.
+        in: query
+        name: type
+        required: false
+        schema:
+          default: databases
+          enum:
+          - all
+          - databases
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceListResponse'
+          description: Data sources retrieved successfully.
+      summary: List data sources
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    post:
+      description: 'Create a fully configured source of data which could be used for datasets and projects creation. A data source specifies, via SQL query or selected table and schema data, which data to extract from the data connection (the location of data within a given endpoint) to use for modeling or predictions. A data source has one data connection and one connector but can have many datasets.
+
+        To test the SQL query before creating the data source, use :http:post:`/api/v2/externalDataStores/(dataStoreId)/verifySQL/`.'
+      operationId: externalDataSources_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceRetrieveResponse'
+          description: Data source created successfully.
+      summary: Create a data source
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataSources/{dataSourceId}/:
+    delete:
+      description: Delete the data source with given ID if it is not used by any dataset.
+      operationId: externalDataSources_delete
+      parameters:
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Data source deleted successfully.
+        '409':
+          description: Data source is in use by one or more datasets
+      summary: Delete the data source by data source ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    get:
+      description: Return the details of the existing data source with the given ID, including SQL query or selected table and schema data, which fully describe which data to extract and from which location.
+      operationId: externalDataSources_retrieve
+      parameters:
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceRetrieveResponse'
+          description: Data source details retrieved successfully.
+      summary: Data source details by data source ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    patch:
+      description: 'Update the data source with given ID.
+
+        To test the SQL query before updating the data source,use :http:post:`/api/v2/externalDataStores/(dataStoreId)/verifySQL/`.'
+      operationId: externalDataSources_patch
+      parameters:
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceUpdate'
+      responses:
+        '204':
+          description: Data source updated successfully.
+      summary: Update the data source by data source ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataSources/{dataSourceId}/accessControl/:
+    get:
+      description: Get a list of users, groups and organizations who have access to this data source and their roles.
+      operationId: externalDataSourcesAccessControl_list
+      parameters:
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Optional, only return the access control information for a user with this username.
+        in: query
+        name: username
+        required: false
+        schema:
+          type: string
+      - description: Optional, only return the access control information for a user with this user ID.
+        in: query
+        name: userId
+        required: false
+        schema:
+          type: string
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListResponse'
+          description: The data source's access control list.
+        '404':
+          description: Either the data source does not exist or the user does not have permissions to view the data source.
+        '422':
+          description: Both username and userId were specified
+      summary: Get the data source's access control list by data source ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.14
+    patch:
+      description: Set roles for users on this data source. Note that when granting access to a data source, access to the corresponding data store as a "CONSUMER" will also be granted.
+      operationId: externalDataSourcesAccessControl_patchMany
+      parameters:
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharingUpdateOrRemoveWithGrant'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '409':
+          description: The request would leave the data source without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid
+      summary: Update the data source's access controls by data source ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.14
+  /api/v2/externalDataSources/{dataSourceId}/permissions/:
+    get:
+      description: Describe what permissions current user has for given data source.
+      operationId: externalDataSourcesPermissions_list
+      parameters:
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceDescribePermissionsResponse'
+          description: The data source permissions.
+      summary: Describe data source permissions by data source ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.23
+  /api/v2/externalDataSources/{dataSourceId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups and organizations who have access to this data source and their roles.
+      operationId: externalDataSourcesSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedRolesWithGrantListResponse'
+          description: A paginated list of user/group/organization roles.
+      summary: Retrieve shared roles by ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.22
+    patch:
+      description: Grant access, remove access or update roles for organizations, groups or users on this data source. Up to 100 roles may be set per array in a single request.
+      operationId: externalDataSourcesSharedRoles_patchMany
+      parameters:
+      - description: The ID of the Data Source.
+        in: path
+        name: dataSourceId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdateWithGrant'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '409':
+          description: Duplicate entry for the org/group/user in roles listor the request would leave the data source without an owner.
+        '422':
+          description: Request is unprocessable. For example, `name` is stated for not user recipient.
+      summary: Modify data source shared roles by data source ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.22
+  /api/v2/externalDataStores/:
+    get:
+      description: Return the list with details of the existing data stores available for the user.
+      operationId: externalDataStores_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Includes only data stores of the specified type or any if set to `all`.
+        in: query
+        name: type
+        required: false
+        schema:
+          default: jdbc
+          enum:
+          - all
+          - databases
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+        x-versionadded: v2.22
+      - description: Includes only data stores of the specified database type. For JDBC based data stores, the database_type value is the string between the first and the second colons of a jdbc url. For example, a snowflake jdbc url is jdbc:snowflake://, the database_type is hence snowflake. If an empty string is used, or if the string contains only whitespace, no filtering occurs.
+        in: query
+        name: databaseType
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+        x-versionadded: v2.30
+      - description: Includes only data stores of the specified connector type.
+        in: query
+        name: connectorType
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+      - description: Specifies whether non-visible OAuth fields are shown.
+        in: query
+        name: showHidden
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Search for data stores whose canonicalName matches or contains the specified name.The search is case insensitive.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+        x-versionadded: v2.34
+      - description: Specifies whether dynamic parameters in the URL will be substituted.
+        in: query
+        name: substituteUrlParameters
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Includes only data stores which support the specified data type or all data stores if set to `all`.
+        in: query
+        name: dataType
+        required: false
+        schema:
+          default: all
+          enum:
+          - all
+          - structured
+          - unstructured
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreListResponse'
+          description: Data stores retrieved successfully.
+        '422':
+          description: Filtering by database type is currently not supported for dr-connector-v1 data stores.
+      summary: List data stores
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    post:
+      description: Create a data store which includes a name and a driver ID or a connector ID. The driver would be configured by a JDBC URL or by jdbc fields; the connector would be configured by connection fields.
+      operationId: externalDataStores_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreRetrieveResponse'
+          description: Data store created successfully.
+      summary: Create a data store
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataStores/{dataStoreId}/:
+    delete:
+      description: Delete the data store with given ID if it is not used by any data source.
+      operationId: externalDataStores_delete
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Data store deleted successfully.
+        '409':
+          description: Data store is in use by one or more data source
+      summary: Delete the data store by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    get:
+      description: A configured connection to a database; it has a name and a specified driver. The driver may be specified by a JDBC URL or connection parameters if the driver was created with the parameter configuration.
+      operationId: externalDataStores_retrieve
+      parameters:
+      - description: Specifies whether dynamic parameters in the URL will be substituted.
+        in: query
+        name: substituteUrlParameters
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreRetrieveResponse'
+          description: Data store details retrieved successfully.
+      summary: Data store details by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+    patch:
+      description: Update a data store configuration.
+      operationId: externalDataStores_patch
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreRetrieveResponse'
+          description: The updated data store entry.
+      summary: Update a data store configuration by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataStores/{dataStoreId}/accessControl/:
+    patch:
+      description: Set roles for users on this data store.
+      operationId: externalDataStoresAccessControl_patchMany
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharingUpdateOrRemoveWithGrant'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '409':
+          description: The request would leave the data store without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid
+      summary: Update the data store's access controls by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.14
+  /api/v2/externalDataStores/{dataStoreId}/columns/:
+    post:
+      description: Retrieves a data store's data columns.
+      operationId: externalDataStoresColumns_create
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreColumnsList'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreColumnsListResponse'
+          description: The response with array of column objects.
+        '400':
+          description: The error thrown by DSS system when retrieving columns.
+        '403':
+          description: Incorrect permissions to access catalog item through DSS.
+      summary: Retrieves a data store's data columns by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.28
+  /api/v2/externalDataStores/{dataStoreId}/columnsInfo/:
+    post:
+      description: Retrieves a data store's column metadata.
+      operationId: externalDataStoresColumnsInfo_create
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Includes only credentials of the specified type. Repeat the parameter for filtering on multiple statuses.
+        in: query
+        name: types
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - adls_gen2_oauth
+            - api_token
+            - azure
+            - azure_oauth
+            - azure_sas
+            - azure_service_principal
+            - basic
+            - bearer
+            - box_jwt
+            - client_id_and_secret
+            - databricks_access_token_account
+            - databricks_service_principal_account
+            - external_oauth_provider
+            - gcp
+            - oauth
+            - opaque
+            - rsa
+            - s3
+            - sap_oauth
+            - snowflake_key_pair_user_account
+            - snowflake_oauth_user_account
+            - tableau_access_token
+            type: string
+          - items:
+              enum:
+              - adls_gen2_oauth
+              - api_token
+              - azure
+              - azure_oauth
+              - azure_sas
+              - azure_service_principal
+              - basic
+              - bearer
+              - box_jwt
+              - client_id_and_secret
+              - databricks_access_token_account
+              - databricks_service_principal_account
+              - external_oauth_provider
+              - gcp
+              - oauth
+              - opaque
+              - rsa
+              - s3
+              - sap_oauth
+              - snowflake_key_pair_user_account
+              - snowflake_oauth_user_account
+              - tableau_access_token
+              type: string
+            type: array
+      - description: The order to sort the credentials. Defaults to the order by the creation_date in descending order. Sorting by name is case-insensitive.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - creationDate
+          - -creationDate
+          - name
+          - -name
+          type: string
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreColumnsInfoList'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreColumnsInfoListResponse'
+          description: Retrieves a data store's column metadata.
+        '409':
+          description: This operation is only allowed for JDBC data stores.
+      summary: Retrieves a data store's column metadata by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.30
+  /api/v2/externalDataStores/{dataStoreId}/credentials/:
+    get:
+      description: Returns a list of credentials associated with the specified data store.
+      operationId: externalDataStoresCredentials_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Includes only credentials of the specified type. Repeat the parameter for filtering on multiple statuses.
+        in: query
+        name: types
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - adls_gen2_oauth
+            - api_token
+            - azure
+            - azure_oauth
+            - azure_sas
+            - azure_service_principal
+            - basic
+            - bearer
+            - box_jwt
+            - client_id_and_secret
+            - databricks_access_token_account
+            - databricks_service_principal_account
+            - external_oauth_provider
+            - gcp
+            - oauth
+            - opaque
+            - rsa
+            - s3
+            - sap_oauth
+            - snowflake_key_pair_user_account
+            - snowflake_oauth_user_account
+            - tableau_access_token
+            type: string
+          - items:
+              enum:
+              - adls_gen2_oauth
+              - api_token
+              - azure
+              - azure_oauth
+              - azure_sas
+              - azure_service_principal
+              - basic
+              - bearer
+              - box_jwt
+              - client_id_and_secret
+              - databricks_access_token_account
+              - databricks_service_principal_account
+              - external_oauth_provider
+              - gcp
+              - oauth
+              - opaque
+              - rsa
+              - s3
+              - sap_oauth
+              - snowflake_key_pair_user_account
+              - snowflake_oauth_user_account
+              - tableau_access_token
+              type: string
+            type: array
+      - description: The order to sort the credentials. Defaults to the order by the creation_date in descending order. Sorting by name is case-insensitive.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - creationDate
+          - -creationDate
+          - name
+          - -name
+          type: string
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialsListResponse'
+          description: The list of credentials associated with the data store.
+      summary: List credentials associated by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.19
+  /api/v2/externalDataStores/{dataStoreId}/permissions/:
+    get:
+      description: Describe what permissions current user has for given data store.
+      operationId: externalDataStoresPermissions_list
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreDescribePermissionsResponse'
+          description: The data store permissions.
+      summary: Describe data store permissions by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.23
+  /api/v2/externalDataStores/{dataStoreId}/schemas/:
+    post:
+      description: Retrieves a data store's data schemas.
+      operationId: externalDataStoresSchemas_create
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreCredentials'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreSchemasList'
+          description: The response with schemas and catalog.
+      summary: Retrieves a data store's data schemas by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataStores/{dataStoreId}/sharedRoles/:
+    get:
+      description: Get a list of users who have access to this data store and their roles on the data store.
+      operationId: externalDataStoresSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedRolesWithGrantListResponse'
+          description: The data store's access control list.
+        '404':
+          description: Either the data store does not exist or the user does not have permissions to view the data store.
+        '422':
+          description: Both username and userId were specified
+      summary: Get the data store's access control list by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.22
+    patch:
+      description: Grant access, remove access or update roles for organizations, groups or users on this data store. Up to 100 roles may be set per array in a single request.
+      operationId: externalDataStoresSharedRoles_patchMany
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdateWithGrant'
+      responses:
+        '204':
+          description: The resource was successfully modified.
+        '409':
+          description: Duplicate entry for the org/group/user in roles listor the request would leave the data store without an owner.
+        '422':
+          description: Request is unprocessable. For example, `name` is stated for not user recipient.
+      summary: Modify data store shared roles by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.22
+  /api/v2/externalDataStores/{dataStoreId}/standardUserDefinedFunctions/:
+    get:
+      description: Retrieve detected standard user-defined functions. Raise a 404 error if detection needs to be run first. Results might not be up-to-date; run detection with the `force=True` option to refresh them.
+      operationId: externalDataStoresStandardUserDefinedFunctions_list
+      parameters:
+      - description: The ID of the set of credentials to use instead of username and password.
+        in: query
+        name: credentialId
+        required: false
+        schema:
+          type: string
+      - description: The standard user-defined function type.
+        in: query
+        name: functionType
+        required: true
+        schema:
+          enum:
+          - rolling_median
+          - rolling_most_frequent
+          type: string
+      - description: The schema to create or detect user-defined functions in.
+        in: query
+        name: schema
+        required: true
+        schema:
+          type: string
+      - description: The standard user-defined function name to filter results by.
+        in: query
+        name: functionName
+        required: false
+        schema:
+          type: string
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectedStandardUdfsRetrieveResponse'
+          description: Return detected standard user-defined functions for the given data store, credentials, function type, and schema.
+      summary: Retrieve detected standard user-defined functions by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.36
+    post:
+      description: Start the creation of the standard user-defined function. Since this is an asynchronous process, this endpoint returns a status ID to use with the status endpoint as well as a location header that includes URL that can be polled for status. Once completed, the status URL redirects to the endpoint with the created function name.
+      operationId: externalDataStoresStandardUserDefinedFunctions_create
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StandardUdfCreate'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusIdResponse'
+          description: ''
+      summary: Start a job to create a standard user-defined function of the given type by…
+      tags:
+      - data_connectivity
+      x-versionadded: v2.36
+  /api/v2/externalDataStores/{dataStoreId}/standardUserDefinedFunctions/detect/:
+    post:
+      description: Start the detection process for the standard user-defined functions. Since this is an asynchronous process this endpoint returns a status ID to use with the status endpoint as well as a location header that includes the URL that can be polled for status. Once completed, the status URL redirects to the endpoint with the detected function names.
+      operationId: externalDataStoresStandardUserDefinedFunctionsDetect_create
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetectUdfs'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusIdResponse'
+          description: ''
+      summary: Start the job that detects standard user-defined functions for the given data…
+      tags:
+      - data_connectivity
+      x-versionadded: v2.36
+  /api/v2/externalDataStores/{dataStoreId}/tables/:
+    post:
+      description: Retrieves a data store's database tables (including views).
+      operationId: externalDataStoresTables_create
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreTables'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreTablesList'
+          description: The list of tables available in the retrieved data store.
+      summary: Retrieves a data store's database tables (including views) by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataStores/{dataStoreId}/test/:
+    post:
+      description: Test the ability to connect to a data store with specified authentication.
+      operationId: externalDataStoresTest_create
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreCredentialsWithCredentialsTypeSupport'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreTestResponse'
+          description: The outcome of the connection test.
+        '400':
+          description: The details on why the connect call failed.
+      summary: Test data store connection by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.11
+  /api/v2/externalDataStores/{dataStoreId}/verifySQL/:
+    post:
+      description: Execute the SQL query on the data store, returning a small number of rows (max 999). Use this for quick query execution validation and exploring results, not for capturing an entire result set.
+      operationId: externalDataStoresVerifySQL_create
+      parameters:
+      - description: The ID of the data store.
+        in: path
+        name: dataStoreId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreSQLVerify'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreSQLVerifyResponse'
+          description: Returns the names of columns and a limited number of results from the SQL query.
+        '400':
+          description: The details explaining why the SQL query is invalid.
+      summary: Verify a SQL query by data store ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.19
+  /api/v2/externalDriverConfigurations/:
+    get:
+      description: Retrieve matching driver configurations based on query.
+      operationId: externalDriverConfigurations_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Type of driver configurations to return.
+        in: query
+        name: type
+        required: false
+        schema:
+          default: jdbc
+          enum:
+          - all
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+      - description: If True, include hidden configurations in response.
+        in: query
+        name: showHidden
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverConfigurationListResponse'
+          description: Driver configurations retrieved successfully.
+      summary: List available driver configurations
+      tags:
+      - data_connectivity
+      x-versionadded: v2.19
+  /api/v2/externalDriverConfigurations/{configurationId}/:
+    get:
+      description: Retrieve the driver configuration with the specified ID.
+      operationId: externalDriverConfigurations_retrieve
+      parameters:
+      - description: The driver configuration ID.
+        in: path
+        name: configurationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverConfigurationRetrieveResponse'
+          description: Driver configuration retrieved successfully.
+      summary: Driver configuration details by configuration ID
+      tags:
+      - data_connectivity
+      x-versionadded: v2.19
+  /api/v2/jdbcDataPreview/:
+    post:
+      description: Execute SQL against the selected JDBC URL and return a row-limited preview. Specify credentials and connection parameters in the JDBC URL and/or in the `parameters` field.
+      operationId: jdbcDataPreview_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JdbcDataPreview'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStorePreviewResponse'
+          description: Returns columns, records, and resultSchema matching the data preview shape.
+      summary: Preview data
+      tags:
+      - data_connectivity
+      x-versionadded: v2.43
+  /api/v2/jdbcExecution/:
+    post:
+      description: Run a SQL statement that updates data or schema against the given JDBC URL. Specify credentials and connection parameters in the JDBC URL and/or in the `parameters` field. This does not return a data preview; use the JDBC data preview endpoint to fetch row-limited SELECT results.
+      operationId: jdbcExecution_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JdbcExecute'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JdbcExecuteResponse'
+          description: Returns a short `message` from the connector.
+      summary: Execute SQL against a JDBC URL (DDL/DML, procedures)
+      tags:
+      - data_connectivity
+      x-versionadded: v2.45
+components:
+  schemas:
+    JDBCDataStoreDetails:
+      properties:
+        driverId:
+          description: The driver ID.
+          type: string
+        jdbcFieldSchemas:
+          default: []
+          description: The fields to show when creating a data store, their defaults, whether or not they are required, and more.
+          items:
+            $ref: '#/components/schemas/JDBCFieldSchemas'
+          maxItems: 100
+          type: array
+        jdbcFields:
+          description: 'The fields used to create the JDBC URL, in the form of a JSON object where parameter name/value pairs are the items in the object. For example: `{"address": localhost:5432, "database": "fooBar", "connectTimeout": 10}`. In most cases, all keys in `jdbcFields` should be defined by a schema listed in `jdbcFieldSchemas` from `DriverConfiguration`. The request will be rejected if there are required parameters (as defined by `jdbcFieldSchemas`) that are not provided.'
+          items:
+            $ref: '#/components/schemas/JDBCFields'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.18
+        jdbcUrl:
+          description: The JDBC URL.
+          type: string
+      required:
+      - driverId
+      type: object
+    JDBCFieldSchemas:
+      properties:
+        choices:
+          default: []
+          description: If non-empty, a list of all possible values for this parameter.
+          items:
+            description: Possible value for this parameter.
+            type: string
+          title: Choices
+          type: array
+        default:
+          description: Default value of the JDBC parameter.
+          title: Default
+          type: string
+        description:
+          default: ''
+          description: Description of this parameter.
+          title: Description
+          type: string
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sort order within one `kind`.
+          title: Index
+          type: integer
+        kind:
+          description: Use of this parameter in constructing the JDBC URL.
+          enum:
+          - ADDRESS
+          - EXTENDED_PATH_PARAM
+          - PATH_PARAM
+          - QUERY_PARAM
+          title: Kind
+          type: string
+        name:
+          description: The name of the JDBC parameter.
+          title: Name
+          type: string
+        required:
+          description: Whether or not the parameter is required for a connection.
+          title: Required
+          type: boolean
+        visibleByDefault:
+          description: Whether or not the parameter should be shown in the UI by default.
+          title: Visiblebydefault
+          type: boolean
+      required:
+      - choices
+      - default
+      - description
+      - kind
+      - name
+      - required
+      - visibleByDefault
+      title: JDBCFieldSchemas
+      type: object
+    S3CredentialsFields:
+      properties:
+        awsAccessKeyId:
+          description: The S3 AWS access key ID. Required if configId is not specified.Cannot include this parameter if configId is specified.
+          type: string
+          x-versionadded: v2.20
+        awsSecretAccessKey:
+          description: The S3 AWS secret access key. Required if configId is not specified.Cannot include this parameter if configId is specified.
+          type: string
+          x-versionadded: v2.20
+        awsSessionToken:
+          default: null
+          description: The S3 AWS session token for AWS temporary credentials.Cannot include this parameter if configId is specified.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        configId:
+          description: The ID of secure configurations of credentials shared by admin. If specified, cannot include awsAccessKeyId, awsSecretAccessKey or awsSessionToken.
+          type: string
+          x-versionadded: v2.32
+        credentialType:
+          description: The type of these credentials, 's3' here.
+          enum:
+          - s3
+          type: string
+      required:
+      - credentialType
+      type: object
+      x-versionadded: v2.46
+    DataSourceUpdate:
+      properties:
+        canonicalName:
+          description: The data source's canonical name.
+          type: string
+        params:
+          description: Data source configuration.
+          oneOf:
+          - $ref: '#/components/schemas/OptionalDatabaseTableDataSource'
+          - $ref: '#/components/schemas/OptionalDatabaseQueryDataSource'
+          - $ref: '#/components/schemas/OptionalDRConnectorV1DataSource'
+      type: object
+    DriverUploadRequest:
+      properties:
+        file:
+          description: JDBC driver JAR file to upload.
+          format: binary
+          type: string
+      required:
+      - file
+      type: object
+    DataSourceCreate:
+      properties:
+        canonicalName:
+          description: The data source canonical name.
+          type: string
+        params:
+          description: The data source configuration.
+          oneOf:
+          - $ref: '#/components/schemas/DatabaseTableDataSource'
+          - $ref: '#/components/schemas/DatabaseQueryDataSource'
+          - $ref: '#/components/schemas/DRConnectorV1DataSource'
+        type:
+          description: The data source type.
+          enum:
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+      required:
+      - canonicalName
+      - params
+      - type
+      type: object
+    SnowflakeKeyPairCredentialsFields:
+      properties:
+        configId:
+          description: The ID of the saved shared credentials. If specified, cannot include user, privateKeyStr, or passphrase.
+          type: string
+          x-versionadded: v2.32
+        credentialType:
+          description: The type of these credentials, 'snowflake_key_pair_user_account' here.
+          enum:
+          - snowflake_key_pair_user_account
+          type: string
+        passphrase:
+          description: Optional passphrase to decrypt private key. Cannot include this parameter if configId is specified.
+          minLength: 1
+          type: string
+          x-versionadded: v2.30
+        privateKeyStr:
+          description: Private key for key pair authentication. Required if configId is not specified. This cannot be included if configId is specified.
+          minLength: 1
+          type: string
+          x-versionadded: v2.30
+        user:
+          description: Username for this credential. Required if configId is not specified. This cannot be included if configId is specified.
+          type: string
+      required:
+      - credentialType
+      type: object
+      x-versionadded: v2.46
+    DataStoreColumnsInfoListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of data store columns metadata.
+          items:
+            $ref: '#/components/schemas/DataStoreExtendedColumnResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DataStoreResultSchemaResponse:
+      description: The JDBC result column description.
+      properties:
+        dataType:
+          description: The data type of the column.
+          type: string
+        dataTypeInt:
+          description: The integer value of the column data type.
+          type:
+          - integer
+          - 'null'
+        name:
+          description: The name of the column.
+          type: string
+        precision:
+          description: The precision of the column.
+          type:
+          - integer
+          - 'null'
+        scale:
+          description: The scale of the column.
+          type:
+          - integer
+          - 'null'
+      required:
+      - dataType
+      - dataTypeInt
+      - name
+      - precision
+      - scale
+      type: object
+      x-versionadded: v2.43
+    DataStoreSQLVerify:
+      properties:
+        credentialId:
+          description: The ID of the set of credentials to use instead of username and password.
+          type: string
+          x-versionadded: v2.19
+        maxRows:
+          description: The maximum number of rows of data to return if successful.
+          maximum: 999
+          minimum: 0
+          type: integer
+        password:
+          description: The password for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+        query:
+          description: The SQL query to verify.
+          type: string
+        useKerberos:
+          default: false
+          description: Whether to use Kerberos for data store authentication.
+          type: boolean
+          x-versionadded: v2.19
+        user:
+          description: The username for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+      required:
+      - maxRows
+      - query
+      type: object
+    DriverUploadResponse:
+      properties:
+        localUrl:
+          description: URL of uploaded driver file.
+          type: string
+      required:
+      - localUrl
+      type: object
+    ACLAdminConnectionList:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.43
+        data:
+          description: The list of ACL management connections for the user organization.
+          items:
+            $ref: '#/components/schemas/ACLAdminConnectionResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.43
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.43
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.43
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.43
+    DatabricksServicePrincipalCredentialsFields:
+      properties:
+        clientId:
+          description: Client ID for Databricks service principal.
+          minLength: 1
+          type: string
+          x-versionadded: v2.33
+        clientSecret:
+          description: Client secret for Databricks service principal.
+          minLength: 1
+          type: string
+          x-versionadded: v2.33
+        configId:
+          description: The ID of the saved shared credentials. If specified, cannot include clientId and clientSecret.
+          type: string
+          x-versionadded: v2.33
+        credentialType:
+          description: The type of these credentials, 'databricks_service_principal_account' here.
+          enum:
+          - databricks_service_principal_account
+          type: string
+      required:
+      - credentialType
+      type: object
+      x-versionadded: v2.46
+    PartFinalizeResponse:
+      properties:
+        checksum:
+          description: The checksum of the part.
+          type: string
+        number:
+          description: The number of the part.
+          type: integer
+        size:
+          description: The size of the part.
+          type: integer
+      required:
+      - checksum
+      - number
+      - size
+      type: object
+      x-versionadded: v2.35
+    DatabaseQueryDataSource:
+      properties:
+        dataStoreId:
+          description: The data store ID for this data source.
+          title: Datastoreid
+          type: string
+        fetchSize:
+          anyOf:
+          - maximum: 20000.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The user-specified fetch size.
+          maximum: 20000
+          minimum: 1
+          title: Fetchsize
+          type: integer
+        query:
+          description: The user-specified SQL query. If this is used, then catalog, schema and table will not be used.
+          maxLength: 320000
+          title: Query
+          type: string
+      required:
+      - dataStoreId
+      - query
+      title: DatabaseQueryDataSource
+      type: object
+    DataStoreCredentialsWithCredentialsTypeSupport:
+      properties:
+        credentialData:
+          description: The type of credentials to use with the data store.
+          oneOf:
+          - $ref: '#/components/schemas/BasicCredentialsFields'
+          - $ref: '#/components/schemas/S3CredentialsFields'
+          - $ref: '#/components/schemas/OAuthCredentialsFields'
+          - $ref: '#/components/schemas/SnowflakeKeyPairCredentialsFields'
+          - $ref: '#/components/schemas/GcpCredentialsFields'
+          - $ref: '#/components/schemas/DatabricksAccessTokenCredentialsFields'
+          - $ref: '#/components/schemas/DatabricksServicePrincipalCredentialsFields'
+          - $ref: '#/components/schemas/AzureServicePrincipalCredentialsFields'
+          - $ref: '#/components/schemas/AzureConnectionStringCredentialsFields'
+          - $ref: '#/components/schemas/AzureSasCredentialsFields'
+          - $ref: '#/components/schemas/ExternalOAuthProviderCredentialsFields'
+          - $ref: '#/components/schemas/BOXJWTCredentialsFields'
+          - $ref: '#/components/schemas/ClientIdAndSecretCredentialsFields'
+          x-versionadded: v2.23
+        credentialId:
+          description: The ID of the set of credentials to use instead of username and password.
+          type: string
+          x-versionadded: v2.19
+        password:
+          description: The password for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+        useKerberos:
+          default: false
+          description: Whether to use Kerberos for data store authentication.
+          type: boolean
+          x-versionadded: v2.19
+        user:
+          description: The username for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+      type: object
+    OptionalDRConnectorV1DataSource:
+      properties:
+        dataStoreId:
+          description: The data store ID for this data source.
+          type: string
+          x-versionadded: v2.22
+        filter:
+          description: An optional filter string for narrowing results, which overrides `path` when specified. Only supported by the Jira connector.
+          maxLength: 320000
+          type: string
+          x-versionadded: v2.39
+        path:
+          description: The path to the dataset within whatever filesystem data source is using. For example, for S3 the path will look something like `/foldername/filename.csv`.
+          type: string
+          x-versionadded: v2.22
+      type: object
+    AccessControl:
+      properties:
+        canShare:
+          description: Whether the recipient can share the role further.
+          type: boolean
+        role:
+          description: The role of the user on this entity.
+          type: string
+        userId:
+          description: The identifier of the user that has access to this entity.
+          type: string
+        username:
+          description: The username of the user that has access to the entity.
+          type: string
+      required:
+      - canShare
+      - role
+      - userId
+      - username
+      type: object
+    CreateCredentialsResponse:
+      properties:
+        creationDate:
+          description: ISO-8601 formatted date/time when these credentials were created.
+          format: date-time
+          type: string
+        credentialId:
+          description: ID of these credentials.
+          type: string
+        credentialType:
+          default: basic
+          description: Type of credentials.
+          enum:
+          - adls_gen2_oauth
+          - api_token
+          - azure
+          - azure_oauth
+          - azure_sas
+          - azure_service_principal
+          - basic
+          - bearer
+          - box_jwt
+          - client_id_and_secret
+          - databricks_access_token_account
+          - databricks_service_principal_account
+          - external_oauth_provider
+          - gcp
+          - oauth
+          - opaque
+          - rsa
+          - s3
+          - sap_oauth
+          - snowflake_key_pair_user_account
+          - snowflake_oauth_user_account
+          - tableau_access_token
+          type: string
+        description:
+          description: Description of these credentials.
+          type: string
+        name:
+          description: Name of these credentials.
+          type: string
+        secretReferences:
+          description: The external references backing this credential. Present (non-null) only when 'storageMode' is 'externalReference'; null for platform-managed credentials and in list views.
+          items:
+            $ref: '#/components/schemas/CredentialsSecretReference'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.47
+        storageMode:
+          description: 'Where the underlying secret lives: ''platformManaged'' when the value is stored within DataRobot, or ''externalReference'' when it points to a secret held in an external secret store. ''externalReference'' is only available on clusters with Secret Management Service (SMS) integration enabled.'
+          enum:
+          - externalReference
+          - platformManaged
+          type: string
+          x-versionadded: v2.47
+      required:
+      - creationDate
+      - credentialId
+      - name
+      - secretReferences
+      - storageMode
+      type: object
+    DriverResponse:
+      description: '``DriverResponseValidator``: one driver, as ``formatters.format_driver`` puts it on the wire.
+
+
+        Build it with ``from_document`` rather than ``model_validate``: serialization uses
+
+        ``response_model_exclude_unset``, so which keys the model is built from decides which keys
+
+        the response carries, and ``format_driver`` is particular about that.'
+      properties:
+        associatedAuthTypes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Authentication types associated with this connector configuration.
+          items:
+            enum:
+            - basic
+            - googleOauthUserAccount
+            - snowflakeKeyPairUserAccount
+            - snowflakeOauthUserAccount
+            type: string
+          title: Associatedauthtypes
+          type: array
+        baseNames:
+          anyOf:
+          - items:
+              description: Original file name of the uploaded JAR file.
+              type: string
+            type: array
+          - type: 'null'
+          description: Original file name(s) of the uploaded JAR file(s). If there are multiple JAR files required for the driver, each of the original file names should be present in the list in the same order as found in 'localJarUrls'
+          items:
+            description: Original file name of the uploaded JAR file.
+            type: string
+          title: Basenames
+          type:
+          - array
+          - 'null'
+        canonicalName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User-friendly driver name.
+          title: Canonicalname
+          type: string
+        className:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Driver class name. For example 'com.amazon.redshift.jdbc.Driver'
+          title: Classname
+          type:
+          - string
+          - 'null'
+        configurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Driver configuration ID if it was provided during driver upload.
+          title: Configurationid
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.18
+        creator:
+          description: The ID of the user who uploaded the driver.
+          title: Creator
+          type: string
+        databaseDriver:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The type of database of the driver. Only required of 'dr-database-v1' drivers.
+          enum:
+          - bigquery-v1
+          - databricks-v1
+          - datasphere-v1
+          - salesforce-v1
+          - trino-v1
+          title: Databasedriver
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.30
+        id:
+          description: Driver ID.
+          title: Id
+          type: string
+        type:
+          default: jdbc
+          description: Driver type. Either 'jdbc' or 'dr-database-v1'.
+          enum:
+          - dr-database-v1
+          - jdbc
+          title: Type
+          type: string
+          x-versionadded: v2.30
+        version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Driver version, which is used to construct the canonical name if driver configuration ID was provided during driver upload.
+          title: Version
+          type: string
+          x-versionadded: v2.18
+      required:
+      - creator
+      - id
+      title: DriverResponse
+      type: object
+    DataStoreColumnsListResponse:
+      properties:
+        columns:
+          description: The list of data store columns.
+          items:
+            $ref: '#/components/schemas/DataStoreColumnResponse'
+          type: array
+      required:
+      - columns
+      type: object
+    DataStoreUpdate:
+      properties:
+        canonicalName:
+          description: The user-friendly name of the data store.
+          type: string
+        params:
+          description: The data store configuration.
+          oneOf:
+          - $ref: '#/components/schemas/JDBCDataStoreUpdate'
+          - $ref: '#/components/schemas/DRConnectorV1Update'
+      type: object
+    JDBCDataStoreUpdate:
+      properties:
+        driverId:
+          description: The driver ID.
+          type: string
+        jdbcFields:
+          description: 'The fields used to create the JDBC URL, in the form of a JSON object where parameter name/value pairs are the items in the object. For example: `{"address": localhost:5432, "database": "fooBar", "connectTimeout": 10}`. In most cases, all keys in `jdbcFields` should be defined by a schema listed in `jdbcFieldSchemas` from `DriverConfiguration`. The request will be rejected if there are required parameters (as defined by `jdbcFieldSchemas`) that are not provided.'
+          items:
+            $ref: '#/components/schemas/JDBCFields'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.18
+        jdbcUrl:
+          description: The JDBC URL.
+          type: string
+      type: object
+    DataStoreListResponse:
+      properties:
+        data:
+          description: The list of data stores.
+          items:
+            $ref: '#/components/schemas/DataStoreRetrieveResponse'
+          title: Data
+          type: array
+      required:
+      - data
+      title: DataStoreListResponse
+      type: object
+    AzureConnectionStringCredentialsFields:
+      properties:
+        azureConnectionString:
+          description: The Azure connection string.
+          type: string
+          x-versionadded: v2.21
+        credentialType:
+          description: The type of these credentials, 'azure' here.
+          enum:
+          - azure
+          type: string
+      required:
+      - azureConnectionString
+      - credentialType
+      type: object
+      x-versionadded: v2.46
+    DataStoreRetrieveResponse:
+      properties:
+        associatedAuthTypes:
+          description: The supported authentication types for the JDBC configuration.
+          items:
+            enum:
+            - adls_gen2_oauth
+            - azure_sas
+            - azure_service_principal
+            - basic
+            - box_jwt
+            - databricks_access_token_account
+            - databricks_service_principal_account
+            - gcp
+            - google_oauth_user_account
+            - kerberos
+            - oauth
+            - s3
+            - snowflake_key_pair_user_account
+            - snowflake_oauth_user_account
+            type: string
+          type: array
+          x-versionadded: v2.20
+        canonicalName:
+          description: The user-friendly name of the data store.
+          type: string
+        creator:
+          description: The ID of the user who created the data store.
+          type: string
+        id:
+          description: The data store ID.
+          type: string
+        params:
+          description: The data store configuration.
+          oneOf:
+          - $ref: '#/components/schemas/JDBCDataStoreDetails'
+          - $ref: '#/components/schemas/DRConnectorV1Details'
+          - $ref: '#/components/schemas/DatabaseDataStoreDetails'
+        role:
+          description: The role of the user making the request on this data store.
+          enum:
+          - CONSUMER
+          - EDITOR
+          - OWNER
+          type: string
+        type:
+          description: The data store type.
+          enum:
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+        updated:
+          description: The ISO 8601-formatted date/time of the data store update.
+          type: string
+      required:
+      - canonicalName
+      - creator
+      - id
+      - params
+      - role
+      - type
+      - updated
+      type: object
+    BOXJWTCredentialsFields:
+      properties:
+        clientId:
+          description: Box JWT client ID.
+          type: string
+          x-versionadded: v2.41
+        clientSecret:
+          description: Box JWT client secret.
+          type: string
+          x-versionadded: v2.41
+        configId:
+          description: ID of secure configuration to share Box JWT credentials by admin.
+          type: string
+          x-versionadded: v2.41
+        credentialType:
+          description: The credential type.
+          enum:
+          - box_jwt
+          type: string
+          x-versionadded: v2.41
+        enterpriseId:
+          description: Box enterprise identifier.
+          type: string
+          x-versionadded: v2.41
+        passphrase:
+          description: Passphrase for the Box JWT private key.
+          minLength: 1
+          type: string
+          x-versionadded: v2.41
+        privateKeyStr:
+          description: RSA private key for Box JWT.
+          minLength: 1
+          type: string
+          x-versionadded: v2.41
+        publicKeyId:
+          description: Box public key identifier.
+          type: string
+          x-versionadded: v2.41
+      required:
+      - credentialType
+      type: object
+      x-versionadded: v2.42
+    JdbcForeignKey:
+      properties:
+        foreignKey:
+          $ref: '#/components/schemas/JdbcKeyInfo'
+        keyType:
+          description: The type of this key.
+          enum:
+          - '1'
+          - '2'
+          - '3'
+          type: string
+        name:
+          description: The name of this key.
+          type: string
+        primaryKey:
+          $ref: '#/components/schemas/JdbcKeyInfo'
+      required:
+      - keyType
+      - primaryKey
+      type: object
+    CreateDriverRequest:
+      properties:
+        baseNames:
+          description: Original file name(s) of the uploaded JAR file(s). If there are multiple JAR files required for the driver, each of the original file names should be present in the list in the same order as found in 'localJarUrls'
+          items:
+            description: Original file name of the uploaded JAR file.
+            type: string
+          type: array
+        canonicalName:
+          description: User-friendly driver name.
+          type: string
+        className:
+          description: Driver class name. For example 'com.amazon.redshift.jdbc.Driver'
+          type:
+          - string
+          - 'null'
+        configurationId:
+          description: Driver configuration ID if it was provided during driver upload.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.18
+        databaseDriver:
+          description: The type of database of the driver. Only required of 'dr-database-v1' drivers.
+          enum:
+          - bigquery-v1
+          - databricks-v1
+          - datasphere-v1
+          - salesforce-v1
+          - trino-v1
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.30
+        localJarUrls:
+          description: File path(s) for the driver files.This path is returned in the response as 'local_url' by the driverUpload route.If there are multiple JAR files required for the driver, each uploaded JAR must be present in this list. If specified, values will replace any previous settings.
+          items:
+            description: File path for the driver file. This path is returned by the driverUpload route in the 'local_url' response.
+            type: string
+          minItems: 1
+          type: array
+        type:
+          default: jdbc
+          description: Driver type. Either 'jdbc' or 'dr-database-v1'.
+          enum:
+          - dr-database-v1
+          - jdbc
+          type: string
+          x-versionadded: v2.30
+        version:
+          description: Driver version, which is used to construct the canonical name if driver configuration ID was provided during driver upload.
+          type: string
+          x-versionadded: v2.18
+      type: object
+    DriverConfigurationRetrieveResponse:
+      description: Validates directly against a raw ``configuration`` mongo document.
+      properties:
+        associatedAuthTypes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The list of authentication types supported by this driver configuration.
+          items:
+            type: string
+          title: Associatedauthtypes
+          type: array
+        className:
+          description: Java class name of the driver to be used (e.g., org.postgresql.Driver).
+          title: Classname
+          type: string
+        creator:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The user ID of the creator of this configuration.
+          title: Creator
+          type: string
+        id:
+          description: The driver configuration ID.
+          title: Id
+          type: string
+        jdbcFieldSchemas:
+          description: Description of which fields to show when creating a datastore, their defaults, and whether or not they are required.
+          items:
+            $ref: '#/components/schemas/JDBCFieldSchemas'
+          title: Jdbcfieldschemas
+          type: array
+        jdbcUrlPathDelimiter:
+          description: Separator of address from path in the JDBC URL (e.g., "/").
+          title: Jdbcurlpathdelimiter
+          type: string
+        jdbcUrlPrefix:
+          description: Prefix of the JDBC URL (e.g., "jdbc:mssql://" or "jdbc:oracle:thin:@").
+          title: Jdbcurlprefix
+          type: string
+        jdbcUrlQueryDelimiter:
+          description: Separator of path from the list of query parameters in the JDBC URL (e.g., "?").
+          title: Jdbcurlquerydelimiter
+          type: string
+        jdbcUrlQueryParamDelimiter:
+          description: Separator of each set of query parameter key-value pairs in the JDBC URL (e.g., "&").
+          title: Jdbcurlqueryparamdelimiter
+          type: string
+        jdbcUrlQueryParamKeyValueDelimiter:
+          description: Separator of the key and value in a query parameter pair (e.g., "=").
+          title: Jdbcurlqueryparamkeyvaluedelimiter
+          type: string
+        standardizedName:
+          description: The plain text name for the driver (e.g., PostgreSQL).
+          title: Standardizedname
+          type: string
+        statements:
+          anyOf:
+          - items:
+              enum:
+              - insert
+              - update
+              - upsert
+              type: string
+            type: array
+          - type: 'null'
+          description: List of supported statments for this driver configuration.
+          items:
+            enum:
+            - insert
+            - update
+            - upsert
+            type: string
+          title: Statements
+          type: array
+        updated:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO-8601 formatted time/date when this configuration was most recently updated.
+          title: Updated
+          type: string
+      required:
+      - associatedAuthTypes
+      - className
+      - creator
+      - id
+      - jdbcFieldSchemas
+      - jdbcUrlPathDelimiter
+      - jdbcUrlPrefix
+      - jdbcUrlQueryDelimiter
+      - jdbcUrlQueryParamDelimiter
+      - jdbcUrlQueryParamKeyValueDelimiter
+      - standardizedName
+      - updated
+      title: DriverConfigurationRetrieveResponse
+      type: object
+    PartUploadResponse:
+      properties:
+        checksum:
+          description: The checksum of the part.
+          type: string
+        size:
+          description: The size of the part.
+          type: integer
+      required:
+      - checksum
+      - size
+      type: object
+      x-versionadded: v2.35
+    DataStoreCreate:
+      properties:
+        canonicalName:
+          description: The user-friendly name of the data store.
+          type: string
+        params:
+          description: The data store configuration.
+          oneOf:
+          - $ref: '#/components/schemas/JDBCDataStoreCreate'
+          - $ref: '#/components/schemas/DRConnectorV1Create'
+          - $ref: '#/components/schemas/DatabaseDataStoreCreate'
+        type:
+          description: The data store type.
+          enum:
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+      required:
+      - canonicalName
+      - params
+      - type
+      type: object
+    DataStageFinalizeResponse:
+      properties:
+        parts:
+          description: The size of the part.
+          items:
+            $ref: '#/components/schemas/PartFinalizeResponse'
+          maxItems: 1000
+          minItems: 1
+          type: array
+      required:
+      - parts
+      type: object
+      x-versionadded: v2.35
+    DatabaseTableDataSource:
+      properties:
+        catalog:
+          anyOf:
+          - maxLength: 256
+            type: string
+          - type: 'null'
+          description: The catalog name in the database if supported.
+          maxLength: 256
+          title: Catalog
+          type: string
+        dataStoreId:
+          description: The data store ID for this data source.
+          title: Datastoreid
+          type: string
+        fetchSize:
+          anyOf:
+          - maximum: 20000.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The user-specified fetch size.
+          maximum: 20000
+          minimum: 1
+          title: Fetchsize
+          type: integer
+        partitionColumn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the partition column. It is needed to allow parallel execution for the 10GB+ projects.
+          title: Partitioncolumn
+          type: string
+        schema:
+          anyOf:
+          - maxLength: 256
+            type: string
+          - type: 'null'
+          description: The schema associated with the table or view in the database if the data source is not query based.
+          maxLength: 256
+          title: Schema
+          type: string
+        table:
+          description: The table or view name in the database if the data source is not query based.
+          maxLength: 256
+          title: Table
+          type: string
+      required:
+      - dataStoreId
+      - table
+      title: DatabaseTableDataSource
+      type: object
+    PartUploadRequest:
+      properties:
+        file:
+          description: The part file to upload to the data stage.
+          format: binary
+          type: string
+      required:
+      - file
+      type: object
+      x-versionadded: v2.35
+    JDBCFields:
+      properties:
+        name:
+          description: The name of the JDBC parameter.
+          type: string
+        value:
+          description: The value of the JDBC parameter.
+          type: string
+      required:
+      - name
+      - value
+      type: object
+    DataStoreColumnsInfoList:
+      properties:
+        catalog:
+          description: The name of the specified database catalog.
+          type:
+          - string
+          - 'null'
+        credentialId:
+          description: The ID of the set of credentials to use instead of username and password.
+          type: string
+          x-versionadded: v2.19
+        password:
+          description: The password for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+        schema:
+          description: The schema name.
+          type: string
+        table:
+          description: The table name.
+          type: string
+        useKerberos:
+          default: false
+          description: Whether to use Kerberos for data store authentication.
+          type: boolean
+          x-versionadded: v2.19
+        user:
+          description: The username for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+      required:
+      - table
+      type: object
+    SharingListResponse:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControl'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+      required:
+      - count
+      - data
+      - next
+      - previous
+      type: object
+    UserRoleWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        role:
+          description: The role to set on the entity. When it is None, the role of this user will be removedfrom this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the user to update the access role for.
+          type: string
+      required:
+      - role
+      - username
+      type: object
+    JdbcExecuteResponse:
+      properties:
+        message:
+          description: Status message from the connector. Empty success responses return OK.
+          maxLength: 320000
+          type: string
+      required:
+      - message
+      type: object
+      x-versionadded: v2.45
+    SharedRolesWithGrantListResponse:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControlWithGrant'
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items matching the condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    AccessControlWithGrant:
+      properties:
+        canShare:
+          description: Whether the recipient can share the role further.
+          type: boolean
+        id:
+          description: The identifier of the recipient.
+          type: string
+        name:
+          description: The name of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The type of the recipient.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        userFullName:
+          description: The full name of the recipient user.
+          type: string
+      required:
+      - canShare
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    DataStoreColumnsList:
+      properties:
+        catalog:
+          description: The name of the specified database catalog.
+          type:
+          - string
+          - 'null'
+        credentialId:
+          description: The ID of the credential mapping.
+          type: string
+        password:
+          description: The password for the db connection.
+          type: string
+        query:
+          description: The schema query.
+          type: string
+        schema:
+          description: The schema name.
+          type: string
+        table:
+          description: The table name.
+          type: string
+        user:
+          description: The username for the db connection.
+          type: string
+      type: object
+    ConnectorFieldSchema:
+      properties:
+        choices:
+          description: If non-empty, the list of all possible values for a parameter.
+          items:
+            type: string
+          type: array
+        default:
+          description: The default value of the parameter.
+          type: string
+        description:
+          description: The description of the parameter.
+          type: string
+        name:
+          description: The name of the parameter.
+          type: string
+        required:
+          description: Whether or not the parameter is required for a connection.
+          type: boolean
+        visibleByDefault:
+          description: Whether or not the parameter should be shown in the UI by default.
+          type: boolean
+      required:
+      - choices
+      - default
+      - description
+      - name
+      - required
+      - visibleByDefault
+      type: object
+    DRConnectorV1Update:
+      properties:
+        fields:
+          description: The connector fields.
+          items:
+            $ref: '#/components/schemas/DRConnectorV1Field'
+          type: array
+      type: object
+    StatusIdResponse:
+      properties:
+        statusId:
+          description: The ID that can be used with :http:get:`/api/v2/status/(statusId)/` to poll for the job's status.
+          type: string
+      required:
+      - statusId
+      type: object
+      x-versionadded: v2.36
+    DRConnectorV1Details:
+      properties:
+        connectorId:
+          description: The ID of the connector.
+          type: string
+        fieldSchemas:
+          description: The connector field schemas.
+          items:
+            $ref: '#/components/schemas/ConnectorFieldSchema'
+          type: array
+        fields:
+          description: The connector fields.
+          items:
+            $ref: '#/components/schemas/DRConnectorV1Field'
+          type: array
+      required:
+      - connectorId
+      - fields
+      type: object
+    DataStoreDescribePermissionsResponse:
+      properties:
+        canCreateDataSource:
+          description: True if the user can create data source from this data store.
+          type: boolean
+        canDelete:
+          description: True if the user can delete the data store.
+          type: boolean
+        canEdit:
+          description: True if the user can edit data store info.
+          type: boolean
+        canScanDatabase:
+          description: True if the user can scan data store database.
+          type: boolean
+        canSetRoles:
+          description: Roles the user can grant or revoke from other users, groups, or organizations.
+          items:
+            description: The role the user can grant or revoke from users, groups or organizations.
+            enum:
+            - OWNER
+            - EDITOR
+            - CONSUMER
+            type: string
+          type: array
+        canShare:
+          description: True if the user can share the data store.
+          type: boolean
+        canTestConnection:
+          description: True if the user can test data store database connection.
+          type: boolean
+        canView:
+          description: True if the user can view data store info.
+          type: boolean
+        dataStoreId:
+          description: The ID of the data store.
+          type: string
+        userId:
+          description: The ID of the user identified by username.
+          type: string
+        username:
+          description: '`username` of a user with access to this data store.'
+          type: string
+      required:
+      - canCreateDataSource
+      - canDelete
+      - canEdit
+      - canScanDatabase
+      - canSetRoles
+      - canShare
+      - canTestConnection
+      - canView
+      - dataStoreId
+      - userId
+      - username
+      type: object
+    ClientIdAndSecretCredentialsFields:
+      properties:
+        clientId:
+          description: The client ID for integrations that use a client ID and client secret (e.g., OAuth client credentials).
+          type: string
+          x-versionadded: v2.44
+        clientSecret:
+          description: The client secret for integrations that use a client ID and client secret (e.g., OAuth client credentials).
+          type: string
+          x-versionadded: v2.44
+        configId:
+          description: The ID of the shared secure configuration for the client ID and client secret (managed by an admin).
+          type: string
+          x-versionadded: v2.44
+        credentialType:
+          description: The credential type.
+          enum:
+          - client_id_and_secret
+          type: string
+      required:
+      - credentialType
+      type: object
+      x-versionadded: v2.45
+    SharedRolesUpdateWithGrant:
+      properties:
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: An array of RoleRequest objects. May contain at most 100 such objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsernameWithGrant'
+            - $ref: '#/components/schemas/GrantAccessControlWithIdWithGrant'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - operation
+      - roles
+      type: object
+    CredentialsSecretReference:
+      properties:
+        fieldName:
+          description: The credential field this reference resolves -- the same field name used in platform-managed mode (e.g., 'user', 'password', 'awsAccessKeyId').
+          maxLength: 255
+          type: string
+        location:
+          description: Storage-aware locator string pointing at the secret in the external store, e.g., 'secret/path' or 'secret/path#key'. Interpreted by the configured secret store backend.
+          maxLength: 1000
+          type: string
+      required:
+      - fieldName
+      - location
+      type: object
+      x-versionadded: v2.47
+    CreateDataStageResponse:
+      properties:
+        id:
+          description: The ID of the data stage object.
+          type: string
+      required:
+      - id
+      type: object
+      x-versionadded: v2.35
+    GrantAccessControlWithUsernameWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: The username of the user to update the access role for.
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      type: object
+    AzureSasCredentialsFields:
+      properties:
+        credentialType:
+          description: The type of these credentials, 'azure_sas' here.
+          enum:
+          - azure_sas
+          type: string
+        sasToken:
+          description: The Azure shared access signature (SAS) token for Data Lake Storage Gen2.
+          minLength: 1
+          type: string
+      required:
+      - credentialType
+      - sasToken
+      type: object
+      x-versionadded: v2.46
+    DataSourceDescribePermissionsResponse:
+      properties:
+        canCreatePredictions:
+          description: True if the user can create predictions from the data source.
+          type: boolean
+        canCreateProject:
+          description: True if the user can create project from the data source.
+          type: boolean
+        canDelete:
+          description: True if the user can delete the data source.
+          type: boolean
+        canEdit:
+          description: True if the user can edit data source info.
+          type: boolean
+        canSetRoles:
+          description: Roles the user can grant or revoke from other users, groups, or organizations.
+          items:
+            description: The role the user can grant or revoke from users, groups or organizations.
+            enum:
+            - OWNER
+            - EDITOR
+            - CONSUMER
+            type: string
+          type: array
+        canShare:
+          description: True if the user can share the data source.
+          type: boolean
+        canView:
+          description: True if the user can view data source info.
+          type: boolean
+        dataSourceId:
+          description: The ID of the data source.
+          type: string
+        userId:
+          description: The ID of the user identified by username.
+          type: string
+        username:
+          description: '`username` of a user with access to this data source.'
+          type: string
+      required:
+      - canCreatePredictions
+      - canCreateProject
+      - canDelete
+      - canEdit
+      - canSetRoles
+      - canShare
+      - canView
+      - dataSourceId
+      - userId
+      - username
+      type: object
+    JdbcKeyInfo:
+      description: The referred primary key.
+      properties:
+        catalog:
+          description: The catalog name.
+          type: string
+        column:
+          description: The column name.
+          type: string
+        schema:
+          description: The schema name.
+          type: string
+        table:
+          description: The table name.
+          type: string
+      required:
+      - catalog
+      - column
+      - table
+      type: object
+    SharingUpdateOrRemoveWithGrant:
+      properties:
+        data:
+          description: List of sharing roles to update.
+          items:
+            $ref: '#/components/schemas/UserRoleWithGrant'
+          maxItems: 100
+          type: array
+      required:
+      - data
+      type: object
+    Role:
+      description: A subject's sharing-tier role on a resource, as surfaced to API callers.
+      enum:
+      - OWNER
+      - EDITOR
+      - CONSUMER
+      title: Role
+      type: string
+    DRConnectorV1Field:
+      properties:
+        id:
+          description: The field name.
+          type: string
+        name:
+          description: The user-friendly displayable field name.
+          type: string
+        value:
+          description: The field value.
+          type: string
+      required:
+      - name
+      - value
+      type: object
+    DataStoreTables:
+      properties:
+        catalog:
+          description: Only show tables in this catalog.
+          type: string
+        credentialId:
+          description: The ID of the set of credentials to use instead of username and password.
+          type: string
+          x-versionadded: v2.19
+        password:
+          description: The password for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+        schema:
+          description: Only show tables in this schema.
+          type: string
+        useKerberos:
+          default: false
+          description: Whether to use Kerberos for data store authentication.
+          type: boolean
+          x-versionadded: v2.19
+        user:
+          description: The username for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+      type: object
+    DataSourceRetrieveResponse:
+      properties:
+        canonicalName:
+          description: The data source canonical name.
+          title: Canonicalname
+          type: string
+        creator:
+          description: The ID of the user who created the data source.
+          title: Creator
+          type: string
+        driverClassType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The type of driver used to create this data source.
+          title: Driverclasstype
+          type: string
+        id:
+          description: The data source ID.
+          title: Id
+          type: string
+        params:
+          anyOf:
+          - $ref: '#/components/schemas/DatabaseTableDataSource'
+          - $ref: '#/components/schemas/DatabaseQueryDataSource'
+          - $ref: '#/components/schemas/DRConnectorV1DataSource'
+          description: The data source configuration.
+          oneOf:
+          - $ref: '#/components/schemas/DatabaseTableDataSource'
+          - $ref: '#/components/schemas/DatabaseQueryDataSource'
+          - $ref: '#/components/schemas/DRConnectorV1DataSource'
+          title: Params
+        role:
+          $ref: '#/components/schemas/Role'
+          description: The role of the user making the request on this data source.
+          enum:
+          - CONSUMER
+          - EDITOR
+          - OWNER
+          type: string
+        type:
+          description: The data source type.
+          enum:
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          title: Type
+          type: string
+        updated:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ISO 8601-formatted date/time of the data source update.
+          title: Updated
+          type: string
+      required:
+      - canonicalName
+      - creator
+      - id
+      - params
+      - role
+      - type
+      - updated
+      title: DataSourceRetrieveResponse
+      type: object
+    CreateDataStageRequest:
+      properties:
+        filename:
+          description: The filename associated with the stage.
+          type: string
+      required:
+      - filename
+      type: object
+      x-versionadded: v2.35
+    DetectUdfs:
+      properties:
+        credentialId:
+          description: The ID of the set of credentials to use instead of username and password.
+          type: string
+        force:
+          default: false
+          description: Forces detection to be submitted, even if a cache with detected standard user-defined functions for given parameters is already present.
+          type: boolean
+        functionType:
+          description: The standard user-defined function type.
+          enum:
+          - rolling_median
+          - rolling_most_frequent
+          type: string
+        schema:
+          description: The schema to create or detect user-defined functions in.
+          type: string
+      required:
+      - force
+      - functionType
+      - schema
+      type: object
+      x-versionadded: v2.36
+    OAuthCredentialsFields:
+      properties:
+        credentialType:
+          description: The type of these credentials, 'oauth' here.
+          enum:
+          - oauth
+          type: string
+        oauthAccessToken:
+          default: null
+          description: The OAuth access token.
+          type:
+          - string
+          - 'null'
+        oauthClientId:
+          default: null
+          description: The OAuth client ID.
+          type:
+          - string
+          - 'null'
+        oauthClientSecret:
+          default: null
+          description: The OAuth client secret.
+          type:
+          - string
+          - 'null'
+        oauthRefreshToken:
+          description: The OAuth refresh token.
+          type: string
+      required:
+      - credentialType
+      - oauthRefreshToken
+      type: object
+      x-versionadded: v2.46
+    DataStorePreviewResponse:
+      properties:
+        columns:
+          description: The list of columns for the returned set of records. Column order matches the order of values in a record.
+          items:
+            description: The name of the column.
+            type: string
+          maxItems: 20000
+          type: array
+        records:
+          description: The list of records output by the query.
+          items:
+            description: The list of values for a single database record, ordered as the columns are ordered.
+            items:
+              description: The string representation of the column's value.
+              type: string
+            type: array
+          maxItems: 10000
+          type: array
+        resultSchema:
+          description: The JDBC result schema.
+          items:
+            $ref: '#/components/schemas/DataStoreResultSchemaResponse'
+          maxItems: 20000
+          type:
+          - array
+          - 'null'
+      required:
+      - columns
+      - records
+      - resultSchema
+      type: object
+      x-versionadded: v2.43
+    ACLAdminConnectionResponse:
+      properties:
+        adminEmail:
+          default: null
+          description: The user to impersonate for the admin-level operations. Currently only applicable to Google Drive.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: The ACL management connection ID.
+          type: string
+        domain:
+          default: null
+          description: The custom domain for the connection. Currently only applicable to SharePoint.
+          type:
+          - string
+          - 'null'
+        externalConnectorType:
+          description: The data provider being configured.
+          enum:
+          - gdrive
+          - sharepoint
+          type: string
+      required:
+      - dataStoreId
+      - externalConnectorType
+      type: object
+      x-versionadded: v2.43
+    DataStoreTablesList:
+      properties:
+        catalog:
+          description: The catalog associated with schemas.
+          type:
+          - string
+          - 'null'
+        tables:
+          description: The list of tables in the data store.
+          items:
+            $ref: '#/components/schemas/TableDescription'
+          type: array
+      required:
+      - catalog
+      - tables
+      type: object
+    OptionalDatabaseQueryDataSource:
+      properties:
+        dataStoreId:
+          description: The data store ID for this data source.
+          type: string
+        fetchSize:
+          description: The user-specified fetch size.
+          maximum: 20000
+          minimum: 1
+          type: integer
+        query:
+          description: The user-specified SQL query. If this is used, then catalog, schema and table will not be used.
+          maxLength: 320000
+          type: string
+      type: object
+    CredentialsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of credentials.
+          items:
+            $ref: '#/components/schemas/CreateCredentialsResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ExternalOAuthProviderCredentialsFields:
+      properties:
+        authenticationId:
+          description: The authentication ID for an external OAuth provider. Used to retrieve tokens from DataRobot OAuth service.
+          type: string
+        credentialType:
+          description: The type of these credentials, 'external_oauth_provider' here.
+          enum:
+          - external_oauth_provider
+          type: string
+      required:
+      - authenticationId
+      - credentialType
+      type: object
+      x-versionadded: v2.46
+    DataStoreExtendedColumnResponse:
+      properties:
+        columnDefaultValue:
+          description: The default value of the column.
+          type:
+          - string
+          - 'null'
+        comment:
+          description: The comment of the column.
+          type:
+          - string
+          - 'null'
+        dataType:
+          description: The data type of the column.
+          type: string
+        dataTypeInt:
+          description: The integer value of the column data type.
+          type: integer
+        exportedKeys:
+          description: The foreign key columns that reference this table's primary key columns.
+          items:
+            $ref: '#/components/schemas/JdbcForeignKey'
+          type:
+          - array
+          - 'null'
+        importedKeys:
+          description: The primary key columns that are referenced by this table's foreign key columns.
+          items:
+            $ref: '#/components/schemas/JdbcForeignKey'
+          type:
+          - array
+          - 'null'
+        isInPrimaryKey:
+          description: True if the column is in the primary key.
+          type:
+          - boolean
+          - 'null'
+        isNullable:
+          description: Whether the column values can be null.
+          enum:
+          - 'NO'
+          - UNKNOWN
+          - 'YES'
+          type:
+          - string
+          - 'null'
+        name:
+          description: The name of the column.
+          type: string
+        precision:
+          description: The precision of the column.
+          type:
+          - integer
+          - 'null'
+        primaryKeys:
+          description: The primary key columns of the table.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        scale:
+          description: The scale of the column.
+          type:
+          - integer
+          - 'null'
+      required:
+      - columnDefaultValue
+      - comment
+      - dataType
+      - dataTypeInt
+      - exportedKeys
+      - importedKeys
+      - isInPrimaryKey
+      - isNullable
+      - name
+      - precision
+      - primaryKeys
+      - scale
+      type: object
+    DRConnectorV1Create:
+      properties:
+        connectorId:
+          description: The ID of the connector.
+          type: string
+        fields:
+          description: The connector fields.
+          items:
+            $ref: '#/components/schemas/DRConnectorV1Field'
+          type: array
+      required:
+      - connectorId
+      - fields
+      type: object
+    DetectedStandardUdfsRetrieveResponse:
+      properties:
+        detectedFunctions:
+          description: The detected standard user-defined functions.
+          items:
+            type: string
+          maxItems: 1000
+          type: array
+        functionType:
+          description: The requested standard user-defined function type.
+          type: string
+        schema:
+          description: The requested schema.
+          type: string
+      required:
+      - detectedFunctions
+      - functionType
+      - schema
+      type: object
+      x-versionadded: v2.36
+    OptionalDatabaseTableDataSource:
+      properties:
+        catalog:
+          description: The catalog name in the database if supported.
+          maxLength: 256
+          type: string
+        dataStoreId:
+          description: The data store ID for this data source.
+          type: string
+        fetchSize:
+          description: The user-specified fetch size.
+          maximum: 20000
+          minimum: 1
+          type: integer
+        partitionColumn:
+          description: The name of the partition column. It is needed to allow parallel execution for the 10GB+ projects.
+          type: string
+        schema:
+          description: The schema associated with the table or view in the database if supported.
+          maxLength: 256
+          type: string
+        table:
+          description: The table or view name in the database.
+          maxLength: 256
+          type: string
+      type: object
+    DriverListResponse:
+      description: '``DriverListResponseValidator``: the drivers a user can reach, unpaginated.'
+      properties:
+        data:
+          description: The list of drivers.
+          items:
+            $ref: '#/components/schemas/DriverResponse'
+          title: Data
+          type: array
+      required:
+      - data
+      title: DriverListResponse
+      type: object
+    JDBCDataStoreCreate:
+      properties:
+        driverId:
+          description: Driver ID.
+          type: string
+        jdbcFields:
+          description: 'The fields used to create the JDBC URL, in the form of a JSON object where parameter name/value pairs are the items in the object. For example: `{"address": localhost:5432, "database": "fooBar", "connectTimeout": 10}`. In most cases, all keys in `jdbcFields` should be defined by a schema listed in `jdbcFieldSchemas` from `DriverConfiguration`. The request will be rejected if there are required parameters (as defined by `jdbcFieldSchemas`) that are not provided.'
+          items:
+            $ref: '#/components/schemas/JDBCFields'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.18
+        jdbcUrl:
+          description: The JDBC URL.
+          type: string
+      required:
+      - driverId
+      type: object
+    DataSourceListResponse:
+      properties:
+        data:
+          description: The list of data sources.
+          items:
+            $ref: '#/components/schemas/DataSourceInList'
+          type: array
+      required:
+      - data
+      type: object
+    DataStoreSchemasList:
+      properties:
+        catalog:
+          description: The name of the catalog associated with the schemas. If more than one catalog is queried, the returned value will be the catalog name for the first record returned.
+          type: string
+        catalogs:
+          description: The list of catalogs associated with each retrieved schema. If no catalog is found, this value is null.
+          items:
+            description: The catalog names for the schema associated with the data store.
+            type:
+            - string
+            - 'null'
+          type: array
+        schemas:
+          description: The list of schemas available in the data store.
+          items:
+            type: string
+          type: array
+      required:
+      - catalog
+      - catalogs
+      - schemas
+      type: object
+    StandardUdfCreate:
+      properties:
+        credentialId:
+          description: The ID of the set of credentials to use instead of username and password.
+          type: string
+        functionType:
+          description: The standard user-defined function type.
+          enum:
+          - rolling_median
+          - rolling_most_frequent
+          type: string
+        schema:
+          description: The schema to create or detect user-defined functions in.
+          type: string
+      required:
+      - functionType
+      - schema
+      type: object
+      x-versionadded: v2.36
+    ACLAdminConnectionBase:
+      properties:
+        adminEmail:
+          default: null
+          description: The user to impersonate for the admin-level operations. Currently only applicable to Google Drive.
+          type:
+          - string
+          - 'null'
+        dataStoreId:
+          description: The ACL management connection ID.
+          type: string
+        domain:
+          default: null
+          description: The custom domain for the connection. Currently only applicable to SharePoint.
+          type:
+          - string
+          - 'null'
+      required:
+      - dataStoreId
+      type: object
+      x-versionadded: v2.43
+    DatabaseDataStoreCreate:
+      properties:
+        driverId:
+          description: The database driver ID.
+          type: string
+        fields:
+          description: The database driver fields.
+          items:
+            $ref: '#/components/schemas/DRConnectorV1Field'
+          type: array
+      required:
+      - driverId
+      - fields
+      type: object
+    GCPKey:
+      description: The Google Cloud Platform (GCP) key. Output is the downloaded JSON resulting from creating a service account *User Managed Key*  (in the *IAM & admin > Service accounts section* of GCP).Required if googleConfigId/configId is not specified.Cannot include this parameter if googleConfigId/configId is specified.
+      properties:
+        authProviderX509CertUrl:
+          description: Auth provider X509 certificate URL.
+          format: uri
+          type: string
+        authUri:
+          description: Auth URI.
+          format: uri
+          type: string
+        clientEmail:
+          description: Client email address.
+          type: string
+        clientId:
+          description: Client ID.
+          type: string
+        clientX509CertUrl:
+          description: Client X509 certificate URL.
+          format: uri
+          type: string
+        privateKey:
+          description: Private key.
+          type: string
+        privateKeyId:
+          description: Private key ID
+          type: string
+        projectId:
+          description: Project ID.
+          type: string
+        tokenUri:
+          description: Token URI.
+          format: uri
+          type: string
+        type:
+          description: GCP account type.
+          enum:
+          - service_account
+          type: string
+      required:
+      - type
+      type: object
+    GcpCredentialsFields:
+      properties:
+        configId:
+          description: The ID of secure configurations shared by admin. Alternative to googleConfigId (deprecated). If specified, cannot include gcpKey.
+          type: string
+          x-versionadded: v2.32
+        credentialType:
+          description: The type of these credentials, 'gcp' here.
+          enum:
+          - gcp
+          type: string
+        gcpKey:
+          $ref: '#/components/schemas/GCPKey'
+          x-versionadded: v2.21
+        googleConfigId:
+          description: The ID of secure configurations shared by admin. This is deprecated. Please use configId instead. If specified, cannot include gcpKey.
+          type: string
+          x-versionadded: v2.30
+      required:
+      - credentialType
+      type: object
+      x-versionadded: v2.46
+    JdbcExecute:
+      properties:
+        bindParams:
+          description: A list of values to use as bind parameters for the SQL statement.
+          items:
+            anyOf:
+            - type: boolean
+            - type: integer
+            - type: number
+            - format: date-time
+              type: string
+            - type: string
+            - type: 'null'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.46
+        jdbcUrl:
+          description: The JDBC URL.
+          maxLength: 16384
+          type: string
+        parameters:
+          $ref: '#/components/schemas/JdbcConnectionParameters'
+        sql:
+          description: The SQL to execute.
+          maxLength: 320000
+          type: string
+      required:
+      - jdbcUrl
+      - sql
+      type: object
+      x-versionadded: v2.45
+    JdbcDataPreview:
+      properties:
+        bindParams:
+          description: A list of values to use as bind parameters for the SQL statement.
+          items:
+            anyOf:
+            - type: boolean
+            - type: integer
+            - type: number
+            - format: date-time
+              type: string
+            - type: string
+            - type: 'null'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.46
+        jdbcUrl:
+          description: The JDBC URL.
+          maxLength: 16384
+          type: string
+        maxRows:
+          default: 1000
+          description: The row limit for the preview. The default is 1,000 rows, and a maximum of 10,000 per request.
+          maximum: 10000
+          minimum: 0
+          type: integer
+        parameters:
+          $ref: '#/components/schemas/JdbcConnectionParameters'
+        sql:
+          description: The SQL to execute.
+          maxLength: 320000
+          type: string
+      required:
+      - jdbcUrl
+      - sql
+      type: object
+      x-versionadded: v2.43
+    JdbcConnectionParameters:
+      description: Optional connection parameters and credential properties as key-value pairs (e.g. user, password, ssl, timeout).
+      type: object
+      x-versionadded: v2.43
+    BasicCredentialsFields:
+      properties:
+        credentialType:
+          description: The type of these credentials, 'basic' here.
+          enum:
+          - basic
+          type: string
+        password:
+          description: Password to store for these credentials.
+          type: string
+        user:
+          description: Username to store for these credentials.
+          type: string
+      required:
+      - credentialType
+      - password
+      - user
+      type: object
+      x-versionadded: v2.46
+    DataStoreCredentials:
+      properties:
+        credentialId:
+          description: The ID of the set of credentials to use instead of username and password.
+          type: string
+          x-versionadded: v2.19
+        password:
+          description: The password for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+        useKerberos:
+          default: false
+          description: Whether to use Kerberos for data store authentication.
+          type: boolean
+          x-versionadded: v2.19
+        user:
+          description: The username for data store authentication.
+          type: string
+          x-versiondeprecated: v2.23
+      type: object
+    GrantAccessControlWithIdWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        id:
+          description: The ID of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      type: object
+    AzureServicePrincipalCredentialsFields:
+      properties:
+        azureTenantId:
+          description: Tenant ID of the Azure AD service principal.
+          type: string
+          x-versionadded: v2.30
+        clientId:
+          description: Client ID of the Azure AD service principal.
+          type: string
+          x-versionadded: v2.30
+        clientSecret:
+          description: Client Secret of the Azure AD service principal.
+          type: string
+          x-versionadded: v2.30
+        configId:
+          description: The ID of the secure configuration to share Azure service principal credentials by admin.
+          type: string
+          x-versionadded: v2.35
+        credentialType:
+          description: The type of these credentials, 'azure_service_principal' here.
+          enum:
+          - azure_service_principal
+          type: string
+      required:
+      - credentialType
+      type: object
+      x-versionadded: v2.46
+    DRConnectorV1DataSource:
+      properties:
+        dataStoreId:
+          description: The data store ID for this data source.
+          title: Datastoreid
+          type: string
+          x-versionadded: v2.22
+        filter:
+          anyOf:
+          - maxLength: 320000
+            type: string
+          - type: 'null'
+          description: An optional filter string for narrowing results, which overrides `path` when specified. Only supported by the Jira connector.
+          maxLength: 320000
+          title: Filter
+          type: string
+          x-versionadded: v2.39
+        path:
+          description: The path to the dataset within whatever filesystem data source is using. For example, for S3 the path will look something like `/foldername/filename.csv`.
+          title: Path
+          type: string
+          x-versionadded: v2.22
+      required:
+      - dataStoreId
+      - path
+      title: DRConnectorV1DataSource
+      type: object
+    DatabricksAccessTokenCredentialsFields:
+      properties:
+        credentialType:
+          description: The type of these credentials, 'databricks_access_token_account' here.
+          enum:
+          - databricks_access_token_account
+          type: string
+        databricksAccessToken:
+          description: Databricks personal access token.
+          minLength: 1
+          type: string
+          x-versionadded: v2.31
+      required:
+      - credentialType
+      - databricksAccessToken
+      type: object
+      x-versionadded: v2.46
+    DataSourceInList:
+      properties:
+        canDelete:
+          description: True if the user can delete the data source.
+          type: boolean
+          x-versionadded: v2.23
+        canShare:
+          description: True if the user can share the data source.
+          type: boolean
+          x-versionadded: v2.22
+        canonicalName:
+          description: The data source canonical name.
+          type: string
+        creator:
+          description: The ID of the user who created the data source.
+          type: string
+        driverClassType:
+          description: The type of driver used to create this data source.
+          type: string
+        id:
+          description: The data source ID.
+          type: string
+        params:
+          description: The data source configuration.
+          oneOf:
+          - $ref: '#/components/schemas/DatabaseTableDataSource'
+          - $ref: '#/components/schemas/DatabaseQueryDataSource'
+          - $ref: '#/components/schemas/DRConnectorV1DataSource'
+        role:
+          description: The role of the user making the request on this data source.
+          enum:
+          - CONSUMER
+          - EDITOR
+          - OWNER
+          type: string
+        type:
+          description: The data source type.
+          enum:
+          - dr-connector-v1
+          - dr-database-v1
+          - jdbc
+          type: string
+        updated:
+          description: The ISO 8601-formatted date/time of the data source update.
+          type: string
+      required:
+      - canDelete
+      - canShare
+      - canonicalName
+      - creator
+      - id
+      - params
+      - role
+      - type
+      - updated
+      type: object
+    UpdateDriverRequest:
+      properties:
+        baseNames:
+          description: Original file name(s) of the uploaded JAR file(s). If there are multiple JAR files required for the driver, each of the original file names should be present in the list in the same order as found in 'localJarUrls'
+          items:
+            description: Original file name of the uploaded JAR file.
+            type: string
+          type: array
+        canonicalName:
+          description: User-friendly driver name.
+          type: string
+        className:
+          description: Driver class name. For example 'com.amazon.redshift.jdbc.Driver'
+          type:
+          - string
+          - 'null'
+        configurationId:
+          description: Driver configuration ID if it was provided during driver upload.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.18
+        localJarUrls:
+          description: File path(s) for the driver files.This path is returned in the response as 'local_url' by the driverUpload route.If there are multiple JAR files required for the driver, each uploaded JAR must be present in this list. If specified, values will replace any previous settings.
+          items:
+            description: File path for the driver file. This path is returned by the driverUpload route in the 'local_url' response.
+            type: string
+          minItems: 1
+          type: array
+        removeConfig:
+          description: 'Pass `True` to remove configuration currently associated with this driver. Note: must pass `canonicalName` and `className` if removing the configuration.'
+          type: boolean
+          x-versionadded: v2.18
+        skipConfigVerification:
+          description: Pass `True` to skip `jdbc_url` verification.
+          type: boolean
+          x-versionadded: v2.18
+        version:
+          description: Driver version, which is used to construct the canonical name if driver configuration ID was provided during driver upload.
+          type: string
+          x-versionadded: v2.18
+      type: object
+    DriverConfigurationListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          title: Count
+          type: integer
+        data:
+          description: List of driver configurations available to the user.
+          items:
+            $ref: '#/components/schemas/DriverConfigurationRetrieveResponse'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          title: Next
+          type:
+          - string
+          - 'null'
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          title: Previous
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      title: DriverConfigurationListResponse
+      type: object
+    DataStoreSQLVerifyResponse:
+      properties:
+        columns:
+          description: The list of columns for the returned set of records. Column order matches the order of values in a record.
+          items:
+            description: The name of the column.
+            type: string
+          maxItems: 20000
+          type: array
+        records:
+          description: The list of records output by the query.
+          items:
+            description: The list of values for a single database record, ordered as the columns are ordered.
+            items:
+              description: The string representation of the column's value.
+              type: string
+            type: array
+          maxItems: 10000
+          type: array
+      required:
+      - columns
+      - records
+      type: object
+    DataStoreColumnResponse:
+      properties:
+        dataType:
+          description: The data type of the column.
+          type: string
+        name:
+          description: The name of the column.
+          type: string
+        precision:
+          description: The precision of the column.
+          type:
+          - string
+          - 'null'
+        scale:
+          description: The scale of the column.
+          type:
+          - string
+          - 'null'
+      required:
+      - dataType
+      - name
+      - precision
+      - scale
+      type: object
+    TableDescription:
+      properties:
+        catalog:
+          description: The name of the catalog.
+          type:
+          - string
+          - 'null'
+        name:
+          description: The name of the table.
+          type: string
+        schema:
+          description: The schema of the table.
+          type: string
+        type:
+          description: The type of table.
+          enum:
+          - TABLE
+          - VIEW
+          type: string
+      required:
+      - name
+      - type
+      type: object
+    DataStoreTestResponse:
+      properties:
+        message:
+          description: The connection attempt results.
+          type: string
+      required:
+      - message
+      type: object
+    DatabaseDataStoreDetails:
+      properties:
+        driverId:
+          description: The database driver ID.
+          type: string
+        fieldSchemas:
+          description: The database driver field schemas.
+          items:
+            $ref: '#/components/schemas/ConnectorFieldSchema'
+          type: array
+        fields:
+          description: The database driver fields.
+          items:
+            $ref: '#/components/schemas/DRConnectorV1Field'
+          type: array
+      required:
+      - driverId
+      - fields
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

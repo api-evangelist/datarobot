@@ -1,0 +1,288 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Mitigation Humility API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage humility.
+  name: mitigation_humility
+paths:
+  /api/v2/deployments/{deploymentId}/humilityStats/:
+    get:
+      description: Retrieve humility rule service triggers statistics overview.
+      operationId: deploymentsHumilityStats_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The time duration of a bucket. Needs to be multiple of one hour. Can not be longer than the total length of the period. If not set, a default value will be calculated based on the start and end time.
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          format: duration
+          type: string
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          enum:
+          - DataRobot-Consumer
+          - DataRobot-Remote-IP
+          - DataRobot-Host-IP
+          type: string
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HumilityStatsResponse'
+          description: Humility service health statistics overview retrieved.
+        '403':
+          description: Model Deployments and/or Monitoring are not enabled.
+        '404':
+          description: Either the deployment does not exist or user does not have permission to view the deployment.
+      summary: Retrieve humility stats by deployment ID
+      tags:
+      - mitigation_humility
+      x-versionadded: v2.24
+  /api/v2/deployments/{deploymentId}/humilityStatsOverTime/:
+    get:
+      description: Retrieve humility service statistics over time.
+      operationId: deploymentsHumilityStatsOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The time duration of a bucket. Needs to be multiple of one hour. Can not be longer than the total length of the period. If not set, a default value will be calculated based on the start and end time.
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          format: duration
+          type: string
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          enum:
+          - DataRobot-Consumer
+          - DataRobot-Remote-IP
+          - DataRobot-Host-IP
+          type: string
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HumilityStatsOverTimeResponse'
+          description: Humility statistics for deployment retrieved.
+        '403':
+          description: Model Deployments and/or Monitoring are not enabled.
+        '404':
+          description: Either the deployment does not exist or user does not have permission to view the deployment.
+      summary: Retrieve humility stats over time by deployment ID
+      tags:
+      - mitigation_humility
+      x-versionadded: v2.24
+components:
+  schemas:
+    HumilityStatsRule:
+      properties:
+        ruleId:
+          description: Id of the humility rule.
+          type: string
+        ruleName:
+          description: Name of the rule.
+          type: string
+        value:
+          description: Number of times the rule was triggered.
+          type: integer
+      required:
+      - ruleId
+      - ruleName
+      - value
+      type: object
+    TimeRange:
+      description: An object with the keys "start" and "end" defining the period.
+      properties:
+        end:
+          description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        start:
+          description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      type: object
+    HumilityStatsResponse:
+      properties:
+        data:
+          description: metrics rules
+          items:
+            $ref: '#/components/schemas/HumilityStatsRule'
+          type: array
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - data
+      - period
+      type: object
+    HumilityStatsOverTimeResponse:
+      properties:
+        buckets:
+          description: An array of `bucket` objects, representing service health stats of the deployment over time
+          items:
+            $ref: '#/components/schemas/HumilityStatsBucket'
+          type: array
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        summary:
+          $ref: '#/components/schemas/HumilityStatsBucket'
+      required:
+      - buckets
+      - summary
+      type: object
+    HumilityStatsBucket:
+      description: A `bucket` object covering whole `start`/`end` time range
+      properties:
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        values:
+          description: Rules response objects.
+          items:
+            $ref: '#/components/schemas/HumilityStatsRule'
+          type: array
+      required:
+      - period
+      - values
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

@@ -1,0 +1,1607 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Analytics API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use analytics endpoints to retrieve and audit and event logs.
+  name: Analytics
+paths:
+  /api/v2/activityEventDescriptions/:
+    get:
+      description: Retrieve user-friendly descriptions for user activity events (application and admin). The ``CAN_ACCESS_USER_ACTIVITY`` permission (or org admin access to Event Logs) is required.
+      operationId: activityEventDescriptions_list
+      parameters:
+      - description: The number of results that will be skipped. Defaults to 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The maximum number of results returned. Defaults to 1000.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityEventDescriptionsListResponse'
+          description: The user activity event description catalog.
+      summary: Retrieve user-friendly descriptions
+      tags:
+      - Analytics
+      x-versionadded: v2.48
+  /api/v2/eventLogs/:
+    get:
+      description: Retrieve one page of audit log records.
+      operationId: eventLogs_list
+      parameters:
+      - description: The project to select log records for.
+        in: query
+        name: projectId
+        required: false
+        schema:
+          type: string
+      - description: The user to select log records for.
+        in: query
+        name: userId
+        required: false
+        schema:
+          type: string
+      - description: The organization to select log records for.
+        in: query
+        name: orgId
+        required: false
+        schema:
+          type: string
+      - description: The event type of records.
+        in: query
+        name: event
+        required: false
+        schema:
+          enum:
+          - ACL synchronization cycle completed
+          - ACL synchronized for a connector
+          - ADLS OAuth Failed
+          - ADLS OAuth Token Obtained
+          - ADLS OAuth Token Renewal Succeeded
+          - ADLS OAuth User Login Started
+          - ADLS OAuth User Login Succeeded
+          - API Key Created
+          - API Key Deleted
+          - API Key Updated
+          - AZURE OAuth Failed
+          - AZURE OAuth Token Obtained
+          - AZURE OAuth Token Renewal Succeeded
+          - AZURE OAuth User Login Started
+          - AZURE OAuth User Login Succeeded
+          - Abort Autopilot
+          - Access granted to a resource for a subject entity
+          - Access granted to a resource referenced by an experiment container
+          - Access request created
+          - Access revoked to a resource for a subject entity
+          - Access revoked to a resource referenced by an experiment container
+          - Account Disabled Due to Inactivity
+          - Account Marked For Deletion Due to Inactivity
+          - Activate account
+          - Activated On First Login
+          - Actuals Uploaded
+          - Add Model
+          - Add New Dataset For Predictions
+          - Add SAML configuration
+          - Advanced Tuning Requested
+          - App Config Changed
+          - App Template Cloned
+          - App Template Created
+          - App Template Deleted
+          - App Template Media Deleted
+          - App Template Media Uploaded
+          - App Template Updated
+          - Approval Workflow Policy Action
+          - Approval Workflow Policy Created
+          - Approval Workflow Policy Deleted
+          - Approval Workflow Policy Updated
+          - Approve account
+          - Association ID Set
+          - Automated Application Access Revoked from the Group
+          - Automated Application Access Revoked from the Organization
+          - Automated Application Access Revoked from the User
+          - Automated Application Created
+          - Automated Application Deleted
+          - Automated Application Domain Prefix Changed
+          - Automated Application Duplicated
+          - Automated Application Shared
+          - Automated Application Shared with Group
+          - Automated Application Shared with Organization
+          - Automated Application Upgraded
+          - Automated Demo Application Created
+          - Automated Document Created
+          - Automated Document Deleted
+          - Automated Document Downloaded
+          - Automated Document Previewed
+          - Automated Document Requested
+          - Automatic Time Series Task Plan Requested
+          - Available Forecast Points Computation Job Started
+          - Base Image Built
+          - Batch Monitoring Disabled
+          - Batch Monitoring Enabled
+          - Batch Prediction Created from Dataset
+          - Batch prediction job aborted
+          - Batch prediction job completed
+          - Batch prediction job created
+          - Batch prediction job failed
+          - Batch prediction job started
+          - Bias And Fairness Cross Class Calculated
+          - Bias And Fairness Insights Calculated
+          - Bias And Fairness Per Class Calculated
+          - Bias and Fairness monitoring settings updated.
+          - Bias and Fairness protected features specified.
+          - Blending Models Limit Exceeded
+          - Branded Theme Created
+          - Branded Theme Deleted
+          - Branded Theme Updated
+          - Bulk Datasets Deleted
+          - Bulk Datasets Tags Appended
+          - CCM Balancer Terminated
+          - CCM CLUSTER Reprovisioned
+          - CCM Cluster Created
+          - CCM Cluster Terminated
+          - CCM Resource Group Created
+          - Calculation of prediction intervals is requested
+          - Challenger Insight Generation Started
+          - Challenger Model Created
+          - Challenger Model Deleted
+          - Challenger Model Promoted
+          - Challenger Models Disabled
+          - Challenger Models Enabled
+          - Change Request Cancelled
+          - Change Request Created
+          - Change Request Reopened
+          - Change Request Resolved
+          - Change Request Review Added
+          - Change Request Review Requested
+          - Change Request Updated
+          - Change password
+          - Clustering Cluster Names Updated
+          - Code Snippet Created
+          - Codespace Created
+          - Codespace Deleted
+          - Codespace Metadata Edited
+          - Codespace Session Started
+          - Codespace Session Stopped
+          - Comment Created
+          - Comment Deleted
+          - Comment Updated
+          - Completed Feature Discovery Secondary Datasets
+          - Completed Feature Discovery for Primary Dataset
+          - Completed Relationship Quality Assessment
+          - Compliance Doc Deleted
+          - Compliance Doc Downloaded
+          - Compliance Doc Generated
+          - Compliance Doc Previewed
+          - Compute Cluster Added
+          - Compute Cluster Deleted
+          - Compute Cluster Updated
+          - Compute External Insights
+          - Compute Reason Codes
+          - Create Memory
+          - Create Memory Agent
+          - Create Memory Event
+          - Create Memory Session
+          - Create Memory Space
+          - Create account
+          - Created dataset from Data Engine workspace
+          - Created dataset version from Data Engine workspace
+          - Credential Created
+          - Credential Deleted
+          - Credential Updated
+          - Credential Values Retrieved Based On OAuth Configuration ID
+          - Custom Application Access Revoked from the Group
+          - Custom Application Access Revoked from the Organization
+          - Custom Application Access Revoked from the User
+          - Custom Application Created
+          - Custom Application Deleted
+          - Custom Application Failed to Start
+          - Custom Application Managed Image Created
+          - Custom Application Published
+          - Custom Application Renamed
+          - Custom Application Shared with Group
+          - Custom Application Shared with Organization
+          - Custom Application Shared with User
+          - Custom Application Source Access Revoked from the Group
+          - Custom Application Source Access Revoked from the Organization
+          - Custom Application Source Access Revoked from the User
+          - Custom Application Source Shared with Group
+          - Custom Application Source Shared with Organization
+          - Custom Application Source Shared with User
+          - Custom Application Started
+          - Custom Application Stopped
+          - Custom Application Usage Exported
+          - Custom Application Visited
+          - Custom Application Visited by Guest
+          - Custom Job Run Cancelled
+          - Custom Job Run Executed
+          - Custom Job Run Failed
+          - Custom Job Run Interrupted
+          - Custom Job Run Succeeded
+          - Custom Metric Bulk Upload Succeeded
+          - Custom Metric Creation Succeeded
+          - Custom Metric Dataset Upload Succeeded
+          - Custom Metric JSON Upload Succeeded
+          - Custom Model Conversion Failed
+          - Custom Model Conversion Files Uploaded
+          - Custom Model Conversion Succeeded
+          - Custom Model Updated from Codespace
+          - Custom Model Version Uploaded to Codespace
+          - Custom RBAC Access Role Created
+          - Custom RBAC Access Role Deleted
+          - Custom RBAC Access Role Updated
+          - Custom Registered Model Created
+          - Custom Registered Model Version Added
+          - Custom Task Deploy
+          - Custom Task Fit
+          - Custom inference model added
+          - Custom inference model assign training data request received
+          - Custom inference model updated
+          - Custom inference model version assign training data request received
+          - Custom inference model version created from remote repository content
+          - Custom model item added
+          - Custom model item created from template
+          - Custom task added
+          - Custom task updated
+          - Custom task version added
+          - Data Connection Created
+          - Data Connection Deleted
+          - Data Connection Tested
+          - Data Connection Updated
+          - Data Matching ANN Index Profile Built
+          - Data Matching Query Requested
+          - Data Sample Queried For Wrangling
+          - Data Sampled for Chunk Definition
+          - Data Source is created
+          - Data Sources Permadelete Executed
+          - Data Sources Permadelete Failed
+          - Data Sources Permadelete Submitted
+          - Data Store Config Request Submitted
+          - Data Stores Permadelete Executed
+          - Data Stores Permadelete Failed
+          - Data Stores Permadelete Submitted
+          - Data engine query generator created
+          - Data engine query generator deleted
+          - Data engine workspace created
+          - Data engine workspace deleted
+          - Data engine workspace state previewed
+          - Data engine workspace updated
+          - Dataset Categories Modified
+          - Dataset Column Aliases Modified
+          - Dataset Created
+          - Dataset Deleted
+          - Dataset Description Modified
+          - Dataset Download
+          - Dataset Materialized
+          - Dataset Name Modified
+          - Dataset Reloaded
+          - Dataset Shared
+          - Dataset Sharing Removed
+          - Dataset Tags Modified
+          - Dataset Undeleted
+          - Dataset Upload
+          - Dataset Upload is Completed
+          - Dataset Version Created from Recipe
+          - Dataset Version Deleted
+          - Dataset Version Undeleted
+          - Dataset featurelist created
+          - Dataset featurelist deleted
+          - Dataset featurelist updated
+          - Dataset for predictions with actual value column processed
+          - Dataset refresh job created
+          - Dataset refresh job deleted
+          - Dataset refresh job updated
+          - Dataset relationship created
+          - Dataset relationship updated
+          - Dataset transform created
+          - Datasets Permadelete Executed
+          - Datasets Permadelete Failed
+          - Datasets Permadelete Submitted
+          - Deactivate Account
+          - Decision Flow Created
+          - Decision Flow Model Package Created
+          - Decision Flow Test Downloaded
+          - Decision Flow Version Created
+          - Decision Flow Version Deleted
+          - Default value for Do-Not-Derive is changed
+          - Delete Memories Bulk
+          - Delete Memory
+          - Delete SAML configuration
+          - Delete existing Memory Space
+          - Deny account
+          - Deploy Model To Hadoop
+          - Deployment Activated
+          - Deployment Actuals Export Created
+          - Deployment Added
+          - Deployment Deactivated
+          - Deployment Deleted
+          - Deployment Humility Rule Added
+          - Deployment Humility Rule Deleted
+          - Deployment Humility Rule Submitted
+          - Deployment Humility Rule Updated
+          - Deployment Humility Setting Updated
+          - Deployment Monitoring Batch Created
+          - Deployment Monitoring Timeliness Setting Changed
+          - Deployment Permanently Erased
+          - Deployment Predictions Data Permanently Erased
+          - Deployment Processing Limit Interval Changed
+          - Deployment Statistics Reset
+          - Deployment prediction export created
+          - Deployment prediction warning setting updated
+          - Deployment training data export created
+          - 'Detected Data Quality: Disguised Missing Values'
+          - 'Detected Data Quality: Excess Zero'
+          - 'Detected Data Quality: Imputation Leakage'
+          - 'Detected Data Quality: Inconsistent Gaps'
+          - 'Detected Data Quality: Inliers'
+          - 'Detected Data Quality: Lagged Features'
+          - 'Detected Data Quality: Leading or Trailing Series'
+          - 'Detected Data Quality: Missing Documents'
+          - 'Detected Data Quality: Missing Images'
+          - 'Detected Data Quality: Multicategorical Invalid Format'
+          - 'Detected Data Quality: New Series in Recent Data'
+          - 'Detected Data Quality: Outliers'
+          - 'Detected Data Quality: Quantile Target Sparsity'
+          - 'Detected Data Quality: Quantile Target Zero Inflation'
+          - 'Detected Data Quality: Target Leakage'
+          - 'Detected Data Quality: Target had infrequent negative values'
+          - Directory Search Performed
+          - Do-Not-Derive is used
+          - Documentation Request
+          - Download All Charts
+          - Download Chart
+          - Download Codegen
+          - Download Codegen From Deployment
+          - Download Deployment Chart
+          - Download Model
+          - Download Model Package
+          - Download Model Package From Deployment
+          - Download Predictions
+          - Empty Catalog Item Created
+          - Empty Cluster Status Created
+          - Entitlement Definition Created
+          - Entitlement Definition Deleted
+          - Entitlement Definition Updated
+          - Entitlement Set Created
+          - Entitlement Set Deleted
+          - Entitlement Set Lease Created
+          - Entitlement Set Lease Deleted
+          - Entitlement Set Lease Updated
+          - Entitlement Set Updated
+          - Entitlement Set Updated Entitlements
+          - Entity Notification Channel Created
+          - Entity Notification Channel Deleted
+          - Entity Notification Channel Updated
+          - Entity Notification Policy Created
+          - Entity Notification Policy Deleted
+          - Entity Notification Policy Updated
+          - Entity Tag Created
+          - Entity Tag Deleted
+          - Entity Tag Updated
+          - Entity notification channel created
+          - Ephemeral Session Started
+          - Ephemeral Session Stopped
+          - Experiment Container Created
+          - Experiment Container Dataset Registered
+          - Experiment Container Dataset Unregistered
+          - 'Experiment Container Deleted '
+          - Experiment Container Entity Linked
+          - Experiment Container Entity Migrated
+          - Experiment Container Entity Moved
+          - Experiment Container Entity Unlinked
+          - Experiment Container Reference To Catalog Dataset Removed
+          - Experiment Container Reference To Catalog Dataset Version Removed
+          - Experiment Container Updated
+          - External Application Created
+          - External Application Deleted
+          - External Application Updated
+          - External Predictions Configured
+          - External Registered Model Created
+          - External Registered Model Version Added
+          - External principals synchronized for a connector
+          - External token exchanged
+          - FEAR Predict Job Started
+          - FaaS Function Created
+          - FaaS Function Deleted
+          - FaaS Function Perma Deleted
+          - FaaS Function Updated
+          - Failed Decision Flow Test
+          - Feature Discovery Relationship Quality Assessment Inputs Metrics
+          - Feature Discovery Relationship Quality Assessment Warnings Metrics
+          - Feature Drift Settings Changed
+          - Feature Over Geo Computed
+          - File Deleted
+          - File Download
+          - File Permadelete Executed
+          - File Permadelete Failed
+          - File Permadelete Submitted
+          - File Shared
+          - File Sharing Removed
+          - File Undeleted
+          - File Upload
+          - File Upload is Completed
+          - File refresh job created
+          - File refresh job deleted
+          - File refresh job updated
+          - Finish Autopilot
+          - First Login After DR Account Migration
+          - GenAI Agent Chat Completion Requested
+          - GenAI Chat Created
+          - GenAI Chat Deleted
+          - GenAI Chat Prompt Created
+          - GenAI Chat Prompt Deleted
+          - GenAI Chat Prompt Updated
+          - GenAI Chat Updated
+          - GenAI Comparison Chat Created
+          - GenAI Comparison Chat Deleted
+          - GenAI Comparison Chat Updated
+          - GenAI Comparison Prompt Created
+          - GenAI Comparison Prompt Deleted
+          - GenAI Comparison Prompt Updated
+          - GenAI Cost Metric Configuration Created
+          - GenAI Cost Metric Configuration Deleted
+          - GenAI Cost Metric Configuration Updated
+          - GenAI Evaluation Dataset Configuration Created
+          - GenAI Evaluation Dataset Configuration Deleted
+          - GenAI Evaluation Dataset Configuration Updated
+          - GenAI External Vector Database Updated
+          - GenAI Insights Upserted
+          - GenAI LLM Blueprint Created
+          - GenAI LLM Blueprint Created from Chat Prompt
+          - GenAI LLM Blueprint Created from LLM Blueprint
+          - GenAI LLM Blueprint Deleted
+          - GenAI LLM Blueprint Sent to Model Workshop
+          - GenAI LLM Blueprint Updated
+          - GenAI LLM Test Configuration Created
+          - GenAI LLM Test Configuration Deleted
+          - GenAI LLM Test Configuration Updated
+          - GenAI LLM Test Result Created
+          - GenAI LLM Test Result Deleted
+          - GenAI LLM Test Result Updated
+          - GenAI LLM Test Suite Created
+          - GenAI LLM Test Suite Deleted
+          - GenAI LLM Test Suite Updated
+          - GenAI Metrics Transferred to Model Workshop
+          - GenAI Moderation Config Saved
+          - GenAI Moderation Model Deployed
+          - GenAI Playground Created
+          - GenAI Playground Deleted
+          - GenAI Playground Trace Exported
+          - GenAI Playground Updated
+          - GenAI Prompt Template Created
+          - GenAI Prompt Template Deleted
+          - GenAI Prompt Template Version Created
+          - GenAI Vector Database Created
+          - GenAI Vector Database Deleted
+          - GenAI Vector Database Downloaded
+          - GenAI Vector Database Exported
+          - GenAI Vector Database Updated
+          - General Feedback Submitted
+          - Generic Custom Job Created
+          - Generic Custom Job Manual Run Created
+          - Generic Custom Job Scheduled Run Created
+          - Geometry Over Geo Computed
+          - Geospatial Feature Transform Created
+          - Geospatial Primary Location Column Selected
+          - Global Inbound OAuth Configuration Created
+          - Global Inbound OAuth Configuration Updated
+          - Global SAML Configuration Added
+          - Global SAML Configuration Deleted
+          - Global SAML Configuration Updated
+          - Group Members Updated
+          - Group created
+          - Group deleted
+          - Group updated
+          - Hosted Custom Metric Custom Job Created
+          - Hosted Custom Metric Deployment Connection Created
+          - In-App Notification Accepted
+          - In-App Notification Created
+          - In-App Notification Deleted
+          - In-App Notification Disabled
+          - In-App Notification Enabled
+          - In-App Notification Rejected
+          - In-App Notification Updated
+          - Inactive Account Policy Created
+          - Inactive Account Policy Deleted
+          - Inactive Account Policy Updated
+          - Inbound OAuth Configuration Created
+          - Inbound OAuth Configuration Updated
+          - Incremental Learning Model Created
+          - Interaction Feature Created
+          - Interaction Feature Deployment Created
+          - Invitation Accepted
+          - Invitation sent
+          - Job definition created
+          - Job definition updated
+          - Login Fail
+          - Login Succeeded Via Global SAML SSO
+          - Login Success Via SAML SSO
+          - Login Successful
+          - Logout
+          - MCP tool is called
+          - MLOPS Integrations Deployment Launched
+          - MLOPS Integrations Deployment Model Replaced
+          - MLOPS Integrations Deployment Stopped
+          - MLOPS Integrations Prediction Environment Created
+          - MLOPS Integrations Prediction Environment Deleted
+          - MLOps Installer Download Request Received
+          - Managed Image Built
+          - Memory Access Denied
+          - Memory Events List Requested
+          - Memory Executor Run Completed
+          - Memory Operation Failed
+          - Memory Session Delete Requested
+          - Memory Session Retention Strategies Updated
+          - Memory Sessions List Requested
+          - Memory Space Admin Access
+          - Memory Spaces Permadelete Submitted
+          - Memory Spaces Reassigned
+          - Memory Vector Store Delete
+          - Memory Vector Store Insert
+          - Memory Vector Store Reset
+          - Memory Vector Store Update
+          - Model Deployment Access Revoked
+          - Model Deployment Shared
+          - Model Insights Deleted
+          - Model Insights Job Submitted
+          - Models Starred
+          - Multi-Factor Auth Disable
+          - Multi-Factor Auth Enable
+          - Multilabel Labelwise ROC With Missing TPR Or FPR Requested
+          - Native Registered Model Created
+          - Native Registered Model Version Added
+          - Network Policy Created
+          - Network Policy Deleted
+          - Network Policy Updated
+          - No predictors are left because of Do-Not-Derive
+          - Non Existent Value Tracker Attachment Removed
+          - Notebook Conversion to Codespace Complete
+          - Notebook Conversion to Codespace Initiated
+          - Notebook Created
+          - Notebook Deleted
+          - Notebook Environment Variable Deleted
+          - Notebook Environment Variable Edited
+          - Notebook Environment Variables Created
+          - Notebook Environment Variables Deleted
+          - Notebook Metadata Edited
+          - Notebook Revision Created
+          - Notebook Revision Deleted
+          - Notebook Revision Restored
+          - Notebook Schedule Created
+          - Notebook Schedule Deleted
+          - Notebook Schedule Disabled
+          - Notebook Schedule Enabled
+          - Notebook Schedule Launched
+          - Notebook Session Ports Created
+          - Notebook Session Ports Deleted
+          - Notebook Session Ports Updated
+          - Notebook Session Started
+          - Notebook Session Stopped
+          - Notification Channel Deleted
+          - Notification Channel Template Created
+          - Notification Channel Template Deleted
+          - Notification Channel Template Updated
+          - Notification Custom Job Created
+          - Notification Policy Created
+          - Notification Policy Created From Template
+          - Notification Policy Deleted
+          - Notification Policy Template Created
+          - Notification Policy Template Deleted
+          - Notification Policy Template Updated
+          - Notification Policy Updated
+          - Notification channel created
+          - Notification channel deleted
+          - Notification channel updated
+          - Notification policy created
+          - Notification policy deleted
+          - Notification policy updated
+          - Number of bias mitigation jobs on Autopilot stage.
+          - OAuth Provider Access Token Generated
+          - OAuth Provider Authorization Created
+          - OAuth Provider Authorization Revoked
+          - OCR Job Resource Completed
+          - OCR Job Resource Created
+          - OCR Job Resource Started
+          - OIDC Configuration Created
+          - OIDC Configuration Deleted
+          - OIDC Configuration Updated
+          - OTel Logs reset
+          - OTel Metrics reset
+          - OTel Tracing reset
+          - Online Conformal PI Calculation Requested
+          - Organization Perma-Deletion Completed
+          - Organization Perma-Deletion Failed
+          - Organization Perma-Deletion Marked
+          - Organization Perma-Deletion Requested
+          - Organization Perma-Deletion Started
+          - Organization Perma-Deletion Unmarked
+          - Organization created
+          - Organization deleted
+          - Organization updated
+          - Organizations Perma-Deletion Requested
+          - PPS Docker Image Download Request Received
+          - Period accuracy file validation failed
+          - Period accuracy file validation successful
+          - Period accuracy insight computed
+          - Pipeline downsampling build and run started.
+          - Pipeline downsampling run failed to start.
+          - Predictions by Forecast Date Settings Updated
+          - Prime Downloaded
+          - Prime Run
+          - Project Access Revoked from the Group
+          - Project Access Revoked from the Organization
+          - Project Access Revoked from the User
+          - Project Autopilot Configured
+          - Project Cloned
+          - Project Created
+          - Project Created from Dataset
+          - Project Created from Project Export File
+          - Project Created from Wrangled Dataset
+          - Project Deleted
+          - Project Description Updated
+          - Project Exported as Project Export File
+          - Project Options Retrieved
+          - Project Options Updated
+          - Project Permadelete Executed
+          - Project Permadelete Failed
+          - Project Permadelete Submitted
+          - Project Renamed
+          - Project Restored
+          - Project Shared
+          - Project Shared with Group
+          - Project Shared with Organization
+          - Project Target Selected
+          - Published Recipe Data Uploaded
+          - Rate limit user group changed
+          - Recipe Access Revoked from Group
+          - Recipe Access Revoked from Organization
+          - Recipe Access Revoked from User
+          - Recipe Created
+          - Recipe Deleted
+          - Recipe Operations Added
+          - Recipe Published
+          - Recipe Shared
+          - Recipe Shared with Group
+          - Recipe Shared with Organization
+          - Recipe metadata updated
+          - Registered Model Shared
+          - Registered Model Updated
+          - Registered Model Version Stage Transitioned
+          - Registered Model Version Updated
+          - Remote Repository Registered
+          - Replaced Model
+          - Request External Insights
+          - Request External Insights - All Datasets
+          - Request Model Insights
+          - Reset Memories
+          - Restart Autopilot
+          - Restore Reduced Features
+          - Retraining Custom Job Created
+          - Retraining Policy Cancelled
+          - Retraining Policy Created
+          - Retraining Policy Deleted
+          - Retraining Policy Failed
+          - Retraining Policy Started
+          - Retraining Policy Succeeded
+          - RuleFit Code Downloaded
+          - SCIM Configuration Updated
+          - SHAP Impact Computed
+          - SHAP Matrix Computed
+          - SHAP Predictions Explanations Computed
+          - SHAP Predictions Explanations Preview Computed
+          - SHAP Training Predictions Explanations Computed
+          - Seat licenses not restored on reactivation
+          - Secure Configuration Created
+          - Secure Configuration Deleted
+          - Secure Configuration Shared
+          - Secure Configuration Sharing Removed
+          - Secure Configuration Values Updated
+          - Segment Analysis Enabled
+          - Segment Attributes Specified
+          - Select Model Metric
+          - ServiceUser Created
+          - ServiceUser Deleted
+          - ServiceUser Impersonated Token Requested
+          - ServiceUser Token Requested
+          - ServiceUser Updated
+          - Start Autopilot
+          - Successful Decision Flow Test
+          - Successful Login using OIDC flow
+          - Successful Login using OIDC token exchange
+          - Successful Login via Google Idp
+          - Target is set as Do-Not-Derive
+          - Tenant Created
+          - Tenant Encryption Key generated and managed by DataRobot KMS
+          - Tenant Encryption Key rotated
+          - Tenant Encryption Key scheduled for deletion
+          - Tenant Encryption Key was set for the tenant
+          - Tenant Perma-Deletion Completed
+          - Tenant Perma-Deletion Failed
+          - Tenant Perma-Deletion Requested
+          - Tenant Perma-Deletion Started
+          - Tenant Updated
+          - Text prediction explanations computed
+          - Tracing Dependency Graph Requested
+          - Tracing List Requested
+          - Tracing Span Histogram Requested
+          - Train Model
+          - Trial Account Provisioning Completed
+          - Trial Account Provisioning Failed
+          - Trial Account Provisioning Started
+          - Unsupervised Mode Started
+          - Update Memory
+          - Update SAML configuration
+          - Update account
+          - Update existing Memory Session
+          - Update existing Memory Space
+          - Update existing chat history event
+          - User Agreement Accepted
+          - User Agreement Declined
+          - User Append Columns Download With Predictions
+          - User Blueprint Added To Repository
+          - User Blueprint Created
+          - User Blueprint Deleted
+          - User Blueprint Deleted In Bulk
+          - User Blueprint Description Modified
+          - User Blueprint Name Modified
+          - User Blueprint Retrieved
+          - User Blueprint Tags Modified
+          - User Blueprint Tasks Retrieved
+          - User Blueprint Updated
+          - User Blueprint Validated
+          - User Blueprints Listed
+          - User Provisioned From JWT
+          - Users Perma-Deletion Canceled
+          - Users Perma-Deletion Canceling
+          - Users Perma-Deletion Completed
+          - Users Perma-Deletion Failed
+          - Users Perma-Deletion Preview Building Canceled
+          - Users Perma-Deletion Preview Building Canceling
+          - Users Perma-Deletion Preview Building Completed
+          - Users Perma-Deletion Preview Building Failed
+          - Users Perma-Deletion Preview Building Started
+          - Users Perma-Deletion Preview Building Submitted
+          - Users Perma-Deletion Started
+          - Users Perma-Deletion Submitted
+          - Value Tracker Attachment Added
+          - Value Tracker Attachment Removed
+          - Value Tracker Created
+          - Value Tracker Stage Changed
+          - Value Tracker Updated
+          - Workspace scheduled batch processing job created
+          - Workspace scheduled batch processing job deleted
+          - Workspace scheduled batch processing job updated
+          - aiAPI Portal Login
+          type: string
+      - description: The lower bound for timestamps. e.g., '2016-12-13T11:12:13.141516Z'.
+        in: query
+        name: minTimestamp
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The upper bound for timestamps. e.g., '2016-12-13T11:12:13.141516Z'.
+        in: query
+        name: maxTimestamp
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: This many results will be skipped. Defaults to 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The order of the results. Defaults to descending.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: desc
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: Indicates if identifying information like user names, project names, etc. should be included or not. Defaults to True.
+        in: query
+        name: includeIdentifyingFields
+        required: false
+        schema:
+          default: 'true'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.17
+      - description: Indicates which type of event to return - must be one of ``APP_USAGE`` for application related events (i.e., Project Created, Dataset Uploaded, etc.) or ``ADMIN_USAGE`` for admin related events (i.e., Reset API Token for User, Organization Created, etc.). If not provided, all events will be returned by default.
+        in: query
+        name: auditReportType
+        required: false
+        schema:
+          enum:
+          - APP_USAGE
+          - ADMIN_USAGE
+          type: string
+        x-versionadded: v2.17
+      - description: When true, return only events useful for security/compliance audits (i.e., permission changes, access denials, etc.). When false, return only usage events (e.g., 'Start Autopilot', 'Add Model'). Combines with ``auditReportType`` and ``event`` when both are set. Each event label's ``isAuditEvent`` value is listed in ``GET /api/v2/activityEventDescriptions/``. Omit to return all events.
+        in: query
+        name: isAuditEvent
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.49
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogsRetrieveResponse'
+          description: The list of audit log records.
+      summary: Retrieve one page of audit log records
+      tags:
+      - Analytics
+      x-versionadded: v2.0
+  /api/v2/eventLogs/events/:
+    get:
+      description: Retrieve all the available events. DEPRECATED API.
+      operationId: eventLogsEvents_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogsEventListResponse'
+          description: The list of events.
+      summary: Retrieve all the available events
+      tags:
+      - Analytics
+      x-versionadded: v2.0
+  /api/v2/eventLogs/predictionUsage/:
+    get:
+      description: Retrieve prediction usage data. The ``CAN_ACCESS_USER_ACTIVITY`` permission is required.
+      operationId: eventLogsPredictionUsage_list
+      parameters:
+      - description: The project to retrieve prediction usage for.
+        in: query
+        name: projectId
+        required: false
+        schema:
+          type: string
+      - description: The user to retrieve prediction usage for.
+        in: query
+        name: userId
+        required: false
+        schema:
+          type: string
+      - description: The lower bound for timestamps. e.g., '2016-12-13T11:12:13.141516Z'.
+        in: query
+        name: minTimestamp
+        required: true
+        schema:
+          format: date-time
+          type: string
+      - description: The upper bound for timestamps. Time range should not exceed 24 hours. e.g., '2016-12-13T11:12:13.141516Z'.
+        in: query
+        name: maxTimestamp
+        required: true
+        schema:
+          format: date-time
+          type: string
+      - description: The order of prediction usage rows sorted by ``timestamp``. Defaults to descending.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: desc
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: This many results will be skipped. Defaults to 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Indicates if identifying information like user names, project names, etc., should be included or not. Defaults to True.
+        in: query
+        name: includeIdentifyingFields
+        required: false
+        schema:
+          default: 'true'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.17
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionUsageRetrieveResponse'
+          description: The list of prediction events.
+      summary: Retrieve prediction usage data
+      tags:
+      - Analytics
+      x-versionadded: v2.17
+  /api/v2/eventLogs/{recordId}/:
+    get:
+      description: Get the audit record by ID.
+      operationId: eventLogs_retrieve
+      parameters:
+      - description: Indicates if identifying information like user names, project names, etc., should be included or not. Defaults to True.
+        in: query
+        name: includeIdentifyingFields
+        required: false
+        schema:
+          default: 'true'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.17
+      - description: The ID of the audit log.
+        in: path
+        name: recordId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogsRetrieveOneResponse'
+          description: The queried audit record.
+      summary: Get the audit record by ID by record ID
+      tags:
+      - Analytics
+      x-versionadded: v2.0
+  /api/v2/usageDataExports/:
+    post:
+      description: Create a customer usage data artifact request. Requires "CAN_ACCESS_USER_ACTIVITY" permission. Returns async task status URL as a "Location" header. The async task status should be polled in order to retrieve the artifact ID.
+      operationId: usageDataExports_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsageDataExport'
+      responses:
+        '202':
+          description: Customer usage data artifact creation started. The status can be tracked at the Location field in the headers.
+        '400':
+          description: Artifact creation process encountered a problem.
+      summary: Create a customer usage data artifact request
+      tags:
+      - Analytics
+      x-versionadded: v2.11
+  /api/v2/usageDataExports/supportedEvents/:
+    get:
+      description: Describe supported available audit events with which to filter result data.
+      operationId: usageDataExportsSupportedEvents_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageDataEventsListResponse'
+          description: The list of supported available audit events.
+      summary: Describe supported available audit events with
+      tags:
+      - Analytics
+      x-versionadded: v2.11
+  /api/v2/usageDataExports/{artifactId}/:
+    get:
+      description: Retrieve a prepared customer usage data artifact. Requires "CAN_ACCESS_USER_ACTIVITY" permission.
+      operationId: usageDataExports_retrieve
+      parameters:
+      - description: The ID of the generated artifact to retrieve.
+        in: path
+        name: artifactId
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageDataRetrieveResponse'
+          description: An artifact file in .zip format.
+        '400':
+          description: Usage data artifact retrieval failed.
+        '404':
+          description: Requested artifact does not exist.
+      summary: Retrieve a prepared customer usage data artifact by artifact ID
+      tags:
+      - Analytics
+      x-versionadded: v2.11
+  /api/v2/users/{userId}/rateLimitUsage/:
+    delete:
+      description: Reset specified user's rate limit resource usage to zero for all resources. When windows roll over, all limits are automatically reset. Use this route to reset usage sooner.
+      operationId: usersRateLimitUsage_deleteMany
+      parameters:
+      - description: The user identifier.
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The usage has been successfully reset to zero.
+      summary: Reset resource usage by user ID
+      tags:
+      - Analytics
+      x-versionadded: v2.0
+    get:
+      description: List the rate limit resource usage for a user. The usage array returned will have one object corresponding to each rate limit applied to the user.
+      operationId: usersRateLimitUsage_list
+      parameters:
+      - description: The user identifier.
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceUsageResponse'
+          description: ''
+      summary: List resource usage by user ID
+      tags:
+      - Analytics
+      x-versionadded: v2.0
+  /api/v2/users/{userId}/rateLimitUsage/{resourceName}/:
+    delete:
+      description: Reset rate limit resource usage for a user of a specified resource to zero. This will happen automatically when windows roll over. This route can be used to reset a user's rate limits sooner.
+      operationId: usersRateLimitUsage_delete
+      parameters:
+      - description: The id of the user to reset usage for.
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      - description: The resource name to reset usage for.
+        in: path
+        name: resourceName
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The usage has been successfully reset to zero.
+      summary: Delete rate limit usage by ID
+      tags:
+      - Analytics
+      x-versionadded: v2.0
+components:
+  schemas:
+    ResourceUsage:
+      properties:
+        currentUsage:
+          description: The usage accumulated within the current window.
+          type: integer
+        maxUsage:
+          description: The maximum value currentUsage can take before requests using this resource are denied.
+          type: integer
+        resource:
+          description: The rate limit resource this usage applies to.
+          type: string
+        timeToExpire:
+          description: The number of seconds until this usage resets to zero.
+          type: integer
+      required:
+      - currentUsage
+      - maxUsage
+      - resource
+      - timeToExpire
+      type: object
+    UsageDataExport:
+      properties:
+        end:
+          description: The upper bound of stored events timestamp to include within the artifact.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        include:
+          description: Additional fields to be included.
+          items:
+            type: string
+          type: array
+        includeIdentifyingFields:
+          default: true
+          description: Indicates if identifying information like user names, project names, etc. should be included or not. Defaults to True.
+          type: boolean
+          x-versionadded: v2.17
+        includeReport:
+          description: The list of reports that should be generated. Will default to `None` if not specified.
+          items:
+            description: The available 'AuditReportType' enums include 'APP_USAGE', 'ADMIN_USAGE' and 'PREDICTION_USAGE'.
+            enum:
+            - ADMIN_USAGE
+            - APP_USAGE
+            - PREDICTION_USAGE
+            - SYSTEM_INFO
+            type: string
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.17
+        isAuditEvent:
+          description: When true, include only events useful for security/compliance audits (i.e., permission changes, access denials, etc.) in app and admin usage CSVs. When false, include only usage events (e.g., 'Start Autopilot', 'Add Model'). Omit to return all events. Does not filter prediction usage. Each event label's ``isAuditEvent`` value is listed in ``GET /api/v2/activityEventDescriptions/``.
+          type: boolean
+          x-versionadded: v2.49
+        noCache:
+          description: Switches off caching.
+          type: boolean
+          x-versionadded: v2.20
+        projectId:
+          description: Only actions that are connected with the project will be retrieved.
+          type: string
+          x-versionadded: v2.18
+        start:
+          description: The lower bound of stored events timestamp to include within the artifact.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        userId:
+          description: Only actions performed by this user will be retrieved.
+          type: string
+          x-versionadded: v2.18
+      required:
+      - includeIdentifyingFields
+      type: object
+    ResourceUsageResponse:
+      properties:
+        count:
+          description: The number of resource usage records.
+          type: integer
+        next:
+          description: URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+        usage:
+          description: The resource usage records.
+          items:
+            $ref: '#/components/schemas/ResourceUsage'
+          type: array
+      required:
+      - count
+      - next
+      - previous
+      - usage
+      type: object
+    UsageDataEventsListResponse:
+      properties:
+        events:
+          additionalProperties:
+            type: string
+          description: The available events to use in filtering.
+          type: object
+          x-versionadded: v2.36
+      required:
+      - events
+      type: object
+    UsageDataRetrieveResponse:
+      properties:
+        data:
+          description: The requested usage artifact in .zip format.
+          format: binary
+          type: string
+      required:
+      - data
+      type: object
+    AuditLogsRetrieveResponse:
+      properties:
+        count:
+          description: The number of returned items.
+          type: integer
+        data:
+          description: A json array of audit log records structured in the same form as the response :http:get:`/api/v2/eventLogs/(recordId)/`
+          items:
+            $ref: '#/components/schemas/AuditLogsRetrieveOneResponse'
+          type: array
+        next:
+          description: A URL to the next page (if null, no next page exists).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: A URL to the previous page (if null, no previous page exists).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The number of items matching the query condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ActivityEventDescriptionsListResponse:
+      properties:
+        count:
+          description: The number of returned items.
+          type: integer
+        data:
+          description: A JSON array of user activity event labels and descriptions.
+          items:
+            $ref: '#/components/schemas/ActivityEventDescriptionResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: A URL to the next page (if null, no next page exists).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: A URL to the previous page (if null, no previous page exists).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of user activity event descriptions in the catalog.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.48
+    AuditLogContextObjectResponse:
+      description: An object with additional attributes for the record.
+      properties:
+        orgId:
+          description: The ID of the organization.
+          type:
+          - string
+          - 'null'
+        orgName:
+          description: The name of the organization.
+          type:
+          - string
+          - 'null'
+        projectName:
+          description: The name of the project.
+          type:
+          - string
+          - 'null'
+        projectType:
+          description: The type of the project.
+          type:
+          - string
+          - 'null'
+        userProjectRole:
+          description: The role of the user associated with this project.
+          type:
+          - string
+          - 'null'
+      type: object
+    PredictionUsageObjectResponse:
+      properties:
+        avgExecutionTime:
+          description: The average predictions execution time during `timestamp` hour
+          type: number
+        blenderModelTypes:
+          description: The type of blender model.
+          type:
+          - string
+          - 'null'
+        datasetId:
+          description: The ID of the dataset.
+          type:
+          - string
+          - 'null'
+        deploymentId:
+          description: The ID of the deployment.
+          type:
+          - string
+          - 'null'
+        deploymentType:
+          description: The type of the deployment.
+          type:
+          - string
+          - 'null'
+        groupId:
+          description: The ID of the group.
+          type:
+          - string
+          - 'null'
+        groupName:
+          description: The name of the group.
+          type:
+          - string
+          - 'null'
+        modelId:
+          description: The ID of the model.
+          type:
+          - string
+          - 'null'
+        modelType:
+          description: The type of the model.
+          type:
+          - string
+          - 'null'
+        orgId:
+          description: The ID of the organization.
+          type:
+          - string
+          - 'null'
+        orgName:
+          description: The name of the organization.
+          type:
+          - string
+          - 'null'
+        predictionExplanations:
+          description: Whether it contains prediction explanations.
+          type:
+          - boolean
+          - 'null'
+        predictionMethod:
+          description: The prediction method that was used.
+          type: string
+        predictionRowCountPerMinute:
+          description: The list of row counts per minute.
+          items:
+            type: integer
+          type:
+          - array
+          - 'null'
+        predictionRowsCount:
+          description: The count of prediction rows during the `timestamp` hour.
+          type: integer
+        projectId:
+          description: The ID of the project.
+          type:
+          - string
+          - 'null'
+        projectType:
+          description: The type of the project.
+          type:
+          - string
+          - 'null'
+        pythonVersion:
+          description: The Python version used to build models in the project.
+          type:
+          - string
+          - 'null'
+        recommendedModel:
+          description: Whether it is a recommended model.
+          type:
+          - boolean
+          - 'null'
+        requestCountPerMinute:
+          description: The list of requests per minute.
+          items:
+            type: integer
+          type:
+          - array
+          - 'null'
+        requestsCount:
+          description: The request count during the `timestamp` hour.
+          type: integer
+        serverErrorCount:
+          description: The server error count during the `timestamp` hour.
+          type: integer
+        timestamp:
+          description: The timestamp of the event.
+          format: date-time
+          type: string
+        userErrorCount:
+          description: The user error count during the `timestamp` hour.
+          type: integer
+        userId:
+          description: The ID of the user.
+          type: string
+        userProjectRole:
+          description: The role of the user to the related project.
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the user. Will be empty if ``includeIdentifyingFields`` is True.
+          type:
+          - string
+          - 'null'
+      required:
+      - avgExecutionTime
+      - predictionExplanations
+      - predictionMethod
+      - predictionRowsCount
+      - requestsCount
+      - serverErrorCount
+      - timestamp
+      - userErrorCount
+      - userId
+      type: object
+    AuditLogsRetrieveOneResponse:
+      properties:
+        context:
+          $ref: '#/components/schemas/AuditLogContextObjectResponse'
+        event:
+          description: The record event label (e.g., 'Start Autopilot').
+          type: string
+        id:
+          description: The record ID.
+          type:
+          - string
+          - 'null'
+        ip:
+          description: The IP address of the user who originated the event. Will be empty if ``includeIdentifyingFields`` is False.
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: The record event project ID.
+          type:
+          - string
+          - 'null'
+        timestamp:
+          description: The record timestamp.
+          format: date-time
+          type: string
+        userId:
+          description: The user ID of the user who triggered the record event.
+          type: string
+        username:
+          description: The username of the record events user. Will be empty if ``includeIdentifyingFields`` is False.
+          type:
+          - string
+          - 'null'
+        wasSuccess:
+          description: Whether the audited action succeeded. False for instances such as failed logins or jobs; true for successful events, noting that job cancellations are considered successful if the cancellation itself succeeds.
+          type: boolean
+          x-versionadded: v2.49
+      required:
+      - context
+      - event
+      - id
+      - projectId
+      - timestamp
+      - userId
+      - wasSuccess
+      type: object
+    ActivityEventDescriptionResponse:
+      properties:
+        description:
+          description: A user-friendly sentence describing what the event means.
+          type: string
+        isAdminEvent:
+          description: Whether the event is classified as an admin event (e.g., 'Organization created') rather than an application usage event (e.g., 'Start Autopilot').
+          type: boolean
+        isAuditEvent:
+          description: True if the event is useful for security/compliance audits (i.e., permission changes, access denials, etc.). False for usage events (e.g., 'Start Autopilot', 'Add Model').
+          type: boolean
+        label:
+          description: The record event label (e.g., 'Start Autopilot').
+          type: string
+        wasSuccess:
+          description: Whether the audited action succeeded. False for instances such as failed logins or jobs; true for successful events, noting that job cancellations are considered successful if the cancellation itself succeeds.
+          type: boolean
+      required:
+      - description
+      - isAdminEvent
+      - isAuditEvent
+      - label
+      - wasSuccess
+      type: object
+      x-versionadded: v2.48
+    AuditLogsEventListResponse:
+      properties:
+        count:
+          description: Total count of event labels.
+          type: integer
+        data:
+          description: A JSON array of event labels.
+          items:
+            description: The name of the event.
+            type: string
+          type: array
+      required:
+      - count
+      - data
+      type: object
+    PredictionUsageRetrieveResponse:
+      properties:
+        count:
+          description: The number of returned items.
+          type: integer
+        data:
+          description: A JSON array of prediction usage rows described below.
+          items:
+            $ref: '#/components/schemas/PredictionUsageObjectResponse'
+          type: array
+        next:
+          description: A URL to the next page (if null, no next page exists).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: A URL to the previous page (if null, no previous page exists).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The number of items matching the query condition.
+          type: integer
+          x-versionadded: v2.23
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

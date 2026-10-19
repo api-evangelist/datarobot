@@ -1,0 +1,2407 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Artifacts API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Manage artifact definitions and container specifications.
+  name: Artifacts
+paths:
+  /api/v2/artifactRepositories:
+    get:
+      description: Returns the list of artifact repositories.
+      operationId: listArtifactRepositories
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: Filters by those created by the given user.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filters by those created by the given user.
+          title: Created By
+      - description: Filter by specific IDs
+        in: query
+        name: ids
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Filter by specific IDs
+          title: Ids
+      - description: Case insensitive search against name, description and partial ID.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Case insensitive search against name, description and partial ID.
+          title: Search
+      - description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagKeys
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Keys
+      - description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagValues
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Values
+      - description: Select a sorting strategy from the list.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CommonSortQueryParams'
+          - type: 'null'
+          description: Select a sorting strategy from the list.
+          title: Order By
+      - description: Filters artifacts by their type (e.g., service, nim).
+        in: query
+        name: type
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactType'
+          - type: 'null'
+          description: Filters artifacts by their type (e.g., service, nim).
+          title: Type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactRepositoryListResponse'
+          description: Successful Response
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Artifact Repositories
+      tags:
+      - Artifacts
+  /api/v2/artifactRepositories/{artifact_repository_id}:
+    delete:
+      description: Delete an artifact repository. Artifacts within the repository are cascade-deleted unless they are locked or still in use by workloads.
+      operationId: deleteArtifactRepository
+      parameters:
+      - description: Artifact Repository ID
+        in: path
+        name: artifact_repository_id
+        required: true
+        schema:
+          description: Artifact Repository ID
+          title: Artifact Repository Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact repository not found
+        '409':
+          description: Repository contains locked artifacts or artifacts in use by workloads
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Artifact Repository by artifact_repository_ ID
+      tags:
+      - Artifacts
+    get:
+      description: Get a specific artifact repository by ID.
+      operationId: getArtifactRepository
+      parameters:
+      - description: Artifact Repository ID
+        in: path
+        name: artifact_repository_id
+        required: true
+        schema:
+          description: Artifact Repository ID
+          title: Artifact Repository Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactRepositoryFormatted'
+          description: Successful Response
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact repository not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Artifact Repository by artifact_repository_ ID
+      tags:
+      - Artifacts
+  /api/v2/artifactRepositories/{artifact_repository_id}/sharedRoles:
+    get:
+      description: Get artifact repository shared roles. Returns the list of roles shared for this artifact repository.
+      operationId: listArtifactRepositorySharedRoles
+      parameters:
+      - description: Artifact Repository ID
+        in: path
+        name: artifact_repository_id
+        required: true
+        schema:
+          description: Artifact Repository ID
+          title: Artifact Repository Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedRoleListResponse'
+          description: Successful Response
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact repository not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Artifact Repository Shared Roles by artifact_repository_ ID
+      tags:
+      - Artifacts
+    patch:
+      description: Update artifact repository shared roles. Replaces the current shared roles with the provided list.
+      operationId: updateArtifactRepositorySharedRoles
+      parameters:
+      - description: Artifact Repository ID
+        in: path
+        name: artifact_repository_id
+        required: true
+        schema:
+          description: Artifact Repository ID
+          title: Artifact Repository Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdateRequest'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact repository not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Artifact Repository Shared Roles by artifact_repository_ ID
+      tags:
+      - Artifacts
+  /api/v2/artifacts:
+    get:
+      description: List all artifacts accessible to the authenticated user.
+      operationId: listArtifacts
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: Filters by those created by the given user.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filters by those created by the given user.
+          title: Created By
+      - description: Filter by specific IDs
+        in: query
+        name: ids
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Filter by specific IDs
+          title: Ids
+      - description: Case insensitive search against name, description and partial ID.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Case insensitive search against name, description and partial ID.
+          title: Search
+      - description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagKeys
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Keys
+      - description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagValues
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Values
+      - description: The order to sort the results.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactSortQueryParams'
+          - type: 'null'
+          description: The order to sort the results.
+          title: Orderby
+      - description: Filters artifacts by their type (e.g., service, nim).
+        in: query
+        name: type
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactType'
+          - type: 'null'
+          description: Filters artifacts by their type (e.g., service, nim).
+          title: Type
+      - description: Filters artifacts by their status.
+        in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactStatus'
+          - type: 'null'
+          description: Filters artifacts by their status.
+          title: Status
+      - description: Filter artifacts by their artifact repository ID
+        in: query
+        name: repositoryId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter artifacts by their artifact repository ID
+          title: Artifact Repository ID
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactListResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Artifacts
+      tags:
+      - Artifacts
+    post:
+      description: Create a new artifact from the provided container specification. Artifacts are always created as drafts.
+      operationId: createArtifact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputArtifact'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Artifact
+      tags:
+      - Artifacts
+  /api/v2/artifacts/{artifact_id}:
+    delete:
+      description: Delete an artifact. Locked artifacts and artifacts with associated protons cannot be deleted.
+      operationId: deleteArtifact
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '409':
+          description: Artifact is locked or currently in use by a workload
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Artifact by artifact_ ID
+      tags:
+      - Artifacts
+    get:
+      description: Get a specific artifact by ID.
+      operationId: getArtifact
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Artifact by artifact_ ID
+      tags:
+      - Artifacts
+    patch:
+      description: 'Partially update an artifact. Only the provided fields will be updated.
+
+
+        The repository is changed with PUT /artifacts/{artifactId} and the type is fixed when the
+
+        artifact is created, so a body naming artifactRepositoryId or type is rejected with 422; any
+
+        other field this endpoint does not know is ignored.'
+      operationId: patchArtifact
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateArtifactRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Patch Artifact by artifact_ ID
+      tags:
+      - Artifacts
+    put:
+      description: 'Update an existing artifact.
+
+
+        Replaces all artifact fields with the provided values.
+
+        For partial updates, use the PATCH endpoint instead.'
+      operationId: updateArtifact
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputArtifact'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Artifact by artifact_ ID
+      tags:
+      - Artifacts
+  /api/v2/artifacts/{artifact_id}/builds:
+    get:
+      operationId: getArtifactBuildList
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageBuildFormattedList'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          description: Bad request
+      summary: Get Artifact Build List by artifact_ ID
+      tags:
+      - Artifacts
+    post:
+      description: Start image build(s) for a draft service artifact (codeRef). Locked artifacts are rejected.
+      operationId: triggerArtifactBuild
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageBuildTriggerResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          description: Invalid state, missing files, or other services error
+        '504':
+          description: Build service did not confirm the submission in time; safe to retry
+      summary: Trigger Artifact Build by artifact_ ID
+      tags:
+      - Artifacts
+  /api/v2/artifacts/{artifact_id}/builds/{build_id}:
+    delete:
+      description: Request cancellation/deletion of an image build for a **draft** artifact (immutable when locked).
+      operationId: deleteArtifactBuild
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      - description: Workload API artifact image build id, same id returned by trigger build
+        in: path
+        name: build_id
+        required: true
+        schema:
+          description: Workload API artifact image build id, same id returned by trigger build
+          title: Build Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          description: Artifact not draft or internal error
+      summary: Delete Artifact Build by artifact_ ID
+      tags:
+      - Artifacts
+    get:
+      operationId: getArtifactBuild
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      - description: Workload API artifact image build id, same id returned by trigger build
+        in: path
+        name: build_id
+        required: true
+        schema:
+          description: Workload API artifact image build id, same id returned by trigger build
+          title: Build Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageBuildFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          description: Invalid build id or bad request
+      summary: Get Artifact Build by artifact_ ID
+      tags:
+      - Artifacts
+  /api/v2/artifacts/{artifact_id}/clone:
+    post:
+      description: Clone an existing artifact. Creates a new artifact with the same fields as the original.
+      operationId: cloneArtifact
+      parameters:
+      - description: Artifact ID
+        in: path
+        name: artifact_id
+        required: true
+        schema:
+          description: Artifact ID
+          title: Artifact Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtifactCloneRequest'
+              description: Name for the cloned artifact
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Artifact not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Clone Artifact by artifact_ ID
+      tags:
+      - Artifacts
+components:
+  schemas:
+    StringEnvironmentVariable:
+      properties:
+        name:
+          description: Name of the environment variable
+          maxLength: 256
+          minLength: 1
+          title: Name
+          type: string
+        source:
+          const: string
+          default: string
+          title: Source
+          type: string
+        value:
+          description: Value of the environment variable
+          maxLength: 131072
+          title: Value
+          type: string
+      required:
+      - name
+      - value
+      title: StringEnvironmentVariable
+      type: object
+    HuggingFaceModelSource:
+      description: Weights pulled from the Hugging Face Hub by the inference engine at start.
+      properties:
+        kind:
+          const: huggingFace
+          default: huggingFace
+          title: Kind
+          type: string
+        repoId:
+          description: Hugging Face repository id, for example `Qwen/Qwen3-0.6B`.
+          maxLength: 256
+          pattern: ^[A-Za-z0-9][\w.-]*/[A-Za-z0-9][\w.-]*$
+          title: Repoid
+          type: string
+        revision:
+          default: main
+          description: Branch, tag or commit to pin. Defaults to `main`.
+          maxLength: 128
+          title: Revision
+          type: string
+      required:
+      - repoId
+      title: HuggingFaceModelSource
+      type: object
+    ArtifactStatus:
+      enum:
+      - draft
+      - locked
+      title: ArtifactStatus
+      type: string
+    SeccompProfile:
+      description: Seccomp profile configuration.
+      properties:
+        localhostProfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Path to a seccomp profile on the node. Only valid when type is Localhost.
+          title: Localhostprofile
+        type:
+          $ref: '#/components/schemas/SeccompProfileType'
+          description: Seccomp profile type
+      required:
+      - type
+      title: SeccompProfile
+      type: object
+    WorkloadRoute:
+      description: A workload route exposed publicly.
+      properties:
+        auth:
+          $ref: '#/components/schemas/RouteAuth'
+          description: Authentication applied to this route.
+        path:
+          description: Route path relative to the workload root, excluding the URL prefix the workload is mounted on. Must start with '/'. For example '/.well-known/agent-card.json'.
+          maxLength: 1024
+          pattern: ^/
+          title: Path
+          type: string
+      required:
+      - path
+      - auth
+      title: WorkloadRoute
+      type: object
+    ServiceArtifactSpec:
+      properties:
+        containerGroups:
+          default: []
+          description: List of container groups.
+          items:
+            $ref: '#/components/schemas/ContainerGroup'
+          title: Containergroups
+          type: array
+        type:
+          default: service
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          enum:
+          - service
+          - mcp
+          title: Type
+          type: string
+      title: ServiceArtifactSpec
+      type: object
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    ContainerBuildInfo:
+      description: The image build this container came from.
+      properties:
+        artifactImageBuildId:
+          description: Identifies the build. Full detail, including what it consumed, is available from GET /artifacts/{artifactId}/builds/{buildId}.
+          title: Artifactimagebuildid
+          type: string
+        builtFrom:
+          anyOf:
+          - $ref: '#/components/schemas/BuiltFrom'
+          - type: 'null'
+          description: What this build consumed. Compare against imageBuildConfig to see what the current image was built from, in particular the execution environment version, which a codeRef-keyed build pointer does not track. Absent on builds triggered before this was recorded.
+        createdAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the build was created (UTC), read from the build record. Null when that record cannot be read.
+          title: Createdat
+        imageDeleted:
+          default: false
+          description: True once the built image is confirmed gone from the registry. The build still reads COMPLETED, because it did complete, but the imageUri has been withdrawn and the container must be rebuilt before it can be deployed.
+          title: Imagedeleted
+          type: boolean
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Build status, read from the build record. Null when that record cannot be read.
+          title: Status
+      required:
+      - artifactImageBuildId
+      title: ContainerBuildInfo
+      type: object
+    DataRobotCodeRef:
+      properties:
+        catalogId:
+          title: Catalogid
+          type: string
+        catalogVersionId:
+          title: Catalogversionid
+          type: string
+      required:
+      - catalogId
+      - catalogVersionId
+      title: DataRobotCodeRef
+      type: object
+    UserData:
+      description: User information embedded in API responses.
+      properties:
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User email address
+          title: Email
+        fullName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User's full name
+          title: Full Name
+        id:
+          description: User ID associated with this resource
+          title: User ID
+          type: string
+        userhash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User's gravatar hash
+          title: Userhash
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Username
+          title: Username
+      required:
+      - id
+      title: UserData
+      type: object
+    ArtifactSortQueryParams:
+      anyOf:
+      - $ref: '#/components/schemas/CommonSortQueryParams'
+      - const: status
+        description: Sort by status in ascending order (e.g., STOPPED before RUNNING)
+        title: Status Ascending
+        type: string
+      - const: -status
+        description: Sort by status in descending order (e.g., RUNNING before STOPPED)
+        title: Status Descending
+        type: string
+    UpdateArtifactRequest:
+      description: 'Request to update an artifact.
+
+
+        When updating an artifact, the user_id and tenant_id cannot be changed.
+
+        Currently transferring of ownership of an artifact is not supported.'
+      properties:
+        description:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Description of the artifact
+          title: Description
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Name of the artifact
+          title: Name
+        spec:
+          anyOf:
+          - $ref: '#/components/schemas/AgentArtifactSpec'
+          - type: 'null'
+          description: Artifact specification
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactStatus'
+          - type: 'null'
+          description: Artifact status
+      title: UpdateArtifactRequest
+      type: object
+    ANY_PERMISSION:
+      const: '*'
+      type: string
+    ProbeConfig:
+      properties:
+        failureThreshold:
+          default: 3
+          description: Minimum consecutive failures for the probe to be considered failed
+          maximum: 2147483647.0
+          minimum: 1.0
+          title: Failurethreshold
+          type: integer
+        host:
+          anyOf:
+          - maxLength: 253
+            minLength: 0
+            type: string
+          - type: 'null'
+          description: Host name to connect to, defaults to the pod IP.
+          title: Host
+        httpHeaders:
+          additionalProperties:
+            type: string
+          description: HTTP headers for probe
+          title: Httpheaders
+          type: object
+        initialDelaySeconds:
+          default: 0
+          description: Number of seconds to wait before the first probe is executed
+          maximum: 3600.0
+          minimum: 0.0
+          title: Initialdelayseconds
+          type: integer
+        path:
+          description: URL path to query for health check
+          maxLength: 2048
+          title: Path
+          type: string
+        periodSeconds:
+          default: 10
+          description: How often (in seconds) to perform the probe
+          maximum: 3600.0
+          minimum: 1.0
+          title: Periodseconds
+          type: integer
+        port:
+          default: 8080
+          description: Port number to access on the container.
+          maximum: 65535.0
+          minimum: 1.0
+          title: Port
+          type: integer
+        scheme:
+          default: HTTP
+          description: Scheme to use for connecting to the host.
+          enum:
+          - HTTP
+          - HTTPS
+          title: Scheme
+          type: string
+        successThreshold:
+          default: 1
+          description: Minimum consecutive successes for the probe to be considered successful after having failed
+          maximum: 10.0
+          minimum: 1.0
+          title: Successthreshold
+          type: integer
+        timeoutSeconds:
+          default: 10
+          description: Number of seconds after which the probe times out
+          maximum: 3600.0
+          minimum: 1.0
+          title: Timeoutseconds
+          type: integer
+      required:
+      - path
+      title: ProbeConfig
+      type: object
+    LlmModelSpec:
+      description: The model an `llm` artifact serves.
+      properties:
+        servedName:
+          description: Name clients send as `model` in OpenAI requests. Lowercase letters, digits, dots, underscores and hyphens; must start and end with a letter or digit.
+          maxLength: 63
+          title: Servedname
+          type: string
+        source:
+          $ref: '#/components/schemas/HuggingFaceModelSource'
+          description: Where the weights come from.
+      required:
+      - source
+      - servedName
+      title: LlmModelSpec
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    ContainerGroup:
+      properties:
+        containers:
+          default: []
+          description: List of containers making this container group.
+          items:
+            $ref: '#/components/schemas/Container'
+          title: Containers
+          type: array
+        name:
+          default: default
+          description: Name of the container group. Used as the lookup key for runtime overrides. Lowercase letters, digits, and hyphens only; must start with a lowercase letter and end with a letter or digit; max 63 characters.
+          title: Name
+          type: string
+      title: ContainerGroup
+      type: object
+    ArtifactFormatted:
+      properties:
+        artifactRepositoryId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the artifact repository this artifact belongs to (for versioning support)
+          title: Artifact Repository ID
+        createdAt:
+          description: Timestamp of when the entity was created
+          format: date-time
+          title: Created At
+          type: string
+        creator:
+          anyOf:
+          - $ref: '#/components/schemas/UserData'
+          - type: 'null'
+          description: Owner user details including ID, username and email
+          title: Creator
+        description:
+          default: ''
+          description: Description of the artifact
+          title: Description
+          type: string
+        id:
+          description: Unique identifier of the entity
+          title: ID
+          type: string
+        name:
+          description: Name of the entity
+          title: Name
+          type: string
+        permissions:
+          $ref: '#/components/schemas/ResourcePermissions'
+          description: User permissions for this artifact
+          title: Permissions
+        spec:
+          description: Artifact specification
+          discriminator:
+            mapping:
+              agent: '#/components/schemas/AgentArtifactSpec'
+              llm: '#/components/schemas/LlmArtifactSpec'
+              mcp: '#/components/schemas/ServiceArtifactSpec'
+              nim: '#/components/schemas/NimArtifactSpec'
+              service: '#/components/schemas/ServiceArtifactSpec'
+            propertyName: type
+          oneOf:
+          - $ref: '#/components/schemas/ServiceArtifactSpec'
+          - $ref: '#/components/schemas/NimArtifactSpec'
+          - $ref: '#/components/schemas/AgentArtifactSpec'
+          - $ref: '#/components/schemas/LlmArtifactSpec'
+          title: Spec
+        status:
+          $ref: '#/components/schemas/ArtifactStatus'
+          default: draft
+          description: Artifact status
+          title: Status
+        tags:
+          $ref: '#/components/schemas/Tags'
+          description: Tags associated with this artifact
+          title: Tags
+        type:
+          $ref: '#/components/schemas/ArtifactType'
+          default: service
+          description: Artifact type
+          title: Type
+        updatedAt:
+          description: Timestamp of when the entity was last updated
+          format: date-time
+          title: Updated At
+          type: string
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number of the artifact (set only for locked artifacts)
+          title: Version
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      - spec
+      - artifactRepositoryId
+      title: ArtifactFormatted
+      type: object
+    SeccompProfileType:
+      description: Allowed seccomp profile types.
+      enum:
+      - RuntimeDefault
+      - Unconfined
+      - Localhost
+      title: SeccompProfileType
+      type: string
+    NimArtifactSpec:
+      properties:
+        containerGroups:
+          default: []
+          description: List of container groups.
+          items:
+            $ref: '#/components/schemas/ContainerGroup'
+          title: Containergroups
+          type: array
+        storage:
+          anyOf:
+          - $ref: '#/components/schemas/NimStorageConfig'
+          - type: 'null'
+          description: Model weight storage configuration. When omitted, defaults to a dedicated per-workload PVC provisioned exclusively for this workload.
+        templateId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the template used to create this NIM Artifact
+          title: Templateid
+        type:
+          const: nim
+          default: nim
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          title: Type
+          type: string
+      title: NimArtifactSpec
+      type: object
+    ImageBuildFormatted:
+      description: Build row formatted for GET …/builds (same base fields as other `*Formatted` API models).
+      properties:
+        artifactId:
+          description: Parent artifact id
+          title: Artifact Id
+          type: string
+        builtFrom:
+          anyOf:
+          - $ref: '#/components/schemas/BuiltFrom'
+          - type: 'null'
+          description: The source code and execution environment this build consumed. Null for builds triggered before this was recorded.
+          title: Built From
+        createdAt:
+          description: Timestamp of when the entity was created
+          format: date-time
+          title: Created At
+          type: string
+        creator:
+          anyOf:
+          - $ref: '#/components/schemas/UserData'
+          - type: 'null'
+          description: Owner user details including ID, username and email
+          title: Creator
+        failureReason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Why the build ended FAILED or CANCELLED. Names the phase the build was last seen in when that phase locates the failure; early failures commonly report no phase at all, because the status they were last seen in carries none. Null while the build is running, for COMPLETED builds, and for builds that reached their terminal status before this field existed, so do not branch on it.
+          title: Failure Reason
+        id:
+          description: Unique identifier of the entity
+          title: ID
+          type: string
+        imageApplied:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the artifact is now pointing at the image this build produced. A build reports COMPLETED once the image exists, which is a moment before the artifact is updated to use it, so once the status is COMPLETED wait for this to turn true before deploying. It stays false for a build that failed or was cancelled, which produced no image to point at. Null when it was not determined.
+          title: Image Applied
+        imageAvailable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the registry holds the image named by imageUri. True if present, false if not, null when not checked or not knowable, including when the registry could not be reached — null never means the image is gone. On a failed build this separates one that never pushed from one that died after pushing.
+          title: Image Available
+        imageUri:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The coordinates this build was assigned: {registry}/{repository}:{build id}, fixed when it is triggered. On a COMPLETED build that is the image it produced; on a FAILED one the image may never have been pushed, so read imageAvailable. What a container runs is its own imageUri, which may name a different build.'
+          title: Image URI
+        name:
+          description: Name of the entity
+          title: Name
+          type: string
+        status:
+          $ref: '#/components/schemas/ImageBuildExternalStatus'
+          default: UNKNOWN
+          description: Reported build status
+          title: Build Status
+        updatedAt:
+          description: Timestamp of when the entity was last updated
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      - artifactId
+      title: ImageBuildFormatted
+      type: object
+    CommonSortQueryParams:
+      anyOf:
+      - const: name
+        description: Sort by name in ascending order (A-Z)
+        title: Name Ascending
+        type: string
+      - const: -name
+        description: Sort by name in descending order (Z-A)
+        title: Name Descending
+        type: string
+      - const: createdAt
+        description: Sort by creation date in ascending order (oldest first)
+        title: Creation Date Ascending
+        type: string
+      - const: -createdAt
+        description: Sort by creation date in descending order (newest first)
+        title: Creation Date Descending
+        type: string
+      - const: updatedAt
+        description: Sort by update date in ascending order (oldest first)
+        title: Update Date Ascending
+        type: string
+      - const: -updatedAt
+        description: Sort by update date in descending order (newest first)
+        title: Update Date Descending
+        type: string
+    ArtifactRepositoryListResponse:
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ArtifactRepositoryFormatted'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ArtifactRepositoryListResponse
+      type: object
+    ApiKeyEnvironmentVariable:
+      description: 'A platform-managed DataRobot API token injected as an environment variable.
+
+        The token value is resolved at proton creation (find-or-create a per-workload
+
+        ``Workload <workloadId>`` API key scoped to the invoking user); no value or id
+
+        is supplied by the user.
+
+
+        ``name`` is optional for this source: when omitted it resolves to
+
+        ``DATAROBOT_API_TOKEN`` at consumption time. The default is intentionally not
+
+        persisted — an omitted name is stored as absent, not as ``DATAROBOT_API_TOKEN``.'
+      properties:
+        name:
+          anyOf:
+          - maxLength: 256
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Name of the environment variable. Optional for the api-key source; defaults to DATAROBOT_API_TOKEN when omitted.
+          title: Name
+        source:
+          const: api-key
+          title: Source
+          type: string
+      required:
+      - source
+      title: ApiKeyEnvironmentVariable
+      type: object
+    ArtifactRepositoryFormatted:
+      properties:
+        createdAt:
+          description: Timestamp of when the entity was created
+          format: date-time
+          title: Created At
+          type: string
+        creator:
+          anyOf:
+          - $ref: '#/components/schemas/UserData'
+          - type: 'null'
+          description: Owner user details including ID, username and email
+          title: Creator
+        id:
+          description: Unique identifier of the entity
+          title: ID
+          type: string
+        lastVersionNumber:
+          default: 0
+          description: Last version number
+          title: Lastversionnumber
+          type: integer
+        name:
+          description: Name of the entity
+          title: Name
+          type: string
+        numArtifacts:
+          default: 0
+          description: Number of artifacts in this repository
+          minimum: 0.0
+          title: Numartifacts
+          type: integer
+        permissions:
+          $ref: '#/components/schemas/ResourcePermissions'
+          description: User permissions for this artifact repository
+        tags:
+          $ref: '#/components/schemas/Tags'
+          description: Tags for this repository
+        type:
+          $ref: '#/components/schemas/ArtifactType'
+          default: service
+          description: Repository type (inherited from the first originating artifact)
+        updatedAt:
+          description: Timestamp of when the entity was last updated
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      title: ArtifactRepositoryFormatted
+      type: object
+    ResourcePermissions:
+      anyOf:
+      - items:
+          $ref: '#/components/schemas/ResourcePermission'
+        type: array
+      - items:
+          $ref: '#/components/schemas/ANY_PERMISSION'
+        type: array
+    LlmArtifactSpec:
+      description: 'Spec for `llm` artifacts: an open-weights model the platform serves on its own
+
+        inference engine. No images, no builds, no containers; the engine image, ports and
+
+        routes are platform-owned.
+
+
+        The helpers below mirror ``MultiContainerArtifactSpec`` so the services that walk
+
+        container groups (builds, credentials, routes, code refs) see an empty topology
+
+        instead of needing a type check at every call site.'
+      properties:
+        model:
+          $ref: '#/components/schemas/LlmModelSpec'
+          description: The model to serve.
+        type:
+          const: llm
+          default: llm
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          title: Type
+          type: string
+      required:
+      - model
+      title: LlmArtifactSpec
+      type: object
+    ArtifactListResponse:
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ArtifactFormatted'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ArtifactListResponse
+      type: object
+    Container:
+      properties:
+        build:
+          anyOf:
+          - $ref: '#/components/schemas/ContainerBuildInfo'
+          - type: 'null'
+          description: Server-set image build metadata (e.g. after lock or draft build trigger). Workload API clears this on artifact create/update before persistence; clients must not rely on sending it.
+        description:
+          default: ''
+          description: Description of the container
+          maxLength: 5000
+          title: Description
+          type: string
+        entrypoint:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 256
+            type: array
+          - type: 'null'
+          description: Runtime entrypoint override for the container command. Independent of build entrypoint.
+          title: Entrypoint
+        environmentVars:
+          default: []
+          description: Environment variables
+          items:
+            discriminator:
+              mapping:
+                api-key: '#/components/schemas/ApiKeyEnvironmentVariable'
+                dr-credential: '#/components/schemas/CredentialEnvironmentVariable'
+                string: '#/components/schemas/StringEnvironmentVariable'
+              propertyName: source
+            oneOf:
+            - $ref: '#/components/schemas/StringEnvironmentVariable'
+            - $ref: '#/components/schemas/CredentialEnvironmentVariable'
+            - $ref: '#/components/schemas/ApiKeyEnvironmentVariable'
+          title: Environmentvars
+          type: array
+        imageBuildConfig:
+          anyOf:
+          - $ref: '#/components/schemas/ImageBuildConfig'
+          - type: 'null'
+          description: Configuration for server-side image builds from source code.
+        imageOutdated:
+          description: True when imageUri is set but the latest build is still pending/in-progress or failed, i.e. the image is from a previous build. A cancelled build (prior image kept on purpose) or an unknown status does not mark the image outdated. Read-only and derived; never persisted.
+          readOnly: true
+          title: Image Outdated
+          type: boolean
+        imageUri:
+          anyOf:
+          - maxLength: 2048
+            type: string
+          - type: 'null'
+          description: Docker Image URI. Required when imageBuildConfig is not set; server-populated after a successful image build.
+          title: Imageuri
+        livenessProbe:
+          anyOf:
+          - $ref: '#/components/schemas/ProbeConfig'
+          - type: 'null'
+          description: Container liveness check configuration
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the container. Lowercase letters, digits, and hyphens only; must start with a lowercase letter and end with a letter or digit; max 63 characters.
+          title: Name
+        port:
+          anyOf:
+          - maximum: 65535.0
+            minimum: 1024.0
+            type: integer
+          - type: 'null'
+          description: Container access port. When set, must be >= 1024 for security and platform compatibility reasons. Primary containers must define a port; non-primary containers must omit it.
+          title: Port
+        primary:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          description: Whether this is the primary container
+          title: Primary
+        readinessProbe:
+          anyOf:
+          - $ref: '#/components/schemas/ProbeConfig'
+          - type: 'null'
+          description: Container readiness check configuration
+        routes:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WorkloadRoute'
+            maxItems: 50
+            type: array
+          - type: 'null'
+          description: Routes of the workload to expose publicly. Primary containers only. The workload root is exposed authenticated unless '/' is declared here with another policy.
+          title: Routes
+        securityContext:
+          anyOf:
+          - $ref: '#/components/schemas/SecurityContext'
+          - type: 'null'
+          description: Container security context
+        startupProbe:
+          anyOf:
+          - $ref: '#/components/schemas/ProbeConfig'
+          - type: 'null'
+          description: Container startup check configuration
+      title: Container
+      type: object
+    Tags:
+      items:
+        $ref: '#/components/schemas/TagInfo'
+      type: array
+    NimStorageConfig:
+      description: Model weight storage configuration for NIM artifacts.
+      properties:
+        mode:
+          default: dedicatedPvc
+          description: Storage mode for model weights. `dedicatedPvc` (default) provisions a separate PVC owned exclusively by this workload. `nimCache` reuses a single cluster-wide PVC per model image, shared across all workloads using the same model.
+          enum:
+          - dedicatedPvc
+          - nimCache
+          title: Mode
+          type: string
+        pvcSize:
+          anyOf:
+          - pattern: ^\d+(\.\d+)?(Gi|Mi|Ti)$
+            type: string
+          - type: 'null'
+          description: PVC size for dedicated storage (e.g. '150Gi'). Only applies when mode is `dedicatedPvc`. When omitted, the platform-configured default is used.
+          title: Pvcsize
+      title: NimStorageConfig
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    ProvidedDockerfile:
+      description: User supplies a Dockerfile in the uploaded source code.
+      properties:
+        path:
+          default: ./Dockerfile
+          description: Relative path to the Dockerfile in the source code. Defaults to ./Dockerfile.
+          maxLength: 2048
+          title: Path
+          type: string
+        source:
+          const: provided
+          default: provided
+          title: Source
+          type: string
+      title: ProvidedDockerfile
+      type: object
+    InputArtifact:
+      description: Request to create an artifact. An artifact is always created as a draft.
+      properties:
+        artifactRepositoryId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the artifact repository this artifact belongs to (for versioning support)
+          title: Artifactrepositoryid
+        description:
+          default: ''
+          description: Description of the artifact
+          maxLength: 5000
+          title: Description
+          type: string
+        name:
+          description: Name of the artifact
+          maxLength: 5000
+          minLength: 1
+          title: Name
+          type: string
+        spec:
+          description: Artifact specification
+          discriminator:
+            mapping:
+              agent: '#/components/schemas/AgentArtifactSpec'
+              llm: '#/components/schemas/LlmArtifactSpec'
+              mcp: '#/components/schemas/ServiceArtifactSpec'
+              nim: '#/components/schemas/NimArtifactSpec'
+              service: '#/components/schemas/ServiceArtifactSpec'
+            propertyName: type
+          oneOf:
+          - $ref: '#/components/schemas/ServiceArtifactSpec'
+          - $ref: '#/components/schemas/NimArtifactSpec'
+          - $ref: '#/components/schemas/AgentArtifactSpec'
+          - $ref: '#/components/schemas/LlmArtifactSpec'
+          title: Spec
+        status:
+          $ref: '#/components/schemas/ArtifactStatus'
+          default: draft
+          description: Artifact status
+        type:
+          $ref: '#/components/schemas/ArtifactType'
+          default: service
+          description: Artifact type
+      required:
+      - name
+      - spec
+      title: InputArtifact
+      type: object
+    AgentArtifactSpec:
+      properties:
+        a2aEnabled:
+          default: false
+          description: Turns on agent-to-agent (A2A) card management and the A2A surface for this agent. Defaults to off. Valid only on `agent` artifacts.
+          title: A2A Enabled
+          type: boolean
+        containerGroups:
+          default: []
+          description: List of container groups.
+          items:
+            $ref: '#/components/schemas/ContainerGroup'
+          title: Containergroups
+          type: array
+        type:
+          const: agent
+          default: agent
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          title: Type
+          type: string
+      title: AgentArtifactSpec
+      type: object
+    Capabilities:
+      description: Linux capabilities to add or drop from the container.
+      properties:
+        add:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Capabilities to add
+          title: Add
+        drop:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Capabilities to drop
+          title: Drop
+      title: Capabilities
+      type: object
+    ImageBuildConfig:
+      description: User-provided configuration for server-side image builds from source code.
+      properties:
+        codeRef:
+          anyOf:
+          - $ref: '#/components/schemas/CodeRef'
+          - type: 'null'
+          description: Reference to source code (e.g. Files API catalog). Optional at create time; required before build or lock.
+        dockerfile:
+          description: How the Dockerfile is obtained. Defaults to using ./Dockerfile from the source code.
+          discriminator:
+            mapping:
+              generated: '#/components/schemas/GeneratedDockerfile'
+              provided: '#/components/schemas/ProvidedDockerfile'
+            propertyName: source
+          oneOf:
+          - $ref: '#/components/schemas/ProvidedDockerfile'
+          - $ref: '#/components/schemas/GeneratedDockerfile'
+          title: Dockerfile
+      title: ImageBuildConfig
+      type: object
+    SharedRole:
+      description: 'Represents a recipient (user, group, organization, or external application) with
+
+        access to an entity.
+
+
+        This model is used for listing and managing access control on shared resources,
+
+        providing information about who has access and what role they have.'
+      properties:
+        id:
+          description: The identifier of the recipient.
+          title: Id
+          type: string
+        name:
+          description: The name of the recipient.
+          title: Name
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: The type of the recipient.
+      required:
+      - id
+      - name
+      - shareRecipientType
+      - role
+      title: SharedRole
+      type: object
+    ImageBuildTriggerResponse:
+      description: Response after requesting image build(s) for a draft artifact.
+      properties:
+        buildIds:
+          description: Workload API artifact image build document ids (same strings returned as `build_id` on GET/DELETE build routes), one per distinct Files API catalog/version pair. Internal image build ids are not returned.
+          items:
+            type: string
+          title: Buildids
+          type: array
+      required:
+      - buildIds
+      title: ImageBuildTriggerResponse
+      type: object
+    ResourcePermission:
+      description: Represents the particular role a user, group or organization holds on an entity.
+      enum:
+      - CAN_VIEW
+      - CAN_UPDATE
+      - CAN_DELETE
+      - CAN_SHARE
+      - CAN_MAKE_PREDICTIONS
+      - CAN_OVERRIDE_WORKLOAD_PLACEMENT
+      - CAN_SHARE_ROLE_OWNER
+      - CAN_SHARE_ROLE_READ_WRITE
+      - CAN_SHARE_ROLE_READ_ONLY
+      title: ResourcePermission
+      type: string
+    ImageBuildFormattedList:
+      description: Paginated list of formatted artifact image builds for GET …/builds.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ImageBuildFormatted'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ImageBuildFormattedList
+      type: object
+    RouteAuth:
+      description: "Authentication applied to a workload route.\n\n- ``required``: unauthenticated requests are rejected.\n- ``optional``: authenticated when an ``Authorization`` header is present, otherwise passed\n  through without an authentication attempt.\n- ``disabled``: no authentication is ever attempted."
+      enum:
+      - required
+      - optional
+      - disabled
+      title: RouteAuth
+      type: string
+    CredentialEnvironmentVariable:
+      properties:
+        drCredentialId:
+          description: ID of the DataRobot credential to use
+          title: DR Credential ID
+          type: string
+        key:
+          description: Key within the credential
+          title: Key
+          type: string
+        name:
+          description: Name of the environment variable
+          maxLength: 256
+          minLength: 1
+          title: Name
+          type: string
+        source:
+          const: dr-credential
+          title: Source
+          type: string
+      required:
+      - source
+      - name
+      - drCredentialId
+      - key
+      title: CredentialEnvironmentVariable
+      type: object
+    CodeRef:
+      properties:
+        datarobot:
+          $ref: '#/components/schemas/DataRobotCodeRef'
+        provider:
+          const: datarobot
+          default: datarobot
+          title: Provider
+          type: string
+        type:
+          const: datarobot
+          default: datarobot
+          title: Type
+          type: string
+      required:
+      - datarobot
+      title: CodeRef
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    ArtifactCloneRequest:
+      properties:
+        name:
+          description: The name of the cloned artifact.
+          maxLength: 5000
+          minLength: 1
+          title: Name
+          type: string
+      required:
+      - name
+      title: ArtifactCloneRequest
+      type: object
+    TagInfo:
+      properties:
+        id:
+          description: Unique identifier of the tag
+          title: Id
+          type: string
+        name:
+          description: Name of the tag
+          title: Name
+          type: string
+        value:
+          description: Value of the tag
+          title: Value
+          type: string
+      required:
+      - id
+      - name
+      - value
+      title: TagInfo
+      type: object
+    SharedRolesUpdateRequest:
+      description: 'Request model for updating shared roles on an entity.
+
+
+        Used to grant access, remove access, or update roles for organizations,
+
+        groups, users, or external applications. Up to 100 roles may be set in a
+
+        single request.'
+      properties:
+        operation:
+          const: updateRoles
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          title: Operation
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects, up to maximum 100 objects.
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          title: Roles
+          type: array
+      required:
+      - operation
+      - roles
+      title: SharedRolesUpdateRequest
+      type: object
+    BuiltFrom:
+      description: 'What a build consumed, captured when the build was triggered and never rewritten.
+
+
+        A container''s build pointer is dropped when its ``code_ref`` changes, so a surviving
+
+        ``build`` already implies the code is unchanged. The execution environment is not part of
+
+        that check, which makes ``execution_environment_version_id`` here the only way to see that
+
+        an image was built on a different environment version than the container now declares.
+
+
+        Both execution environment fields are null for a build from a user-provided Dockerfile,
+
+        which resolves no execution environment at all.'
+      properties:
+        codeRef:
+          $ref: '#/components/schemas/CodeRef'
+          description: Source code reference this image was built from.
+          title: Code Ref
+        executionEnvironmentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Execution environment declared for the generated Dockerfile, if any.
+          title: Execution Environment ID
+        executionEnvironmentVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Execution environment version the base image was resolved from, if any.
+          title: Execution Environment Version ID
+      required:
+      - codeRef
+      title: BuiltFrom
+      type: object
+    ImageBuildExternalStatus:
+      description: Client-facing artifact image build status.
+      enum:
+      - PENDING
+      - IN_PROGRESS
+      - BUILT
+      - COMPLETED
+      - CANCELLED
+      - FAILED
+      - UNKNOWN
+      title: ImageBuildExternalStatus
+      type: string
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SharedRoleListResponse:
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/SharedRole'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: SharedRoleListResponse
+      type: object
+    ArtifactType:
+      description: "Discriminator for the artifact spec variant. Used to label the workload so it can be\nscheduled on the best-matching runtime. Defaults to ``service`` when omitted.\n- ``service``: generic service artifact.\n- ``nim``: NVIDIA NIM model artifact.\n- ``agent``: A2A-capable agent artifact; scheduled like ``service`` (the ``a2a_enabled``\n    spec flag turns on agent-card management and the A2A surface).\n- ``mcp``: MCP server artifact; scheduled like ``service``.\n- ``llm``: open-weights model served by the platform's inference engine. The user\n    declares a model, not containers."
+      enum:
+      - service
+      - nim
+      - agent
+      - mcp
+      - llm
+      title: ArtifactType
+      type: string
+    GeneratedDockerfile:
+      description: System generates a Dockerfile from execution environment metadata.
+      properties:
+        entrypoint:
+          description: Entrypoint baked into the generated Dockerfile CMD (e.g. ["python", "app.py"]).
+          items:
+            type: string
+          minItems: 1
+          title: Entrypoint
+          type: array
+        executionEnvironmentId:
+          description: Execution environment that executionEnvironmentVersionId belongs to. A version from a different execution environment is rejected.
+          title: Execution Environment ID
+          type: string
+        executionEnvironmentVersionId:
+          description: Execution environment version that determines the base Docker image, via its source Docker image URI or, failing that, its image ID.
+          title: Execution Environment Version ID
+          type: string
+        source:
+          const: generated
+          default: generated
+          title: Source
+          type: string
+      required:
+      - executionEnvironmentId
+      - executionEnvironmentVersionId
+      - entrypoint
+      title: GeneratedDockerfile
+      type: object
+    SecurityContext:
+      description: 'Container-level security context.
+
+
+        Lets workload creators tighten security constraints beyond the platform defaults. runAsNonRoot and runAsUser are enforced by the platform and are not user-settable. Elevated fields (capabilities.add, allowPrivilegeEscalation=true, seccompProfile.type=Unconfined) require the MLOps Admin role; regular users may only tighten defaults — drop capabilities, enable read-only rootfs, or set a RuntimeDefault/Localhost seccomp profile.'
+      properties:
+        allowPrivilegeEscalation:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether a process can gain more privileges than its parent. Requires the MLOps Admin role to set to True.
+          title: Allowprivilegeescalation
+        capabilities:
+          anyOf:
+          - $ref: '#/components/schemas/Capabilities'
+          - type: 'null'
+          description: Linux capabilities to add or drop
+        readOnlyRootFilesystem:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the root filesystem is read-only
+          title: Readonlyrootfilesystem
+        seccompProfile:
+          anyOf:
+          - $ref: '#/components/schemas/SeccompProfile'
+          - type: 'null'
+          description: Seccomp profile for the container
+      title: SecurityContext
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

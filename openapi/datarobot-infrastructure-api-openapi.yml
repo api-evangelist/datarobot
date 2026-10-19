@@ -1,0 +1,237 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Infrastructure API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage cluster licenses.
+  name: Infrastructure
+paths:
+  /api/v2/clusterLicense/:
+    get:
+      description: Retrieve the information about the currently deployed cluster license.
+      operationId: clusterLicense_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterLicenseRetrieveResponse'
+          description: ''
+      summary: Retrieve the information about cluster license
+      tags:
+      - Infrastructure
+      x-versionadded: v2.23
+    put:
+      description: Create or replace the cluster license.
+      operationId: clusterLicense_putMany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterLicenseUpdate'
+      responses:
+        '200':
+          description: ''
+        '422':
+          description: License is invalid or has expired.
+      summary: Create
+      tags:
+      - Infrastructure
+      x-versionadded: v2.23
+  /api/v2/clusterLicenseValidation/:
+    post:
+      description: Check if a cluster license is valid.
+      operationId: clusterLicenseValidation_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterLicenseUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterLicenseRetrieveResponseLicense'
+          description: ''
+        '422':
+          description: License is invalid or has expired.
+      summary: Check if a license is valid
+      tags:
+      - Infrastructure
+      x-versionadded: v2.23
+  /api/v2/version/:
+    get:
+      description: Provides the version information for the current version of the API.
+      operationId: version_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionRetrieveResponse'
+          description: ''
+      summary: Retrieve version information
+      tags:
+      - Infrastructure
+      x-versionadded: v2.4
+components:
+  schemas:
+    ClusterLicenseRetrieveResponseUploadInfo:
+      description: The upload info object will describe detailed information about the user who uploaded the current license
+      properties:
+        uploadTimestamp:
+          description: the time when the current license was uploaded in UTC ISO format, ex. '2020-12-21T23:59:59.000000Z'
+          type: string
+        uploaderUserId:
+          description: Id of the user who uploaded the current license
+          type: string
+        uploaderUsername:
+          description: The username of the user who uploaded the current license
+          type: string
+      required:
+      - uploadTimestamp
+      - uploaderUserId
+      - uploaderUsername
+      type: object
+    ClusterLicenseRetrieveResponseLicense:
+      description: The license info object will describe detailed information about the deployed license
+      properties:
+        agenticPredictiveGovernanceSeatLicensesLimit:
+          description: 'The number of available Agentic, Predictive and Governance seat licenses (0: unlimited, -1: no seats available).'
+          minimum: -1
+          type: integer
+          x-versionadded: v2.38
+        concurrentWorkersCount:
+          description: The number of allowed simultaneously running jobs(concurrent workers)
+          minimum: 0
+          type: integer
+        cpuUsageLimit:
+          description: 'The CPU usage limit for the cluster (0: unlimited, -1: no CPU usage available).'
+          minimum: -1
+          type: integer
+          x-versionadded: v2.39
+        expirationTimestamp:
+          description: The time of the license expiration in UTC ISO format,ex. 2020-12-21T23:59:59.000000Z
+          type: string
+        expired:
+          description: A value indicating whether the license has already expired
+          type: boolean
+        featureFlags:
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureFlagObject'
+          description: An object containing enforced feature flags. Each key is a name of a feature flag and value is an object described below.
+          type: object
+        genAiSeatLicensesLimit:
+          description: 'The number of available GenAI seat licenses (0: unlimited, -1: no seats available).'
+          minimum: -1
+          type: integer
+          x-versionadded: v2.36
+        gpuUsageLimit:
+          description: 'The GPU usage limit for the cluster (0: unlimited, -1: no GPU usage available).'
+          minimum: -1
+          type: integer
+          x-versionadded: v2.39
+        maxDeploymentLimit:
+          description: 'The number of maximum deployments limit (0: unlimited)'
+          minimum: 0
+          type: integer
+        maximumActiveUsers:
+          description: 'The number of maximum active users allowed in the system(0: unlimited'
+          minimum: 0
+          type: integer
+        nonBuilderUserSeatLicensesLimit:
+          description: 'The number of available Non-Builder User seat licenses (0: unlimited, -1: no seats available).'
+          minimum: -1
+          type: integer
+          x-versionadded: v2.38
+        predictiveGovernanceSeatLicensesLimit:
+          description: 'The number of available Predictive and Governance seat licenses (0: unlimited, -1: no seats available).'
+          minimum: -1
+          type: integer
+          x-versionadded: v2.37
+        prepaidDeploymentLimit:
+          description: 'The number of prepaid deployments limit (0: unlimited)'
+          minimum: 0
+          type: integer
+      required:
+      - agenticPredictiveGovernanceSeatLicensesLimit
+      - concurrentWorkersCount
+      - cpuUsageLimit
+      - expirationTimestamp
+      - expired
+      - featureFlags
+      - genAiSeatLicensesLimit
+      - gpuUsageLimit
+      - maxDeploymentLimit
+      - maximumActiveUsers
+      - nonBuilderUserSeatLicensesLimit
+      - predictiveGovernanceSeatLicensesLimit
+      - prepaidDeploymentLimit
+      type: object
+    FeatureFlagObject:
+      properties:
+        uiLabel:
+          description: String representation of the feature flag
+          type: string
+        uiTooltip:
+          description: Detailed description of the feature flag
+          type: string
+        value:
+          description: Value of the feature flag
+          type: boolean
+      required:
+      - value
+      type: object
+    VersionRetrieveResponse:
+      properties:
+        major:
+          description: The major version number.
+          type: integer
+        minor:
+          description: The minor version number.
+          type: integer
+        versionString:
+          description: The full version string.
+          type: string
+      required:
+      - major
+      - minor
+      - versionString
+      type: object
+    ClusterLicenseUpdate:
+      properties:
+        licenseKey:
+          description: The license key provided by customer support
+          type: string
+      required:
+      - licenseKey
+      type: object
+    ClusterLicenseRetrieveResponse:
+      properties:
+        licenseInfo:
+          $ref: '#/components/schemas/ClusterLicenseRetrieveResponseLicense'
+        uploadInfo:
+          $ref: '#/components/schemas/ClusterLicenseRetrieveResponseUploadInfo'
+      required:
+      - licenseInfo
+      - uploadInfo
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

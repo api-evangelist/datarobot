@@ -1,0 +1,4605 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public LLM Generation API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: The following endpoints outline how to manage LLM generation.
+  name: LLM Generation
+paths:
+  /api/v2/genai/customModelLLMValidations/:
+    get:
+      description: List custom model LLM validations.
+      operationId: list_custom_model_llm_validations_customModelLLMValidations__get
+      parameters:
+      - description: Only retrieve the custom model LLM validations associated with these use case IDs.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the custom model LLM validations associated with these use case IDs.
+          title: useCaseId
+      - description: Only retrieve the custom model LLM validations associated with this playground ID.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model LLM validations associated with this playground ID.
+          title: playgroundId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the custom model LLM validations matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model LLM validations matching the search query.
+          title: search
+      - description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListCustomModelValidationSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: If `true`, only retrieve the completed custom model LLM validations. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the completed custom model LLM validations. The default is `false`.
+          title: completedOnly
+          type: boolean
+      - description: Only retrieve the custom model LLM validations associated with this deployment ID.
+        in: query
+        name: deploymentId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model LLM validations associated with this deployment ID.
+          title: deploymentId
+      - description: Only retrieve the custom model LLM validations associated with this model ID.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model LLM validations associated with this model ID.
+          title: modelId
+      - description: Only retrieve the custom model LLM validations where the custom model uses this column name for prompt input.
+        in: query
+        name: promptColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model LLM validations where the custom model uses this column name for prompt input.
+          title: promptColumnName
+      - description: Only retrieve the custom model LLM validations where the custom model uses this column name for prediction output.
+        in: query
+        name: targetColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model LLM validations where the custom model uses this column name for prediction output.
+          title: targetColumnName
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCustomModelLLMValidationsResponse'
+          description: Custom model LLM validations successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List custom model LLM validations
+      tags:
+      - LLM Generation
+    post:
+      description: Validate an LLM hosted in a custom model deployment for use in the playground.
+      operationId: create_custom_model_llm_validation_customModelLLMValidations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomModelLLMValidationRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelLLMValidationResponse'
+          description: Custom model LLM validation job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Validate custom model LLM
+      tags:
+      - LLM Generation
+  /api/v2/genai/customModelLLMValidations/{validationId}/:
+    delete:
+      description: Delete an existing custom model LLM validation.
+      operationId: delete_custom_model_llm_validation_customModelLLMValidations__validationId___delete
+      parameters:
+      - description: The ID of the custom model LLM validation to delete.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model LLM validation to delete.
+          title: validationId
+          type: string
+      responses:
+        '204':
+          description: Custom model LLM validation successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete custom model LLM validation by validation ID
+      tags:
+      - LLM Generation
+    get:
+      description: Retrieve the status of validating a custom model LLM.
+      operationId: get_custom_model_llm_validation_customModelLLMValidations__validationId___get
+      parameters:
+      - description: The ID of the custom model LLM validation to retrieve.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model LLM validation to retrieve.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelLLMValidationResponse'
+          description: Custom model LLM validation status successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve custom model LLM validation status by validation ID
+      tags:
+      - LLM Generation
+    patch:
+      description: Edit an existing custom model LLM validation.
+      operationId: update_custom_model_llm_validation_customModelLLMValidations__validationId___patch
+      parameters:
+      - description: The ID of the custom model LLM validation to edit.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model LLM validation to edit.
+          title: validationId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCustomModelValidationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelLLMValidationResponse'
+          description: Custom model LLM validation successfully updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit custom model LLM validation by validation ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/customModelLLMValidations/{validationId}/revalidate/:
+    post:
+      description: Revalidate an existing custom model LLM validation.
+      operationId: revalidate_custom_model_llm_validation_customModelLLMValidations__validationId__revalidate__post
+      parameters:
+      - description: The ID of the custom model LLM validation to revalidate.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model LLM validation to revalidate.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelLLMValidationResponse'
+          description: Custom model LLM successfully revalidated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Revalidate custom model LLM by validation ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/customModelVersions/:
+    post:
+      description: Export the specified LLM blueprint as a custom model version in Model Registry.
+      operationId: create_custom_model_version_customModelVersions__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomModelVersionRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomModelVersionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create custom model version
+      tags:
+      - LLM Generation
+  /api/v2/genai/llmBlueprints/:
+    get:
+      description: List LLM blueprints.
+      operationId: list_llm_blueprints_llmBlueprints__get
+      parameters:
+      - description: Playground ID.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Playground ID.
+          title: playgroundId
+      - description: Retrieve only the LLM blueprints that use the specified LLM IDs.
+        in: query
+        name: llmIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Retrieve only the LLM blueprints that use the specified LLM IDs.
+          title: llmIds
+      - description: Retrieve only the LLM blueprints linked to the specified vector database IDs.
+        in: query
+        name: vectorDatabaseIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Retrieve only the LLM blueprints linked to the specified vector database IDs.
+          title: vectorDatabaseIds
+      - description: Retrieve only the LLM blueprints that have the specified draft/saved status.
+        in: query
+        name: isSaved
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Retrieve only the LLM blueprints that have the specified draft/saved status.
+          title: isSaved
+      - description: Retrieve only the LLM blueprints that have the specified starred status.
+        in: query
+        name: isStarred
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Retrieve only the LLM blueprints that have the specified starred status.
+          title: isStarred
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Apply this sort order to the results. Valid options are "name", "description", "creationDate", "lastUpdateDate", "llmId", "vectorDatabaseId". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListLLMBlueprintSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "description", "creationDate", "lastUpdateDate", "llmId", "vectorDatabaseId". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: Retrieve only the LLM blueprints created by these users.
+        in: query
+        name: creationUserIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Retrieve only the LLM blueprints created by these users.
+          title: creationUserIds
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLLMBlueprintsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List LLM blueprints
+      tags:
+      - LLM Generation
+    post:
+      description: Create a new LLM blueprint.
+      operationId: create_llm_blueprint_llmBlueprints__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLLMBlueprintRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMBlueprintResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create LLM blueprint
+      tags:
+      - LLM Generation
+  /api/v2/genai/llmBlueprints/fromChatPrompt/:
+    post:
+      description: Create a new LLM blueprint using the LLM and vector database settings currently used by the specified existing chat prompt.
+      operationId: create_from_chat_prompt_llmBlueprints_fromChatPrompt__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFromChatPromptRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMBlueprintResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create a LLM blueprints from a chat prompt
+      tags:
+      - LLM Generation
+  /api/v2/genai/llmBlueprints/fromLLMBlueprint/:
+    post:
+      description: Create a new LLM blueprint using the LLM and vector database settings currently used by the specified existing LLM blueprint.
+      operationId: create_from_llm_blueprint_llmBlueprints_fromLLMBlueprint__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFromLLMBlueprintRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMBlueprintResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Duplicate LLM blueprint
+      tags:
+      - LLM Generation
+  /api/v2/genai/llmBlueprints/{llmBlueprintId}/:
+    delete:
+      description: Delete an existing LLM blueprint.
+      operationId: delete_llm_blueprint_llmBlueprints__llmBlueprintId___delete
+      parameters:
+      - description: The ID of the LLM blueprint to delete.
+        in: path
+        name: llmBlueprintId
+        required: true
+        schema:
+          description: The ID of the LLM blueprint to delete.
+          title: llmBlueprintId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete LLM blueprint by LLM blueprint ID
+      tags:
+      - LLM Generation
+    get:
+      description: Retrieve an existing LLM blueprint.
+      operationId: get_llm_blueprint_llmBlueprints__llmBlueprintId___get
+      parameters:
+      - description: The ID of the LLM blueprint to retrieve.
+        in: path
+        name: llmBlueprintId
+        required: true
+        schema:
+          description: The ID of the LLM blueprint to retrieve.
+          title: llmBlueprintId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMBlueprintResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve LLM blueprint by LLM blueprint ID
+      tags:
+      - LLM Generation
+    patch:
+      description: Edit an existing LLM blueprint.
+      operationId: update_llm_blueprint_llmBlueprints__llmBlueprintId___patch
+      parameters:
+      - description: The ID of the LLM blueprint to edit.
+        in: path
+        name: llmBlueprintId
+        required: true
+        schema:
+          description: The ID of the LLM blueprint to edit.
+          title: llmBlueprintId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLLMBlueprintRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMBlueprintResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit LLM blueprint by LLM blueprint ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/llms/:
+    get:
+      description: List the large language models (LLMs) available in the DataRobot platform for the current user.
+      operationId: list_llms_llms__get
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 200
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 200
+          title: limit
+          type: integer
+      - description: If specified, include custom model LLMs available for this use case.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, include custom model LLMs available for this use case.
+          title: useCaseId
+      - description: Whether to include only active models.
+        in: query
+        name: activeOnly
+        required: false
+        schema:
+          default: false
+          description: Whether to include only active models.
+          title: activeOnly
+          type: boolean
+      - description: Whether to include only the models available for moderations.
+        in: query
+        name: moderationSupportedOnly
+        required: false
+        schema:
+          default: false
+          description: Whether to include only the models available for moderations.
+          title: moderationSupportedOnly
+          type: boolean
+      - description: Whether to include only the models available for chat completions.
+        in: query
+        name: chatCompletionsSupportedOnly
+        required: false
+        schema:
+          default: false
+          description: Whether to include only the models available for chat completions.
+          title: chatCompletionsSupportedOnly
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLLMsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List LLMs
+      tags:
+      - LLM Generation
+  /api/v2/genai/llms/{llmId}/:
+    get:
+      description: Get the large language model (LLM) by ID.
+      operationId: get_llm_llms__llmId___get
+      parameters:
+      - description: The ID of the LLM to retrieve.
+        in: path
+        name: llmId
+        required: true
+        schema:
+          description: The ID of the LLM to retrieve.
+          title: llmId
+          type: string
+      - description: If specified, include custom model LLMs available for this use case.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, include custom model LLMs available for this use case.
+          title: useCaseId
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LanguageModelDefinitionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Get LLM by LLM ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/:
+    get:
+      description: List playgrounds.
+      operationId: list_playgrounds_playgrounds__get
+      parameters:
+      - description: Only retrieve the playgrounds linked to the specified use cases.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the playgrounds linked to the specified use cases.
+          title: useCaseId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the playgrounds with names matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the playgrounds with names matching the search query.
+          title: search
+      - description: Apply this sort order to the results. Valid options are "name", "description", "creationDate", "creationUserId", "lastUpdateDate", "lastUpdateUserId", "savedLLMBlueprintsCount". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListPlaygroundSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "description", "creationDate", "creationUserId", "lastUpdateDate", "lastUpdateUserId", "savedLLMBlueprintsCount". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPlaygroundsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List playgrounds
+      tags:
+      - LLM Generation
+    post:
+      description: Create a new playground.
+      operationId: create_playground_playgrounds__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlaygroundRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create playground
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/:
+    delete:
+      description: Delete an existing playground.
+      operationId: delete_playground_playgrounds__playgroundId___delete
+      parameters:
+      - description: The ID of the playground to delete.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to delete.
+          title: playgroundId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete playground by playground ID
+      tags:
+      - LLM Generation
+    get:
+      description: Retrieve an existing playground.
+      operationId: get_playground_playgrounds__playgroundId___get
+      parameters:
+      - description: The ID of the playground to retrieve.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve.
+          title: playgroundId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve playground by playground ID
+      tags:
+      - LLM Generation
+    patch:
+      description: Edit an existing playground.
+      operationId: update_playground_playgrounds__playgroundId___patch
+      parameters:
+      - description: The ID of the playground to edit.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to edit.
+          title: playgroundId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditPlaygroundRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaygroundResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit playground by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/nemoConfiguration/:
+    delete:
+      description: Delete the NeMo configuration for the playground.
+      operationId: delete_playground_nemo_configuration_playgrounds__playgroundId__nemoConfiguration__delete
+      parameters:
+      - description: The ID of the playground to retrieve NeMo configuration for.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve NeMo configuration for.
+          title: playgroundId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete the NeMo configuration by playground ID
+      tags:
+      - LLM Generation
+    get:
+      description: Retrieve the NeMo configuration for the playground.
+      operationId: get_playground_nemo_configuration_playgrounds__playgroundId__nemoConfiguration__get
+      parameters:
+      - description: The ID of the playground to retrieve NeMo configuration for.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve NeMo configuration for.
+          title: playgroundId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NemoConfigurationResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrive the NeMo configuration by playground ID
+      tags:
+      - LLM Generation
+    post:
+      description: Update/insert the NeMo configuration for the playground.
+      operationId: upsert_playground_nemo_configuration_playgrounds__playgroundId__nemoConfiguration__post
+      parameters:
+      - description: The ID of the playground to retrieve NeMo configuration for.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve NeMo configuration for.
+          title: playgroundId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NemoConfigurationUpsertRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NemoConfigurationResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Update/insert the NeMo configuration by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/nemoConfiguration/{metricId}/:
+    delete:
+      description: Delete a NeMo metric for the playground.
+      operationId: delete_nemo_metric_playgrounds__playgroundId__nemoConfiguration__metricId___delete
+      parameters:
+      - description: The ID of the playground to retrieve NeMo configuration for.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve NeMo configuration for.
+          title: playgroundId
+          type: string
+      - description: The ID of the metric to delete.
+        in: path
+        name: metricId
+        required: true
+        schema:
+          description: The ID of the metric to delete.
+          title: metricId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete a NeMo metric by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/ootbMetricConfigurations/:
+    get:
+      description: List OOTB metric configurations for the selected playground.
+      operationId: list_ootb_metric_configurations_playgrounds__playgroundId__ootbMetricConfigurations__get
+      parameters:
+      - description: The ID of the playground.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground.
+          title: playgroundId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OOTBMetricConfigurationsResponse'
+          description: OOTB metric configurations list
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List OOTB metric configurations by playground ID
+      tags:
+      - LLM Generation
+    post:
+      description: Create a new OOTB metric configuration.
+      operationId: create_ootb_metric_configuration_playgrounds__playgroundId__ootbMetricConfigurations__post
+      parameters:
+      - description: The ID of the playground associated with the OOTB metric configuration.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground associated with the OOTB metric configuration.
+          title: playgroundId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOOTBMetricConfigurationsRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OOTBMetricConfigurationsResponse'
+          description: OOTB metric configuration created successfully
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create OOTB metric configuration by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/supportedInsights/:
+    get:
+      description: List the supported insights.
+      operationId: get_supported_insights_playgrounds__playgroundId__supportedInsights__get
+      parameters:
+      - description: The ID of the playground to retrieve supported insights from.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve supported insights from.
+          title: playgroundId
+          type: string
+      - description: If `true`, only include the insights containing aggregation types. The default is `false`.
+        in: query
+        name: withAggregationTypesOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only include the insights containing aggregation types. The default is `false`.
+          title: withAggregationTypesOnly
+          type: boolean
+      - description: If `true`, only include the insights that can be transferred to production. The default is `false`.
+        in: query
+        name: productionOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only include the insights that can be transferred to production. The default is `false`.
+          title: productionOnly
+          type: boolean
+      - description: If `true`, only include the insights that are completed. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only include the insights that are completed. The default is `false`.
+          title: completedOnly
+          type: boolean
+      - description: The IDs of the LLM blueprints to check for VDB related metrics support.
+        in: query
+        name: llmBlueprintIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The IDs of the LLM blueprints to check for VDB related metrics support.
+          title: llmBlueprintIds
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedInsightsResponse'
+          description: Supported insights configuration successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List supported insights by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/trace/:
+    get:
+      description: Retrieve the playground prompt traces for an existing playground.
+      operationId: playground_trace_playgrounds__playgroundId__trace__get
+      parameters:
+      - description: The ID of the playground to retrieve prompt traces for.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve prompt traces for.
+          title: playgroundId
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTracesResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve playground prompt traces by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/trace/metadata/:
+    get:
+      description: Retrieve the prompt traces metadata for an existing playground.
+      operationId: playground_trace_metadata_playgrounds__playgroundId__trace_metadata__get
+      parameters:
+      - description: The ID of the playground to retrieve prompt traces for.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to retrieve prompt traces for.
+          title: playgroundId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TraceMetadataResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve playground prompt traces metadata by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{playgroundId}/traceDatasets/:
+    post:
+      description: Export prompt traces for an existing playground as a Data Registry dataset.
+      operationId: create_chat_export_job_playgrounds__playgroundId__traceDatasets__post
+      parameters:
+      - description: The ID of the playground to export the prompt traces for.
+        in: path
+        name: playgroundId
+        required: true
+        schema:
+          description: The ID of the playground to export the prompt traces for.
+          title: playgroundId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTraceDatasetRequest'
+              default:
+                excludeTracesWithWarnings: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TraceDatasetResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create playground prompt trace dataset by playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/playgrounds/{targetPlaygroundId}/supportedInsights/{sourcePlaygroundId}/:
+    put:
+      description: Copy supported insights between playgrounds.
+      operationId: copy_supported_insights_playgrounds__targetPlaygroundId__supportedInsights__sourcePlaygroundId___put
+      parameters:
+      - description: The ID of the source playground to copy supported insights from.
+        in: path
+        name: sourcePlaygroundId
+        required: true
+        schema:
+          description: The ID of the source playground to copy supported insights from.
+          title: sourcePlaygroundId
+          type: string
+      - description: The ID of the target playground to copy supported insights to.
+        in: path
+        name: targetPlaygroundId
+        required: true
+        schema:
+          description: The ID of the target playground to copy supported insights to.
+          title: targetPlaygroundId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopySupportedInsightsRequest'
+        required: true
+      responses:
+        '204':
+          description: Supported insights configuration successfully copied.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Copy supported insights by target playground ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/status/{statusId}/:
+    get:
+      description: Retrieve the execution status of a GenAI worker job.
+      operationId: get_status_status__statusId___get
+      parameters:
+      - description: The ID of the job to retrieve the status for.
+        in: path
+        name: statusId
+        required: true
+        schema:
+          description: The ID of the job to retrieve the status for.
+          format: uuid
+          title: statusId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/StatusResponse'
+                - type: string
+                title: Response Get Status Status  Statusid   Get
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve job status by status ID
+      tags:
+      - LLM Generation
+  /api/v2/genai/userLimits/llmApiCalls/:
+    get:
+      deprecated: true
+      description: 'DEPRECATED: Retrieve count of LLM Api calls made by user. This endpoint is deprecated and will be removed in future releases. Please use the appropriate LLM Gateway stats endpoint instead: /api/v2/genai/llmgw/stats/llmApiCalls/ .'
+      operationId: get_user_limit_counter_for_llm_api_calls_userLimits_llmApiCalls__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveUserLimitCounterResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: '[DEPRECATED] Retrieve LLM API call count'
+      tags:
+      - LLM Generation
+  /api/v2/genai/userLimits/vectorDatabases/:
+    get:
+      description: Retrieve the number of vector databases the user has created which count towards the usage limit.
+      operationId: get_user_limit_counter_for_vector_databases_userLimits_vectorDatabases__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveUserLimitCounterResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve vector database creation count
+      tags:
+      - LLM Generation
+components:
+  schemas:
+    SettingType:
+      description: Supported data types for settings.
+      enum:
+      - integer
+      - float
+      - string
+      - boolean
+      - object_id
+      - list
+      title: SettingType
+      type: string
+    CustomModelLLMValidationResponse:
+      description: API response object for a single custom model LLM validation.
+      properties:
+        chatModelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The model ID to specify when calling the OpenAI chat completion API of the deployment.
+          title: chatModelId
+        creationDate:
+          description: The creation date of the custom model validation (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        deploymentAccessData:
+          anyOf:
+          - $ref: '#/components/schemas/DeploymentAccessData'
+          - type: 'null'
+          description: The parameters used for accessing the deployment.
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        deploymentName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the custom model deployment.
+          title: deploymentName
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the validation error (if the validation failed).
+          title: errorMessage
+        id:
+          description: The ID of the custom model validation.
+          title: id
+          type: string
+        modelId:
+          description: The ID of the model used in the deployment.
+          title: modelId
+          type: string
+        name:
+          description: The name of the validated custom model.
+          title: name
+          type: string
+        predictionTimeout:
+          description: The timeout in seconds for the prediction API used in this custom model validation.
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          description: The name of the column the custom model uses for prompt text input.
+          title: promptColumnName
+          type: string
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          title: targetColumnName
+          type: string
+        tenantId:
+          description: The ID of the tenant the custom model validation belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the use case associated with the validated custom model.
+          title: useCaseId
+        userId:
+          description: The ID of the user that created this custom model validation.
+          title: userId
+          type: string
+        userName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the user that created this custom model validation.
+          title: userName
+        validationStatus:
+          $ref: '#/components/schemas/CustomModelValidationStatus'
+          description: The status of the custom model validation.
+      required:
+      - id
+      - deploymentId
+      - targetColumnName
+      - validationStatus
+      - modelId
+      - deploymentAccessData
+      - tenantId
+      - name
+      - useCaseId
+      - creationDate
+      - userId
+      - predictionTimeout
+      - promptColumnName
+      title: CustomModelLLMValidationResponse
+      type: object
+    RetrievalMode:
+      description: Retrieval modes for vector databases.
+      enum:
+      - similarity
+      - maximal_marginal_relevance
+      title: RetrievalMode
+      type: string
+    InsightsConfigurationWithAdditionalData:
+      description: The configuration of insights with extra data.
+      properties:
+        aggregationTypes:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AggregationType'
+            type: array
+          - type: 'null'
+          description: The aggregation types used in the insights configuration.
+          title: aggregationTypes
+        costConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the cost configuration.
+          title: costConfigurationId
+        customMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom metric (if using a custom metric).
+          title: customMetricId
+        customModelGuard:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelGuard'
+          - type: 'null'
+          description: Guard as configured in the custom model.
+        customModelLLMValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model LLM validation if using a custom model LLM for OOTB metrics.
+          title: customModelLLMValidationId
+        deploymentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model deployment associated with the insight.
+          title: deploymentId
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the evaluation dataset configuration or sidecar model metric validation or OOTB metric.
+          title: errorMessage
+        errorResolution:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The error type associated with the insight error status and error message as an indicator of what fields needs to be edited if any.
+          title: errorResolution
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration.
+          title: evaluationDatasetConfigurationId
+        executionStatus:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionStatus'
+          - type: 'null'
+          description: The execution status of the evaluation dataset configuration.
+        extraMetricSettings:
+          anyOf:
+          - $ref: '#/components/schemas/ExtraMetricSettings'
+          - type: 'null'
+          description: Extra settings for the metric that do not reference other entities.
+        insightName:
+          description: The name of the insight.
+          maxLength: 5000
+          minLength: 1
+          title: insightName
+          type: string
+        insightType:
+          anyOf:
+          - $ref: '#/components/schemas/InsightTypes'
+          - type: 'null'
+          description: The type of the insight.
+        isTransferable:
+          default: false
+          description: Indicates if insight can be transferred to production.
+          title: isTransferable
+          type: boolean
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The LLM ID for OOTB metrics that use LLMs.
+          title: llmId
+        llmIsActive:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the LLM is active.
+          title: llmIsActive
+        llmIsDeprecated:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the LLM is deprecated and will be removed in a future release.
+          title: llmIsDeprecated
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the model associated with `deploymentId`.
+          title: modelId
+        modelPackageRegisteredModelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the registered model package associated with `deploymentId`.
+          title: modelPackageRegisteredModelId
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithID'
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration associated with the insight configuration.
+          title: moderationConfiguration
+        nemoMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the Nemo configuration.
+          title: nemoMetricId
+        ootbMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the ootb metric (if using an ootb metric).
+          title: ootbMetricId
+        ootbMetricName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBMetricInsightNames'
+          - $ref: '#/components/schemas/OOTBAgenticMetricInsightNames'
+          - $ref: '#/components/schemas/OTELMetricInsightNames'
+          - type: 'null'
+          description: The OOTB metric name.
+          title: ootbMetricName
+        resultUnit:
+          anyOf:
+          - $ref: '#/components/schemas/MetricUnit'
+          - type: 'null'
+          description: The unit of measurement associated with the insight result.
+        sidecarModelMetricMetadata:
+          anyOf:
+          - $ref: '#/components/schemas/SidecarModelMetricMetadata'
+          - type: 'null'
+          description: The metadata of the sidecar model metric (if using a sidecar model metric).
+        sidecarModelMetricValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the sidecar model metric validation (if using a sidecar model metric).
+          title: sidecarModelMetricValidationId
+        stage:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineStage'
+          - type: 'null'
+          description: The stage (prompt or response) where insight is calculated at.
+      required:
+      - insightName
+      - aggregationTypes
+      title: InsightsConfigurationWithAdditionalData
+      type: object
+    ProviderGuardStage:
+      description: The data stage where the provider guard metric is acting upon.
+      enum:
+      - prompt
+      - response
+      title: ProviderGuardStage
+      type: string
+    TraceChat:
+      description: Reference to a chat or comparison chat available in a trace.
+      properties:
+        id:
+          description: The ID of the chat associated with the trace.
+          title: id
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the chat associated with the trace.
+          title: name
+      required:
+      - id
+      - name
+      title: TraceChat
+      type: object
+    ToolCallAccuracySettings:
+      description: Additional arguments for the tool call accuracy metric.
+      properties:
+        argumentComparison:
+          $ref: '#/components/schemas/ArgumentMatchMode'
+          description: Setting defining how arguments of tool calls should be compared during the metric computation.
+      required:
+      - argumentComparison
+      title: ToolCallAccuracySettings
+      type: object
+    HTTPValidationErrorResponse:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: detail
+          type: array
+      title: HTTPValidationErrorResponse
+      type: object
+    ModerationAction:
+      description: The moderation strategy.
+      enum:
+      - block
+      - report
+      - reportAndBlock
+      title: ModerationAction
+      type: string
+    CommonLLMSettings:
+      additionalProperties: true
+      description: The settings that are available for all non-custom LLMs.
+      properties:
+        maxCompletionLength:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Maximum number of tokens allowed in the chat completion. Use this value to, for example, control costs on token-based charges or manage response length for chat text limits.
+          title: maxCompletionLength
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+      title: CommonLLMSettings
+      type: object
+    TraceMetadataResponse:
+      description: API response for prompt trace metadata retrieval request.
+      properties:
+        chats:
+          description: The list of combined chat and comparison prompt chats available in trace.
+          items:
+            $ref: '#/components/schemas/TraceChat'
+          title: chats
+          type: array
+        users:
+          description: The list of unique users available in the trace response.
+          items:
+            $ref: '#/components/schemas/DataRobotUser'
+          title: users
+          type: array
+      required:
+      - users
+      - chats
+      title: TraceMetadataResponse
+      type: object
+    SupportedCustomModelLLMValidation:
+      description: The metadata describing a validated custom model LLM.
+      properties:
+        id:
+          description: The ID of the custom model LLM validation.
+          title: id
+          type: string
+        name:
+          description: The name of the custom model LLM validation.
+          title: name
+          type: string
+      required:
+      - id
+      - name
+      title: SupportedCustomModelLLMValidation
+      type: object
+    ListLLMBlueprintsResponse:
+      description: Paginated list of LLM blueprints.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/LLMBlueprintResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListLLMBlueprintsResponse
+      type: object
+    PlaygroundType:
+      description: Playground type.
+      enum:
+      - rag
+      - agentic
+      title: PlaygroundType
+      type: string
+    BooleanSettingConstraints:
+      description: Available constraints for boolean settings.
+      properties:
+        type:
+          const: boolean
+          default: boolean
+          description: The data type of the setting.
+          title: type
+          type: string
+      title: BooleanSettingConstraints
+      type: object
+    MetricMetadata:
+      description: Prompt metric metadata.
+      properties:
+        costConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the cost configuration.
+          title: costConfigurationId
+        customModelGuardId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Id of the custom model guard.
+          title: customModelGuardId
+        customModelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model used for the metric.
+          title: customModelId
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the metric computation.
+          title: errorMessage
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration.
+          title: evaluationDatasetConfigurationId
+        executionStatus:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionStatus'
+          - type: 'null'
+          description: The computation status of the metric.
+        formattedName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The formatted name of the metric.
+          title: formattedName
+        formattedValue:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The formatted value of the metric.
+          title: formattedValue
+        llmIsDeprecated:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the LLM is deprecated and will be removed in a future release.
+          title: llmIsDeprecated
+        name:
+          description: The name of the metric.
+          title: name
+          type: string
+        nemoMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The id of the NeMo Pipeline configuration.
+          title: nemoMetricId
+        ootbMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The id of the OOTB metric configuration.
+          title: ootbMetricId
+        sidecarModelMetricValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the sidecar model validation(in case of using a sidecar model deployment for the metric).
+          title: sidecarModelMetricValidationId
+        stage:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineStage'
+          - type: 'null'
+          description: The stage (prompt or response) that the metric applies to.
+        value:
+          description: The value of the metric.
+          title: value
+      required:
+      - name
+      - value
+      title: MetricMetadata
+      type: object
+    CustomModelLLMSettings:
+      additionalProperties: false
+      description: The settings that are available for custom model LLMs.
+      properties:
+        externalLlmContextSize:
+          anyOf:
+          - maximum: 128000.0
+            minimum: 128.0
+            type: integer
+          - type: 'null'
+          default: 4096
+          description: The external LLM's context size, in tokens. This value is only used for pruning documents supplied to the LLM when a vector database is associated with the LLM blueprint. It does not affect the external LLM's actual context size in any way and is not supplied to the LLM.
+          title: externalLlmContextSize
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+        validationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the custom model LLM.
+          title: validationId
+      title: CustomModelLLMSettings
+      type: object
+    Intervention:
+      description: The intervention configuration for a metric.
+      properties:
+        action:
+          $ref: '#/components/schemas/ModerationAction'
+          description: The intervention strategy.
+        message:
+          description: The intervention message to replace the prediction when a guard condition is satisfied.
+          minLength: 1
+          title: message
+          type: string
+      required:
+      - action
+      - message
+      title: Intervention
+      type: object
+    AvailableLiteLLMEndpoints:
+      description: The supported endpoints for the LLM.
+      properties:
+        supportsChatCompletions:
+          description: Whether the chat completions endpoint is supported.
+          title: supportsChatCompletions
+          type: boolean
+        supportsResponses:
+          description: Whether the responses endpoint is supported.
+          title: supportsResponses
+          type: boolean
+      required:
+      - supportsChatCompletions
+      - supportsResponses
+      title: AvailableLiteLLMEndpoints
+      type: object
+    OOTBMetricInsightNames:
+      description: The Out-Of-The-Box metric name that can be used in the playground.
+      enum:
+      - latency
+      - citations
+      - rouge_1
+      - faithfulness
+      - correctness
+      - prompt_tokens
+      - response_tokens
+      - document_tokens
+      - all_tokens
+      - jailbreak_violation
+      - toxicity_violation
+      - pii_violation
+      - exact_match
+      - starts_with
+      - contains
+      title: OOTBMetricInsightNames
+      type: string
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SettingFormat:
+      description: Supported formats for settings.
+      enum:
+      - multiline
+      title: SettingFormat
+      type: string
+    CreateOOTBMetricConfigurationsRequest:
+      description: The body of the "Create OOTB metric configurations" request.
+      properties:
+        ootbMetricConfigurations:
+          description: The list of OOTB metrics to use.
+          items:
+            $ref: '#/components/schemas/OOTBMetricConfigurationRequest'
+          title: ootbMetricConfigurations
+          type: array
+      required:
+      - ootbMetricConfigurations
+      title: CreateOOTBMetricConfigurationsRequest
+      type: object
+    ListTracesResponse:
+      description: Paginated list of playground prompt traces.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/PromptTraceResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListTracesResponse
+      type: object
+    PromptType:
+      description: Determines whether chat history is submitted as context to the user prompt.
+      enum:
+      - CHAT_HISTORY_AWARE
+      - ONE_TIME_PROMPT
+      title: PromptType
+      type: string
+    InsightErrorResolution:
+      description: Error type linking directly to the field name that is related to the error.
+      enum:
+      - ootbMetricName
+      - intervention
+      - guardCondition
+      - sidecarOverall
+      - sidecarRevalidate
+      - sidecarDeploymentId
+      - sidecarInputColumnName
+      - sidecarOutputColumnName
+      - promptPipelineFiles
+      - promptPipelineTemplateId
+      - responsePipelineFiles
+      - responsePipelineTemplateId
+      title: InsightErrorResolution
+      type: string
+    CopySupportedInsightsRequest:
+      description: The body of the "Copy supported insights" request.
+      properties:
+        addToExisting:
+          default: true
+          description: If `true`, adds copied insights to existing insights in the target playground. If `false`, replaces insights in the target playground with copied insights.
+          title: addToExisting
+          type: boolean
+        withEvaluationDatasets:
+          default: false
+          description: If `true` also copies source playground evaluation datasets to target playground.
+          title: withEvaluationDatasets
+          type: boolean
+      title: CopySupportedInsightsRequest
+      type: object
+    CreateFromLLMBlueprintRequest:
+      description: The body of the Create LLM Blueprint from an LLM Blueprint request.
+      properties:
+        description:
+          default: ''
+          description: The description of the new LLM blueprint.
+          maxLength: 5000
+          title: description
+          type: string
+        llmBlueprintId:
+          description: The ID of an existing LLM blueprint to copy the LLM and vector database settings from.
+          title: llmBlueprintId
+          type: string
+        name:
+          description: The name of the new LLM blueprint.
+          maxLength: 5000
+          title: name
+          type: string
+      required:
+      - name
+      - llmBlueprintId
+      title: CreateFromLLMBlueprintRequest
+      type: object
+    SidecarModelMetricMetadata:
+      description: The metadata of a sidecar model metric.
+      properties:
+        expectedResponseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for expected response text input.
+          title: expectedResponseColumnName
+        promptColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prompt text input.
+          title: promptColumnName
+        responseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for response text input.
+          title: responseColumnName
+        targetColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prediction output.
+          title: targetColumnName
+      required:
+      - targetColumnName
+      title: SidecarModelMetricMetadata
+      type: object
+    OOTBMetricConfigurationsResponse:
+      description: The response for the "OOTB metric configurations" retrieve request.
+      properties:
+        ootbMetricConfigurations:
+          description: The list of OOTB metric configurations to use.
+          items:
+            $ref: '#/components/schemas/OOTBMetricConfigurationResponse'
+          title: ootbMetricConfigurations
+          type: array
+      required:
+      - ootbMetricConfigurations
+      title: OOTBMetricConfigurationsResponse
+      type: object
+    LLMSettingDefinition:
+      description: Metadata describing a single setting.
+      properties:
+        constraints:
+          anyOf:
+          - discriminator:
+              mapping:
+                boolean: '#/components/schemas/BooleanSettingConstraints'
+                float: '#/components/schemas/FloatSettingConstraints'
+                integer: '#/components/schemas/IntegerSettingConstraints'
+                list: '#/components/schemas/ListParameterConstraints'
+                object_id: '#/components/schemas/ObjectIdSettingConstraints'
+                string: '#/components/schemas/StringSettingConstraints'
+              propertyName: type
+            oneOf:
+            - $ref: '#/components/schemas/IntegerSettingConstraints'
+            - $ref: '#/components/schemas/FloatSettingConstraints'
+            - $ref: '#/components/schemas/StringSettingConstraints'
+            - $ref: '#/components/schemas/BooleanSettingConstraints'
+            - $ref: '#/components/schemas/ObjectIdSettingConstraints'
+            - $ref: '#/components/schemas/ListParameterConstraints'
+          - type: 'null'
+          description: The constraints for the LLM setting values.
+          title: constraints
+        defaultValue:
+          anyOf:
+          - type: boolean
+          - type: integer
+          - type: number
+          - type: string
+          - type: 'null'
+          description: The default value of the LLM setting.
+          title: defaultValue
+        description:
+          description: The description of the LLM setting.
+          title: description
+          type: string
+        format:
+          anyOf:
+          - $ref: '#/components/schemas/SettingFormat'
+          - type: 'null'
+          description: The expected format of the value of the LLM setting.
+        id:
+          description: The ID of the LLM setting.
+          title: id
+          type: string
+        isNullable:
+          default: true
+          description: 'Whether the setting allows null values (default: true).'
+          title: isNullable
+          type: boolean
+        name:
+          description: The name of the LLM setting.
+          title: name
+          type: string
+        type:
+          $ref: '#/components/schemas/SettingType'
+          description: The data type of the LLM setting.
+      required:
+      - id
+      - name
+      - description
+      - type
+      - constraints
+      - defaultValue
+      title: LLMSettingDefinition
+      type: object
+    OTELMetricInsightNames:
+      description: Metrics that can only be calculated using OTEL Trace/metric data.
+      enum:
+      - agent_latency
+      - agent_tokens
+      - agent_cost
+      title: OTELMetricInsightNames
+      type: string
+    DataRobotUser:
+      description: DataRobot application user.
+      properties:
+        id:
+          description: The ID of the user.
+          title: id
+          type: string
+        name:
+          description: The name of the user.
+          title: name
+          type: string
+        userhash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Gravatar hash for user avatar.
+          title: userhash
+      required:
+      - id
+      - name
+      title: DataRobotUser
+      type: object
+    StatusResponse:
+      description: API response object for job execution status.
+      properties:
+        code:
+          $ref: '#/components/schemas/JobErrorCode'
+          description: The error code associated with the job.
+        created:
+          description: The creation date of the job (ISO 8601 formatted).
+          format: date-time
+          title: created
+          type: string
+        description:
+          default: ''
+          description: The description associated with the job.
+          title: description
+          type: string
+        message:
+          default: ''
+          description: The error message associated with the job.
+          title: message
+          type: string
+        status:
+          $ref: '#/components/schemas/JobExecutionState'
+          description: The execution status of the job.
+        statusId:
+          description: ID that can be used with :http:get:`/api/v2/status/(statusId)/` to poll for the testing job's status.
+          format: uuid
+          title: statusId
+          type: string
+        statusType:
+          default: ''
+          description: The type of the status object.
+          title: statusType
+          type: string
+      required:
+      - statusId
+      title: StatusResponse
+      type: object
+      x-versionadded: v2.35
+    JobErrorCode:
+      description: Possible job error codes. This enum exists for consistency with the DataRobot Status API.
+      enum:
+      - 0
+      - 1
+      title: JobErrorCode
+      type: integer
+    CustomModelGuardType:
+      description: Guard type as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - ootb
+      - model
+      - nemo_guardrails
+      - nemo_evaluator
+      title: CustomModelGuardType
+      type: string
+    VectorDatabaseRetrievers:
+      description: The method used to retrieve relevant chunks from the vector database.
+      enum:
+      - SINGLE_LOOKUP_RETRIEVER
+      - CONVERSATIONAL_RETRIEVER
+      - MULTI_STEP_RETRIEVER
+      title: VectorDatabaseRetrievers
+      type: string
+    GuardCondition:
+      description: The guard condition for a metric.
+      properties:
+        comparand:
+          anyOf:
+          - type: number
+          - type: string
+          - type: boolean
+          - items:
+              type: string
+            type: array
+          description: The comparand(s) used in the guard condition.
+          title: comparand
+        comparator:
+          $ref: '#/components/schemas/GuardConditionComparator'
+          description: The comparator used in the guard condition.
+      required:
+      - comparator
+      - comparand
+      title: GuardCondition
+      type: object
+    LLMReference:
+      description: A reference link for an LLM.
+      properties:
+        name:
+          description: Description of the reference document.
+          title: name
+          type: string
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: URL of the reference document.
+          title: url
+      required:
+      - name
+      - url
+      title: LLMReference
+      type: object
+    TraceDatasetResponse:
+      description: API response for prompt traces export request.
+      properties:
+        aiCatalogId:
+          description: The Data Registry dataset ID.
+          title: aiCatalogId
+          type: string
+      required:
+      - aiCatalogId
+      title: TraceDatasetResponse
+      type: object
+    CustomModelGuardNemoEvaluatorType:
+      description: NeMo evaluator type as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - llm_judge
+      - context_relevance
+      - response_groundedness
+      - topic_adherence
+      - agent_goal_accuracy
+      - response_relevancy
+      - faithfulness
+      title: CustomModelGuardNemoEvaluatorType
+      type: string
+    ListCustomModelValidationSortQueryParam:
+      description: Sort order values for listing custom model validations.
+      enum:
+      - name
+      - -name
+      - deploymentName
+      - -deploymentName
+      - userName
+      - -userName
+      - creationDate
+      - -creationDate
+      title: ListCustomModelValidationSortQueryParam
+      type: string
+    ProviderGuardsMetadata:
+      description: Info on the provider guard metrics.
+      properties:
+        name:
+          description: The name of the provider guard metric.
+          title: name
+          type: string
+        satisfyCriteria:
+          description: Whether the configured provider guard metric satisfied its hidden internal guard criteria.
+          title: satisfyCriteria
+          type: boolean
+        stage:
+          $ref: '#/components/schemas/ProviderGuardStage'
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: integer
+          - type: 'null'
+          description: The value of the provider guard metric.
+          title: value
+      required:
+      - satisfyCriteria
+      - name
+      - value
+      - stage
+      title: ProviderGuardsMetadata
+      type: object
+    ListPlaygroundSortQueryParam:
+      description: Sort order values for listing playgrounds.
+      enum:
+      - name
+      - -name
+      - description
+      - -description
+      - creationUserId
+      - -creationUserId
+      - creationDate
+      - -creationDate
+      - lastUpdateUserId
+      - -lastUpdateUserId
+      - lastUpdateDate
+      - -lastUpdateDate
+      - savedLLMBlueprintsCount
+      - -savedLLMBlueprintsCount
+      - llmBlueprintsCount
+      - -llmBlueprintsCount
+      title: ListPlaygroundSortQueryParam
+      type: string
+    ListLLMBlueprintSortQueryParam:
+      description: Sort order values for listing LLM blueprints.
+      enum:
+      - name
+      - -name
+      - description
+      - -description
+      - creationUserId
+      - -creationUserId
+      - creationDate
+      - -creationDate
+      - lastUpdateUserId
+      - -lastUpdateUserId
+      - lastUpdateDate
+      - -lastUpdateDate
+      - llmId
+      - -llmId
+      - vectorDatabaseId
+      - -vectorDatabaseId
+      title: ListLLMBlueprintSortQueryParam
+      type: string
+    DeploymentAccessData:
+      description: Add authorization_header to avoid breaking change to API.
+      properties:
+        authorizationHeader:
+          default: '[REDACTED]'
+          description: The `Authorization` header to use for the deployment.
+          title: authorizationHeader
+          type: string
+        chatApiUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL of the deployment's chat API.
+          title: chatApiUrl
+        datarobotKey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The server key associated with the prediction API.
+          title: datarobotKey
+        inputType:
+          $ref: '#/components/schemas/DeploymentInputType'
+          description: The format of the input data.
+        modelType:
+          $ref: '#/components/schemas/SupportedDeploymentType'
+          description: The type of the target output the deployment produces.
+        predictionApiUrl:
+          description: The URL of the deployment's prediction API.
+          title: predictionApiUrl
+          type: string
+      required:
+      - predictionApiUrl
+      - datarobotKey
+      - inputType
+      - modelType
+      title: DeploymentAccessData
+      type: object
+    CustomModelValidationStatus:
+      description: Status of custom model validation.
+      enum:
+      - TESTING
+      - PASSED
+      - FAILED
+      title: CustomModelValidationStatus
+      type: string
+    CustomModelResourcesRequest:
+      description: The structure that describes resource settings for a custom model created from buzok.
+      properties:
+        maximumMemory:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The maximum memory that can be allocated to the custom model.
+          title: maximumMemory
+        networkEgressPolicy:
+          default: Public
+          description: Network egress policy for the custom model. Can be either Public or None.
+          maxLength: 5000
+          title: networkEgressPolicy
+          type: string
+        replicas:
+          default: 1
+          description: A fixed number of replicas that will be created for the custom model.
+          title: replicas
+          type: integer
+        resourceBundleId:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: 'An identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          title: resourceBundleId
+      title: CustomModelResourcesRequest
+      type: object
+    MetricUnit:
+      description: The unit of measurement associated with a metric.
+      enum:
+      - s
+      - ms
+      - '%'
+      title: MetricUnit
+      type: string
+    IntegerSettingConstraints:
+      description: Available constraints for integer settings.
+      properties:
+        maxValue:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The maximum value of the setting (inclusive).
+          title: maxValue
+        minValue:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The minimum value of the setting (inclusive).
+          title: minValue
+        type:
+          const: integer
+          default: integer
+          description: The data type of the setting.
+          title: type
+          type: string
+      title: IntegerSettingConstraints
+      type: object
+    ListPlaygroundsResponse:
+      description: Paginated list of playgrounds.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/PlaygroundResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListPlaygroundsResponse
+      type: object
+    InsightTypes:
+      description: The type of insight.
+      enum:
+      - Reference
+      - Quality metric
+      - Operational metric
+      - Evaluation deployment
+      - Custom metric
+      - Nemo
+      title: InsightTypes
+      type: string
+    NemoConfigurationResponse:
+      description: API response object for a playground Nemo configuration.
+      properties:
+        blockedTermsFileContents:
+          description: The contents of the blocked terms file.
+          title: blockedTermsFileContents
+          type: string
+        promptLlmConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/NemoLLMConfiguration'
+          - type: 'null'
+          description: The LLM configuration for the prompt pipeline.
+        promptModerationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration for the prompt pipeline.
+        promptPipelineFiles:
+          anyOf:
+          - $ref: '#/components/schemas/NemoPipelineFiles'
+          - type: 'null'
+          description: The prompt pipeline files for this configuration.
+        promptPipelineMetricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name for the NeMo Prompt pipeline metric.
+          title: promptPipelineMetricName
+        promptPipelineTemplateId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Guard template to be used for the prompt pipeline, defines actions.py.
+          title: promptPipelineTemplateId
+        responseLlmConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/NemoLLMConfiguration'
+          - type: 'null'
+          description: The LLM configuration for the response pipeline.
+        responseModerationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration for the response pipeline.
+        responsePipelineFiles:
+          anyOf:
+          - $ref: '#/components/schemas/NemoPipelineFiles'
+          - type: 'null'
+          description: The response pipeline files for this configuration.
+        responsePipelineMetricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name for the NeMo Response pipeline metric.
+          title: responsePipelineMetricName
+        responsePipelineTemplateId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Guard template to be used for the response pipeline, defines actions.py.
+          title: responsePipelineTemplateId
+      required:
+      - promptPipelineMetricName
+      - promptPipelineFiles
+      - promptPipelineTemplateId
+      - promptLlmConfiguration
+      - responsePipelineMetricName
+      - responsePipelineFiles
+      - responsePipelineTemplateId
+      - responseLlmConfiguration
+      - blockedTermsFileContents
+      title: NemoConfigurationResponse
+      type: object
+    ExecutionStatus:
+      description: Job and entity execution status.
+      enum:
+      - NEW
+      - RUNNING
+      - COMPLETED
+      - REQUIRES_USER_INPUT
+      - SKIPPED
+      - ERROR
+      title: ExecutionStatus
+      type: string
+    NemoLLMConfiguration:
+      description: Configuration of LLM used for NeMo guardrails.
+      properties:
+        llmType:
+          $ref: '#/components/schemas/LLMType'
+        openaiApiBase:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Azure OpenAI API base.
+          title: openaiApiBase
+        openaiApiDeploymentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Azure OpenAI API deployment ID.
+          title: openaiApiDeploymentId
+        openaiApiKeyId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: OpenAI API Key.
+          title: openaiApiKeyId
+      required:
+      - llmType
+      title: NemoLLMConfiguration
+      type: object
+    GuardConditionComparator:
+      description: The comparator used in a guard condition.
+      enum:
+      - greaterThan
+      - lessThan
+      - equals
+      - notEquals
+      - is
+      - isNot
+      - matches
+      - doesNotMatch
+      - contains
+      - doesNotContain
+      title: GuardConditionComparator
+      type: string
+    CreateCustomModelVersionResponse:
+      description: API response object for the "Create custom model version" request.
+      properties:
+        customModelId:
+          description: The ID of the created custom model.
+          title: customModelId
+          type: string
+      required:
+      - customModelId
+      title: CreateCustomModelVersionResponse
+      type: object
+    OOTBMetricConfigurationRequest:
+      description: API request object for a single OOTB metric configuration.
+      properties:
+        customModelLLMValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model LLM validation (if using a custom model LLM).
+          title: customModelLLMValidationId
+        customOotbMetricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The custom OOTB metric name to be associated with the OOTB metric. Will default to OOTB metric name if not defined.
+          title: customOotbMetricName
+        extraMetricSettings:
+          anyOf:
+          - $ref: '#/components/schemas/ExtraMetricSettings'
+          - type: 'null'
+          description: Extra settings for the metric that do not reference other entities.
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM to use for `correctness` and `faithfulness` metrics.
+          title: llmId
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration to be associated with the OOTB metric.
+        ootbMetricName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBMetricInsightNames'
+          - $ref: '#/components/schemas/OOTBAgenticMetricInsightNames'
+          - $ref: '#/components/schemas/OTELMetricInsightNames'
+          description: The OOTB metric name.
+          title: ootbMetricName
+      required:
+      - ootbMetricName
+      title: OOTBMetricConfigurationRequest
+      type: object
+    RetrieveUserLimitCounterResponse:
+      description: API response object for retrieving user limit counters.
+      properties:
+        counter:
+          description: The number of completed operations which count towards the usage limit.
+          title: counter
+          type: integer
+      required:
+      - counter
+      title: RetrieveUserLimitCounterResponse
+      type: object
+    LanguageModelDefinitionResponse:
+      additionalProperties: true
+      description: The metadata that defines an LLM.
+      properties:
+        availableLitellmEndpoints:
+          $ref: '#/components/schemas/AvailableLiteLLMEndpoints'
+          description: Supported endpoints for this LLM (i.e. usable LiteLLM endpoints). Includes supports_chat_completions and supports_responses keys.
+        contextSize:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The size of the LLM's context, measured in tokens. `null` if unknown.
+          title: contextSize
+        creator:
+          description: The company that originally created the LLM.
+          title: creator
+          type: string
+        dateAdded:
+          description: The date the LLM was added to the GenAI playground.
+          format: date
+          title: dateAdded
+          type: string
+        description:
+          description: The details about the LLM.
+          title: description
+          type: string
+        documentationLink:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The link to the vendor documentation for the LLM.
+          title: documentationLink
+        id:
+          description: The ID of the LLM.
+          title: id
+          type: string
+        isActive:
+          description: Whether the LLM is active.
+          title: isActive
+          type: boolean
+        isDeprecated:
+          description: Whether the LLM is deprecated and will be removed in a future release.
+          title: isDeprecated
+          type: boolean
+        isMetered:
+          default: true
+          description: Whether the LLM usage is metered.
+          title: isMetered
+          type: boolean
+        isSupportedForModeration:
+          description: Whether the LLM is supported for moderation.
+          title: isSupportedForModeration
+          type: boolean
+        license:
+          description: The usage license information for the LLM.
+          title: license
+          type: string
+        name:
+          description: The name of the LLM.
+          title: name
+          type: string
+        provider:
+          description: The party that provides access to the LLM.
+          title: provider
+          type: string
+        referenceLinks:
+          description: The references for the LLM.
+          items:
+            $ref: '#/components/schemas/LLMReference'
+          title: referenceLinks
+          type: array
+        retirementDate:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: When the LLM is expected to be retired and no longer available for submitting new prompts.
+          title: retirementDate
+        settings:
+          description: The settings supported by the LLM.
+          items:
+            $ref: '#/components/schemas/LLMSettingDefinition'
+          title: settings
+          type: array
+        suggestedReplacement:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM suggested as a replacement for this one when it is retired.
+          title: suggestedReplacement
+        supportedCustomModelLLMValidations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SupportedCustomModelLLMValidation'
+            type: array
+          - type: 'null'
+          description: The supported custom model validations if applicable for this LLM ID.
+          title: supportedCustomModelLLMValidations
+        supportedLanguages:
+          description: The languages supported by the LLM.
+          title: supportedLanguages
+          type: string
+        vendor:
+          description: The vendor of the LLM.
+          title: vendor
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - vendor
+      - provider
+      - creator
+      - license
+      - supportedLanguages
+      - settings
+      - documentationLink
+      - referenceLinks
+      - dateAdded
+      - isDeprecated
+      - isActive
+      - isSupportedForModeration
+      - availableLitellmEndpoints
+      title: LanguageModelDefinitionResponse
+      type: object
+    StringSettingConstraints:
+      description: Available constraints for string settings.
+      properties:
+        allowedChoices:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The allowed values for the setting.
+          title: allowedChoices
+        maxLength:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The maximum length of the value (inclusive).
+          title: maxLength
+        minLength:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The minimum length of the value (inclusive).
+          title: minLength
+        type:
+          const: string
+          default: string
+          description: The data type of the setting.
+          title: type
+          type: string
+      title: StringSettingConstraints
+      type: object
+    EditCustomModelValidationRequest:
+      description: The body of the "Edit custom model validation" request.
+      properties:
+        chatModelId:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The model ID to specify when calling the OpenAI chat completion API of the deployment. If this parameter is specified, the deployment must support the OpenAI chat completion API.
+          title: chatModelId
+        deploymentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the ID of the deployment associated with this custom model validation.
+          title: deploymentId
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the ID of the model associated with this custom model validation.
+          title: modelId
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: If specified, renames the custom model validation to this value.
+          title: name
+        predictionTimeout:
+          anyOf:
+          - maximum: 600.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: If specified, sets the timeout in seconds for the prediction when validating a custom model.
+          title: predictionTimeout
+        promptColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to format the prompt text input for the custom model deployment.
+          title: promptColumnName
+        targetColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to extract the prediction response from the custom model deployment.
+          title: targetColumnName
+      title: EditCustomModelValidationRequest
+      type: object
+    ModerationConfigurationWithID:
+      description: Moderation Configuration associated with an insight.
+      properties:
+        guardConditions:
+          description: The guard conditions associated with a metric.
+          items:
+            $ref: '#/components/schemas/GuardCondition'
+          maxItems: 1
+          minItems: 1
+          title: guardConditions
+          type: array
+        intervention:
+          $ref: '#/components/schemas/Intervention'
+          description: The intervention specific moderation configuration.
+      required:
+      - guardConditions
+      - intervention
+      title: ModerationConfigurationWithID
+      type: object
+    ListParameterConstraints:
+      description: Available constraints for list parameters.
+      properties:
+        elementConstraints:
+          anyOf:
+          - $ref: '#/components/schemas/IntegerSettingConstraints'
+          - $ref: '#/components/schemas/FloatSettingConstraints'
+          - $ref: '#/components/schemas/StringSettingConstraints'
+          - $ref: '#/components/schemas/BooleanSettingConstraints'
+          - $ref: '#/components/schemas/ObjectIdSettingConstraints'
+          - type: 'null'
+          description: Constraints to apply to each element.
+          title: elementConstraints
+        elementType:
+          $ref: '#/components/schemas/SettingType'
+          description: The type of elements in the list.
+        maxLength:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The maximum length of the list (inclusive).
+          title: maxLength
+        minLength:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The minimum length of the list (inclusive).
+          title: minLength
+        type:
+          const: list
+          default: list
+          description: The data type of the parameter.
+          title: type
+          type: string
+      required:
+      - elementType
+      title: ListParameterConstraints
+      type: object
+    CustomModelGuardStage:
+      description: Guard stage as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - prompt
+      - response
+      title: CustomModelGuardStage
+      type: string
+    CustomModelGuardOOTBType:
+      description: OOTB type as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - token_count
+      - rouge_1
+      - faithfulness
+      - agent_goal_accuracy
+      - custom_metric
+      - cost
+      - task_adherence
+      title: CustomModelGuardOOTBType
+      type: string
+    PlaygroundResponse:
+      description: API response object for a single playground.
+      properties:
+        creationDate:
+          description: The creation date of the playground (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created this playground.
+          title: creationUserId
+          type: string
+        description:
+          description: The description of the playground.
+          title: description
+          type: string
+        id:
+          description: The ID of the playground.
+          title: id
+          type: string
+        lastUpdateDate:
+          description: The date of the most recent update of this playground (ISO 8601 formatted).
+          format: date-time
+          title: lastUpdateDate
+          type: string
+        lastUpdateUserId:
+          description: The ID of the user that made the most recent update to this playground.
+          title: lastUpdateUserId
+          type: string
+        llmBlueprintsCount:
+          description: The number of LLM blueprints in this playground.
+          title: llmBlueprintsCount
+          type: integer
+        name:
+          description: The name of the playground.
+          title: name
+          type: string
+        playgroundType:
+          $ref: '#/components/schemas/PlaygroundType'
+          default: rag
+          description: The type of the playground.
+        savedLLMBlueprintsCount:
+          description: The number of saved LLM blueprints in this playground.
+          title: savedLLMBlueprintsCount
+          type: integer
+        useCaseId:
+          description: The ID of the use case this playground belongs to.
+          title: useCaseId
+          type: string
+        userName:
+          description: The name of the user that created this playground.
+          title: userName
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - useCaseId
+      - creationDate
+      - creationUserId
+      - lastUpdateDate
+      - lastUpdateUserId
+      - savedLLMBlueprintsCount
+      - llmBlueprintsCount
+      - userName
+      title: PlaygroundResponse
+      type: object
+    UpdateLLMBlueprintRequest:
+      description: The body of the Update LLM Blueprint request.
+      properties:
+        description:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, updates the LLM blueprint description to this value.
+          title: description
+        isSaved:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: If specified, updates the saved status of the LLM blueprint to this value.
+          title: isSaved
+        isStarred:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: If specified, updates the starred status of the LLM blueprint to this value.
+          title: isStarred
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the LLM used by the LLM blueprint.
+          title: llmId
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: If specified, updates the LLM settings to these values.
+          title: llmSettings
+        name:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, renames the LLM blueprint to this value.
+          title: name
+        promptType:
+          anyOf:
+          - $ref: '#/components/schemas/PromptType'
+          - type: 'null'
+          description: If specified, updates the chat context behavior of the LLM blueprint to this value.
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the vector database used by the LLM blueprint. If the specified value is `null`, unlinks the vector database from the LLM blueprint. If omitted, the currently used vector database remains in use.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettingsRequest'
+          - type: 'null'
+          description: If specified, updates the vector database retrieval settings to these values.
+      title: UpdateLLMBlueprintRequest
+      type: object
+    SupportedInsightsResponse:
+      description: Response model for supported insights.
+      properties:
+        insightsConfiguration:
+          description: The list of supported insights configurations.
+          items:
+            $ref: '#/components/schemas/InsightsConfigurationWithAdditionalData'
+          title: insightsConfiguration
+          type: array
+      required:
+      - insightsConfiguration
+      title: SupportedInsightsResponse
+      type: object
+    ExtraMetricSettings:
+      description: Extra settings for the metric that do not reference other entities.
+      properties:
+        toolCallAccuracy:
+          anyOf:
+          - $ref: '#/components/schemas/ToolCallAccuracySettings'
+          - type: 'null'
+          description: Extra settings for the tool call accuracy metric.
+      title: ExtraMetricSettings
+      type: object
+    NemoPipelineFiles:
+      description: Files used to setup a NeMo pipeline.
+      properties:
+        actionsFileContents:
+          description: Contents of actions.py file.
+          title: actionsFileContents
+          type: string
+        configYamlFileContents:
+          description: Contents of config.yaml file.
+          title: configYamlFileContents
+          type: string
+        flowDefinitionFileContents:
+          description: Contents of flows.co file.
+          title: flowDefinitionFileContents
+          type: string
+        promptsFileContents:
+          description: Contents of prompts.yaml file.
+          title: promptsFileContents
+          type: string
+      required:
+      - actionsFileContents
+      - configYamlFileContents
+      - flowDefinitionFileContents
+      - promptsFileContents
+      title: NemoPipelineFiles
+      type: object
+    CreatePlaygroundRequest:
+      description: The body of the Create Playground request.
+      properties:
+        copyInsights:
+          anyOf:
+          - $ref: '#/components/schemas/CopyInsightsRequest'
+          - type: 'null'
+          description: If present, copy insights from source playground to the created playground.
+        description:
+          description: The description of the playground.
+          maxLength: 5000
+          title: description
+          type: string
+        name:
+          description: The name of the playground.
+          maxLength: 5000
+          title: name
+          type: string
+        playgroundType:
+          $ref: '#/components/schemas/PlaygroundType'
+          default: rag
+          description: The type of the playground.
+        useCaseId:
+          description: The ID of the use case to link the playground to.
+          title: useCaseId
+          type: string
+      required:
+      - useCaseId
+      - name
+      - description
+      title: CreatePlaygroundRequest
+      type: object
+    CreateFromChatPromptRequest:
+      description: The body of the Create LLM Blueprint from a ChatPrompt request.
+      properties:
+        chatPromptId:
+          description: The ID of an existing chat prompt to copy the LLM and vector database settings from.
+          title: chatPromptId
+          type: string
+        description:
+          default: ''
+          description: The description of the new LLM blueprint.
+          maxLength: 5000
+          title: description
+          type: string
+        name:
+          description: The name of the new LLM blueprint.
+          maxLength: 5000
+          title: name
+          type: string
+      required:
+      - name
+      - chatPromptId
+      title: CreateFromChatPromptRequest
+      type: object
+    ListLLMsResponse:
+      description: Paginated list of LLMs.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/LanguageModelDefinitionResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListLLMsResponse
+      type: object
+    VectorDatabaseSettings:
+      description: Vector database retrieval settings.
+      properties:
+        addNeighborChunks:
+          default: false
+          description: Add neighboring chunks to those that the similarity search retrieves, such that when selected, search returns i, i-1, and i+1.
+          title: addNeighborChunks
+          type: boolean
+        maxDocumentsRetrievedPerPrompt:
+          anyOf:
+          - maximum: 10.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of chunks to retrieve from the vector database.
+          title: maxDocumentsRetrievedPerPrompt
+        maxTokens:
+          anyOf:
+          - maximum: 51200.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of tokens to retrieve from the vector database.
+          title: maxTokens
+        maximalMarginalRelevanceLambda:
+          default: 0.5
+          description: Adjust the retrieval of chunks when using maximal marginal relevance to favor diversity (0.0) or similarity (1.0).
+          maximum: 1.0
+          minimum: 0.0
+          title: maximalMarginalRelevanceLambda
+          type: number
+        retrievalMode:
+          $ref: '#/components/schemas/RetrievalMode'
+          default: similarity
+          description: The retrieval mode to use. Similarity search or maximal marginal relevance.
+          title: retrievalMode
+        retriever:
+          $ref: '#/components/schemas/VectorDatabaseRetrievers'
+          default: SINGLE_LOOKUP_RETRIEVER
+          title: retriever
+      title: VectorDatabaseSettings
+      type: object
+    ArgumentMatchMode:
+      description: The different modes for comparing the arguments of tool calls.
+      enum:
+      - exact_match
+      - ignore_arguments
+      title: ArgumentMatchMode
+      type: string
+    LLMBlueprintResponse:
+      description: API response object for a single LLM blueprint.
+      properties:
+        creationDate:
+          description: The creation date of the LLM blueprint (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created this LLM blueprint.
+          title: creationUserId
+          type: string
+        creationUserName:
+          description: The name of the user who created this LLM blueprint.
+          title: creationUserName
+          type: string
+        customModelLLMErrorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message of the custom model LLM (if using a custom model LLM).
+          title: customModelLLMErrorMessage
+        customModelLLMErrorResolution:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The suggested error resolution for the custom model LLM (if using a custom model LLM).
+          title: customModelLLMErrorResolution
+        customModelLLMValidationStatus:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelValidationStatus'
+          - type: 'null'
+          description: The validation status of the custom model LLM (if using a custom model LLM).
+        description:
+          description: The description of the LLM blueprint.
+          title: description
+          type: string
+        id:
+          description: The ID of the LLM blueprint.
+          title: id
+          type: string
+        isActive:
+          description: Whether the LLM specified in this blueprint is active in the current environment.
+          title: isActive
+          type: boolean
+        isDeprecated:
+          description: Whether the LLM specified in this blueprint is deprecated.
+          title: isDeprecated
+          type: boolean
+        isSaved:
+          description: If false, then this LLM blueprint is a draft and its settings can be changed. If true, then its settings are frozen and cannot be changed anymore.
+          title: isSaved
+          type: boolean
+        isStarred:
+          description: Specifies whether this LLM blueprint is starred.
+          title: isStarred
+          type: boolean
+        lastUpdateDate:
+          description: The date of the most recent update of this LLM blueprint (ISO 8601 formatted).
+          format: date-time
+          title: lastUpdateDate
+          type: string
+        lastUpdateUserId:
+          description: The ID of the user that made the most recent update to this LLM blueprint.
+          title: lastUpdateUserId
+          type: string
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM selected for this LLM blueprint.
+          title: llmId
+        llmName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the LLM used by this LLM blueprint.
+          title: llmName
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: A key/value dictionary of LLM settings.
+          title: llmSettings
+        name:
+          description: The name of the LLM blueprint.
+          title: name
+          type: string
+        playgroundId:
+          description: The ID of the playground this LLM blueprint belongs to.
+          title: playgroundId
+          type: string
+        promptType:
+          $ref: '#/components/schemas/PromptType'
+          description: Specifies whether the chat history is submitted as context to the user prompt.
+        retirementDate:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: When the LLM is expected to be retired and no longer available for submitting new prompts.
+          title: retirementDate
+        vectorDatabaseErrorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message of the vector database associated with this LLM.
+          title: vectorDatabaseErrorMessage
+        vectorDatabaseErrorResolution:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The suggested error resolution for the vector database associated with this LLM blueprint.
+          title: vectorDatabaseErrorResolution
+        vectorDatabaseFamilyId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database family associated with this LLM blueprint.
+          title: vectorDatabaseFamilyId
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database linked to this LLM blueprint.
+          title: vectorDatabaseId
+        vectorDatabaseName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the vector database associated with this LLM blueprint.
+          title: vectorDatabaseName
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettings'
+          - type: 'null'
+          description: A key/value dictionary of vector database settings.
+        vectorDatabaseStatus:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionStatus'
+          - type: 'null'
+          description: The creation status of the vector database associated with this LLM blueprint.
+      required:
+      - id
+      - name
+      - description
+      - isSaved
+      - isStarred
+      - promptType
+      - playgroundId
+      - llmName
+      - creationDate
+      - creationUserId
+      - creationUserName
+      - lastUpdateDate
+      - lastUpdateUserId
+      - vectorDatabaseName
+      - vectorDatabaseStatus
+      - vectorDatabaseErrorMessage
+      - vectorDatabaseErrorResolution
+      - customModelLLMValidationStatus
+      - customModelLLMErrorMessage
+      - customModelLLMErrorResolution
+      - vectorDatabaseFamilyId
+      - isActive
+      - isDeprecated
+      title: LLMBlueprintResponse
+      type: object
+    NemoPiplineFilesRequest:
+      description: All of the files except for the actions.py file.
+      properties:
+        configYamlFileContents:
+          description: The contents of the config.yaml file.
+          title: configYamlFileContents
+          type: string
+        flowDefinitionFileContents:
+          description: The contents of the flow definition file.
+          title: flowDefinitionFileContents
+          type: string
+        promptsFileContents:
+          description: The contents of the prompts file.
+          title: promptsFileContents
+          type: string
+      required:
+      - configYamlFileContents
+      - flowDefinitionFileContents
+      - promptsFileContents
+      title: NemoPiplineFilesRequest
+      type: object
+    FloatSettingConstraints:
+      description: Available constraints for float settings.
+      properties:
+        maxValue:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The maximum value of the setting (inclusive).
+          title: maxValue
+        minValue:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The minimum value of the setting (inclusive).
+          title: minValue
+        type:
+          const: float
+          default: float
+          description: The data type of the setting.
+          title: type
+          type: string
+      title: FloatSettingConstraints
+      type: object
+    CustomModelChatLLMSettings:
+      additionalProperties: false
+      description: The settings that are available for custom model LLMs used via chat completion interface.
+      properties:
+        customModelId:
+          description: The ID of the custom model used via chat completion interface.
+          title: customModelId
+          type: string
+        customModelVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model version used via chat completion interface.
+          title: customModelVersionId
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+      required:
+      - customModelId
+      title: CustomModelChatLLMSettings
+      type: object
+    VectorDatabaseSettingsRequest:
+      description: Specifies the vector database retrieval settings in LLM blueprint API requests.
+      properties:
+        addNeighborChunks:
+          default: false
+          description: Add neighboring chunks to those that the similarity search retrieves, such that when selected, search returns i, i-1, and i+1.
+          title: addNeighborChunks
+          type: boolean
+        maxDocumentsRetrievedPerPrompt:
+          anyOf:
+          - maximum: 10.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of chunks to retrieve from the vector database.
+          title: maxDocumentsRetrievedPerPrompt
+        maxTokens:
+          anyOf:
+          - maximum: 51200.0
+            minimum: 128.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of tokens to retrieve from the vector database.
+          title: maxTokens
+        maximalMarginalRelevanceLambda:
+          default: 0.5
+          description: Adjust the retrieval of chunks when using maximal marginal relevance to favor diversity (0.0) or similarity (1.0).
+          maximum: 1.0
+          minimum: 0.0
+          title: maximalMarginalRelevanceLambda
+          type: number
+        retrievalMode:
+          $ref: '#/components/schemas/RetrievalMode'
+          default: similarity
+          description: The retrieval mode to use. Similarity search or maximal marginal relevance.
+          title: retrievalMode
+        retriever:
+          $ref: '#/components/schemas/VectorDatabaseRetrievers'
+          default: SINGLE_LOOKUP_RETRIEVER
+          title: retriever
+      title: VectorDatabaseSettingsRequest
+      type: object
+    CreateLLMBlueprintRequest:
+      description: The body of the Create LLM Blueprint request.
+      properties:
+        description:
+          default: ''
+          description: The description of the LLM blueprint.
+          maxLength: 5000
+          title: description
+          type: string
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM selected for this LLM blueprint.
+          title: llmId
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: A key/value dictionary of LLM settings.
+          title: llmSettings
+        name:
+          description: The name of the LLM blueprint.
+          maxLength: 5000
+          title: name
+          type: string
+        playgroundId:
+          description: The ID of the playground to link this LLM blueprint to.
+          title: playgroundId
+          type: string
+        promptType:
+          $ref: '#/components/schemas/PromptType'
+          default: CHAT_HISTORY_AWARE
+          description: Specifies whether chat history is submitted as context to the user prompt.
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database linked to this LLM blueprint.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettingsRequest'
+          - type: 'null'
+          description: A key/value dictionary of vector database settings.
+      required:
+      - playgroundId
+      - name
+      title: CreateLLMBlueprintRequest
+      type: object
+    OOTBMetricConfigurationResponse:
+      description: API response object for a single OOTB metric.
+      properties:
+        customModelLLMValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model LLM validation (if using a custom model LLM).
+          title: customModelLLMValidationId
+        customOotbMetricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The custom OOTB metric name to be associated with the OOTB metric.
+          title: customOotbMetricName
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the OOTB metric configuration.
+          title: errorMessage
+        errorResolution:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/InsightErrorResolution'
+            type: array
+          - type: 'null'
+          description: The error type associated with the insight error status and error message as an indicator of what fields needs to be edited if any.
+          title: errorResolution
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the OOTB metric configuration.
+        extraMetricSettings:
+          anyOf:
+          - $ref: '#/components/schemas/ExtraMetricSettings'
+          - type: 'null'
+          description: Extra settings for the metric that do not reference other entities.
+        isAgentic:
+          default: false
+          description: Whether the OOTB metric configuration is specific to agentic workflows.
+          title: isAgentic
+          type: boolean
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM to use for `correctness` and `faithfulness` metrics.
+          title: llmId
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration to be associated with the OOTB metric.
+        ootbMetricConfigurationId:
+          description: The ID of OOTB metric.
+          title: ootbMetricConfigurationId
+          type: string
+        ootbMetricName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBMetricInsightNames'
+          - $ref: '#/components/schemas/OOTBAgenticMetricInsightNames'
+          - $ref: '#/components/schemas/OTELMetricInsightNames'
+          description: The name of the OOTB metric.
+          title: ootbMetricName
+      required:
+      - ootbMetricName
+      - ootbMetricConfigurationId
+      - executionStatus
+      title: OOTBMetricConfigurationResponse
+      type: object
+    NemoConfigurationUpsertRequest:
+      description: The body of the Nemo Configuration upsert request.
+      properties:
+        blockedTermsFileContents:
+          description: The contents of the blocked terms file.
+          title: blockedTermsFileContents
+          type: string
+        promptLlmConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/NemoLLMConfiguration'
+          - type: 'null'
+          description: The LLM configuration for the prompt pipeline.
+        promptModerationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration for the prompt pipeline.
+        promptPipelineFiles:
+          anyOf:
+          - $ref: '#/components/schemas/NemoPiplineFilesRequest'
+          - type: 'null'
+          description: The prompt pipeline files for this configuration.
+        promptPipelineMetricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name for the NeMo Prompt pipeline metric.
+          title: promptPipelineMetricName
+        promptPipelineTemplateId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Guard template to be used for the prompt pipeline, defines actions.py.
+          title: promptPipelineTemplateId
+        responseLlmConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/NemoLLMConfiguration'
+          - type: 'null'
+          description: The LLM configuration for the response pipeline.
+        responseModerationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration for the response pipeline.
+        responsePipelineFiles:
+          anyOf:
+          - $ref: '#/components/schemas/NemoPiplineFilesRequest'
+          - type: 'null'
+          description: The response pipeline files for this configuration.
+        responsePipelineMetricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name for the NeMo Response pipeline metric.
+          title: responsePipelineMetricName
+        responsePipelineTemplateId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Guard template to be used for the response pipeline, defines actions.py.
+          title: responsePipelineTemplateId
+      required:
+      - blockedTermsFileContents
+      title: NemoConfigurationUpsertRequest
+      type: object
+    ModerationConfigurationWithoutID:
+      description: Moderation Configuration associated with an insight.
+      properties:
+        guardConditions:
+          description: The guard conditions associated with a metric.
+          items:
+            $ref: '#/components/schemas/GuardCondition'
+          maxItems: 1
+          minItems: 1
+          title: guardConditions
+          type: array
+        intervention:
+          $ref: '#/components/schemas/Intervention'
+          description: The intervention specific moderation configuration.
+      required:
+      - guardConditions
+      - intervention
+      title: ModerationConfigurationWithoutID
+      type: object
+    OOTBAgenticMetricInsightNames:
+      description: The Out-Of-The-Box metric name that can be used in an Agentic playground.
+      enum:
+      - tool_call_accuracy
+      - agent_goal_accuracy_with_reference
+      title: OOTBAgenticMetricInsightNames
+      type: string
+    ResultMetadata:
+      description: The additional information about prompt execution results.
+      properties:
+        blockedResultText:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The message to replace the result text if it is non empty, which represents a blocked response.
+          title: blockedResultText
+        cost:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The estimated cost of executing the prompt.
+          title: cost
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message for the prompt (in case of an errored prompt).
+          title: errorMessage
+        estimatedDocsTokenCount:
+          default: 0
+          description: The estimated number of tokens in the documents retrieved from the vector database.
+          title: estimatedDocsTokenCount
+          type: integer
+        feedbackResult:
+          $ref: '#/components/schemas/FeedbackResult'
+          description: The user feedback associated with the prompt.
+        finalPrompt:
+          anyOf:
+          - type: string
+          - items:
+              additionalProperties:
+                anyOf:
+                - type: string
+                - items:
+                    additionalProperties: true
+                    type: object
+                  type: array
+                - type: 'null'
+              type: object
+            type: array
+          - items:
+              additionalProperties:
+                anyOf:
+                - type: string
+                - items:
+                    additionalProperties: true
+                    type: object
+                  type: array
+              type: object
+            type: array
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - items:
+                  additionalProperties:
+                    type: string
+                  type: object
+                type: array
+            type: object
+          - type: 'null'
+          description: The final representation of the prompt that was submitted to the LLM.
+          title: finalPrompt
+        inputTokenCount:
+          default: 0
+          description: The number of tokens in the LLM input. This number includes the tokens in the system prompt, the user prompt, the chat history (for history-aware chats) and the documents retrieved from the vector database (in case of using a vector database).
+          title: inputTokenCount
+          type: integer
+        latencyMilliseconds:
+          description: The latency of the LLM response (in milliseconds).
+          title: latencyMilliseconds
+          type: integer
+        metrics:
+          default: []
+          description: The evaluation metrics for the prompt.
+          items:
+            $ref: '#/components/schemas/MetricMetadata'
+          title: metrics
+          type: array
+        outputTokenCount:
+          default: 0
+          description: The number of tokens in the LLM output.
+          title: outputTokenCount
+          type: integer
+        providerLLMGuards:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProviderGuardsMetadata'
+            type: array
+          - type: 'null'
+          description: The provider llm guards metadata.
+          title: providerLLMGuards
+        totalTokenCount:
+          default: 0
+          description: The combined number of tokens in the LLM input and output.
+          title: totalTokenCount
+          type: integer
+      required:
+      - latencyMilliseconds
+      title: ResultMetadata
+      type: object
+    SupportedDeploymentType:
+      description: The type of the target output a DataRobot deployment produces.
+      enum:
+      - TEXT_GENERATION
+      - VECTOR_DATABASE
+      - UNSTRUCTURED
+      - REGRESSION
+      - MULTICLASS
+      - BINARY
+      - NOT_SUPPORTED
+      title: SupportedDeploymentType
+      type: string
+    CreateCustomModelLLMValidationRequest:
+      description: The body of the "Validate custom model" request.
+      properties:
+        chatModelId:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The model ID to specify when calling the OpenAI chat completion API of the deployment. If this parameter is specified, the deployment must support the OpenAI chat completion API.
+          title: chatModelId
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the model used in the deployment.
+          title: modelId
+        name:
+          default: Untitled
+          description: The name to use for the validated custom model.
+          maxLength: 5000
+          title: name
+          type: string
+        predictionTimeout:
+          default: 300
+          description: The timeout in seconds for the prediction when validating a custom model. Defaults to 300.
+          maximum: 600.0
+          minimum: 1.0
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prompt text input. This value is used to call the Prediction API of the deployment. For LLM deployments that support the OpenAI chat completion API, it is recommended to specify `chatModelId` instead.
+          title: promptColumnName
+        targetColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prediction output. This value is used to call the Prediction API of the deployment. For LLM deployments that support the OpenAI chat completion API, it is recommended to specify `chatModelId` instead.
+          title: targetColumnName
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the use case to associate with the validated custom model.
+          title: useCaseId
+      required:
+      - deploymentId
+      title: CreateCustomModelLLMValidationRequest
+      type: object
+    LLMType:
+      description: LLM provider type.
+      enum:
+      - openAi
+      - azureOpenAi
+      title: LLMType
+      type: string
+    EditPlaygroundRequest:
+      description: The body of the Edit Playground request.
+      properties:
+        description:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, updates the playground description to this value.
+          title: description
+        name:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, renames the playground to this value.
+          title: name
+      title: EditPlaygroundRequest
+      type: object
+    PromptTraceResponse:
+      description: API response object for a single playground prompt trace.
+      properties:
+        chatId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the chat associated with the trace.
+          title: chatId
+        chatName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the chat associated with the trace.
+          title: chatName
+        chatPromptId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the chat prompt associated with the trace.
+          title: chatPromptId
+        citations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/Citation'
+            type: array
+          - type: 'null'
+          description: The list of relevant vector database citations (in case of using a vector database).
+          title: citations
+        comparisonPromptId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the comparison prompts associated with the trace.
+          title: comparisonPromptId
+        confidenceScores:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The confidence scores that measure the similarity between the prompt context and the prompt completion for the prompt associated with the trace.
+          title: confidenceScores
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset associated with the trace.
+          title: evaluationDatasetConfigurationId
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the prompt associated with the trace.
+        llmBlueprintId:
+          description: The ID of the LLM blueprint associated with the trace.
+          title: llmBlueprintId
+          type: string
+        llmBlueprintName:
+          description: The name of the LLM blueprint associated with the trace.
+          title: llmBlueprintName
+          type: string
+        llmLicense:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The usage license information for the LLM associated with the trace.
+          title: llmLicense
+        llmName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the LLM associated with the trace.
+          title: llmName
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: The settings of the LLM associated with the trace.
+          title: llmSettings
+        llmVendor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The vendor of the LLM associated with the trace.
+          title: llmVendor
+        promptType:
+          anyOf:
+          - $ref: '#/components/schemas/PromptType'
+          - type: 'null'
+          description: The type of prompt, chat history awair or one time prompt.
+        resultMetadata:
+          anyOf:
+          - $ref: '#/components/schemas/ResultMetadata'
+          - type: 'null'
+          description: The additional information about the prompt associated with the trace.
+        resultText:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The completion text of the prompt associated with the trace.
+          title: resultText
+        text:
+          description: The text of the prompt associated with the trace.
+          title: text
+          type: string
+        timestamp:
+          description: The timestamp of the trace (ISO 8601 formatted).
+          format: date-time
+          title: timestamp
+          type: string
+        useCaseId:
+          description: The ID of the use case associated with the trace.
+          title: useCaseId
+          type: string
+        user:
+          $ref: '#/components/schemas/DataRobotUser'
+          description: The user associated with the trace.
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database associated with the trace.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettings'
+          - type: 'null'
+          description: The settings of the vector database associated with the trace.
+        warning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The warning message for the prompt associated with the trace.
+          title: warning
+      required:
+      - timestamp
+      - user
+      - chatPromptId
+      - comparisonPromptId
+      - useCaseId
+      - llmBlueprintId
+      - llmBlueprintName
+      - llmName
+      - llmVendor
+      - llmLicense
+      - llmSettings
+      - chatName
+      - chatId
+      - vectorDatabaseId
+      - vectorDatabaseSettings
+      - citations
+      - resultMetadata
+      - resultText
+      - confidenceScores
+      - text
+      - executionStatus
+      - promptType
+      - evaluationDatasetConfigurationId
+      - warning
+      title: PromptTraceResponse
+      type: object
+    PipelineStage:
+      description: Enum that describes at which stage the metric may be calculated.
+      enum:
+      - prompt_pipeline
+      - response_pipeline
+      title: PipelineStage
+      type: string
+    CreateCustomModelVersionRequest:
+      description: The body of the "Create custom model version" request.
+      properties:
+        defaultPredictionServerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of a prediction server for the new deployment to use. Only used if this LLM blueprint's vector database is not already deployed. Cannot be used with predictionEnvironmentId.
+          title: defaultPredictionServerId
+        insightsConfiguration:
+          default: []
+          description: The configuration of insights to transfer to production.
+          items:
+            $ref: '#/components/schemas/InsightsConfigurationWithAdditionalData'
+          minItems: 0
+          title: insightsConfiguration
+          type: array
+        llmBlueprintId:
+          description: The ID of the LLM blueprint to use for the custom model version.
+          title: llmBlueprintId
+          type: string
+        llmTestConfigurationIds:
+          default: []
+          description: The IDs of the LLM test configurations to execute.
+          items:
+            type: string
+          maxItems: 100
+          title: llmTestConfigurationIds
+          type: array
+        predictionEnvironmentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the prediction environment for a new vector database deployment to use. Only used if this LLM blueprint's vector database is not already deployed. Cannot be used with defaultPredictionServerId.
+          title: predictionEnvironmentId
+        promptColumnName:
+          default: promptText
+          description: The name of the column to use for prompt text input in the custom model.
+          maxLength: 5000
+          title: promptColumnName
+          type: string
+        targetColumnName:
+          default: resultText
+          description: The name of the column to use for prediction output in the custom model.
+          maxLength: 5000
+          title: targetColumnName
+          type: string
+        vectorDatabaseResources:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelResourcesRequest'
+          - type: 'null'
+          description: The resources that the vector database custom model will be provisioned with. Only used if this LLM blueprint's vector database is not already deployed.
+      required:
+      - llmBlueprintId
+      title: CreateCustomModelVersionRequest
+      type: object
+    ListCustomModelLLMValidationsResponse:
+      description: Paginated list of custom model LLM validations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/CustomModelLLMValidationResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListCustomModelLLMValidationsResponse
+      type: object
+    ObjectIdSettingConstraints:
+      description: Available constraints for ObjectId settings.
+      properties:
+        allowedChoices:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The allowed values for the setting.
+          title: allowedChoices
+        type:
+          const: object_id
+          default: object_id
+          description: The data type of the setting.
+          title: type
+          type: string
+      title: ObjectIdSettingConstraints
+      type: object
+    Citation:
+      description: API response object for a single vector database citation.
+      properties:
+        chunkId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The ID of the chunk in the vector database index.
+          title: chunkId
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: LangChain Document metadata information holder.
+          title: metadata
+        page:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The source page number where the citation was found.
+          title: page
+        similarityScore:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The similarity score between the citation and the user prompt.
+          title: similarityScore
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The source of the citation (e.g., a filename in the original dataset).
+          title: source
+        startIndex:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The chunk's start character index in the source document.
+          title: startIndex
+        text:
+          description: The text of the citation.
+          title: text
+          type: string
+      required:
+      - text
+      - source
+      title: Citation
+      type: object
+    AggregationType:
+      description: The type of the metric aggregation.
+      enum:
+      - average
+      - percentYes
+      - classPercentCoverage
+      - ngramImportance
+      - guardConditionPercentYes
+      title: AggregationType
+      type: string
+    JobExecutionState:
+      description: Possible job states. Values match the DataRobot Status API.
+      enum:
+      - INITIALIZED
+      - RUNNING
+      - COMPLETED
+      - ERROR
+      - ABORTED
+      - EXPIRED
+      title: JobExecutionState
+      type: string
+    DeploymentInputType:
+      description: The format of the input data submitted to a DataRobot deployment.
+      enum:
+      - CSV
+      - JSON
+      title: DeploymentInputType
+      type: string
+    CustomModelGuard:
+      description: Details of a guard as defined for the custom model.
+      properties:
+        name:
+          description: The name of the guard.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+        nemoEvaluatorType:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelGuardNemoEvaluatorType'
+          - type: 'null'
+          description: NeMo Evaluator type of the guard.
+        ootbType:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelGuardOOTBType'
+          - type: 'null'
+          description: Out of the box type of the guard.
+        stage:
+          $ref: '#/components/schemas/CustomModelGuardStage'
+          description: Stage on which the guard gets applied.
+        type:
+          $ref: '#/components/schemas/CustomModelGuardType'
+          description: Type of the guard.
+      required:
+      - type
+      - stage
+      - name
+      title: CustomModelGuard
+      type: object
+    FeedbackResult:
+      description: Prompt feedback included in the result metadata.
+      properties:
+        negativeUserIds:
+          default: []
+          description: The list of user IDs whose feedback is negative.
+          items:
+            type: string
+          title: negativeUserIds
+          type: array
+        positiveUserIds:
+          default: []
+          description: The list of user IDs whose feedback is positive.
+          items:
+            type: string
+          title: positiveUserIds
+          type: array
+      title: FeedbackResult
+      type: object
+    CreateTraceDatasetRequest:
+      description: The body of the Create Playground request.
+      properties:
+        excludeTracesWithWarnings:
+          default: true
+          description: Whether to exclude traces with warnings.
+          title: excludeTracesWithWarnings
+          type: boolean
+      title: CreateTraceDatasetRequest
+      type: object
+    CopyInsightsRequest:
+      description: The body of the Copy Insights request.
+      properties:
+        sourcePlaygroundId:
+          description: The ID of the existing playground from where to copy insights.
+          title: sourcePlaygroundId
+          type: string
+        withEvaluationDatasets:
+          default: false
+          description: If `true` also copies source playground evaluation datasets to target playground.
+          title: withEvaluationDatasets
+          type: boolean
+      required:
+      - sourcePlaygroundId
+      title: CopyInsightsRequest
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

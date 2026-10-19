@@ -1,0 +1,188 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Pipeline Schedules Internal API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- name: pipeline-schedules-internal
+paths:
+  /api/v2/internal/pipelines/schedules/{schedule_id}/fire:
+    post:
+      description: 'Trigger one dispatch of a schedule.
+
+
+        Called by the ``schedule_trigger`` pod running in the
+
+        schedule''s K8s CronJob on every cron tick. Auth is a bearer
+
+        JWT satisfying ``require_internal`` (router-level).
+
+
+        Impersonation model: the schedule row carries
+
+        ``created_by_user_id`` / ``created_by_tenant_id`` /
+
+        ``created_by_org_id`` captured at create-time. We call
+
+        ``DispatchService.create_dispatch`` on behalf of that
+
+        identity — the produced dispatch is attributed to the
+
+        schedule creator, matching the audit trail a manual dispatch
+
+        from the same user would leave.
+
+
+        Failure modes:
+
+        * 404 — schedule not found or not ACTIVE (deleted/paused).
+
+        Trigger pod treats this as terminal + logs; the K8s
+
+        CronJob keeps firing on schedule (a paused-then-resumed
+
+        row would recover). Do not delete the CronJob on 404 —
+
+        that''s the reconciler''s job.
+
+        * 409 — the underlying dispatch could not be created. With
+
+        ``X-Pipelines-Fire-Skipped: dispatch-running`` the trigger exits
+
+        0 (previous dispatch still running); otherwise it exits 1.'
+      operationId: fire_schedule_api_v2_internal_pipelines_schedules__schedule_id__fire_post
+      parameters:
+      - in: path
+        name: schedule_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Schedule Id
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleFireResponse'
+          description: Successful Response
+        '409':
+          description: The dispatch could not be created. When the cause is a still-running previous dispatch the response carries the skip header and the trigger treats the tick as skipped.
+          headers:
+            X-Pipelines-Fire-Skipped:
+              description: Set to ``dispatch-running`` when the previous dispatch is still running.
+              schema:
+                enum:
+                - dispatch-running
+                type: string
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Fire Schedule
+      tags:
+      - pipeline-schedules-internal
+components:
+  schemas:
+    ScheduleFireResponse:
+      description: 'Response body for the internal
+
+        POST /api/v2/internal/pipelines/schedules/{sid}/fire endpoint.
+
+
+        The trigger pod''s ``schedule_trigger.py`` reads ``dispatchId``
+
+        off this payload and logs it — the value is otherwise unused
+
+        (the fire endpoint returns 202 and the dispatch continues async
+
+        on its own reconciler-driven state machine).'
+      properties:
+        dispatchId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatchid
+          type: string
+      required:
+      - dispatchId
+      title: ScheduleFireResponse
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

@@ -1,0 +1,4792 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Custom Models API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Assemble, test and deploy your own custom model with a custom environment.
+  name: custom_models
+paths:
+  /api/v2/customInferenceImages/{imageId}/featureImpact/:
+    get:
+      description: 'Retrieve feature impact scores for features in a custom inference model image.
+
+
+        .. minversion:: v2.23
+
+        DEPRECATED: please use version route instead:
+
+        :http:get:`/api/v2/customModels/(customModelId)/versions/(customModelVersionId)/featureImpact/`
+
+
+        This route is a counterpart of a corresponding endpoint for native models:
+
+        :http:get:`/api/v2/projects/(projectId)/models/(modelId)/featureImpact/`'
+      operationId: customInferenceImagesFeatureImpact_list
+      parameters:
+      - description: ID of the image of the custom inference model to retrieve feature impact from.
+        in: path
+        name: imageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureImpactResponse'
+          description: Custom model feature impact returned.
+        '404':
+          description: No feature impact data found for custom model.
+        '422':
+          description: 'Cannot retrieve feature impact scores: (1) if custom model is not an inference model, (2) if training data is not assigned, (3) if feature impact job is in progress for custom model.'
+      summary: Get custom model feature impact by image ID
+      tags:
+      - custom_models
+      x-versionadded: v2.20
+    post:
+      description: 'Add a request to calculate feature impact for a custom inference model image to the queue.
+
+
+        .. minversion:: v2.23
+
+        DEPRECATED: please use version route instead:
+
+        :http:post:`/api/v2/customModels/(customModelId)/versions/(customModelVersionId)/featureImpact/`
+
+
+        This route is a counterpart of a corresponding endpoint for native models:
+
+        :http:post:`/api/v2/projects/(projectId)/models/(modelId)/featureImpact/`'
+      operationId: customInferenceImagesFeatureImpact_create
+      parameters:
+      - description: ID of the image of the custom inference model to submit feature impact job for.
+        in: path
+        name: imageId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureImpactCreatePayload'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureImpactCreateResponse'
+          description: Feature impact request has been successfully submitted.
+          headers:
+            Location:
+              description: 'Contains a url for tracking job status: :http:get:`/api/v2/status/(statusId)/`.'
+              schema:
+                type: string
+        '404':
+          description: If feature impact has already been submitted. The response will include `jobId` property which can be used for tracking its progress.
+        '422':
+          description: 'If job cannot be submitted because of invalid input or model state: (1) if image id does not correspond to a custom inference model, (2) if training data is not yet assigned or assignment is in progress, (3) if the `rowCount` exceeds the minimum or maximum value for this model''s training data.'
+      summary: Create custom model feature impact by image ID
+      tags:
+      - custom_models
+      x-versionadded: v2.20
+  /api/v2/customModelLimits/:
+    get:
+      description: Retrieve custom model resource limits the user has access to.
+      operationId: customModelLimits_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelResourceLimits'
+          description: OK.
+      summary: Get custom model resource limits
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModelTests/:
+    get:
+      description: Retrieve the testing history for a model.
+      operationId: customModelTests_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+        in: query
+        name: resourceBundleId
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.33
+      - description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed. This setting is incompatible with setting the resourceBundleId.
+        in: query
+        name: maximumMemory
+        required: false
+        schema:
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+      - description: Network egress policy.
+        in: query
+        name: networkEgressPolicy
+        required: false
+        schema:
+          enum:
+          - NONE
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+      - description: The amount of memory that is expected to be allocated by the custom model. This setting is incompatible with setting the resourceBundleId.
+        in: query
+        name: desiredMemory
+        required: false
+        schema:
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        x-versiondeprecated: v2.24
+      - description: A fixed number of replicas that will be set for the given custom-model.
+        in: query
+        name: replicas
+        required: false
+        schema:
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+      - description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+        in: query
+        name: requiresHa
+        required: false
+        schema:
+          type:
+          - boolean
+          - 'null'
+        x-versionadded: v2.26
+      - description: ID of the Custom Model to retrieve testing history for.
+        in: query
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelTestsListResponse'
+          description: OK.
+      summary: List custom model tests
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+    post:
+      description: Test a custom inference model. This will start a job to check that the custom model can make predictions against the supplied dataset without breaking.
+      operationId: customModelTests_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelTests'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelAsyncOperationResponse'
+          description: Model testing job successfully started.
+          headers:
+            Location:
+              description: URL that can be polled to check the status.
+              schema:
+                type: string
+        '403':
+          description: No access to use data for testing custom model.
+        '404':
+          description: Custom model or dataset not found.
+        '422':
+          description: 'Custom Model Testing cannot be submitted because of invalid input or model state: (1) if user does not have permission to create legacy conversion environment, (2) testing is already in progress for the custom model, (3) dataset used for testing is not snapshotted,(4) other cases.'
+      summary: Create custom model test
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModelTests/{customModelTestId}/:
+    delete:
+      description: Cancel custom inference model testing.
+      operationId: customModelTests_delete
+      parameters:
+      - description: ID of the testing history attempt.
+        in: path
+        name: customModelTestId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Testing canceled.
+        '404':
+          description: Testing attempt not found.
+        '409':
+          description: Testing attempt has already reached a terminal state.
+      summary: Cancel custom model test by custom model test ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+    get:
+      description: Retrieve a specific testing history entry for a custom model.
+      operationId: customModelTests_retrieve
+      parameters:
+      - description: ID of the testing history attempt.
+        in: path
+        name: customModelTestId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelTestsResponse'
+          description: OK.
+      summary: Get custom model test by custom model test ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModelTests/{customModelTestId}/log/:
+    get:
+      description: Retrieve the logs from a model testing attempt.
+      operationId: customModelTestsLog_list
+      parameters:
+      - description: ID of the testing history attempt.
+        in: path
+        name: customModelTestId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The log file will be downloaded.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename for this download ("attachment;filename=testing-<custom_model_id>.log").
+              schema:
+                type: string
+        '404':
+          description: No testing log found.
+      summary: Get custom model test log by custom model test ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModelTests/{customModelTestId}/tail/:
+    get:
+      description: Retrieve the last N lines of logs from a model testing attempt.
+      operationId: customModelTestsTail_list
+      parameters:
+      - description: Number of lines from the log to retrieve (1-1000, default 100).
+        in: query
+        name: lines
+        required: true
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: ID of the testing history attempt.
+        in: path
+        name: customModelTestId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelTestsLogTailResponse'
+          description: The log tail was retrieved.
+        '400':
+          description: Requested number of lines is invalid.
+        '404':
+          description: The testing history entry cannot be found.
+      summary: Get custom model test log tail by custom model test ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModels/:
+    get:
+      description: Retrieve metadata for all custom models the user has access to.
+      operationId: customModels_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: If "training" specified, only Custom Training Tasks will be returned. If "inference" specified, only Custom Inference Models will be returned. If not specified, all custom models will be returned. After deprecation, only Custom Inference Models will be returned
+        in: query
+        name: customModelType
+        required: false
+        schema:
+          enum:
+          - training
+          - inference
+          type: string
+        x-versiondeprecated: '2.28'
+      - description: The target type of the custom model.
+        in: query
+        name: targetType
+        required: false
+        schema:
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Anomaly
+          - Transform
+          - TextGeneration
+          - GeoPoint
+          - Unstructured
+          - VectorDatabase
+          - AgenticWorkflow
+          - MCP
+          - Multilabel
+          type: string
+        x-versionadded: v2.36
+      - description: If TRUE, only deployed custom models will be returned. If FALSE, only not deployed custom models will be returned. If not specified, all custom models will be returned.
+        in: query
+        name: isDeployed
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Sort order which will be applied to custom model list, valid options are "created", "updated". Prefix the attribute name with a dash to sort in descending order, e.g. orderBy="-created". By default, the orderBy parameter is None which will result in custom models being returned in order of creation time descending.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - created
+          - -created
+          - updated
+          - -updated
+          type: string
+      - description: String to search for occurrence in custom model's description, language and name. Search is case insensitive. If not specified, all custom models will be returned.
+        in: query
+        name: searchFor
+        required: false
+        schema:
+          maxLength: 10000
+          type: string
+      - description: List of tag keys to filter by.
+        in: query
+        name: tagKeys
+        required: false
+        schema:
+          type: string
+      - description: List of tag values to filter by.
+        in: query
+        name: tagValues
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelListResponse'
+          description: OK.
+      summary: List custom models
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+    post:
+      description: 'Creates a new custom model and returns the newly created metadata record for it.
+
+
+        All custom models must support at least one target type (binaryClassification, regression).
+
+        Custom inference models can only support a single target type. A regression model is
+
+        expected to produce predictions that are arbitrary floating-point or integer numbers.
+
+        A classification model is expected to return predictions with probability scores for each
+
+        class. For example, a binary classification model might return:
+
+
+        .. code:: Python
+
+
+        {
+
+        positiveClassLabel: probability,
+
+        negativeClassLabel: 1.0 - probability
+
+        }
+
+
+        For Custom Inference Models, the ``file`` parameter must be either a tarball or zip archive
+
+        containing, at minimum,
+
+        a script named ``start_server.sh``. It may contain additional files, including scripts and
+
+        precompiled binaries as well as data files. ``start_server.sh`` may execute these scripts
+
+        and/or binaries. When this script is executed, it is run as part of an Environment
+
+        (specified via subsequent API calls), and all included scripts and binaries
+
+        can take advantage of any programming language interpreters, compilers, libraries,
+
+        or other tools included in the Environment. ``start_server.sh`` must be marked as executable
+
+        (``chmod +x``).
+
+
+        When ``start_server.sh`` is launched, it must launch and maintain
+
+        (in the foreground) a Web server that listens on two URLs:
+
+
+        * ``GET $URL_PREFIX/``
+
+        This route must return a 200 response code with an empty body immediately
+
+        if the server is ready to respond to prediction requests. Otherwise it should
+
+        either not accept the request, not respond to the request, or return a
+
+        503 response code.
+
+        * ``POST $URL_PREFIX/predict_no_state/``
+
+        This route must accept as input a JSON object of the form:
+
+
+        .. code-block:: Python
+
+
+        {
+
+        ''X'': {
+
+        ''col1'': [...col1_data...],
+
+        ''col2'': [...col2_data...],
+
+        ''col3'': [...col3_data...],
+
+        ...
+
+        }
+
+        }
+
+
+        The data lists will all be the same length.
+
+
+        It must return a JSON object of the form:
+
+
+        .. code-block:: Python
+
+
+        {
+
+        ''predictions'': [...predictions data...]
+
+        }
+
+
+        The predictions data must correspond 1:1 to the rows in the input data lists.
+
+
+        ``$URL_PREFIX`` is provided as an environment variable. The Web server process must
+
+        re-read its value every time the process starts, as it may change.
+
+        It is an opaque string that is guaranteed to be a valid URL component,
+
+        but may contain path separators (``/``).'
+      operationId: customModels_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelResponse'
+          description: Created.
+        '403':
+          description: Custom model creation is not enabled.
+        '422':
+          description: Input parameters are invalid.
+      summary: Create custom model
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModels/fromCustomModel/:
+    post:
+      description: Creates a copy of the provided custom model, including metadata, versions of that model, and uploaded files. Associates the new versions with files owned by the custom model.
+      operationId: customModelsFromCustomModel_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelCopy'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelResponse'
+          description: Successfully created copy.
+      summary: Clone custom model
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModels/fromModelTemplate/:
+    post:
+      description: Create a custom model from a template.
+      operationId: customModelsFromModelTemplate_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelCreateFromTemplatePayload'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelCreateFromTemplateResponse'
+          description: Custom model created from template
+        '403':
+          description: UXR Custom Model Workshop is not enabled.
+        '422':
+          description: Invalid template data.
+      summary: Create a custom model
+      tags:
+      - custom_models
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables creating NVIDIA NIM models from templates in the Registry.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: NIM_MODELS
+      x-versionadded: v2.36
+  /api/v2/customModels/predictionExplanationsInitialization/:
+    post:
+      description: 'Create a new prediction explanations initialization for custom model.
+
+        This is a necessary prerequisite for generating prediction explanations.
+
+
+        .. minversion:: v2.23
+
+        DEPRECATED please use custom model version route instead:
+
+        :http:post:`/api/v2/customModels/(customModelId)/versions/(customModelVersionId)/predictionExplanationsInitialization/`'
+      operationId: customModelsPredictionExplanationsInitialization_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelPredictionExplanations'
+      responses:
+        '202':
+          description: The request was accepted and will be worked on.
+          headers:
+            Location:
+              description: URL to poll to track the prediction explanation initialization has finished.
+              schema:
+                type: string
+        '422':
+          description: Specified custom model is not valid for prediction explanations.
+      summary: Create a new prediction explanations initialization
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+  /api/v2/customModels/{customModelId}/:
+    delete:
+      description: Delete a custom model. Only users who have permission to edit custom model can delete it. Only custom models which are not currently deployed or undergoing custom model testing can be deleted.
+      operationId: customModels_delete
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Record deleted.
+        '409':
+          description: This custom model is currently deployed and cannot be deleted. The response body will contain link where those deployments can be retrieved.
+      summary: Delete custom model by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+    get:
+      description: Retrieve metadata for a custom model.
+      operationId: customModels_retrieve
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelResponse'
+          description: OK.
+      summary: Get custom model by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+    patch:
+      description: 'Updates metadata for an existing custom model.
+
+
+        All custom models must support at least one target type (binaryClassification, regression).
+
+        Custom inference models can only support a single target type.
+
+
+        Setting `positiveClassLabel` and `negativeClassLabel` to null will set
+
+        the labels to their default values (1 and 0 for positiveClassLabel and negativeClassLabel,
+
+        respectively).
+
+
+        Setting `positiveClassLabel`, `negativeClassLabel`, ''targetName` is disabled if model
+
+        has active deployments or assigned training data.'
+      operationId: customModels_patch
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelUpdate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelResponse'
+          description: Created.
+        '403':
+          description: Custom inference model modification is not enabled for the user.
+        '409':
+          description: Custom model cannot be updated while it is being validated or some fields cannot be updated after deployment or assigning training data.
+        '422':
+          description: Input parameters are invalid.
+      summary: Update custom model by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModels/{customModelId}/accessControl/:
+    get:
+      description: Get a list of users who have access to this custom model and their roles on it.
+      operationId: customModelsAccessControl_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelAccessControlListResponse'
+          description: A list of users who have access to this custom model and their roles on it.
+        '400':
+          description: Both username and userId were specified.
+      summary: Get a list of users who have access by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.25
+    patch:
+      description: Grant access or update roles for users on this custom model and appropriate learning data. Up to 100 user roles may be set in a single request.
+      operationId: customModelsAccessControl_patchMany
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharingUpdateOrRemoveWithGrant'
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelAccessControlUpdateResponse'
+          description: Roles updated successfully.
+        '409':
+          description: The request would leave the custom model without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid.
+      summary: Grant access or update roles by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.25
+  /api/v2/customModels/{customModelId}/download/:
+    get:
+      description: Download the latest item bundle from a custom model as a zip compressed archive.
+      operationId: customModelsDownload_list
+      parameters:
+      - description: Download model version from PPS tab.If "true" specified, model archive includes dependencies install script. If "false" specified, dependencies script is not included. If not specified -> "false" behavior.
+        in: query
+        name: pps
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The download succeeded.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename for this download ("attachment;filename=model-<model_id>-version-<version_id>.zip").
+              schema:
+                type: string
+      summary: Download the latest custom model version content by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+  /api/v2/customModels/{customModelId}/trainingData/:
+    patch:
+      description: 'The current API is deprecated and scheduled for removal in v2.34. Training data assignment is implemented in CustomModelVersionCreateController and CustomModelVersionCreateFromLatestController.
+
+
+        Assigns the specified dataset to the specified custom model as training data.
+
+        For each of the custom model''s deployments, the training data from the specified project
+
+        provides a baseline to enable drift tracking.
+
+        The API is disabled and returns HTTP 422
+
+        when a custom model is converted to assign training data at the version level. See isTrainingDataForVersionsPermanentlyEnabled parameter for :http:post:`/api/v2/customModels/` and :http:patch:`/api/v2/customModels/(customModelId)/`
+
+        Use training data assignment at the version level: :http:post:`/api/v2/customModels/(customModelId)/versions/` :http:patch:`/api/v2/customModels/(customModelId)/versions/`'
+      operationId: customModelsTrainingData_patchMany
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeprecatedTrainingDataForModelsAssignment'
+      responses:
+        '202':
+          description: The request was accepted and will be worked on.
+          headers:
+            Location:
+              description: URL to poll to track the training data assignment has finished.
+              schema:
+                type: string
+        '409':
+          description: Custom model has assigned training data already and is deployed.
+        '410':
+          description: The requested Dataset has been deleted.
+        '422':
+          description: Dataset ingest must finish before assigning training data or provided dataset is incompatible with the custom model.
+      summary: Assign training data by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModels/{customModelId}/versions/:
+    get:
+      description: List custom model versions.
+      operationId: customModelsVersions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Specifies the commit SHA-1 in GitHub repository from the main branch that corresponds to a given custom model version.
+        in: query
+        name: mainBranchCommitSha
+        required: false
+        schema:
+          maxLength: 40
+          minLength: 40
+          type: string
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVersionListResponse'
+          description: OK.
+        '400':
+          description: Query parameters are invalid.
+        '422':
+          description: Input parameters are invalid.
+      summary: List custom model versions by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+    patch:
+      description: Create a new custom model version with files added, replaced or deleted. Files from the previous version of a custom models will be used as a basis.
+      operationId: customModelsVersion_createFromLatest
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomModelVersionCreateFromLatest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVersionResponse'
+          description: Item successfully created.
+        '403':
+          description: User does not have permissions to use requested Dataset
+        '404':
+          description: Either custom model or dataset not found or user does not have edit permissions.
+        '413':
+          description: Item or collection of items was too large in size (bytes).
+        '422':
+          description: 'Cannot create the custom task version due to one or more errors. All error responses will have a "message" field and some may have optional fields. The optional fields include: ["errors", "dependencies", "invalidDependencies"]'
+      summary: Update custom model version files by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+    post:
+      description: Create a new custom model version with attached files if supplied.
+      operationId: customModelsVersions_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomModelVersionCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVersionResponse'
+          description: Item successfully created.
+        '403':
+          description: User does not have permissions to use requested Dataset
+        '404':
+          description: Either custom model or dataset not found or user does not have edit permissions.
+        '413':
+          description: Item or collection of items was too large in size (bytes).
+        '422':
+          description: 'Cannot create the custom task version due to one or more errors. All error responses will have a "message" field and some may have optional fields. The optional fields include: ["errors", "dependencies", "invalidDependencies"]'
+      summary: Create custom model version by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+  /api/v2/customModels/{customModelId}/versions/fromCodespace/:
+    post:
+      description: Create a new custom model version with files from the codespace.
+      operationId: customModelsVersionsFromCodespace_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelVersionFromCodespace'
+      responses:
+        '200':
+          description: ''
+        '202':
+          description: Task for creating a new custom model version applied.
+      summary: Create a new custom model version by custom model ID
+      tags:
+      - custom_models
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.37
+  /api/v2/customModels/{customModelId}/versions/fromRepository/:
+    patch:
+      description: Create a new custom model version with files added from a remote repository. Files from the previous version of a custom models will be used as a basis.
+      operationId: customModelsVersionsFromRepository_patchMany
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelVersionCreateFromRepository'
+      responses:
+        '202':
+          description: 'Accepted: request placed to a queue for processing.'
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '422':
+          description: 'Custom Model version cannot be created: (1) input parameters are invalid, (2) if user does not have permission to create legacy conversion environment.'
+      summary: Create custom model version from remote repository by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+    post:
+      description: Create a new custom model version with only files added from the specified remote repository.
+      operationId: customModelsVersionsFromRepository_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelVersionCreateFromRepository'
+      responses:
+        '202':
+          description: 'Accepted: request placed to a queue for processing.'
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '422':
+          description: 'Custom Model version cannot be created: (1) input parameters are invalid, (2) if user does not have permission to create legacy conversion environment.'
+      summary: Create a version from a repository
+      tags:
+      - custom_models
+      x-versionadded: v2.24
+  /api/v2/customModels/{customModelId}/versions/withTrainingData/:
+    patch:
+      description: 'Current API is deprecated and will be removed in v2.33. Training data assignment is implemented in CustomModelVersionCreateController and CustomModelVersionCreateFromLatestController.
+
+
+        Creates a new custom model version (bumping it up a **minor** version) with the specified training and holdout data.
+
+        This functionality has to be explicitly enabled for the current model.
+
+        See isTrainingDataForVersionsPermanentlyEnabled parameter for :http:post:`/api/v2/customModels/` and :http:patch:`/api/v2/customModels/(customModelId)/`
+
+        This API is going to be deprecated.
+
+        Use model version creation APIs to assign training data at the version level: :http:post:`/api/v2/customModels/(customModelId)/versions/` :http:patch:`/api/v2/customModels/(customModelId)/versions/`'
+      operationId: customModelsVersionsWithTrainingData_patchMany
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeprecatedCustomModelVersionTrainingDataUpdate'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVersionResponse'
+          description: The request was accepted and will be worked on.
+          headers:
+            Location:
+              description: URL to poll to track the training data assignment has finished.
+              schema:
+                type: string
+        '404':
+          description: Custom model not found or user does not have edit permissions.
+        '410':
+          description: The requested Dataset has been deleted.
+        '422':
+          description: Cannot update custom model training data.
+      summary: Add or replace training and holdout data by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.30
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/:
+    get:
+      description: Display a requested version of a custom model along with the files attached to it.
+      operationId: customModelsVersions_retrieve
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVersionResponse'
+          description: OK.
+      summary: Get custom model version by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+    patch:
+      description: Edit metadata of a specific model version.
+      operationId: customModelsVersions_patch
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelVersionMetadataUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVersionResponse'
+          description: The edit was successful.
+        '404':
+          description: Custom model not found or user does not have edit permissions.
+        '422':
+          description: Cannot update custom model metadata.
+      summary: Update custom model version by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/conversions/:
+    get:
+      description: Get the list of custom model conversions that are associated with the given custom model. Alternatively, it can return a single item list of the latest custom model conversion that is associated with the given custom model version.
+      operationId: customModelsVersionsConversions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Whether to return only the latest associated custom model conversion or all of the associated ones.
+        in: query
+        name: isLatest
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionListResponse'
+          description: ''
+      summary: Get a list by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.27
+    post:
+      description: Converts files in the given custom model version to a JAR file.
+      operationId: customModelsVersionsConversions_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionCreateQuery'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelConversionAsyncOperationResponse'
+          description: The request was accepted and will be worked on.
+        '422':
+          description: Input parameters are invalid.
+      summary: Generates JAR file by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.27
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/conversions/{conversionId}/:
+    delete:
+      description: Stop a running conversion for given model and model version.
+      operationId: customModelsVersionsConversions_delete
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom model conversion.
+        in: path
+        name: conversionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '422':
+          description: The given conversion is not active.
+      summary: Stop a given custom model conversion by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.27
+    get:
+      description: Get a given custom model conversion.
+      operationId: customModelsVersionsConversions_retrieve
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom model conversion.
+        in: path
+        name: conversionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResponse'
+          description: ''
+      summary: Get a given custom model conversion by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.27
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/dependencyBuild/:
+    delete:
+      description: Cancel the custom model version's dependency build.
+      operationId: customModelsVersionsDependencyBuild_deleteMany
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Custom model version's dependency build was cancelled.
+        '409':
+          description: Custom model dependency build has reached a terminal state and cannot be cancelled.
+        '422':
+          description: No custom model dependency build started for specified version or dependency image is in use and cannot be deleted
+      summary: Cancel dependency build by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+    get:
+      description: Retrieve the custom model version's dependency build status.
+      operationId: customModelsVersionsDependencyBuild_list
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseDependencyBuildMetadataResponse'
+          description: The metadata from the custom model version's dependency build.
+        '422':
+          description: Custom model dependency build has not started.
+      summary: Retrieve the custom model version's dependency build status by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+    post:
+      description: Start a custom model version's dependency build. This is required to test, deploy, or train custom models.
+      operationId: customModelsVersionsDependencyBuild_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseDependencyBuildMetadataResponse'
+          description: Custom model version's dependency build has started.
+        '422':
+          description: Custom model dependency build has failed.
+      summary: Start a custom model version's dependency build by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/dependencyBuildLog/:
+    get:
+      description: Retrieve the custom model version's dependency build log.
+      operationId: customModelsVersionsDependencyBuildLog_list
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependencyBuildLogResponse'
+          description: The log file generated during the custom model version's dependency build.
+        '404':
+          description: Dependency build is in progress or could not be found.
+        '422':
+          description: Custom model dependency build has not started.
+      summary: Retrieve the custom model version's dependency build log by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/download/:
+    get:
+      description: Download a specific item bundle from a custom model as a zip compressed archive.
+      operationId: customModelsVersionsDownload_list
+      parameters:
+      - description: Download model version from PPS tab.If "true" specified, model archive includes dependencies install script. If "false" specified, dependencies script is not included. If not specified -> "false" behavior.
+        in: query
+        name: pps
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The download succeeded.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename for this download ("attachment;filename=model-<model_id>-version-<version_id>.zip").
+              schema:
+                type: string
+      summary: Download custom model version content by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.22
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/featureImpact/:
+    get:
+      description: 'Retrieve feature impact scores for features in a custom inference model image.
+
+
+        This route is a counterpart of a corresponding endpoint for native models:
+
+        :http:get:`/api/v2/projects/(projectId)/models/(modelId)/featureImpact/`'
+      operationId: customModelsVersionsFeatureImpact_list
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureImpactResponse'
+          description: Custom model feature impact returned.
+        '404':
+          description: No feature impact data found for custom model.
+        '422':
+          description: 'Cannot retrieve feature impact scores: (1) if custom model is not an inference model, (2) if training data is not assigned, (3) if feature impact job is in progress for custom model.'
+      summary: Get custom model feature impact by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.23
+    post:
+      description: 'Add a request to calculate feature impact for a custom inference model image to the queue.
+
+
+        This route is a counterpart of a corresponding endpoint for native models:
+
+        :http:post:`/api/v2/projects/(projectId)/models/(modelId)/featureImpact/`'
+      operationId: customModelsVersionsFeatureImpact_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureImpactCreatePayload'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureImpactCreateResponse'
+          description: Feature impact request has been successfully submitted.
+          headers:
+            Location:
+              description: 'Contains a url for tracking job status: :http:get:`/api/v2/status/(statusId)/`.'
+              schema:
+                type: string
+        '404':
+          description: If feature impact has already been submitted. The response will include `jobId` property which can be used for tracking its progress.
+        '422':
+          description: 'If job cannot be submitted because of invalid input or model state: (1) if image id does not correspond to a custom inference model, (2) if training data is not yet assigned or assignment is in progress, (3) if the `rowCount` exceeds the minimum or maximum value for this model''s training data.'
+      summary: Create custom model feature impact by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.23
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/predictionExplanationsInitialization/:
+    post:
+      description: Create a new prediction explanations initialization for custom model version. This is a necessary prerequisite for generating prediction explanations.
+      operationId: customModelsVersionsPredictionExplanationsInitialization_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: The request was accepted and will be worked on.
+          headers:
+            Location:
+              description: URL to poll to track the prediction explanation initialization has finished.
+              schema:
+                type: string
+        '422':
+          description: Specified custom model is not valid for prediction explanations.
+      summary: Create a new prediction explanations initialization by custom model ID
+      tags:
+      - custom_models
+      x-versionadded: v2.23
+  /api/v2/customModels/{customModelId}/versions/{customModelVersionId}/toCodespace/:
+    post:
+      description: Update a codespace with files from the custom model version.
+      operationId: customModelsVersionsToCodespace_create
+      parameters:
+      - description: The ID of the custom model.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model version.
+        in: path
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomModelVersionToCodespace'
+      responses:
+        '200':
+          description: ''
+        '202':
+          description: Task for uploading applied.
+      summary: Update a codespace by custom model ID
+      tags:
+      - custom_models
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.37
+  /api/v2/executionEnvironments/:
+    get:
+      description: List all execution environments sorted by creation time descending.
+      operationId: executionEnvironments_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: String to search for occurence in all execution environment's description and label. Search is case insensitive. If not specified, all execution environments will be returned.
+        in: query
+        name: searchFor
+        required: false
+        schema:
+          maxLength: 10000
+          type: string
+      - description: If specified, only execution environments with this use case are returned.
+        in: query
+        name: useCases
+        required: false
+        schema:
+          enum:
+          - customModel
+          - notebook
+          - gpu
+          - customApplication
+          - sparkApplication
+          - customJob
+          type: string
+        x-versionadded: v2.36
+      - description: If set, only return execution environments matching this setting.
+        in: query
+        name: isPublic
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentListResponse'
+          description: The request was successful.
+      summary: List execution environments
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+    post:
+      description: Create a new execution environment.
+      operationId: executionEnvironments_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionEnvironmentCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentCreateResponse'
+          description: The new environment has been successfully created.
+          headers:
+            Location:
+              description: URL from which the new environment can be retrieved.
+              schema:
+                type: string
+        '409':
+          description: An environment with the supplied ID already exists
+        '422':
+          description: User does not have permission to create legacy conversion environment
+      summary: Create an execution environment
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+  /api/v2/executionEnvironments/{environmentId}/:
+    delete:
+      description: Mark a specified execution environment as deleted. Environments are never deleted from database, however marked environments don't appear in any API. Relevant CustomModelImage will be deleted.
+      operationId: executionEnvironments_delete
+      parameters:
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The execution environment has been successfully deleted.
+        '409':
+          description: This environment is currently deployed and cannot be deleted. The response body will contain link where those deployments can be retrieved.
+      summary: Destroy an execution environment by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+    get:
+      description: Retrieve a single execution environment.
+      operationId: executionEnvironments_retrieve
+      parameters:
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentResponse'
+          description: The request was successful.
+      summary: Get an execution environment by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+    patch:
+      description: Update an execution environment.
+      operationId: executionEnvironments_patch
+      parameters:
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionEnvironmentUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentResponse'
+          description: The execution environment has been successfully updated.
+      summary: Update an execution environment by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+  /api/v2/executionEnvironments/{environmentId}/accessControl/:
+    get:
+      description: Get a list of users who have access to this execution environment and their roles.
+      operationId: executionEnvironmentsAccessControl_list
+      parameters:
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Optional, only return the access control information for a user with this username.
+        in: query
+        name: username
+        required: false
+        schema:
+          type: string
+      - description: Optional, only return the access control information for a user with this user ID.
+        in: query
+        name: userId
+        required: false
+        schema:
+          type: string
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListResponse'
+          description: ''
+        '400':
+          description: Bad Request. Both username and userId were specified
+        '403':
+          description: Forbidden. The user does not have permissions to view the execution environment access list.
+        '404':
+          description: Execution environment not found. Either the execution environment does not exist or user does not have permission to view it.
+      summary: Get a list of users who have access by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.25
+    patch:
+      description: Grant access or update roles for users on this execution environment. Up to 100 user roles may be set in a single request.
+      operationId: executionEnvironmentsAccessControl_patchMany
+      parameters:
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharingUpdateOrRemoveWithGrant'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: Roles updated successfully.
+        '403':
+          description: User can view execution environment but does not have permission to grant these roles on the execution environment.
+        '404':
+          description: Either the execution environment does not exist or the user does not have permissions to view the execution environment.
+        '409':
+          description: The request would leave the execution environment without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid.
+      summary: Grant access by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.25
+  /api/v2/executionEnvironments/{environmentId}/versions/:
+    get:
+      description: List all execution environment versions sorted by creation time descending.
+      operationId: executionEnvironmentsVersions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Build status of execution environment version to filter. If not specified, all versions will be returned.
+        in: query
+        name: buildStatus
+        required: false
+        schema:
+          enum:
+          - submitted
+          - processing
+          - failed
+          - success
+          - aborted
+          type: string
+      - description: String to search for occurrence in execution environment versions by version id, image_id,  search in label and description. Search is case insensitive.If not specified, all execution environment versions will be returned.
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 100
+          type: string
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentVersionListResponse'
+          description: The request was successful.
+      summary: List execution environment versions by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+    post:
+      description: Create a new execution environment version.
+      operationId: executionEnvironmentsVersions_create
+      parameters:
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExecutionEnvironmentVersionCreate'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentCreateResponse'
+          description: The new environment version has been successfully accepted to be built.
+          headers:
+            Location:
+              description: URL from which the new environment version can be retrieved.
+              schema:
+                type: string
+        '409':
+          description: An environment version with the supplied ID already exists.
+      summary: Create an execution environment version by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+  /api/v2/executionEnvironments/{environmentId}/versions/{environmentVersionId}/:
+    get:
+      description: Retrieve an execution environment version by ID.
+      operationId: executionEnvironmentsVersions_retrieve
+      parameters:
+      - description: The execution environment ID.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      - description: The execution environment version ID.
+        in: path
+        name: environmentVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentVersionResponse'
+          description: The request was successful.
+      summary: Get an execution environment version by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+  /api/v2/executionEnvironments/{environmentId}/versions/{environmentVersionId}/buildLog/:
+    get:
+      description: Retrieve execution environment version build log.
+      operationId: executionEnvironmentsVersionsBuildLog_list
+      parameters:
+      - description: The execution environment ID.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      - description: The execution environment version ID.
+        in: path
+        name: environmentVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionEnvironmentVersionBuildLogResponse'
+          description: The build log content.
+        '400':
+          description: Bad request.
+        '404':
+          description: Execution environment or execution environment version not found. Either the execution environment or its version does not exist or the user does not have permission to view the execution environment.
+      summary: Download the execution environment build log by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+  /api/v2/executionEnvironments/{environmentId}/versions/{environmentVersionId}/cancelBuild/:
+    patch:
+      description: Stop the execution environment version build.
+      operationId: executionEnvironmentsVersionsCancelBuild_patchMany
+      parameters:
+      - description: The execution environment ID.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      - description: The execution environment version ID.
+        in: path
+        name: environmentVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Build stopped successfully.
+        '404':
+          description: Execution environment or execution environment version not found. Either the execution environment or its version does not exist or the user does not have permission to view the execution environment.
+        '409':
+          description: Build has reached a terminal state and cannot be stopped.
+      summary: Stop the execution environment build by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.4
+  /api/v2/executionEnvironments/{environmentId}/versions/{environmentVersionId}/download/:
+    get:
+      description: Submit image tarball build for URI based environment.
+      operationId: executionEnvironmentsVersionsDownload_list
+      parameters:
+      - description: If true, the built Docker image will be downloaded as a tar archive, otherwise the Docker context will be returned
+        in: query
+        name: imageFile
+        required: false
+        schema:
+          default: 'False'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the environment version.
+        in: path
+        name: environmentVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The download succeeded.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename for this download.
+              schema:
+                type: string
+      summary: Submit image tarball build by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+    post:
+      description: Request on-demand image build for an execution environment version based on image URI.
+      operationId: executionEnvironmentsVersionsDownload_create
+      parameters:
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the environment version.
+        in: path
+        name: environmentVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Image build submitted
+      summary: Request on-demand image build by environment ID
+      tags:
+      - custom_models
+      x-versionadded: v2.37
+  /api/v2/executionEnvironmentsPermadelete/:
+    post:
+      description: Permanently delete records and files associated with previously soft deleted execution environments.
+      operationId: executionEnvironmentsPermadelete_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionEnvironmentPermadelete'
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: At least one environment was not found.
+        '409':
+          description: At least one environment has not been soft deleted.
+      summary: Permanently delete execution environments
+      tags:
+      - custom_models
+      x-versionadded: v2.36
+  /api/v2/runtimeParameters/reservedNames/:
+    get:
+      description: Retrieve the list of reserved environment variable name patterns that cannot be used as runtime parameter names. Supports wildcard patterns (* and ?) and entity-specific restrictions.
+      operationId: runtimeParametersReservedNames_list
+      parameters:
+      - description: 'The entity type to get reserved names for. Valid values: customModel, customApplication, customJob'
+        in: query
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - customModel
+          - customApplication
+          - customJob
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeParameterReservedNamesResponse'
+          description: The reserved runtime parameter names.
+        '400':
+          description: Invalid entity type provided.
+      summary: Retrieve reserved runtime parameter names
+      tags:
+      - custom_models
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the addition of key-value pairs as Runtime-Parameters for Custom Inference Models.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_MODEL_RUNTIME_PARAMETERS
+      x-versionadded: v2.44
+components:
+  schemas:
+    DeprecatedCustomModelVersionTrainingDataUpdate:
+      properties:
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        holdoutData:
+          $ref: '#/components/schemas/DeprecatedHoldoutDataAssignment'
+          x-versionadded: v2.30
+          x-versiondeprecated: v2.33
+        trainingData:
+          $ref: '#/components/schemas/DeprecatedTrainingDataForVersionsAssignment'
+          x-versionadded: v2.30
+          x-versiondeprecated: v2.33
+      required:
+      - trainingData
+      type: object
+    CustomModelUpdate:
+      properties:
+        classLabels:
+          description: The class labels for multiclass classification. Required for multiclass inference models. If using one of the [DataRobot] base environments and your model produces an ndarray of unlabeled class probabilities, the order of the labels should match the order of the predicted output
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        description:
+          description: The user-friendly description of the model.
+          maxLength: 10000
+          type: string
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        isTrainingDataForVersionsPermanentlyEnabled:
+          description: Indicates that training data assignment is now permanently at the version level only for the custom model. Once enabled, this cannot be disabled. Training data assignment on the model level :http:patch:`/api/v2/customModels/(customModelId)/trainingData/` will be permanently disabled for this particular model.
+          type: boolean
+          x-versionadded: v2.30
+        language:
+          description: Programming language name in which model is written.
+          maxLength: 500
+          type: string
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.30
+        name:
+          description: The user-friendly name for the model.
+          maxLength: 255
+          type: string
+        negativeClassLabel:
+          description: The negative class label for custom models that support binary classification. If specified, `positiveClassLabel` must also be specified. Default value is "0".
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - DR_API_ACCESS
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.30
+        positiveClassLabel:
+          description: The positive class label for custom models that support binary classification. If specified, `negativeClassLabel` must also be specified. Default value is "1".
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+        predictionThreshold:
+          default: 0.5
+          description: The prediction threshold which will be used for binary classification custom model.
+          maximum: 1.0
+          minimum: 0
+          type: number
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.30
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+          x-versiondeprecated: v2.30
+        targetName:
+          description: The name of the target for labeling predictions. Required for model type 'inference'. Specifying this value for a model type 'training' will result in an error.
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+      type: object
+    CustomModelVersionCreateFromLatest:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this model version. At least one of "baseEnvironmentId" and "baseEnvironmentVersionId" must be provided. If both are specified, the version must belong to the environment.
+          type: string
+          x-versionadded: v2.22
+        baseEnvironmentVersionId:
+          description: 'The base environment version ID to use with this model version. At least one of "baseEnvironmentId" and "baseEnvironmentVersionId" must be provided. If both are specified, the version must belong to the environment. If not specified: in the case where the previous model versions exist, the value from the latest model version is inherited, otherwise, the latest successfully built version of the environment specified in "baseEnvironmentId" is used.'
+          type: string
+          x-versionadded: v2.29
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        filesToDelete:
+          description: The IDs of the files to be deleted.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        holdoutData:
+          description: 'Holdout data configuration may be supplied for version.                 This functionality has to be explicitly enabled for the current model.                 See isTrainingDataForVersionsPermanentlyEnabled parameter for                 :http:post:`/api/v2/customModels/`                 and                 :http:patch:`/api/v2/customModels/(customModelId)/`                 '
+          type:
+          - string
+          - 'null'
+          x-versionadded: '2.31'
+        isMajorUpdate:
+          default: 'true'
+          description: If set to true, new major version will created, otherwise minor version will be created.
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        keepTrainingHoldoutData:
+          default: true
+          description: If the version should inherit training and holdout data from the previous version. Defaults to true.This field is only applicable if the model has training data for versions enabled. Otherwise the field value will be ignored.
+          type: boolean
+          x-versionadded: v2.30
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you to change them, make a new version.
+          type: string
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: 'Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment''s requiredMetadataKeys. Field names and values are exposed as environment variables with values when running the custom model. Example: "required_metadata_values": [{"field_name": "hi", "value": "there"}],'
+          type: string
+          x-versionadded: v2.26
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        trainingData:
+          description: 'Training data configuration may be supplied for version.                 This functionality has to be explicitly enabled for the current model.                 See isTrainingDataForVersionsPermanentlyEnabled parameter for                 :http:post:`/api/v2/customModels/`                 and                 :http:patch:`/api/v2/customModels/(customModelId)/`                 '
+          type:
+          - string
+          - 'null'
+          x-versionadded: '2.31'
+      required:
+      - isMajorUpdate
+      type: object
+    CustomModelAccessControlUpdateResponse:
+      properties:
+        data:
+          description: Roles were successfully updated.
+          items:
+            $ref: '#/components/schemas/CustomModelAccessControlResponse'
+          maxItems: 1000
+          type: array
+      required:
+      - data
+      type: object
+    FeatureImpactCreateResponse:
+      properties:
+        statusId:
+          description: ID that can be used with :http:get:`/api/v2/status/(statusId)/` for tracking job status.
+          type: string
+      required:
+      - statusId
+      type: object
+    GeneratedMetadata:
+      description: Custom model conversion output metadata.
+      properties:
+        outputColumns:
+          description: A list of column lists that are associated with the output datasets from the custom model conversion process.
+          items:
+            description: A columns list belong to a single dataset output from a custom model conversion process
+            items:
+              description: A column name belong to a single dataset output from a custom model conversion process
+              maxLength: 1024
+              minLength: 1
+              type: string
+            maxItems: 50
+            minItems: 1
+            type: array
+          maxItems: 50
+          type: array
+        outputDatasets:
+          description: A list of output datasets from the custom model conversion process.
+          items:
+            description: An output dataset name from the custom model conversion process
+            type: string
+          maxItems: 50
+          minItems: 1
+          type: array
+      required:
+      - outputColumns
+      - outputDatasets
+      type: object
+    CustomModelTagCreate:
+      properties:
+        name:
+          description: The name of the tag.
+          maxLength: 50
+          minLength: 1
+          type: string
+        value:
+          description: The value of the tag.
+          maxLength: 256
+          minLength: 1
+          type: string
+      required:
+      - name
+      - value
+      type: object
+      x-versionadded: v2.39
+    ExecutionEnvironmentUpdate:
+      properties:
+        description:
+          description: The new description of the environment.
+          maxLength: 10000
+          type: string
+        isPublic:
+          description: If the environment is public.
+          type: boolean
+          x-versionadded: v2.39
+        name:
+          description: New execution environment name.
+          maxLength: 255
+          type: string
+        programmingLanguage:
+          description: The new programming language of the environment.
+          enum:
+          - python
+          - r
+          - java
+          - julia
+          - legacy
+          - other
+          type: string
+        useCases:
+          description: The list of use cases supported by the environment
+          items:
+            enum:
+            - customModel
+            - notebook
+            - gpu
+            - customApplication
+            - sparkApplication
+            - customJob
+            type: string
+          maxItems: 6
+          type: array
+          x-versionadded: v2.36
+      type: object
+      x-versionadded: v2.36
+    ConversionCreateQuery:
+      properties:
+        mainProgramItemId:
+          description: The main program file item ID.
+          type: string
+          x-versionadded: v2.26
+      required:
+      - mainProgramItemId
+      type: object
+    CustomModelTestsLogTailResponse:
+      properties:
+        log:
+          description: The N lines of the log.
+          type: string
+      required:
+      - log
+      type: object
+    CustomModelVersionCreateFromRepository:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this version.
+          type: string
+          x-versionadded: v2.22
+        isMajorUpdate:
+          default: true
+          description: If set to true, new major version will created, otherwise minor version will be created.
+          type: boolean
+        keepTrainingHoldoutData:
+          default: true
+          description: If the version should inherit training and holdout data from the previous version. Defaults to true.This field is only applicable if the model has training data for versions enabled. Otherwise the field value will be ignored.
+          type: boolean
+          x-versionadded: v2.30
+        ref:
+          description: Remote reference (branch, commit, etc). Latest, if not specified.
+          type: string
+        repositoryId:
+          description: The ID of remote repository used to pull sources. This ID can be found using the /api/v2/remoteRepositories/ endpoint.
+          type: string
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you to change them, make a new version.
+          type: object
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          items:
+            $ref: '#/components/schemas/RequiredMetadataValue'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        sourcePath:
+          description: A remote repository file path to be pulled into a custom model or custom task.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+      required:
+      - repositoryId
+      type: object
+    TrainingDataResponse:
+      description: Training data configuration.
+      properties:
+        assignmentError:
+          $ref: '#/components/schemas/TrainingDataAssignmentErrorResponse'
+          x-versionadded: v2.31
+        assignmentInProgress:
+          default: false
+          description: Indicates if training data is currently being assigned to the custom model. Only for structured models.
+          type: boolean
+        datasetId:
+          description: The ID of the dataset.
+          type:
+          - string
+          - 'null'
+        datasetName:
+          description: A user-friendly name for the dataset.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        datasetVersionId:
+          description: The ID of the dataset version.
+          type:
+          - string
+          - 'null'
+      type: object
+    CustomModelPredictionExplanations:
+      properties:
+        customModelId:
+          description: The ID of the custom model.
+          type: string
+        customModelVersionId:
+          description: The ID of the custom model version.
+          type: string
+        environmentId:
+          description: The ID of environment to use. If not specified, the customModelVersion's dependency environment will be used.
+          type: string
+        environmentVersionId:
+          description: The ID of environment version to use. Defaults to the latest successfully built version.
+          type: string
+      required:
+      - customModelId
+      - customModelVersionId
+      type: object
+    HoldoutDataResponse:
+      description: Holdout data configuration.
+      properties:
+        datasetId:
+          description: 'The ID of the dataset.                Should be provided only for unstructured models.                 '
+          type:
+          - string
+          - 'null'
+        datasetName:
+          description: A user-friendly name for the dataset.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        datasetVersionId:
+          description: 'The ID of the dataset version.                Should be provided only for unstructured models.                 '
+          type:
+          - string
+          - 'null'
+        partitionColumn:
+          description: The name of the column containing the partition assignments.
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+      type: object
+    CustomModelVersionToCodespace:
+      properties:
+        codespaceId:
+          description: The ID of the codespace that should be updated with custom model version files.
+          type: string
+      required:
+      - codespaceId
+      type: object
+      x-versionadded: v2.37
+    CustomModelAccessControlResponse:
+      properties:
+        canShare:
+          description: Whether this user can share this custom model
+          type: boolean
+        role:
+          description: This users role.
+          type: string
+        userId:
+          description: This user's userId.
+          type: string
+        username:
+          description: The username for this user's entry.
+          type: string
+      required:
+      - canShare
+      - role
+      - userId
+      - username
+      type: object
+    ConversionResponse:
+      properties:
+        conversionInProgress:
+          description: Whether a custom model conversion is in progress or not.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+        conversionSucceeded:
+          description: Indication for a successful custom model conversion.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+        created:
+          description: ISO-8601 timestamp of when the custom model conversion created.
+          type: string
+        customModelVersionId:
+          description: ID of the custom model version.
+          type: string
+        generatedMetadata:
+          $ref: '#/components/schemas/GeneratedMetadata'
+          x-versionadded: v2.26
+        id:
+          description: ID of the custom model version.
+          type: string
+        logMessage:
+          description: The output log message from the custom model conversion process.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.26
+        mainProgramItemId:
+          description: The main program file item ID.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.26
+        shouldStop:
+          default: false
+          description: Whether the user requested to stop the given conversion.
+          type: boolean
+          x-versionadded: v2.26
+      required:
+      - created
+      - customModelVersionId
+      - id
+      type: object
+    Template:
+      description: If not null, the template used to create the custom model.
+      properties:
+        modelType:
+          description: The type of template the model was created from.
+          enum:
+          - nimModel
+          - invalid
+          type: string
+          x-versionadded: v2.36
+        templateId:
+          description: The ID of the template used to create this custom model.
+          type: string
+          x-versionadded: v2.36
+      required:
+      - modelType
+      - templateId
+      type: object
+      x-versionadded: v2.36
+    CustomModelResourceLimits:
+      properties:
+        desiredCustomModelContainerSize:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        maxCustomModelContainerSize:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        maxCustomModelReplicasPerDeployment:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+        maxCustomModelTestingParallelUsers:
+          description: The maximum number of parallel users that can be used for Custom Model Testing checks
+          exclusiveMinimum: 0
+          maximum: 20
+          type: integer
+        minCustomModelContainerSize:
+          description: The minimum memory that might be allocated by the custom-model.
+          maximum: 134217728
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.37
+      required:
+      - maxCustomModelTestingParallelUsers
+      type: object
+    DependencyResponse:
+      properties:
+        constraints:
+          description: Constraints that should be applied to the dependency when installed.
+          items:
+            $ref: '#/components/schemas/DependencyConstraint'
+          maxItems: 100
+          type: array
+        extras:
+          description: The dependency's package extras.
+          type: string
+        line:
+          description: The original line from the requirements.txt file.
+          type: string
+        lineNumber:
+          description: The line number the requirement was on in requirements.txt.
+          type: integer
+        packageName:
+          description: The dependency's package name.
+          type: string
+      required:
+      - constraints
+      - line
+      - lineNumber
+      - packageName
+      type: object
+    ExecutionEnvironmentVersionListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of execution environment versions.
+          items:
+            $ref: '#/components/schemas/ExecutionEnvironmentVersionResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    CustomModelTestsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of custom model tests.
+          items:
+            $ref: '#/components/schemas/CustomModelTestsResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeprecatedCustomModelWorkspaceItemResponse:
+      properties:
+        commitSha:
+          description: SHA1 hash pointing to the original file revision (set only for files pulled from Git-like repositories).
+          type:
+          - string
+          - 'null'
+        created:
+          description: ISO-8601 timestamp of when the file item was created.
+          type: string
+        fileName:
+          description: The name of the file item.
+          type: string
+        filePath:
+          description: The path of the file item.
+          type: string
+        fileSource:
+          description: The source of the file item.
+          type: string
+        id:
+          description: ID of the file item.
+          type: string
+        ref:
+          description: Remote reference (branch, commit, tag). Branch "master", if not specified.
+          type:
+          - string
+          - 'null'
+        repositoryFilePath:
+          description: Full path to the file in the remote repository.
+          type:
+          - string
+          - 'null'
+        repositoryLocation:
+          description: URL to remote repository from which the file was pulled (e.g. Git server or S3 Bucket name).
+          type:
+          - string
+          - 'null'
+        repositoryName:
+          description: Name of the repository from which the file was pulled.
+          type:
+          - string
+          - 'null'
+        storagePath:
+          description: Storage path of the file item.
+          type: string
+          x-versiondeprecated: '2.25'
+        workspaceId:
+          description: The workspace ID of the file item.
+          type: string
+          x-versiondeprecated: '2.25'
+      required:
+      - created
+      - fileName
+      - filePath
+      - fileSource
+      - id
+      - storagePath
+      - workspaceId
+      type: object
+    CustomModelTesting:
+      description: Maps the testing types to their status and message for the testing entry. Testing type represents a single check executed during the test.
+      properties:
+        errorCheck:
+          $ref: '#/components/schemas/TestingStatus'
+        longRunningService:
+          $ref: '#/components/schemas/TestingStatus'
+        nullValueImputation:
+          $ref: '#/components/schemas/TestingStatus'
+        sideEffects:
+          $ref: '#/components/schemas/TestingStatus'
+      type: object
+    CustomModelVersionShortResponse:
+      description: Custom model version associated with this deployment.
+      properties:
+        id:
+          description: The ID of the custom model version.
+          type: string
+        label:
+          description: User-friendly name of the model version.
+          type: string
+      required:
+      - id
+      - label
+      type: object
+    CustomModelResponse:
+      properties:
+        calibratePredictions:
+          description: Determines whether ot not predictions should be calibrated by DataRobot.Only applies to anomaly detection.
+          type: boolean
+        classLabels:
+          description: If the model is a multiclass classifier, these are the model's class labels
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        created:
+          description: ISO-8601 timestamp of when the model was created.
+          type: string
+        createdBy:
+          description: The username of the custom model creator.
+          type: string
+        customModelType:
+          description: The type of custom model.
+          enum:
+          - training
+          - inference
+          type: string
+        deploymentsCount:
+          description: The number of models deployed.
+          type: integer
+        description:
+          description: The description of the model.
+          type: string
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        id:
+          description: The ID of the custom model.
+          type: string
+        isTrainingDataForVersionsPermanentlyEnabled:
+          description: 'Indicates that training data assignment is now permanently at the version level only                 for the custom model. Once enabled, this cannot be disabled.                 Assigning training data on the model level :http:patch:`/api/v2/customModels/(customModelId)/trainingData/`                 will be permanently disabled and return HTTP 422 for this particular model.                 Use training data assignment at the version level:                 :http:post:`/api/v2/customModels/(customModelId)/versions/`                 :http:patch:`/api/v2/customModels/(customModelId)/versions/`                 '
+          type: boolean
+          x-versionadded: v2.30
+        language:
+          description: The programming language used to write the model.
+          type: string
+        latestVersion:
+          $ref: '#/components/schemas/CustomModelVersionResponse'
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.30
+        name:
+          description: The name of the model.
+          type: string
+        negativeClassLabel:
+          description: If the model is a binary classifier, this is the negative class label.
+          type: string
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - DR_API_ACCESS
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.30
+        playgroundId:
+          description: The ID of the GenAI Playground associated with the given custom inference model.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        positiveClassLabel:
+          description: If the model is a binary classifier, this is the positive class label.
+          type: string
+        predictionThreshold:
+          description: If the model is a binary classifier, this is the prediction threshold.
+          type: number
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.30
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+          x-versiondeprecated: v2.30
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        supportsAnomalyDetection:
+          description: Whether the model supports anomaly detection.
+          type: boolean
+        supportsBinaryClassification:
+          description: Whether the model supports binary classification.
+          type: boolean
+        supportsRegression:
+          description: Whether the model supports regression.
+          type: boolean
+        tags:
+          description: A list of the custom model tag.
+          items:
+            $ref: '#/components/schemas/CustomModelTagRetrieveResponse'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.39
+        targetName:
+          description: The name of the target for labeling predictions.
+          type: string
+        targetType:
+          description: The target type of custom model.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Anomaly
+          - Transform
+          - TextGeneration
+          - GeoPoint
+          - Unstructured
+          - VectorDatabase
+          - AgenticWorkflow
+          - MCP
+          - Multilabel
+          type: string
+        template:
+          $ref: '#/components/schemas/Template'
+          x-versionadded: '2.36'
+        trainingDataAssignmentInProgress:
+          description: Indicates if training data is currently being assigned to the custom model.
+          type: boolean
+        trainingDataFileName:
+          description: The name of the file that was used as training data if it was assigned previously.
+          type:
+          - string
+          - 'null'
+        trainingDataPartitionColumn:
+          description: The name of the column containing the partition assignments in training data if it was assigned previously and partitioning was provided.
+          type:
+          - string
+          - 'null'
+        trainingDatasetId:
+          description: The ID of the dataset that was used as training data if it was assigned previously.
+          type:
+          - string
+          - 'null'
+        trainingDatasetVersionId:
+          description: The ID of the dataset version that was used as training data if it was assigned previously.
+          type:
+          - string
+          - 'null'
+        updated:
+          description: ISO-8601 timestamp of when model was last updated.
+          type: string
+        userProvidedId:
+          description: A user-provided unique ID associated with the given custom inference model.
+          maxLength: 100
+          type: string
+      required:
+      - created
+      - createdBy
+      - deploymentsCount
+      - description
+      - id
+      - language
+      - latestVersion
+      - name
+      - supportsBinaryClassification
+      - supportsRegression
+      - targetType
+      - template
+      - updated
+      type: object
+    RuntimeParameterReservedNamesData:
+      description: The reserved runtime parameter name patterns and rules.
+      properties:
+        patterns:
+          description: 'The list of reserved name patterns (supports wildcards: * and ?).'
+          items:
+            type: string
+          type: array
+      required:
+      - patterns
+      type: object
+      x-versionadded: v2.44
+    CustomModelTagRetrieveResponse:
+      properties:
+        id:
+          description: The ID of the tag.
+          type: string
+        name:
+          description: The name of the tag.
+          type: string
+        value:
+          description: The value of the tag.
+          type: string
+      required:
+      - id
+      - name
+      - value
+      type: object
+      x-versionadded: v2.39
+    CustomModelVersionFromCodespace:
+      properties:
+        codespaceId:
+          description: The ID of the codespace that is the source for the custom model version files.
+          type: string
+      required:
+      - codespaceId
+      type: object
+      x-versionadded: v2.37
+    DependencyBuildLogResponse:
+      properties:
+        data:
+          description: The custom model version's dependency build log in tar.gz format.
+          format: binary
+          type: string
+      required:
+      - data
+      type: object
+    SharingUpdateOrRemoveWithGrant:
+      properties:
+        data:
+          description: List of sharing roles to update.
+          items:
+            $ref: '#/components/schemas/UserRoleWithGrant'
+          maxItems: 100
+          type: array
+      required:
+      - data
+      type: object
+    CustomModelVersionListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of custom model versions.
+          items:
+            $ref: '#/components/schemas/CustomModelVersionResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    RequiredMetadataValue:
+      properties:
+        fieldName:
+          description: The required field name. This value will be added as an environment variable when running custom models.
+          type: string
+        value:
+          description: The value for the given field.
+          maxLength: 100
+          type: string
+      required:
+      - fieldName
+      - value
+      type: object
+    ExecutionEnvironmentVersionShortResponse:
+      description: Execution environment version associated with this deployment.
+      properties:
+        id:
+          description: The ID of the execution environment version.
+          type: string
+        label:
+          description: User-friendly name of the execution environment version.
+          type: string
+      required:
+      - id
+      - label
+      type: object
+    ExecutionEnvironmentVersionCreate:
+      properties:
+        contextUrl:
+          default: ''
+          description: Docker context URL of the environment version. It is not intended to be used for automatic processing.
+          maxLength: 1000
+          type: string
+          x-versionadded: v2.37
+        description:
+          default: ''
+          description: The description of the environment version.
+          maxLength: 10000
+          type: string
+        dockerContext:
+          description: Context tar.gz or zip file. The Docker Context file should be a tar.gz or zip file containing at minimum a single top-level file named "Dockerfile".  This file should be a Docker-compatible Dockerfile using syntax as defined in the `official Docker documentation <https://docs.docker.com/engine/reference/builder/>`_. The archive may contain additional files as well. These files may be added into the final container using `ADD <https://docs.docker.com/engine/reference/builder/#add>`_ and/or `COPY <https://docs.docker.com/engine/reference/builder/#copy>`_ directives in the Dockerfile.
+          format: binary
+          type: string
+        dockerImage:
+          description: The pre-built Docker image saved as a .tar archive. If not supplied, the environment will be built from the supplied dockerContext.
+          format: binary
+          type: string
+        dockerImageUri:
+          description: The URI of the Docker image that is used to build the environment version. Parameter dockerContext may also be provided to upload context, but the image URI is used for the build.
+          type: string
+          x-versionadded: v2.37
+        environmentVersionId:
+          description: The ID the new environment version should use. Only admins can create environment versions with pre-defined IDs
+          type: string
+        label:
+          default: ''
+          description: Human readable version indicator.
+          maxLength: 50
+          type: string
+      type: object
+      x-versionadded: v2.36
+    CustomModelVersionCreate:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this model version. At least one of "baseEnvironmentId" and "baseEnvironmentVersionId" must be provided. If both are specified, the version must belong to the environment.
+          type: string
+          x-versionadded: v2.22
+        baseEnvironmentVersionId:
+          description: 'The base environment version ID to use with this model version. At least one of "baseEnvironmentId" and "baseEnvironmentVersionId" must be provided. If both are specified, the version must belong to the environment. If not specified: in the case where the previous model versions exist, the value from the latest model version is inherited, otherwise, the latest successfully built version of the environment specified in "baseEnvironmentId" is used.'
+          type: string
+          x-versionadded: v2.29
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        holdoutData:
+          description: 'Holdout data configuration may be supplied for version.                 This functionality has to be explicitly enabled for the current model.                 See isTrainingDataForVersionsPermanentlyEnabled parameter for                 :http:post:`/api/v2/customModels/`                 and                 :http:patch:`/api/v2/customModels/(customModelId)/`                 '
+          type:
+          - string
+          - 'null'
+          x-versionadded: '2.31'
+        isMajorUpdate:
+          default: 'true'
+          description: If set to true, new major version will created, otherwise minor version will be created.
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        keepTrainingHoldoutData:
+          default: true
+          description: If the version should inherit training and holdout data from the previous version. Defaults to true.This field is only applicable if the model has training data for versions enabled. Otherwise the field value will be ignored.
+          type: boolean
+          x-versionadded: v2.30
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you to change them, make a new version.
+          type: string
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: 'Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment''s requiredMetadataKeys. Field names and values are exposed as environment variables with values when running the custom model. Example: "required_metadata_values": [{"field_name": "hi", "value": "there"}],'
+          type: string
+          x-versionadded: v2.26
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        trainingData:
+          description: 'Training data configuration may be supplied for version.                 This functionality has to be explicitly enabled for the current model.                 See isTrainingDataForVersionsPermanentlyEnabled parameter for                 :http:post:`/api/v2/customModels/`                 and                 :http:patch:`/api/v2/customModels/(customModelId)/`                 '
+          type:
+          - string
+          - 'null'
+          x-versionadded: '2.31'
+      required:
+      - isMajorUpdate
+      type: object
+    ConversionListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of custom model conversions.
+          items:
+            $ref: '#/components/schemas/ConversionResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    CustomModelListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of custom models.
+          items:
+            $ref: '#/components/schemas/CustomModelResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ExecutionEnvironmentShortResponse:
+      description: Execution environment associated with this deployment.
+      properties:
+        id:
+          description: The ID of the execution environment.
+          type: string
+        name:
+          description: User-friendly name of the execution environment.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    CustomModelCreateFromTemplateResponse:
+      properties:
+        customModelId:
+          description: The id of the created custom model.
+          type: string
+        customModelVersionId:
+          description: The id of the created custom model version.
+          type: string
+      required:
+      - customModelId
+      - customModelVersionId
+      type: object
+      x-versionadded: v2.36
+    CustomModelConversionAsyncOperationResponse:
+      properties:
+        conversionId:
+          description: ID that can be used to stop a given conversion.
+          type: string
+        statusId:
+          description: ID that can be used with :http:get:`/api/v2/status/(statusId)/` to poll for the testing job's status
+          type: string
+      required:
+      - conversionId
+      - statusId
+      type: object
+    CustomModelShortResponse:
+      description: Custom model associated with this deployment.
+      properties:
+        id:
+          description: The ID of the custom model.
+          type: string
+        name:
+          description: User-friendly name of the model.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    RuntimeParameterReservedNamesResponse:
+      properties:
+        data:
+          $ref: '#/components/schemas/RuntimeParameterReservedNamesData'
+      required:
+      - data
+      type: object
+      x-versionadded: v2.44
+    TrainingDataAssignmentErrorResponse:
+      description: Training data configuration.
+      properties:
+        message:
+          description: Training data assignment error message
+          maxLength: 10000
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.31
+      type: object
+    CustomModelCopy:
+      properties:
+        customModelId:
+          description: The ID of the custom model to copy.
+          type: string
+      required:
+      - customModelId
+      type: object
+    ExecutionEnvironmentCreateResponse:
+      properties:
+        id:
+          description: The ID of the newly created environment.
+          type: string
+      required:
+      - id
+      type: object
+      x-versionadded: v2.36
+    SharingListResponse:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControl'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+      required:
+      - count
+      - data
+      - next
+      - previous
+      type: object
+    CustomModelVersionMetadataUpdate:
+      properties:
+        description:
+          description: New description for the custom task or model.
+          maxLength: 10000
+          type: string
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          type: object
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          items:
+            $ref: '#/components/schemas/RequiredMetadataValue'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+      type: object
+    DeprecatedTrainingDataForVersionsAssignment:
+      description: Training data configuration.
+      properties:
+        assignmentInProgress:
+          default: false
+          description: Indicates if training data is currently being assigned to the custom model. Only for structured models.
+          type: boolean
+          x-versiondeprecated: v2.33
+        datasetId:
+          description: The ID of the dataset.
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        datasetName:
+          description: A user-friendly name for the dataset.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        datasetVersionId:
+          description: The ID of the dataset version.
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+      type: object
+    CustomModelTestsResponse:
+      properties:
+        completedAt:
+          description: ISO-8601 timestamp of when the testing attempt was completed.
+          type: string
+        created:
+          description: ISO-8601 timestamp of when the testing entry was created.
+          type: string
+        createdBy:
+          description: The username of the user that started the custom model test.
+          type: string
+        customModel:
+          $ref: '#/components/schemas/CustomModelShortResponse'
+        customModelImageId:
+          description: If testing was successful, ID of the custom inference model image that can be used for a deployment, otherwise null.
+          type:
+          - string
+          - 'null'
+        customModelVersion:
+          $ref: '#/components/schemas/CustomModelVersionShortResponse'
+        datasetId:
+          description: ID of the dataset used for testing.
+          type: string
+        datasetVersionId:
+          description: ID of the specific dataset version used for testing.
+          type: string
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        executionEnvironment:
+          $ref: '#/components/schemas/ExecutionEnvironmentShortResponse'
+        executionEnvironmentVersion:
+          $ref: '#/components/schemas/ExecutionEnvironmentVersionShortResponse'
+        id:
+          description: ID of the testing history entry.
+          type: string
+        imageType:
+          description: The type of the image, either customModelImage if the testing attempt is using a customModelImage as its model or customModelVersion if the testing attempt is using a customModelVersion with dependency management.
+          enum:
+          - customModelImage
+          - customModelVersion
+          type: string
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+        overallStatus:
+          description: The overall status of the testing history entry.
+          enum:
+          - not_tested
+          - queued
+          - failed
+          - canceled
+          - succeeded
+          - in_progress
+          - aborted
+          - warning
+          - skipped
+          type: string
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        testingStatus:
+          $ref: '#/components/schemas/CustomModelTesting'
+      required:
+      - completedAt
+      - created
+      - createdBy
+      - customModel
+      - customModelImageId
+      - customModelVersion
+      - datasetId
+      - datasetVersionId
+      - executionEnvironment
+      - executionEnvironmentVersion
+      - id
+      - overallStatus
+      - testingStatus
+      type: object
+    UserRoleWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        role:
+          description: The role to set on the entity. When it is None, the role of this user will be removedfrom this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the user to update the access role for.
+          type: string
+      required:
+      - role
+      - username
+      type: object
+    ExecutionEnvironmentPermadelete:
+      properties:
+        executionEnvironmentIds:
+          description: List of custom environments to be permanently deleted.
+          items:
+            description: An ID for a custom environment to be permanently deleted.
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+      - executionEnvironmentIds
+      type: object
+      x-versionadded: v2.36
+    CustomModelCreate:
+      properties:
+        calibratePredictions:
+          default: true
+          description: Whether model predictions should be calibrated by DataRobot.Only applies to anomaly detection training tasks; we recommend this if you have not already included calibration in your model code.Calibration improves the probability estimates of a model, and modifies the predictions of non-probabilistic models to be interpretable as probabilities. This will facilitate comparison to DataRobot models, and give access to ROC curve insights on external data.
+          type: boolean
+          x-versionadded: v2.23
+        classLabels:
+          description: The class labels for multiclass classification. Required for multiclass inference models. If using one of the [DataRobot] base environments and your model produces an ndarray of unlabeled class probabilities, the order of the labels should match the order of the predicted output
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        customModelType:
+          description: The type of custom model.
+          enum:
+          - training
+          - inference
+          type: string
+          x-versiondeprecated: v2.28
+        description:
+          description: The user-friendly description of the model.
+          maxLength: 10000
+          type: string
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        isTrainingDataForVersionsPermanentlyEnabled:
+          description: Indicates that training data assignment is now permanently at the version level only for the custom model. Once enabled, this cannot be disabled. Training data assignment on the model level :http:patch:`/api/v2/customModels/(customModelId)/trainingData/` will be permanently disabled for this particular model.
+          type: boolean
+          x-versionadded: v2.30
+        language:
+          description: Programming language name in which model is written.
+          maxLength: 500
+          type: string
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.30
+        name:
+          description: The user-friendly name for the model.
+          maxLength: 255
+          type: string
+        negativeClassLabel:
+          description: The negative class label for custom models that support binary classification. If specified, `positiveClassLabel` must also be specified. Default value is "0".
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - DR_API_ACCESS
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.30
+        playgroundId:
+          description: The ID of the GenAI Playground associated with the given custom inference model.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        positiveClassLabel:
+          description: The positive class label for custom models that support binary classification. If specified, `negativeClassLabel` must also be specified. Default value is "1".
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+        predictionThreshold:
+          default: 0.5
+          description: The prediction threshold which will be used for binary classification custom model.
+          maximum: 1.0
+          minimum: 0
+          type: number
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.30
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+          x-versiondeprecated: v2.30
+        supportsBinaryClassification:
+          description: Whether the model supports binary classification.
+          type: boolean
+          x-versiondeprecated: v2.23
+        supportsRegression:
+          description: Whether the model supports regression.
+          type: boolean
+          x-versiondeprecated: v2.23
+        tags:
+          description: The list of a tag's name/value pairs.
+          items:
+            $ref: '#/components/schemas/CustomModelTagCreate'
+          maxItems: 50
+          minItems: 1
+          type: array
+          x-versionadded: v2.39
+        targetName:
+          description: The name of the target for labeling predictions. Required for model type 'inference'. Specifying this value for a model type 'training' will result in an error.
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+        targetType:
+          description: The target type of the custom model.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Anomaly
+          - Transform
+          - TextGeneration
+          - GeoPoint
+          - Unstructured
+          - VectorDatabase
+          - AgenticWorkflow
+          - MCP
+          - Multilabel
+          type: string
+          x-versionadded: v2.23
+        userProvidedId:
+          description: A user-provided unique ID associated with the given custom inference model.
+          maxLength: 100
+          type: string
+          x-versionadded: v2.29
+      required:
+      - customModelType
+      - name
+      type: object
+    GitModelVersion:
+      description: Contains git related attributes that are associated with a custom model version.
+      properties:
+        commitUrl:
+          description: A URL to the commit page in GitHub repository.
+          format: uri
+          type: string
+        mainBranchCommitSha:
+          description: Specifies the commit SHA-1 in GitHub repository from the main branch that corresponds to a given custom model version.
+          maxLength: 40
+          minLength: 40
+          type: string
+        pullRequestCommitSha:
+          default: null
+          description: Specifies the commit SHA-1 in GitHub repository from the main branch that corresponds to a given custom model version.
+          maxLength: 40
+          minLength: 40
+          type:
+          - string
+          - 'null'
+        refName:
+          description: The branch or tag name that triggered the workflow run. For workflows triggered by push, this is the branch or tag ref that was pushed. For workflows triggered by pull_request, this is the pull request merge branch.
+          type: string
+      required:
+      - commitUrl
+      - mainBranchCommitSha
+      - pullRequestCommitSha
+      - refName
+      type: object
+    FeatureImpactItem:
+      properties:
+        featureName:
+          description: The name of the feature.
+          type: string
+        impactNormalized:
+          description: The same as `impactUnnormalized`, but normalized such that the highest value is `1`.
+          maximum: 1
+          type: number
+        impactUnnormalized:
+          description: How much worse the error metric score is when making predictions on modified data.
+          type: number
+        parentFeatureName:
+          description: The name of the parent feature.
+          type:
+          - string
+          - 'null'
+        redundantWith:
+          description: Name of feature that has the highest correlation with this feature.
+          type:
+          - string
+          - 'null'
+      required:
+      - featureName
+      - impactNormalized
+      - impactUnnormalized
+      - redundantWith
+      type: object
+    DeprecatedHoldoutDataAssignment:
+      description: Holdout data configuration.
+      properties:
+        datasetId:
+          description: The ID of the dataset.
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        datasetName:
+          description: A user-friendly name for the dataset.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        datasetVersionId:
+          description: The ID of the dataset version.
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        partitionColumn:
+          description: The name of the column containing the partition assignments.
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.33
+      type: object
+    CustomModelCreateFromTemplatePayload:
+      properties:
+        nimContainerTagOverride:
+          description: Allows to override the NIM container image tag.
+          maxLength: 100
+          type: string
+          x-versionadded: v2.37
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type: string
+        secretConfigId:
+          description: A secret configuration that is used by a custom model.
+          type:
+          - string
+          - 'null'
+        templateId:
+          description: The id of the custom model template.
+          type: string
+      required:
+      - resourceBundleId
+      - templateId
+      type: object
+      x-versionadded: v2.36
+    FeatureImpactResponse:
+      properties:
+        count:
+          description: Number of feature impact records in a given batch.
+          type: integer
+        featureImpacts:
+          description: A list which contains feature impact scores for each feature used by a model. If the model has more than 1000 features, the most important 1000 features are returned.
+          items:
+            $ref: '#/components/schemas/FeatureImpactItem'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL for the next page of results, or null if there is no next page.
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL for the previous page of results, or null if there is no previous page.
+          format: uri
+          type:
+          - string
+          - 'null'
+        ranRedundancyDetection:
+          description: Indicates whether redundant feature identification was run while calculating this feature impact.
+          type: boolean
+        rowCount:
+          description: The number of rows that was used to calculate feature impact. For the feature impact calculated with the default logic, without specifying the ``rowCount``, we return ``null`` here.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.21
+        shapBased:
+          description: 'Indicates whether feature impact was calculated using Shapley values. True for anomaly detection models when the project is unsupervised, as permutation approach is not applicable. Note that supervised projects must use an alternative route for SHAP impact: /api/v2/projects/(projectId)/models/(modelId)/shapImpact/'
+          type: boolean
+          x-versionadded: v2.18
+      required:
+      - count
+      - featureImpacts
+      - next
+      - previous
+      - ranRedundancyDetection
+      - rowCount
+      - shapBased
+      type: object
+    ExecutionEnvironmentCreate:
+      properties:
+        description:
+          default: ''
+          description: The description of the environment to be created.
+          maxLength: 10000
+          type: string
+        environmentId:
+          description: The ID the new environment should use. Only admins can create environments with pre-defined IDs
+          type: string
+        isPublic:
+          description: True/False public access for the environment. Public environments can be used by all users without sharing. Public access to environments can only be added by an admin
+          type: boolean
+        name:
+          description: The name of the environment to be created.
+          maxLength: 255
+          type: string
+        programmingLanguage:
+          default: other
+          description: The programming language of the environment to be created.
+          enum:
+          - python
+          - r
+          - java
+          - julia
+          - legacy
+          - other
+          type: string
+        useCases:
+          description: The list of use cases supported by the environment
+          items:
+            enum:
+            - customModel
+            - notebook
+            - gpu
+            - customApplication
+            - sparkApplication
+            - customJob
+            type: string
+          maxItems: 6
+          type: array
+          x-versionadded: v2.36
+      required:
+      - name
+      type: object
+      x-versionadded: v2.36
+    CustomModelTestsConfig:
+      description: Key value map of Testing type and Testing type config.
+      properties:
+        errorCheck:
+          default: fail
+          description: Ensures that the model can make predictions on the provided test dataset.
+          enum:
+          - fail
+          - skip
+          type: string
+        longRunningService:
+          default: fail
+          description: Ensures that the custom model image can build and launch. If it cannot, the test is marked as Failed and subsequent test are aborted.
+          enum:
+          - fail
+          type: string
+        nullValueImputation:
+          default: warn
+          description: Verifies that the model can impute null values. Required for Feature Impact.
+          enum:
+          - skip
+          - warn
+          - fail
+          type: string
+        sideEffects:
+          default: warn
+          description: Verifies that predictions made on the dataset match row-wise predictions for the same dataset. Fails if the predictions do not match.
+          enum:
+          - skip
+          - warn
+          - fail
+          type: string
+      type: object
+    DependencyConstraint:
+      properties:
+        constraintType:
+          description: The constraint type to apply to the version.
+          enum:
+          - <
+          - <=
+          - ==
+          - '>='
+          - '>'
+          type: string
+        version:
+          description: The version label to use in the constraint.
+          type: string
+      required:
+      - constraintType
+      - version
+      type: object
+    BaseDependencyBuildMetadataResponse:
+      properties:
+        buildEnd:
+          description: The ISO-8601 encoded time when this build completed.
+          type:
+          - string
+          - 'null'
+        buildLogLocation:
+          description: The URL to download the build logs from this build.
+          format: uri
+          type:
+          - string
+          - 'null'
+        buildStart:
+          description: The ISO-8601 encoded time when this build started.
+          type: string
+        buildStatus:
+          description: The current status of the dependency build.
+          enum:
+          - submitted
+          - processing
+          - failed
+          - success
+          - aborted
+          type: string
+      required:
+      - buildEnd
+      - buildLogLocation
+      - buildStart
+      - buildStatus
+      type: object
+    ExecutionEnvironmentVersionResponse:
+      description: Latest version build for this environment.
+      properties:
+        buildId:
+          description: The environment version image build ID.
+          type:
+          - string
+          - 'null'
+        buildStatus:
+          description: The status of the build.
+          enum:
+          - submitted
+          - processing
+          - failed
+          - success
+          - aborted
+          type: string
+        contextUrl:
+          description: Docker context URL of the environment version. It is not intended to be used for automatic processing.
+          type: string
+          x-versionadded: v2.37
+        created:
+          description: 'ISO-8601 environment version creation timestamp. Example: 2016-12-13T11:12:13.141516Z.'
+          type: string
+        description:
+          description: The description of the environment version.
+          type: string
+        dockerContext:
+          description: A URL that can be used to download the Docker context of the environment version, if available or `null`
+          type:
+          - string
+          - 'null'
+        dockerContextSize:
+          description: The size of the uploaded Docker context in bytes if available, or `null` if not.
+          type:
+          - integer
+          - 'null'
+        dockerImage:
+          description: A URL that can be used to download the built Docker image as a tarball of the environment version, if available or `null`
+          type:
+          - string
+          - 'null'
+        dockerImageSize:
+          description: The size of the built Docker image in bytes if available, or `null` if not.
+          type:
+          - integer
+          - 'null'
+        environmentId:
+          description: The ID of the environment.
+          type: string
+        id:
+          description: The ID of the environment version.
+          type: string
+        imageId:
+          description: The Docker image ID of the environment version.
+          type: string
+        label:
+          description: Human readable version indicator.
+          type: string
+        sourceDockerImageUri:
+          description: The image URI that was used as a base to build the environment.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+      required:
+      - buildStatus
+      - contextUrl
+      - created
+      - description
+      - dockerContext
+      - dockerContextSize
+      - dockerImage
+      - dockerImageSize
+      - environmentId
+      - id
+      - imageId
+      - label
+      type: object
+      x-versionadded: v2.36
+    TestingStatus:
+      description: Ensures that the custom model image can build and launch. If it cannot, the test is marked as Failed and subsequent test are aborted.
+      properties:
+        message:
+          description: Test message.
+          type: string
+        status:
+          description: Test status.
+          enum:
+          - not_tested
+          - queued
+          - failed
+          - canceled
+          - succeeded
+          - in_progress
+          - aborted
+          - warning
+          - skipped
+          type: string
+      required:
+      - message
+      - status
+      type: object
+    CustomModelTests:
+      properties:
+        configuration:
+          $ref: '#/components/schemas/CustomModelTestsConfig'
+        customModelId:
+          description: The ID of the custom model to test.
+          type: string
+        customModelVersionId:
+          description: The ID of custom model version to use.
+          type: string
+        datasetId:
+          description: The ID of the dataset to use for testing. Dataset ID is required for regular (non-unstructured) custom models.
+          type: string
+        datasetVersionId:
+          description: The ID of the version of the dataset item to use as the testing dataset. Defaults to the latest version.
+          type: string
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        environmentId:
+          description: The ID of environment to use. If not specified, the customModelVersion's dependency environment will be used.
+          type: string
+          x-versiondeprecated: v2.23
+        environmentVersionId:
+          description: The ID of environment version to use. Defaults to the latest successfully built version.
+          type: string
+          x-versiondeprecated: v2.23
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - customModelId
+      - customModelVersionId
+      type: object
+    ExecutionEnvironmentListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of execution environments.
+          items:
+            $ref: '#/components/schemas/ExecutionEnvironmentResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    ExecutionEnvironmentResponse:
+      properties:
+        created:
+          description: 'ISO-8601 environment creation timestamp. Example: 2016-12-13T11:12:13.141516Z.'
+          type: string
+        deploymentsCount:
+          description: Number of deployments in environment.
+          type: integer
+        description:
+          description: The description of the environment.
+          type: string
+        id:
+          description: The ID of the environment.
+          type: string
+        isPublic:
+          description: If the environment is public.
+          type: boolean
+          x-versionadded: v2.23
+        latestSuccessfulVersion:
+          $ref: '#/components/schemas/ExecutionEnvironmentVersionResponse'
+          x-versionadded: v2.36
+        latestVersion:
+          $ref: '#/components/schemas/ExecutionEnvironmentVersionResponse'
+        name:
+          description: The name of the environment.
+          type: string
+        programmingLanguage:
+          description: The programming language of the environment to be created.
+          enum:
+          - python
+          - r
+          - java
+          - julia
+          - legacy
+          - other
+          type: string
+        useCases:
+          description: The list of use cases supported by the environment
+          items:
+            enum:
+            - customModel
+            - notebook
+            - gpu
+            - customApplication
+            - sparkApplication
+            - customJob
+            type: string
+          maxItems: 6
+          type: array
+          x-versionadded: v2.36
+        username:
+          description: The username of the user.
+          type: string
+      required:
+      - created
+      - description
+      - id
+      - isPublic
+      - latestSuccessfulVersion
+      - latestVersion
+      - name
+      - programmingLanguage
+      - username
+      type: object
+      x-versionadded: v2.36
+    ExecutionEnvironmentVersionBuildLogResponse:
+      properties:
+        error:
+          description: The message specifying why the build failed. Empty if the build finished successfully.
+          type: string
+        log:
+          description: The full console output of the execution environment build. Logs are empty unless version build is finished.
+          type: string
+      required:
+      - error
+      - log
+      type: object
+      x-versionadded: v2.36
+    DeprecatedTrainingDataForModelsAssignment:
+      properties:
+        datasetId:
+          description: The ID of the dataset.
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        datasetName:
+          description: A user-friendly name for the dataset.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        datasetVersionId:
+          description: The ID of the dataset version.
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+        partitionColumn:
+          description: The name of the column containing the partition assignments.
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+          x-versiondeprecated: v2.34
+      type: object
+    CustomModelAsyncOperationResponse:
+      properties:
+        statusId:
+          description: ID that can be used with :http:get:`/api/v2/status/(statusId)/` to poll for the testing job's status
+          type: string
+      required:
+      - statusId
+      type: object
+    CustomModelVersionResponse:
+      description: The latest version for the custom model (if this field is empty, the model is not ready for use).
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this model version.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.22
+        baseEnvironmentVersionId:
+          description: The base environment version to use with this model version.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.25
+        created:
+          description: ISO-8601 timestamp of when the model was created.
+          type: string
+        customModelId:
+          description: The ID of the custom model.
+          type: string
+        dependencies:
+          description: The parsed dependencies of the custom model version if the version has a valid requirements.txt file.
+          items:
+            $ref: '#/components/schemas/DependencyResponse'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.22
+        description:
+          description: Description of a custom model version.
+          type:
+          - string
+          - 'null'
+        desiredMemory:
+          description: The amount of memory that is expected to be allocated by the custom model. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+          x-versiondeprecated: v2.24
+        gitModelVersion:
+          $ref: '#/components/schemas/GitModelVersion'
+          x-versionadded: v2.31
+        holdoutData:
+          $ref: '#/components/schemas/HoldoutDataResponse'
+          x-versionadded: v2.30
+        id:
+          description: the ID of the custom model version created.
+          type: string
+        isFrozen:
+          description: If the version is frozen and immutable (i.e. it is either deployed or has been edited, causing a newer version to be yielded).
+          type: boolean
+          x-versiondeprecated: v2.34
+        items:
+          description: List of file items.
+          items:
+            $ref: '#/components/schemas/DeprecatedCustomModelWorkspaceItemResponse'
+          maxItems: 100
+          type: array
+        label:
+          description: A semantic version number of the major and minor version.
+          type: string
+        maximumMemory:
+          description: The maximum memory that might be allocated by the custom-model. If exceeded, the custom-model will be killed. This setting is incompatible with setting the resourceBundleId.
+          maximum: 15032385536
+          minimum: 134217728
+          type:
+          - integer
+          - 'null'
+        networkEgressPolicy:
+          description: Network egress policy.
+          enum:
+          - NONE
+          - PUBLIC
+          type:
+          - string
+          - 'null'
+        replicas:
+          description: A fixed number of replicas that will be set for the given custom-model.
+          exclusiveMinimum: 0
+          maximum: 25
+          type:
+          - integer
+          - 'null'
+        requiredMetadata:
+          description: Additional parameters required by the execution environment. The required keys are defined by the fieldNames in the base environment's requiredMetadataKeys. Once set, they cannot be changed. If you to change them, make a new version.
+          type: object
+          x-versionadded: v2.25
+          x-versiondeprecated: v2.26
+        requiredMetadataValues:
+          description: Additional parameters required by the execution environment. The required fieldNames are defined by the fieldNames in the base environment's requiredMetadataKeys.
+          items:
+            $ref: '#/components/schemas/RequiredMetadataValue'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.26
+        requiresHa:
+          description: Require all custom model replicas to be deployed on different Kubernetes nodes for predictions fault tolerance.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.26
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        trainingData:
+          $ref: '#/components/schemas/TrainingDataResponse'
+          x-versionadded: v2.31
+        versionMajor:
+          description: The major version number, incremented on deployments or larger file changes.
+          type: integer
+        versionMinor:
+          description: The minor version number, incremented on general file changes.
+          type: integer
+      required:
+      - created
+      - customModelId
+      - description
+      - id
+      - isFrozen
+      - items
+      - label
+      - versionMajor
+      - versionMinor
+      type: object
+    FeatureImpactCreatePayload:
+      properties:
+        rowCount:
+          description: The sample size to use for Feature Impact computation. It is possible to re-compute Feature Impact with a different row count.
+          maximum: 100000
+          minimum: 10
+          type: integer
+          x-versionadded: v2.21
+      type: object
+    CustomModelAccessControlListResponse:
+      properties:
+        count:
+          description: Number of items in current page.
+          type: integer
+        data:
+          description: List of the requested custom model access control entries.
+          items:
+            $ref: '#/components/schemas/CustomModelAccessControlResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: URL pointing to the next page (if null, there is no next page)
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: URL pointing to the previous page (if null, there is no previous page
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - count
+      - data
+      - next
+      - previous
+      type: object
+    AccessControl:
+      properties:
+        canShare:
+          description: Whether the recipient can share the role further.
+          type: boolean
+        role:
+          description: The role of the user on this entity.
+          type: string
+        userId:
+          description: The identifier of the user that has access to this entity.
+          type: string
+        username:
+          description: The username of the user that has access to the entity.
+          type: string
+      required:
+      - canShare
+      - role
+      - userId
+      - username
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

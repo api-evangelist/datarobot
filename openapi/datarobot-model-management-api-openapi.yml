@@ -1,0 +1,2688 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Model Management API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to for model management.
+  name: model_management
+paths:
+  /api/v2/modelPackages/:
+    get:
+      description: Retrieve the list of model packages a user has access to.
+      operationId: modelPackages_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: If specified, limit results to model packages for the model with the specified ID.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Return model packages similar to a given model package ID. If used, will only return model packages that match `target.name`, `target.type`, `target.classNames` (for classification models), `modelKind.isTimeSeries`, and `modelKind.isMultiseries` of the specified model package.
+        in: query
+        name: similarTo
+        required: false
+        schema:
+          type: string
+      - description: Can be used with similarTo to request similar model packages with the intent to use them as challenger models; for external model packages, instead of returning similar external model packages, similar DataRobot and Custom model packages will be retrieved.
+        in: query
+        name: forChallenger
+        required: false
+        schema:
+          type: boolean
+      - description: Provide a term to search for in package name, model name, or description
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 512
+          type: string
+      - description: Prediction threshold used for binary classification models
+        in: query
+        name: predictionThreshold
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: If specified, filter for either imported (true) or non-imported (false) model packages
+        in: query
+        name: imported
+        required: false
+        schema:
+          type: boolean
+      - description: Can be used to filter packages by what is supported by the prediction environment
+        in: query
+        name: predictionEnvironmentId
+        required: false
+        schema:
+          type: string
+      - description: Return models from the registry that match a specific format.
+        in: query
+        name: modelKind
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - is_unsupervised_learning
+            - is_time_series
+            - is_multiseries
+            - is_blender
+            - is_anomaly_detection_model
+            - is_feature_discovery
+            - is_shap_supported_model
+            - is_unsupervised_clustering
+            - is_combined_model
+            - is_unstructured
+            type: string
+          - items:
+              enum:
+              - is_unsupervised_learning
+              - is_time_series
+              - is_multiseries
+              - is_blender
+              - is_anomaly_detection_model
+              - is_feature_discovery
+              - is_shap_supported_model
+              - is_unsupervised_clustering
+              - is_combined_model
+              - is_unstructured
+              type: string
+            type: array
+      - description: If specified, filter model packages by the build status.
+        in: query
+        name: buildStatus
+        required: false
+        schema:
+          enum:
+          - inProgress
+          - complete
+          - failed
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPackageListResponse'
+          description: ''
+        '400':
+          description: Request invalid, refer to messages for detail.
+        '403':
+          description: Either MMM Model Packages or New Model Registry are not enabled.
+        '404':
+          description: User permissions problem.
+      summary: List model packages
+      tags:
+      - model_management
+      x-versionadded: v2.23
+  /api/v2/modelPackages/fromLeaderboard/:
+    post:
+      description: Create model package from a Leaderboard model.
+      operationId: modelPackagesFromLeaderboard_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelPackageCreateFromLeaderboard'
+      responses:
+        '202':
+          description: A job for building model package file was successfully submitted.
+        '422':
+          description: Unable to process the Model Package creation request.
+      summary: Create model package
+      tags:
+      - model_management
+      x-versionadded: v2.31
+  /api/v2/modelPackages/fromLearningModel/:
+    post:
+      description: 'Create model package from DataRobot model.
+
+
+        .. minversion:: v2.31
+
+        DEPRECATED: please use the following route instead:
+
+        :http:post:`/api/v2/modelPackages/fromLeaderboard/`'
+      operationId: modelPackagesFromLearningModel_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelPackageCreateFromLearningModel'
+      responses:
+        '201':
+          description: ''
+        '403':
+          description: The user does not have permission to create a Model Package.
+        '404':
+          description: Either the model_id not exist or the user does not have permission to view the model and project.
+        '422':
+          description: Unable to process the Model Package creation request.
+      summary: Create a model packages from a learning model
+      tags:
+      - model_management
+      x-versionadded: v2.26
+  /api/v2/modelPackages/{modelPackageId}/:
+    get:
+      description: Retrieve info about a model package.
+      operationId: modelPackages_retrieve
+      parameters:
+      - description: The ID of the model package.
+        in: path
+        name: modelPackageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPackageRetrieveResponse'
+          description: ''
+        '404':
+          description: Either the model package does not exist or the user does not have permission to view the model package.
+      summary: Retrieve info about a model package by model package ID
+      tags:
+      - model_management
+      x-versionadded: v2.23
+  /api/v2/modelPackages/{modelPackageId}/archive/:
+    post:
+      description: (Deprecated in v2.32) Permanently archive a model package. It will no longer be able to be used in new deployments or replacement. It will not be accessible in the model package list api. It will only be accessible at the model package retrieve route for this model package.
+      operationId: modelPackagesArchive_create
+      parameters:
+      - description: The ID of the model package.
+        in: path
+        name: modelPackageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Archive a model package by model package ID
+      tags:
+      - model_management
+      x-versionadded: v2.21
+  /api/v2/modelPackages/{modelPackageId}/capabilities/:
+    get:
+      description: Retrieve the capabilities for the model package.
+      operationId: modelPackagesCapabilities_list
+      parameters:
+      - description: The ID of the model package.
+        in: path
+        name: modelPackageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPackageCapabilitiesRetrieveResponse'
+          description: ''
+      summary: Retrieve capabilities by model package ID
+      tags:
+      - model_management
+      x-versionadded: v2.29
+  /api/v2/modelPackages/{modelPackageId}/features/:
+    get:
+      description: Retrieve the feature list for given model package.
+      operationId: modelPackagesFeatures_list
+      parameters:
+      - description: The number of features to skip, defaults to 0.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of features to return, defaults to 0.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 50
+          minimum: 0
+          type: integer
+      - description: When True will return all raw features in the universe dataset associated with the deployment, and when False will return only those raw features used to make predictions on the deployment.
+        in: query
+        name: includeNonPredictionFeatures
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.20
+      - description: When True, features returned will be filtered to those usable for segmented analysis.
+        in: query
+        name: forSegmentedAnalysis
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Case insensitive search against names of the deployment's features.
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 100
+          type: string
+        x-versionadded: v2.24
+      - description: The sort order to apply to the list of features. Prefix the attribute name with a dash to sort in descending order, e.g., "-name".
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - name
+          - importance
+          - -name
+          - -importance
+          type: string
+      - description: The ID of the model package.
+        in: path
+        name: modelPackageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureListResponse'
+          description: Model package feature list.
+      summary: Retrieve feature list by model package ID
+      tags:
+      - model_management
+      x-versionadded: v2.25
+  /api/v2/modelPackages/{modelPackageId}/modelLogs/:
+    get:
+      description: The list of the model package's model logs.
+      operationId: modelPackagesModelLogs_list
+      parameters:
+      - description: The number of results that will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The maximum number of results to return.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: The ID of the model package.
+        in: path
+        name: modelPackageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPackageModelLogsListResponse'
+          description: ''
+      summary: The list of the model package's model logs by model package ID
+      tags:
+      - model_management
+      x-versionadded: v2.35
+  /api/v2/modelPackages/{modelPackageId}/sharedRoles/:
+    get:
+      description: (Deprecated in v2.32) instead.Get a list of users, groups and organizations who have access to this model package and their roles on the model package.
+      operationId: modelPackagesSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the model package.
+        in: path
+        name: modelPackageId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListV2Response'
+          description: The model package's access control list.
+        '404':
+          description: Either the Model Package does not exist or the user does not have permissions to view the Model Package.
+        '422':
+          description: Both username and userId were specified
+      summary: Get the model package's access control list by model package ID
+      tags:
+      - model_management
+      x-versionadded: v2.21
+  /api/v2/registeredModels/:
+    get:
+      description: List registered models.
+      operationId: registeredModels_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: A term to search for in registered model name
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 512
+          type: string
+      - description: Registered models created on or after this timestamp
+        in: query
+        name: createdAtStartTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Registered models created before this timestamp. Defaults to the current time
+        in: query
+        name: createdAtEndTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Registered models modified on or after this timestamp
+        in: query
+        name: modifiedAtStartTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Registered models modified before this timestamp. Defaults to the current time
+        in: query
+        name: modifiedAtEndTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The name of the target used for filtering.
+        in: query
+        name: targetName
+        required: false
+        schema:
+          type: string
+      - description: The type of target(s) to filter by.
+        in: query
+        name: targetType
+        required: false
+        schema:
+          oneOf:
+          - description: The target type used for filtering.
+            type: string
+          - description: A list of target types to filter by.
+            items:
+              description: Type of the target to filter by
+              type: string
+            maxItems: 10
+            type: array
+      - description: Email of the user that created registered model to filter by
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          type: string
+      - description: The key to order results by.
+        in: query
+        name: sortKey
+        required: false
+        schema:
+          default: modifiedAt
+          enum:
+          - createdAt
+          - modifiedAt
+          - name
+          type: string
+      - description: Sort direction
+        in: query
+        name: sortDirection
+        required: false
+        schema:
+          default: desc
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: If specified, limit results to registered models containing versions (model packages) for the leaderboard model with the specified ID.
+        in: query
+        name: compatibleWithLeaderboardModelId
+        required: false
+        schema:
+          type: string
+      - description: Return registered models that have versions (model packages) compatible with given model package ID. If used, will only return registered models which have versions that match `target.name`, `target.type`, `target.classNames` (for classification models), `modelKind.isTimeSeries`, and `modelKind.isMultiseries` of the specified model package.
+        in: query
+        name: compatibleWithModelPackageId
+        required: false
+        schema:
+          type: string
+      - description: Can be used with compatibleWithModelPackageId to request similar registered models that contain versions (model packages)that can be used as challenger models; for external model packages, instead of returning similar external model packages, similar DataRobot and Custom model packages will be retrieved.
+        in: query
+        name: forChallenger
+        required: false
+        schema:
+          type: boolean
+      - description: If specified, return any registered models containing one or more versions matching the prediction threshold used for binary classification models
+        in: query
+        name: predictionThreshold
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: If specified, return any registered models that contain either imported (true) or non-imported (false) versions (model packages)
+        in: query
+        name: imported
+        required: false
+        schema:
+          type: boolean
+      - description: Can be used to filter registered models by what is supported by the prediction environment
+        in: query
+        name: predictionEnvironmentId
+        required: false
+        schema:
+          type: string
+      - description: Return models that contain versions matching a specific format
+        in: query
+        name: modelKind
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - is_unsupervised_learning
+            - is_time_series
+            - is_multiseries
+            - is_blender
+            - is_anomaly_detection_model
+            - is_feature_discovery
+            - is_shap_supported_model
+            - is_unsupervised_clustering
+            - is_combined_model
+            - is_unstructured
+            type: string
+          - items:
+              enum:
+              - is_unsupervised_learning
+              - is_time_series
+              - is_multiseries
+              - is_blender
+              - is_anomaly_detection_model
+              - is_feature_discovery
+              - is_shap_supported_model
+              - is_unsupervised_clustering
+              - is_combined_model
+              - is_unstructured
+              type: string
+            type: array
+      - description: If specified, only return models that have versions with specified build status
+        in: query
+        name: buildStatus
+        required: false
+        schema:
+          enum:
+          - inProgress
+          - complete
+          - failed
+          type: string
+      - description: If specified, only returns models that have versions in the specified stage.
+        in: query
+        name: stage
+        required: false
+        schema:
+          enum:
+          - Registered
+          - Development
+          - Staging
+          - Production
+          - Archived
+          type: string
+      - description: Return only global (accessible to all users in the organization) registered models or local(accessible only to the owner and the users with whom it has been explicitly shared)
+        in: query
+        name: isGlobal
+        required: false
+        schema:
+          type: boolean
+      - description: List of tag keys to filter by. If multiple tag keys are provided, registered models matching any of the tag keys are returned.
+        in: query
+        name: tagKeys
+        required: false
+        schema:
+          type: string
+      - description: List of tag values to filter by. If multiple tag values are provided, registered models matching any of the tag values are returned.
+        in: query
+        name: tagValues
+        required: false
+        schema:
+          type: string
+      - description: Comma separated tag pairs (e.g., key1%3Dvalue2,key2%3Dvalue2). Only registered models that match exactly (case sensitive) are returned.If specified, this overrides the tagKey and tagValues query params.If multiple tag filters (up to 10) are provided, registered models matching any of the tag filters are selected. These registered models will be further filtered by other query params such as targetType.
+        in: query
+        name: tagFilters
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredModelListResponse'
+          description: ''
+      summary: List registered models
+      tags:
+      - model_management
+      x-versionadded: v2.32
+  /api/v2/registeredModels/{registeredModelId}/:
+    delete:
+      description: Permanently archive a registered model and all of its versions
+      operationId: registeredModels_delete
+      parameters:
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Archive a registered model by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+    get:
+      description: Retrieve information about a registered model.
+      operationId: registeredModels_retrieve
+      parameters:
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredModelResponse'
+          description: ''
+        '404':
+          description: The registered model does not exist or the user does not have permission to view the model package.
+      summary: Retrieve information about a registered model by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+    patch:
+      description: Update a registered model.
+      operationId: registeredModels_patch
+      parameters:
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisteredModelUpdate'
+      responses:
+        '200':
+          description: ''
+        '422':
+          description: Unable to process the Registered Model update request
+      summary: Update a registered model by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+  /api/v2/registeredModels/{registeredModelId}/deployments/:
+    get:
+      description: List deployments associated with the given registered model
+      operationId: registeredModelsDeployments_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Filter deployments with name matching search term
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 512
+          type: string
+      - description: The key to order results by.
+        in: query
+        name: sortKey
+        required: false
+        schema:
+          default: createdAt
+          enum:
+          - createdAt
+          - label
+          type: string
+      - description: Sort direction
+        in: query
+        name: sortDirection
+        required: false
+        schema:
+          default: desc
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredModelDeploymentsListResponse'
+          description: ''
+      summary: List deployments associated by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+  /api/v2/registeredModels/{registeredModelId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups and organizations who have access to this registered model and their roles on the registered model.
+      operationId: registeredModelsSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListV2Response'
+          description: The registered model access control list.
+        '404':
+          description: Either the Registered Model does not exist or the user does not have permissions to view the Registered Model.
+        '422':
+          description: Both username and userId were specified
+      summary: Get the registered model access control list by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+    patch:
+      description: Set roles for users on this registered model.
+      operationId: registeredModelsSharedRoles_patchMany
+      parameters:
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdate'
+      responses:
+        '204':
+          description: The roles were updated successfully.
+        '409':
+          description: The request would leave the registered model without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid
+      summary: Update the registered model controls by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+  /api/v2/registeredModels/{registeredModelId}/versions/:
+    get:
+      description: List the registered model's versions.
+      operationId: registeredModelsVersions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The key to order results by.
+        in: query
+        name: sortKey
+        required: false
+        schema:
+          default: version
+          enum:
+          - version
+          - modelType
+          - status
+          - createdAt
+          - updatedAt
+          type: string
+      - description: Sort direction
+        in: query
+        name: sortDirection
+        required: false
+        schema:
+          default: desc
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: Name of the target to filter by
+        in: query
+        name: targetName
+        required: false
+        schema:
+          type: string
+      - description: Type of the target to filter by
+        in: query
+        name: targetType
+        required: false
+        schema:
+          type: string
+      - description: A term to search for in version name, model name, or description
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 512
+          type: string
+      - description: If specified, limit results to  versions (model packages) of the leaderboard model with the specified ID.
+        in: query
+        name: compatibleWithLeaderboardModelId
+        required: false
+        schema:
+          type: string
+      - description: Return versions compatible with given model package ID. If used, will only return versions that match `target.name`, `target.type`, `target.classNames` (for classification models), `modelKind.isTimeSeries`, and `modelKind.isMultiseries` of the specified model package
+        in: query
+        name: compatibleWithModelPackageId
+        required: false
+        schema:
+          type: string
+      - description: Can be used with compatibleWithModelPackageId to request similar versions that can be used as challenger models; for external model packages, instead of returning similar external model packages, similar DataRobot and Custom model packages will be retrieved
+        in: query
+        name: forChallenger
+        required: false
+        schema:
+          type: boolean
+      - description: Return versions with the specified prediction threshold used for binary classification models
+        in: query
+        name: predictionThreshold
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: If specified, return either imported (true) or non-imported (false) versions (model packages)
+        in: query
+        name: imported
+        required: false
+        schema:
+          type: boolean
+      - description: Can be used to filter versions (model packages) by what is supported by the prediction environment
+        in: query
+        name: predictionEnvironmentId
+        required: false
+        schema:
+          type: string
+      - description: Return versions that match a specific format.
+        in: query
+        name: modelKind
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - is_unsupervised_learning
+            - is_time_series
+            - is_multiseries
+            - is_blender
+            - is_anomaly_detection_model
+            - is_feature_discovery
+            - is_shap_supported_model
+            - is_unsupervised_clustering
+            - is_combined_model
+            - is_unstructured
+            type: string
+          - items:
+              enum:
+              - is_unsupervised_learning
+              - is_time_series
+              - is_multiseries
+              - is_blender
+              - is_anomaly_detection_model
+              - is_feature_discovery
+              - is_shap_supported_model
+              - is_unsupervised_clustering
+              - is_combined_model
+              - is_unstructured
+              type: string
+            type: array
+      - description: If specified, filter versions by the build status.
+        in: query
+        name: buildStatus
+        required: false
+        schema:
+          enum:
+          - inProgress
+          - complete
+          - failed
+          type: string
+      - description: If specified, filter versions by the stage.
+        in: query
+        name: stage
+        required: false
+        schema:
+          enum:
+          - Registered
+          - Development
+          - Staging
+          - Production
+          - Archived
+          type: string
+      - description: If specified, filter versions by use-case ID.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          type: string
+      - description: Email of the user that created registered model version to filter by
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          type: string
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredModelVersionsListResponse'
+          description: ''
+      summary: List the registered model's versions by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+  /api/v2/registeredModels/{registeredModelId}/versions/{versionId}/:
+    get:
+      description: Get the registered model's version.
+      operationId: registeredModelsVersions_retrieve
+      parameters:
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the registered model's version.
+        in: path
+        name: versionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPackageRetrieveResponse'
+          description: ''
+      summary: Get the registered model's version by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+  /api/v2/registeredModels/{registeredModelId}/versions/{versionId}/deployments/:
+    get:
+      description: List all deployments associated with registered model version.
+      operationId: registeredModelsVersionsDeployments_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Filter deployments with name matching search term
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 512
+          type: string
+      - description: The key to order results by.
+        in: query
+        name: sortKey
+        required: false
+        schema:
+          default: createdAt
+          enum:
+          - createdAt
+          - label
+          type: string
+      - description: Sort direction
+        in: query
+        name: sortDirection
+        required: false
+        schema:
+          default: desc
+          enum:
+          - asc
+          - desc
+          type: string
+      - description: The ID of the registered model.
+        in: path
+        name: registeredModelId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the registered model's version.
+        in: path
+        name: versionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredModelDeploymentsListResponse'
+          description: ''
+      summary: List all deployments associated by registered model ID
+      tags:
+      - model_management
+      x-versionadded: v2.32
+components:
+  schemas:
+    RegisteredModelTarget:
+      description: Information on the target variable.
+      properties:
+        name:
+          description: The name of the target variable.
+          type:
+          - string
+          - 'null'
+        type:
+          description: The type of the target variable.
+          type:
+          - string
+          - 'null'
+      required:
+      - name
+      - type
+      type: object
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    ModelPackageImportMeta:
+      description: Information from when this Model Package was first saved
+      properties:
+        containsFearPipeline:
+          description: Exists for imported models only, indicates thatmodel package contains file with fear pipeline.
+          type:
+          - boolean
+          - 'null'
+        containsFeaturelists:
+          description: Exists for imported models only, indicates thatmodel package contains file with featurelists.
+          type:
+          - boolean
+          - 'null'
+        containsLeaderboardMeta:
+          description: Exists for imported models only, indicates thatmodel package contains file with leaderboard meta.
+          type:
+          - boolean
+          - 'null'
+        containsProjectMeta:
+          description: Exists for imported models only, indicates thatmodel package contains file with project meta.
+          type:
+          - boolean
+          - 'null'
+        creatorFullName:
+          description: The full name of the person who created this model package.
+          type:
+          - string
+          - 'null'
+        creatorId:
+          description: The user ID of the person who created this model package.
+          type: string
+        creatorUsername:
+          description: The username of the person who created this model package.
+          type: string
+        dateCreated:
+          description: When this model package was created.
+          type: string
+        originalFileName:
+          description: Exists for imported models only, the original file name that was uploaded
+          type:
+          - string
+          - 'null'
+      required:
+      - creatorFullName
+      - creatorId
+      - creatorUsername
+      - dateCreated
+      - originalFileName
+      type: object
+    ModelPackageSourceMeta:
+      description: Meta information from where this model was generated
+      properties:
+        customModelDetails:
+          $ref: '#/components/schemas/CustomModelDetails'
+          x-versionadded: v2.34
+        environmentUrl:
+          description: If available, URL of the source model
+          format: uri
+          type:
+          - string
+          - 'null'
+        fips_140_2Enabled:
+          description: true if the model was built with FIPS-140-2
+          type: boolean
+        fips_140_3Enabled:
+          description: true if the model was built with FIPS-140-3
+          type: boolean
+        projectCreatedAt:
+          description: If available, the time when the project was created.
+          type:
+          - string
+          - 'null'
+        projectCreatorEmail:
+          description: If available, the email of the user who created the project.
+          type:
+          - string
+          - 'null'
+        projectCreatorId:
+          default: null
+          description: If available, the ID of the creator of the project.
+          type:
+          - string
+          - 'null'
+        projectCreatorName:
+          description: If available, the name of the user who created the project.
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: If available, the project ID used for this model.
+          type:
+          - string
+          - 'null'
+        projectName:
+          description: If available, the project name for this model.
+          type:
+          - string
+          - 'null'
+        scoringCode:
+          $ref: '#/components/schemas/ModelPackageScoringCodeMeta'
+        useCaseDetails:
+          $ref: '#/components/schemas/UseCaseDetails'
+      required:
+      - environmentUrl
+      - projectId
+      - projectName
+      - scoringCode
+      type: object
+    ModelPackageTarget:
+      description: target information for the model package
+      properties:
+        classCount:
+          description: Number of classes for classification models.
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        classNames:
+          description: Class names for prediction results. When target type is Binary, two class names are returned. The first element is the minority (positive) class and the second element is the majority (negative) class. Limited to 100 returned for Multiclass.
+          items:
+            type: string
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        name:
+          description: Name of the target column
+          type:
+          - string
+          - 'null'
+        predictionProbabilitiesColumn:
+          description: Field or column name containing prediction probabilities
+          type:
+          - string
+          - 'null'
+        predictionThreshold:
+          description: Prediction threshold used for binary classification models
+          maximum: 1
+          minimum: 0
+          type:
+          - number
+          - 'null'
+        type:
+          description: Target type of the model.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - Multilabel
+          - TextGeneration
+          - GeoPoint
+          - AgenticWorkflow
+          - MCP
+          type: string
+      required:
+      - classCount
+      - classNames
+      - name
+      - predictionProbabilitiesColumn
+      - predictionThreshold
+      - type
+      type: object
+    DeploymentPredictionEnvironmentResponse:
+      description: Information related to the current PredictionEnvironment.
+      properties:
+        id:
+          description: ID of the PredictionEnvironment.
+          type:
+          - string
+          - 'null'
+        isManagedByManagementAgent:
+          description: True if PredictionEnvironment is using Management Agent.
+          type: boolean
+        name:
+          description: Name of the PredictionEnvironment.
+          type: string
+        platform:
+          description: Platform of the PredictionEnvironment.
+          enum:
+          - aws
+          - gcp
+          - azure
+          - onPremise
+          - datarobot
+          - datarobotServerless
+          - openShift
+          - other
+          - snowflake
+          - sapAiCore
+          type: string
+        plugin:
+          description: Plugin name of the PredictionEnvironment.
+          type:
+          - string
+          - 'null'
+        supportedModelFormats:
+          description: Model formats that the PredictionEnvironment supports.
+          items:
+            enum:
+            - datarobot
+            - datarobotScoringCode
+            - customModel
+            - externalModel
+            type: string
+          maxItems: 4
+          minItems: 1
+          type: array
+      required:
+      - id
+      - isManagedByManagementAgent
+      - name
+      - platform
+      type: object
+    RegisteredModelModelKind:
+      description: Information on the kind of model.
+      properties:
+        isUnsupervisedClustering:
+          description: Set as true if this is an unsupervised clustering model.
+          type: boolean
+      required:
+      - isUnsupervisedClustering
+      type: object
+      x-versionadded: v2.47
+    MlpkgFileContents:
+      description: Information about the content of .mlpkg artifact
+      properties:
+        allTimeSeriesPredictionIntervals:
+          description: Whether .mlpkg contains TS prediction intervals computed for all percentiles
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.31
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    UseCaseDetails:
+      description: Details of the use-case associated to this registered model version
+      properties:
+        createdAt:
+          description: The time when the use case was created.
+          type: string
+        creatorEmail:
+          description: The email of the user who created the use case.
+          type:
+          - string
+          - 'null'
+        creatorId:
+          description: The ID of the creator of the use case.
+          type: string
+        creatorName:
+          description: The name of the user who created the use case.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the associated use case.
+          type: string
+        name:
+          description: The name of the use case at the moment of creation.
+          type:
+          - string
+          - 'null'
+      required:
+      - createdAt
+      - creatorId
+      - id
+      type: object
+    ModelPackageCapability:
+      properties:
+        messages:
+          description: Messages explaining why the capability is supported or not supported.
+          items:
+            type: string
+          type: array
+        name:
+          description: The name of the capability.
+          type: string
+        supported:
+          description: If the capability is supported.
+          type: boolean
+      required:
+      - messages
+      - name
+      - supported
+      type: object
+    CustomModelDetails:
+      description: Details of the custom model associated to this registered model version
+      properties:
+        createdAt:
+          description: The time when the custom model was created.
+          type: string
+        creatorEmail:
+          description: The email of the user who created the custom model.
+          type:
+          - string
+          - 'null'
+        creatorId:
+          description: The ID of the creator of the custom model.
+          type: string
+        creatorName:
+          description: The name of the user who created the custom model.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the associated custom model.
+          type: string
+        versionLabel:
+          description: The label of the associated custom model version.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+      required:
+      - createdAt
+      - creatorId
+      - id
+      type: object
+    FeatureListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of features.
+          items:
+            $ref: '#/components/schemas/Feature'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.35
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ModelPackageCreateFromLeaderboard:
+      properties:
+        computeAllTsIntervals:
+          default: null
+          description: Whether to compute all Time Series prediction intervals (1-100 percentiles)
+          type:
+          - boolean
+          - 'null'
+        description:
+          default: ''
+          description: Description of the model package.
+          maxLength: 2048
+          type:
+          - string
+          - 'null'
+        distributionPredictionModelId:
+          default: null
+          description: ID of the DataRobot distribution prediction model trained on predictions from the DataRobot model.
+          type:
+          - string
+          - 'null'
+        modelId:
+          description: ID of the DataRobot model.
+          type: string
+        name:
+          default: null
+          description: Name of the model package.
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        predictionThreshold:
+          description: Threshold used for binary classification in predictions
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+      required:
+      - modelId
+      type: object
+    ModelPackageScoringCodeMeta:
+      description: If available, information about the model's scoring code
+      properties:
+        dataRobotPredictionVersion:
+          description: The DataRobot prediction API version for the scoring code.
+          type:
+          - string
+          - 'null'
+        location:
+          description: The location of the scoring code.
+          enum:
+          - local_leaderboard
+          - mlpkg
+          type:
+          - string
+          - 'null'
+      required:
+      - dataRobotPredictionVersion
+      - location
+      type: object
+    ModelPackageRetrieveResponse:
+      properties:
+        activeDeploymentCount:
+          description: Number of deployments currently using this model package
+          type: integer
+        buildStatus:
+          description: Model package build status
+          enum:
+          - inProgress
+          - complete
+          - failed
+          type:
+          - string
+          - 'null'
+        capabilities:
+          $ref: '#/components/schemas/ModelPackageCapabilities'
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        datasets:
+          $ref: '#/components/schemas/ModelPackageDatasets'
+        id:
+          description: The ID of the model package.
+          type: string
+        importMeta:
+          $ref: '#/components/schemas/ModelPackageImportMeta'
+        isArchived:
+          description: Whether the model package is permanently archived (cannot be used in deployment or replacement)
+          type: boolean
+        isDeprecated:
+          description: Whether the model package is deprecated. eg. python2 models are deprecated.
+          type: boolean
+          x-versionadded: v2.29
+        mlpkgFileContents:
+          $ref: '#/components/schemas/MlpkgFileContents'
+          x-versionadded: v2.31
+        modelDescription:
+          $ref: '#/components/schemas/ModelPackageModelDescription'
+        modelExecutionType:
+          description: Type of model package. `dedicated` (native DataRobot models) and `custom_inference_model` (user added inference models) both execute on DataRobot prediction servers, `external` do not
+          enum:
+          - dedicated
+          - custom_inference_model
+          - external
+          type: string
+        modelId:
+          description: The ID of the model.
+          type: string
+        modelKind:
+          $ref: '#/components/schemas/ModelPackageModelKind'
+        name:
+          description: The model package name.
+          type: string
+        permissions:
+          description: List of action permissions the user making the request has on the model package
+          items:
+            type: string
+          type: array
+          x-versionadded: v2.20
+        sourceMeta:
+          $ref: '#/components/schemas/ModelPackageSourceMeta'
+        target:
+          $ref: '#/components/schemas/ModelPackageTarget'
+        timeseries:
+          $ref: '#/components/schemas/ModelPackageTimeseries'
+        updatedBy:
+          $ref: '#/components/schemas/UserMetadata'
+        userProvidedId:
+          description: A user-provided unique ID associated with the given custom inference model.
+          type: string
+      required:
+      - activeDeploymentCount
+      - capabilities
+      - datasets
+      - id
+      - importMeta
+      - isArchived
+      - isDeprecated
+      - modelDescription
+      - modelExecutionType
+      - modelId
+      - modelKind
+      - name
+      - permissions
+      - sourceMeta
+      - target
+      - timeseries
+      - updatedBy
+      type: object
+    ModelPackageModelLogsEntry:
+      properties:
+        level:
+          description: The name of the level of the logging event.
+          enum:
+          - DEBUG
+          - INFO
+          - WARNING
+          - ERROR
+          - CRITICAL
+          type: string
+        message:
+          description: The message of the logging event.
+          type: string
+        time:
+          description: The POSIX time of the logging event.
+          type: number
+      required:
+      - level
+      - message
+      - time
+      type: object
+      x-versionadded: v2.35
+    AccessControlV2:
+      properties:
+        id:
+          description: The identifier of the recipient.
+          type: string
+        name:
+          description: The name of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The type of the recipient.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    ModelPackageCapabilitiesRetrieveResponse:
+      properties:
+        data:
+          description: List of all capabilities.
+          items:
+            $ref: '#/components/schemas/ModelPackageCapability'
+          type: array
+      required:
+      - data
+      type: object
+    RegisteredModelListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of formatted registered models.
+          items:
+            $ref: '#/components/schemas/RegisteredModelResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    RegisteredModelDeploymentsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of formatted deployments.
+          items:
+            $ref: '#/components/schemas/RegisteredModelDeploymentResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    SharedRolesUpdate:
+      properties:
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects., up to maximum 100 objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - operation
+      - roles
+      type: object
+    ModelPackageModelLogsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The log entries.
+          items:
+            $ref: '#/components/schemas/ModelPackageModelLogsEntry'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    ModelPackageCapabilities:
+      description: Capabilities of the current model package.
+      properties:
+        supportsAutomaticActuals:
+          description: Whether inferring actual values from time series history data and automatically feeding them back for accuracy estimation is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsChallengerModels:
+          description: Whether Challenger Models are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsFeatureDriftTracking:
+          description: Whether Feature Drift is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsHumilityRecommendedRules:
+          description: Whether calculating values for recommended Humility Rules is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsHumilityRules:
+          description: Whether Humility Rules are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsHumilityRulesDefaultCalculations:
+          description: Whether calculating default values for Humility Rules is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+        supportsPredictionWarning:
+          description: Whether Prediction Warnings are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsRetraining:
+          description: Whether deployment supports retraining.
+          type: boolean
+          x-versionadded: v2.28
+          x-versiondeprecated: v2.29
+        supportsScoringCodeDownload:
+          description: Whether scoring code download is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsSecondaryDatasets:
+          description: If the deployments supports secondary datasets.
+          type: boolean
+          x-versionadded: v2.28
+          x-versiondeprecated: v2.29
+        supportsSegmentedAnalysisDriftAndAccuracy:
+          description: Whether tracking features in training and predictions data for segmented analysis is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsShapBasedPredictionExplanations:
+          description: Whether shap-based prediction explanations are supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+        supportsTargetDriftTracking:
+          description: Whether Target Drift is supported by this model package.
+          type: boolean
+          x-versionadded: v2.25.2
+          x-versiondeprecated: v2.29
+      required:
+      - supportsChallengerModels
+      - supportsFeatureDriftTracking
+      - supportsHumilityRecommendedRules
+      - supportsHumilityRules
+      - supportsHumilityRulesDefaultCalculations
+      - supportsPredictionWarning
+      - supportsSecondaryDatasets
+      - supportsSegmentedAnalysisDriftAndAccuracy
+      - supportsShapBasedPredictionExplanations
+      - supportsTargetDriftTracking
+      type: object
+    ModelPackageModelDescription:
+      description: model description information for the model package
+      properties:
+        buildEnvironmentType:
+          description: build environment type of the model
+          enum:
+          - DataRobot
+          - Python
+          - R
+          - Java
+          - Other
+          type: string
+        description:
+          description: a description of the model
+          type:
+          - string
+          - 'null'
+        location:
+          description: location of the model
+          type:
+          - string
+          - 'null'
+        modelCreatedAt:
+          description: time when the model was created
+          type:
+          - string
+          - 'null'
+        modelCreatorEmail:
+          description: email of the user who created the model
+          type:
+          - string
+          - 'null'
+        modelCreatorId:
+          default: null
+          description: ID of the creator of the model
+          type:
+          - string
+          - 'null'
+        modelCreatorName:
+          description: name of the user who created the model
+          type:
+          - string
+          - 'null'
+        modelName:
+          description: model name
+          type: string
+      required:
+      - buildEnvironmentType
+      - description
+      - location
+      type: object
+    ModelPackageDatasets:
+      description: dataset information for the model package
+      properties:
+        baselineSegmentedBy:
+          description: Names of categorical features by which the training baseline was segmented. This allows for deployment prediction requests to be segmented by those same features. Segmenting the training baseline by these features allows for users to perform segmented analysis of Data Drift and Accuracy, and to compare the same subset of training and scoring data based on the selected segment attribute and segment value.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        datasetName:
+          description: Name of dataset used to train the model
+          type:
+          - string
+          - 'null'
+        holdoutDataCatalogId:
+          description: ID for holdout data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        holdoutDataCatalogVersionId:
+          description: Version ID for holdout data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        holdoutDataCreatedAt:
+          description: Time when the holdout data item was created
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDataCreatorEmail:
+          description: Email of the user who created the holdout data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDataCreatorId:
+          default: null
+          description: ID of the creator of the holdout data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDataCreatorName:
+          description: Name of the user who created the holdout data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        holdoutDatasetName:
+          description: Name of dataset used for model holdout
+          type:
+          - string
+          - 'null'
+        targetHistogramBaseline:
+          description: Values used to establish the training baseline
+          enum:
+          - predictions
+          - actuals
+          type: string
+        trainingDataCatalogId:
+          description: ID for training data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        trainingDataCatalogVersionId:
+          description: Version ID for training data (returned from uploading a data set)
+          type:
+          - string
+          - 'null'
+        trainingDataCreatedAt:
+          description: Time when the training data item was created
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataCreatorEmail:
+          description: Email of the user who created the training data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataCreatorId:
+          default: null
+          description: ID of the creator of the training data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataCreatorName:
+          description: Name of the user who created the training data item
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        trainingDataSize:
+          description: Number of rows in training data (used by DR models)
+          type: integer
+      required:
+      - baselineSegmentedBy
+      - datasetName
+      - holdoutDataCatalogId
+      - holdoutDataCatalogVersionId
+      - holdoutDatasetName
+      - trainingDataCatalogId
+      - trainingDataCatalogVersionId
+      type: object
+    ModelPackageListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: list of formatted model packages
+          items:
+            $ref: '#/components/schemas/ModelPackageRetrieveResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    RegisteredModelUpdate:
+      properties:
+        description:
+          description: The description of the registered model.
+          maxLength: 2048
+          type: string
+        isGlobal:
+          description: Make registered model global (accessible to all users in the organization) or local(accessible only to the owner and the users with whom it has been explicitly shared)
+          type: boolean
+        name:
+          description: The name of the registered model.
+          maxLength: 1024
+          type: string
+      type: object
+    SharingListV2Response:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControlV2'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items matching the condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ModelPackageTimeseries:
+      description: time series information for the model package
+      properties:
+        datetimeColumnFormat:
+          description: Date format for forecast date and forecast point column
+          type:
+          - string
+          - 'null'
+        datetimeColumnName:
+          description: Name of the forecast date column
+          type:
+          - string
+          - 'null'
+        effectiveFeatureDerivationWindowEnd:
+          description: Same concept as `featureDerivationWindowEnd` which is chosen by the user and based on the initial sampled data from the eda sample. When the dataset goes through aim, the pipeline reads the full dataset and figures out the "real" FDW (i.e., the effective FDW). For most models, eFDW is approximately the same as the FDW.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.25
+        effectiveFeatureDerivationWindowStart:
+          description: Same concept as `featureDerivationWindowStart` which is chosen by the user and based on the initial sampled data from the eda sample. When the dataset goes through aim, the pipeline reads the full dataset and figures out the "real" FDW (i.e., the effective FDW). For most models, eFDW is approximately the same as the FDW.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.25
+        featureDerivationWindowEnd:
+          description: Negative number or zero defining how many time units of the forecast distances time unit into the past relative to the forecast point the feature derivation window should end.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+        featureDerivationWindowStart:
+          description: Negative number or zero defining how many time units of the forecast distances time unit into the past relative to the forecast point the feature derivation window should begin.
+          maximum: 0
+          type:
+          - integer
+          - 'null'
+        forecastDistanceColumnName:
+          description: Name of the forecast distance column
+          type:
+          - string
+          - 'null'
+        forecastDistances:
+          description: List of integer forecast distances
+          items:
+            type: integer
+          type:
+          - array
+          - 'null'
+        forecastDistancesTimeUnit:
+          description: The time unit of forecast distances
+          enum:
+          - MICROSECOND
+          - MILLISECOND
+          - SECOND
+          - MINUTE
+          - HOUR
+          - DAY
+          - WEEK
+          - MONTH
+          - QUARTER
+          - YEAR
+          type:
+          - string
+          - 'null'
+        forecastPointColumnName:
+          description: Name of the forecast point column
+          type:
+          - string
+          - 'null'
+        isCrossSeries:
+          description: true if the model is cross-series.
+          type:
+          - boolean
+          - 'null'
+        isNewSeriesSupport:
+          description: true if the model is optimized to support new series.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.25
+        isTraditionalTimeSeries:
+          description: true if the model is traditional time series.
+          type:
+          - boolean
+          - 'null'
+        seriesColumnName:
+          description: Name of the series column in case of multi-series date
+          type:
+          - string
+          - 'null'
+      required:
+      - datetimeColumnFormat
+      - datetimeColumnName
+      - effectiveFeatureDerivationWindowEnd
+      - effectiveFeatureDerivationWindowStart
+      - featureDerivationWindowEnd
+      - featureDerivationWindowStart
+      - forecastDistanceColumnName
+      - forecastDistances
+      - forecastDistancesTimeUnit
+      - forecastPointColumnName
+      - isCrossSeries
+      - isNewSeriesSupport
+      - isTraditionalTimeSeries
+      - seriesColumnName
+      type: object
+    RegisteredModelVersionsListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of formatted registered model versions.
+          items:
+            $ref: '#/components/schemas/ModelPackageRetrieveResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ModelPackageCreateFromLearningModel:
+      properties:
+        description:
+          description: Description of the model package.
+          maxLength: 2048
+          type:
+          - string
+          - 'null'
+        distributionPredictionModelId:
+          default: null
+          description: ID of the DataRobot distribution prediction model trained on predictions from the DataRobot model.
+          type:
+          - string
+          - 'null'
+        modelId:
+          description: ID of the DataRobot model.
+          type: string
+        name:
+          default: null
+          description: Name of the model package.
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        predictionThreshold:
+          description: Threshold used for binary classification in predictions
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+      required:
+      - modelId
+      type: object
+    ModelPackageModelKind:
+      description: Model attribute information
+      properties:
+        isAnomalyDetectionModel:
+          description: true if this is an anomaly detection model
+          type: boolean
+        isCombinedModel:
+          description: true if model is a combined model
+          type: boolean
+          x-versionadded: v2.27
+        isFeatureDiscovery:
+          description: true if this model uses the Feature Discovery feature
+          type: boolean
+        isMultiseries:
+          description: true if model is multiseries
+          type: boolean
+        isTimeSeries:
+          description: true if model is time series
+          type: boolean
+        isUnsupervisedClustering:
+          description: true if this is an unsupervised clustering model
+          type: boolean
+          x-versionadded: v2.47
+        isUnsupervisedLearning:
+          description: true if model used unsupervised learning
+          type: boolean
+      required:
+      - isAnomalyDetectionModel
+      - isCombinedModel
+      - isFeatureDiscovery
+      - isMultiseries
+      - isTimeSeries
+      - isUnsupervisedClustering
+      - isUnsupervisedLearning
+      type: object
+    Feature:
+      properties:
+        dateFormat:
+          description: The date format string for how this feature was interpreted.
+          type:
+          - string
+          - 'null'
+        featureType:
+          description: Feature type.
+          type:
+          - string
+          - 'null'
+        importance:
+          description: Numeric measure of the relationship strength between the feature and target (independent of model or other features).
+          type:
+          - number
+          - 'null'
+        knownInAdvance:
+          description: Whether the feature was selected as known in advance in a time-series model, false for non-time-series models.
+          type: boolean
+        name:
+          description: Feature name.
+          type: string
+      required:
+      - dateFormat
+      - featureType
+      - importance
+      - knownInAdvance
+      - name
+      type: object
+    RegisteredModelDeploymentResponse:
+      properties:
+        createdAt:
+          description: Deployment creation date
+          type: string
+        createdBy:
+          $ref: '#/components/schemas/UserMetadata'
+        currentlyDeployed:
+          description: Whether version of this registered model is currently deployed
+          type: boolean
+        firstDeployedAt:
+          description: When version of this registered model was first deployed
+          type:
+          - string
+          - 'null'
+        firstDeployedBy:
+          $ref: '#/components/schemas/UserMetadata'
+        id:
+          description: The ID of the deployment.
+          type: string
+        isChallenger:
+          description: True if given version is a challenger in a given deployment
+          type: boolean
+        label:
+          description: Label of the deployment
+          type:
+          - string
+          - 'null'
+        predictionEnvironment:
+          $ref: '#/components/schemas/DeploymentPredictionEnvironmentResponse'
+        registeredModelVersion:
+          description: Version of the registered model
+          type: integer
+        status:
+          description: Status of the deployment
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - currentlyDeployed
+      - firstDeployedAt
+      - firstDeployedBy
+      - id
+      - isChallenger
+      - label
+      - registeredModelVersion
+      - status
+      type: object
+    UserMetadata:
+      description: Information on the user who last modified the registered model
+      properties:
+        email:
+          description: The email of the user.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the user.
+          type: string
+        name:
+          description: The full name of the user.
+          type:
+          - string
+          - 'null'
+      required:
+      - email
+      - id
+      - name
+      type: object
+    RegisteredModelResponse:
+      properties:
+        createdAt:
+          description: The date when the registered model was created.
+          format: date-time
+          type: string
+        createdBy:
+          $ref: '#/components/schemas/RegisteredModelCreatedBy'
+        description:
+          description: The description of the registered model.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the registered model.
+          type: string
+        isArchived:
+          description: Whether the model is archived.
+          type: boolean
+        isGlobal:
+          description: Whether the registered model is global (accessible to all users in the organization) or local(accessible only to the owner and the users with whom it has been explicitly shared)
+          type: boolean
+        lastVersionNum:
+          description: The latest version associated with this registered model.
+          type: integer
+        modelKind:
+          $ref: '#/components/schemas/RegisteredModelModelKind'
+          x-versionadded: v2.47
+        modifiedAt:
+          description: The date when the registered model was last modified.
+          format: date-time
+          type: string
+        modifiedBy:
+          $ref: '#/components/schemas/UserMetadata'
+        name:
+          description: The name of the registered model.
+          type: string
+        target:
+          $ref: '#/components/schemas/RegisteredModelTarget'
+      required:
+      - createdAt
+      - createdBy
+      - id
+      - isArchived
+      - lastVersionNum
+      - modelKind
+      - modifiedAt
+      - modifiedBy
+      - name
+      - target
+      type: object
+    RegisteredModelCreatedBy:
+      description: Information on the creator of the registered model.
+      properties:
+        email:
+          description: The email of the user who created the registered model.
+          type: string
+        id:
+          description: The ID of the user who created the registered model.
+          type: string
+        name:
+          description: The full name of the user who created the registered model.
+          type:
+          - string
+          - 'null'
+      required:
+      - email
+      - id
+      - name
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

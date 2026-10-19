@@ -1,0 +1,1293 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Pipeline Dispatches API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- name: pipeline-dispatches
+paths:
+  /api/v2/pipelines/{pipeline_id}/dispatches:
+    get:
+      description: List dispatches for a draft pipeline.
+      operationId: list_draft_dispatches_api_v2_pipelines__pipeline_id__dispatches_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineDispatchResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Draft Dispatches
+      tags:
+      - pipeline-dispatches
+    post:
+      description: Create a dispatch for a draft pipeline.
+      operationId: create_draft_dispatch_api_v2_pipelines__pipeline_id__dispatches_post
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineDispatchCreateRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineDispatchResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Draft Dispatch
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/dispatches/{dispatch_id}:
+    delete:
+      description: Cancel a draft dispatch.
+      operationId: cancel_draft_dispatch_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__delete
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Cancel Draft Dispatch
+      tags:
+      - pipeline-dispatches
+    get:
+      description: Get details of a draft dispatch.
+      operationId: get_draft_dispatch_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineDispatchResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Draft Dispatch
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/dispatches/{dispatch_id}/status:
+    get:
+      description: Get the current status of a draft dispatch (lightweight polling).
+      operationId: get_draft_dispatch_status_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__status_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineDispatchStatusResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Draft Dispatch Status
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/dispatches/{dispatch_id}/tasks:
+    get:
+      description: 'List all task execution records for a dispatch.
+
+
+        Returns the per-``@task`` execution status for every task in the
+
+        dispatch, ordered by covalent node id. Returns an empty list when no
+
+        callbacks have been received yet (dispatch still pending).'
+      operationId: list_task_executions_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__tasks_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TaskExecutionResponse'
+                title: Response List Task Executions Api V2 Pipelines  Pipeline Id  Dispatches  Dispatch Id  Tasks Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Task Executions
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/dispatches/{dispatch_id}/tasks/{task_id}:
+    get:
+      description: 'Get the execution record for a single task in a dispatch.
+
+
+        ``task_id`` is the public sequential task number (1, 2, 3, …) as
+
+        returned by the pipeline tasks endpoint. Pass ``?nodeId=`` to address a
+
+        specific fan-out invocation when the same ``@task`` runs at multiple
+
+        graph nodes. Without ``nodeId``, a fan-out task returns 409 listing the
+
+        candidate node ids — never another invocation''s data. Returns 404 when
+
+        no execution record exists.'
+      operationId: get_task_execution_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__tasks__task_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          title: Task Id
+          type: integer
+      - description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+        in: query
+        name: nodeId
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+          title: Nodeid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskExecutionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Task Execution
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/dispatches/{dispatch_id}/tasks/{task_id}/logs:
+    get:
+      description: 'Read the K8s pod logs for a task execution.
+
+
+        Under standalone dispatch (flag on) this reads the newest pod''s
+
+        stdout+stderr for the task''s K8s Job via
+
+        ``core_v1.read_namespaced_pod_log``. Under the legacy covalent
+
+        path the pod lives inside covalent-cloud-server''s cluster —
+
+        pipelines-api does not own it and this endpoint returns an
+
+        empty string; callers should hit covalent''s own log endpoint
+
+        for those dispatches.
+
+
+        ``verbosity`` (see ``specs/task_log_verbosity_filter.md``)
+
+        defaults to hiding the task runner''s own structured JSON
+
+        bookkeeping. Note: ``tail_lines`` is applied by Kubernetes to the
+
+        *raw* log before filtering, so pairing a small ``tail_lines``
+
+        with the default ``verbosity="user"`` can return fewer lines than
+
+        requested — in the extreme, an empty string if the tailed window
+
+        happens to be mostly runner-internal noise.'
+      operationId: get_task_logs_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__tasks__task_id__logs_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          title: Task Id
+          type: integer
+      - description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+        in: query
+        name: nodeId
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+          title: Nodeid
+      - description: Optional cap on the number of trailing log lines returned.
+        in: query
+        name: tail_lines
+        required: false
+        schema:
+          anyOf:
+          - maximum: 10000
+            minimum: 1
+            type: integer
+          - type: 'null'
+          description: Optional cap on the number of trailing log lines returned.
+          title: Tail Lines
+      - description: '''user'' (default): hide the task runner''s own structured JSON log lines, showing only the task function''s own output (plus any uncaught-exception traceback). ''all'': return every line, unfiltered — the behavior every caller got before this parameter existed.'
+        in: query
+        name: verbosity
+        required: false
+        schema:
+          default: user
+          description: '''user'' (default): hide the task runner''s own structured JSON log lines, showing only the task function''s own output (plus any uncaught-exception traceback). ''all'': return every line, unfiltered — the behavior every caller got before this parameter existed.'
+          enum:
+          - user
+          - all
+          title: Verbosity
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskExecutionLogsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Task Logs
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/dispatches/{dispatch_id}/tasks/{task_id}/logs/{stream}:
+    get:
+      description: 'Return the inline content of a task''s captured stdout/stderr log.
+
+
+        The task runner tees its own stdout + stderr into
+
+        in-memory buffers and uploads them to
+
+        ``dispatches//outputs//{stdout,stderr}.log``
+
+        at process exit (action 186''s ``pod_logs.LogCapture``). This
+
+        endpoint reads that S3 blob itself, UTF-8 decodes it, and
+
+        returns the content directly (no presigned URL) — the sibling
+
+        ``.../logs`` endpoint reads live K8s pod logs which stop
+
+        working ~60 s after Job terminal when kubelet TTL-GCs the pod.
+
+        See ``specs/task_durable_log_inline_content.md`` and
+
+        ``specs/task_log_verbosity_filter.md``.
+
+
+        Path parameter ``stream`` must be ``"stdout"`` or
+
+        ``"stderr"``; anything else returns 400.
+
+
+        ``verbosity`` defaults to hiding the task runner''s own
+
+        structured JSON bookkeeping (applied before the inline-response
+
+        truncation cap, so filtering out noise can bring an otherwise
+
+        oversized blob back under the cap). ``total_bytes`` in the
+
+        response always reflects the raw S3 object size regardless of
+
+        ``verbosity``; only ``content`` and ``truncated`` vary.
+
+
+        Status codes:
+
+
+        - **200** — body is :class:`TaskExecutionDurableLogResponse`.
+
+        - **400** — ``stream`` param is not ``stdout``/``stderr``.
+
+        - **404** — Dispatch, task, or execution row not found.
+
+        - **409** — Task ran at multiple graph nodes and no ``?nodeId=``
+
+        was given (detail lists the candidate node ids).
+
+        - **500** — Task execution finished but the log blob is
+
+        missing from S3 (runner''s upload path failed).'
+      operationId: get_task_durable_log_url_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__tasks__task_id__logs__stream__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          title: Task Id
+          type: integer
+      - in: path
+        name: stream
+        required: true
+        schema:
+          title: Stream
+          type: string
+      - description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+        in: query
+        name: nodeId
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+          title: Nodeid
+      - description: '''user'' (default): hide the task runner''s own structured JSON log lines, showing only the task function''s own output (plus any uncaught-exception traceback). ''all'': return every line, unfiltered — the behavior every caller got before this parameter existed.'
+        in: query
+        name: verbosity
+        required: false
+        schema:
+          default: user
+          description: '''user'' (default): hide the task runner''s own structured JSON log lines, showing only the task function''s own output (plus any uncaught-exception traceback). ''all'': return every line, unfiltered — the behavior every caller got before this parameter existed.'
+          enum:
+          - user
+          - all
+          title: Verbosity
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskExecutionDurableLogResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Task Durable Log Url
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/dispatches/{dispatch_id}/tasks/{task_id}/result:
+    get:
+      description: 'Return a presigned S3 URL for a completed task''s result blob.
+
+
+        The blob is a raw cloudpickle payload — the task runner writes
+
+        it directly to S3 at ``dispatches//outputs//result.tobj``.
+
+        Callers download the URL directly from S3 and decode with
+
+        ``cloudpickle.loads(response.content)``. pipelines-api never
+
+        proxies the payload (avoids the RCE risk of pickle-loading
+
+        untrusted user output on the server, and scales to results of
+
+        any size).
+
+
+        Status codes:
+
+
+        - **200** — URL signed; body is :class:`TaskExecutionResultResponse`.
+
+        - **404** — Dispatch, task, or execution row not found (or the
+
+        dispatch is not owned by the caller).
+
+        - **409** — Task exists but has not yet reached ``COMPLETED`` state
+
+        (detail includes the current status so a polling client can
+
+        distinguish "keep polling" from "stop"), **or** the task ran at
+
+        multiple graph nodes and no ``?nodeId=`` was given (detail lists
+
+        the candidate node ids).
+
+        - **500** — Task is ``COMPLETED`` but the ``result.tobj`` blob is
+
+        missing from S3. Server-side inconsistency; not a caller error.'
+      operationId: get_task_result_url_api_v2_pipelines__pipeline_id__dispatches__dispatch_id__tasks__task_id__result_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          title: Task Id
+          type: integer
+      - description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+        in: query
+        name: nodeId
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Node id of a specific fan-out invocation (the `nodeId` field on the task list response).  Required when the same @task ran at multiple graph nodes — omitting it then returns 409 with the candidate node ids.  May be omitted for tasks with a single execution.
+          title: Nodeid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskExecutionResultResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Task Result Url
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/dispatches:
+    get:
+      description: List dispatches for a locked pipeline version.
+      operationId: list_locked_dispatches_api_v2_pipelines__pipeline_id__versions__version_id__dispatches_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineDispatchResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Locked Dispatches
+      tags:
+      - pipeline-dispatches
+    post:
+      description: Create a dispatch for a locked pipeline version.
+      operationId: create_locked_dispatch_api_v2_pipelines__pipeline_id__versions__version_id__dispatches_post
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineDispatchCreateRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineDispatchResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Locked Dispatch
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/dispatches/{dispatch_id}:
+    delete:
+      description: Cancel a locked dispatch.
+      operationId: cancel_locked_dispatch_api_v2_pipelines__pipeline_id__versions__version_id__dispatches__dispatch_id__delete
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Cancel Locked Dispatch
+      tags:
+      - pipeline-dispatches
+    get:
+      description: Get details of a locked dispatch.
+      operationId: get_locked_dispatch_api_v2_pipelines__pipeline_id__versions__version_id__dispatches__dispatch_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineDispatchResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Locked Dispatch
+      tags:
+      - pipeline-dispatches
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/dispatches/{dispatch_id}/status:
+    get:
+      description: Get the current status of a locked dispatch (lightweight polling).
+      operationId: get_locked_dispatch_status_api_v2_pipelines__pipeline_id__versions__version_id__dispatches__dispatch_id__status_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineDispatchStatusResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Locked Dispatch Status
+      tags:
+      - pipeline-dispatches
+components:
+  schemas:
+    PipelineDispatchStatusResponse:
+      description: Lightweight status polling response.
+      properties:
+        covalentDispatchId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Covalentdispatchid
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        status:
+          $ref: '#/components/schemas/PipelineDispatchStatus'
+      required:
+      - id
+      - status
+      title: PipelineDispatchStatusResponse
+      type: object
+    DataPage_PipelineDispatchResponse_:
+      properties:
+        count:
+          readOnly: true
+          title: Count
+          type: integer
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineDispatchResponse'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous
+        totalCount:
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - totalCount
+      - count
+      title: DataPage[PipelineDispatchResponse]
+      type: object
+    PipelineDispatchStatus:
+      description: 'Lifecycle status of a pipeline dispatch.
+
+
+        ``PREPARING`` is the transient state a dispatch enters at
+
+        creation while the prep-Pod (see
+
+        ``specs/dispatch_prep_pod_implementation_plan.md``) traces the
+
+        transport graph in the user''s own image + uploads it to S3.
+
+        On the prep-Pod''s callback the dispatch flips to ``RUNNING``
+
+        and per-task Jobs start submitting; on prep failure it
+
+        flips to ``FAILED`` without any task rows ever having been
+
+        created.'
+      enum:
+      - PENDING
+      - PREPARING
+      - RUNNING
+      - COMPLETED
+      - FAILED
+      - CANCELLED
+      - ERRORED
+      title: PipelineDispatchStatus
+      type: string
+    TaskExecutionDurableLogResponse:
+      description: "Inline content of a task's S3-uploaded stdout/stderr log.\n\nThe task runner tees its own stdout + stderr into in-memory\nbuffers and uploads them to\n``dispatches/<did>/outputs/<node_id>/{stdout,stderr}.log`` on\nprocess exit (see action 186's ``pod_logs.LogCapture``). This\nendpoint reads that blob itself, UTF-8 decodes it, and hands the\ncontent back directly — no presigned URL, no second\nunauthenticated request to S3 required from the caller. Callers\nuse it for post-mortem debugging after the pod has been TTL-GC'd\n(kubelet drops it 60 s after Job terminal, so the live-pod-log\nendpoint stops working past that window; the S3 upload is the\ndurable copy). See ``specs/task_durable_log_inline_content.md`` and\n``specs/task_log_verbosity_filter.md``.\n\nAttributes:\n    content: UTF-8 decoded log content, subject to the\n        ``verbosity`` query param: by default the task\n        runner's own structured JSON log lines are removed\n        (uncaught-exception tracebacks are always kept — they're\n        plain text on the runner side, never JSON). Invalid byte\n        sequences are replaced, never raised on. When\n        ``truncated`` is ``True`` this is a head+tail excerpt of\n        the (already-filtered) content, not the full blob.\n    content_type: MIME type of the payload. Fixed to\n        ``text/plain`` because the log blob is UTF-8 encoded\n        plain text.\n    total_bytes: Size in bytes of the full S3 object, independent\n        of any inline truncation applied to ``content`` **and**\n        independent of ``verbosity`` — this always reflects the\n        raw blob size, not the filtered content's size.\n    truncated: ``True`` iff ``content`` is a head+tail excerpt\n        because the *filtered* content exceeded the inline\n        response cap (``Settings.task_log_inline_max_bytes``).\n    filtered_line_count: Number of lines the verbosity filter\n        removed. Always ``0`` when ``verbosity=all`` was\n        requested."
+      properties:
+        content:
+          description: UTF-8 decoded log content (invalid byte sequences replaced, never raises). When `truncated` is true, this is a head+tail excerpt, not the full blob.
+          title: Content
+          type: string
+        contentType:
+          default: text/plain
+          description: MIME type of the log payload.
+          title: Contenttype
+          type: string
+        filteredLineCount:
+          default: 0
+          description: Number of lines removed by the verbosity filter. Always 0 when verbosity=all.
+          minimum: 0.0
+          title: Filteredlinecount
+          type: integer
+        totalBytes:
+          description: Size in bytes of the full S3 object, independent of any inline truncation.
+          minimum: 0.0
+          title: Totalbytes
+          type: integer
+        truncated:
+          default: false
+          description: True iff `content` is a head+tail excerpt because the verbosity-filtered content exceeded the inline response cap. Not directly comparable to `total_bytes`, which reflects the raw (unfiltered) blob size.
+          title: Truncated
+          type: boolean
+      required:
+      - content
+      - totalBytes
+      title: TaskExecutionDurableLogResponse
+      type: object
+    TaskExecutionResultResponse:
+      description: "Presigned-URL response for a completed task's cloudpickled result.\n\nHanded back by ``GET .../dispatches/{dispatch_id}/tasks/{task_id}/result``\nonce a task reaches ``COMPLETED`` state and its ``result.tobj`` blob\nis present in S3. The caller GETs ``url`` directly from S3 to\nstream the payload — pipelines-api never proxies the bytes, which\nkeeps the response independent of result size and side-steps the\nRCE risk of cloudpickle-loading untrusted user output on the server.\n\n``value`` / ``value_available`` / ``value_unavailable_reason`` are an\nadditive, optional JSON-safe preview of the same result — populated\nfrom a small manifest the task runner writes alongside\n``result.tobj`` (see ``specs/task_result_preview.md``). Unlike\n``result.tobj``, decoding this manifest is safe to do server-side:\n``json.loads`` cannot execute arbitrary code the way\n``cloudpickle.loads`` can. ``url`` / ``expires_in`` / ``content_type``\nare always populated once the task is ``COMPLETED``, independent of\nwhether a preview is available.\n\n``value_text`` / ``value_text_truncated`` add a human-readable\n``str(result)`` preview the runner emits for *every* result — even\nnon-JSON-serializable or oversized ones the JSON ``value`` can't\nrepresent — so a UI always has something to display. Unlike JSON, the\ntext repr is truncatable, closing the ``not_json_serializable`` /\n``too_large`` gaps.\n\nAttributes:\n    url: Presigned ``https://`` URL granting ``GetObject`` on the\n        task's ``result.tobj`` blob. Time-limited by\n        ``expires_in``; treat as one-shot.\n    expires_in: Validity window in seconds from the signing\n        moment. Default 900 (15 min).\n    content_type: MIME type the caller should expect on the\n        downloaded body. Fixed to ``application/octet-stream``\n        because the payload is a raw cloudpickle blob; callers\n        decode with ``cloudpickle.loads(response.content)``.\n    value: JSON-decoded preview of the task's return value, when\n        available. ``None`` both when no preview exists AND when the\n        task legitimately returned ``None`` — use ``value_available``\n        to disambiguate.\n    value_available: ``True`` iff ``value`` reflects an actual\n        preview.\n    value_unavailable_reason: Set iff ``value_available`` is\n        ``False``, explaining why no preview could be produced. One\n        of ``\"not_json_serializable\"`` (the return value isn't\n        JSON-safe), ``\"too_large\"`` (exceeded the preview size cap),\n        or ``\"unavailable\"`` (no preview was ever recorded — a\n        pre-feature task, or the preview upload itself failed).\n        ``None`` when ``value_available`` is ``True``.\n    value_text: Human-readable ``str(result)`` preview the runner\n        embeds in *every* manifest branch — present even when the\n        JSON ``value`` is unavailable, so a UI always has something\n        to render for non-JSON-serializable or oversized results.\n        Possibly truncated (see ``value_text_truncated``); the full\n        object is always available via ``url``. ``None`` only for\n        tasks whose manifest predates this field.\n    value_text_truncated: ``True`` iff ``value_text`` was cut to the\n        configured character cap — download the full object via\n        ``url`` for the complete value."
+      properties:
+        contentType:
+          default: application/octet-stream
+          description: MIME type of the payload the URL serves.
+          title: Contenttype
+          type: string
+        expiresIn:
+          description: URL validity window in seconds from the moment it was signed.
+          exclusiveMinimum: 0.0
+          title: Expiresin
+          type: integer
+        url:
+          description: Presigned S3 URL for the result blob.
+          title: Url
+          type: string
+        value:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: JSON-decoded preview of the task's return value, when available.
+          title: Value
+        valueAvailable:
+          default: false
+          description: True iff `value` reflects an actual preview. Needed because a task can legitimately return None/null, which is otherwise indistinguishable from no preview being available.
+          title: Valueavailable
+          type: boolean
+        valueText:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Human-readable `str()` preview of the task's return value, present even when the JSON `value` is unavailable (non-JSON-serializable or oversized results). Possibly truncated (see `value_text_truncated`). The full object is always available via `url`. `None` only for pre-feature tasks whose manifest predates this field, or when no preview was recorded at all.
+          title: Valuetext
+        valueTextTruncated:
+          default: false
+          description: True iff `value_text` was cut to the configured character cap. When True, download the full object via `url` to see the complete value.
+          title: Valuetexttruncated
+          type: boolean
+        valueUnavailableReason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Set iff `value_available` is False, explaining why no preview could be produced. One of: `not_json_serializable`, `too_large`, or `unavailable`. `None` when `value_available` is True.'
+          title: Valueunavailablereason
+      required:
+      - url
+      - expiresIn
+      title: TaskExecutionResultResponse
+      type: object
+    TaskExecutionLogsResponse:
+      description: "Response schema for per-task pod logs.\n\nPopulated only when standalone dispatch is on — under the\nlegacy covalent path, pipelines-api does not own the pod and\nthe endpoint returns an empty string.\n\nAttributes:\n    logs: Pod stdout+stderr as a UTF-8 decoded string, subject to\n        the ``verbosity`` query param (see\n        ``specs/task_log_verbosity_filter.md``): by default the\n        task runner's own structured JSON log lines are\n        removed, leaving only the task function's own output\n        (plus any uncaught-exception traceback, which is always\n        kept). Empty when the pod has been GC'd, hasn't started\n        yet, or when the dispatch predates standalone mode.\n    filtered_line_count: Number of lines the verbosity filter\n        removed. Always ``0`` when ``verbosity=all`` was\n        requested."
+      properties:
+        filteredLineCount:
+          default: 0
+          description: Number of lines removed by the verbosity filter. Always 0 when verbosity=all.
+          minimum: 0.0
+          title: Filteredlinecount
+          type: integer
+        logs:
+          title: Logs
+          type: string
+      required:
+      - logs
+      title: TaskExecutionLogsResponse
+      type: object
+    PipelineDispatchTrigger:
+      description: How a pipeline dispatch was triggered.
+      enum:
+      - api
+      - schedule
+      title: PipelineDispatchTrigger
+      type: string
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    TaskExecutionResponse:
+      description: "Response schema for a single task execution record.\n\nAttributes:\n    task_id: Pipeline-level sequential task number, e.g. ``1``, ``2``,\n        ``3``.  Use this as the ``{task_id}`` path parameter for per-task\n        endpoints.  ``None`` for internal utility nodes with no user\n        ``@task`` backing.\n    node_id: Per-dispatch execution node id.  Pass as ``?nodeId=`` to\n        per-task endpoints to address a specific invocation when the same\n        ``@task`` function runs more than once in a single dispatch\n        (fan-out).  Each invocation has a distinct ``nodeId`` even when\n        they share the same ``taskId``.  ``None`` for legacy rows that\n        pre-date node-id tracking.\n    graph_node_id: The static graph node ``id`` (from\n        ``GET .../graph``) this execution corresponds to.  Stable\n        across every dispatch of the same pipeline version, so the UI\n        can join execution status/logs/results to the exact graph box\n        even for fan-out.  ``None`` when no 1:1 match against the\n        static graph exists (call sites inside loops, helper-wrapped\n        tasks) or for rows created before this field was introduced.\n    name: The ``@task`` function name.\n    status: Current ``TaskExecutionStatus`` value.\n    started_at: When execution began, or ``None`` if not yet started.\n    completed_at: When execution finished, or ``None`` if still running.\n    error_detail: Failure message when ``status == FAILED``.\n    resource_bundle_id: MMS resource-bundle id/alias the task actually ran\n        on (resolved at dispatch — declared value, or the service default\n        for undeclared tasks). ``None`` only for legacy rows."
+      properties:
+        completedAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Completedat
+        errorDetail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errordetail
+        graphNodeId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Graphnodeid
+        name:
+          title: Name
+          type: string
+        nodeId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Nodeid
+        resourceBundleId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resourcebundleid
+        startedAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Startedat
+        status:
+          title: Status
+          type: string
+        taskId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Taskid
+      required:
+      - name
+      - status
+      title: TaskExecutionResponse
+      type: object
+    PipelineDispatchResponse:
+      description: Response schema for a pipeline dispatch.
+      properties:
+        covalentDispatchId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Covalentdispatchid
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        errorDetail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errordetail
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        imageId:
+          anyOf:
+          - maxLength: 24
+            minLength: 24
+            pattern: ^[0-9a-fA-F]{24}$
+            type: string
+          - type: 'null'
+          title: Imageid
+        imageVersion:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Imageversion
+        inputId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Inputid
+          type: string
+        pipelineId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipelineid
+          type: string
+        status:
+          $ref: '#/components/schemas/PipelineDispatchStatus'
+        triggeredBy:
+          $ref: '#/components/schemas/PipelineDispatchTrigger'
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        versionId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Versionid
+      required:
+      - id
+      - pipelineId
+      - inputId
+      - triggeredBy
+      - status
+      - createdAt
+      - updatedAt
+      title: PipelineDispatchResponse
+      type: object
+    PipelineDispatchCreateRequest:
+      description: 'Request body for creating a pipeline dispatch.
+
+
+        Under the prep-Pod flow (see
+
+        ``specs/dispatch_prep_pod_implementation_plan.md`` C.1),
+
+        ``image_id`` is REQUIRED — the prep Pod runs the user''s
+
+        chosen image and can''t be launched without one. Pipeline
+
+        creation still leaves ``image_id`` optional (drafts have no
+
+        image); it''s resolved at dispatch time here.'
+      properties:
+        imageId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Imageid
+          type: string
+        inputId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Inputid
+          type: string
+      required:
+      - inputId
+      - imageId
+      title: PipelineDispatchCreateRequest
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

@@ -1,0 +1,738 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Pipeline Execution Images API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- name: pipeline-execution-images
+paths:
+  /api/v2/pipelines/images:
+    get:
+      description: List the caller's active images, newest first.
+      operationId: list_images_api_v2_pipelines_images_get
+      parameters:
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineImageSummaryResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Images
+      tags:
+      - pipeline-execution-images
+    post:
+      description: 'Create a named execution image with an initial build.
+
+
+        Returns 409 if the user already owns an image with this name, 422 if
+
+        the deployment''s build mode cannot serve the requested
+
+        ``pythonVersion``, or 502 if the Image Build Service submission fails
+
+        (the row is still persisted with ``status == ERROR`` for diagnostic
+
+        visibility).'
+      operationId: create_image_api_v2_pipelines_images_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineImageCreateRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/PipelineImageCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineImageResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Image
+      tags:
+      - pipeline-execution-images
+  /api/v2/pipelines/images/{image_id}:
+    delete:
+      description: 'Soft-delete every active version of an image.
+
+
+        Returns 404 if the image is unknown to the caller or has no active
+
+        versions, and 409 if any version is still referenced by a pipeline
+
+        (e.g. it is the pipeline''s active image) — disassociate the pipeline
+
+        first.'
+      operationId: delete_image_api_v2_pipelines_images__image_id__delete
+      parameters:
+      - in: path
+        name: image_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Image Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Image
+      tags:
+      - pipeline-execution-images
+    get:
+      description: 'Return detailed info for a single image with all active versions.
+
+
+        Returns 404 if the image is unknown to the caller or has been
+
+        soft-deleted.'
+      operationId: get_image_api_v2_pipelines_images__image_id__get
+      parameters:
+      - in: path
+        name: image_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Image Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineImageResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Image
+      tags:
+      - pipeline-execution-images
+    patch:
+      description: 'Add packages to an image, creating a new immutable version.
+
+
+        Returns 404 if the image is unknown, 400 if the merge produces
+
+        no new packages, 409 if no active version exists to extend, 422 if
+
+        the deployment''s build mode cannot serve the requested
+
+        ``pythonVersion``, or 502 if the Image Build Service submission fails.'
+      operationId: update_image_api_v2_pipelines_images__image_id__patch
+      parameters:
+      - in: path
+        name: image_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Image Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineImageUpdateRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/PipelineImageUpdateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineImageResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Image
+      tags:
+      - pipeline-execution-images
+  /api/v2/pipelines/images/{image_id}/versions/{version_id}:
+    delete:
+      description: Soft-delete a specific version of an image.
+      operationId: delete_image_version_api_v2_pipelines_images__image_id__versions__version_id__delete
+      parameters:
+      - in: path
+        name: image_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Image Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Image Version
+      tags:
+      - pipeline-execution-images
+  /api/v2/pipelines/images/{image_id}/versions/{version_id}/logs:
+    get:
+      description: 'Return the raw build log for a specific image version.
+
+
+        Fetches log content directly from build-service using the build_id
+
+        stored on the version row. Only available after the build has reached
+
+        a terminal state (READY or ERROR) and a build_id has been stored.
+
+        Returns 404 when the build is still in progress or logs are not yet
+
+        available; 502 when build-service is unreachable.'
+      operationId: get_image_build_logs_api_v2_pipelines_images__image_id__versions__version_id__logs_get
+      parameters:
+      - in: path
+        name: image_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Image Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineImageLogsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Image Build Logs
+      tags:
+      - pipeline-execution-images
+components:
+  schemas:
+    PipelineImageResponse:
+      description: "Detailed response schema for a pipeline image.\n\nAttributes:\n    image_id: Public-facing 24-char MongoDB ObjectId hex string.\n    name: User-provided image name.\n    description: Optional description.\n    latest_version: Highest version number currently registered.\n    versions: All versions ordered newest-first.\n    created_at: Row creation timestamp.\n    updated_at: Last modification timestamp."
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        latestVersion:
+          title: Latestversion
+          type: integer
+        name:
+          title: Name
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        versions:
+          items:
+            $ref: '#/components/schemas/PipelineImageVersionResponse'
+          title: Versions
+          type: array
+      required:
+      - id
+      - name
+      - latestVersion
+      - versions
+      - createdAt
+      - updatedAt
+      title: PipelineImageResponse
+      type: object
+    PipelineImageSummaryResponse:
+      description: "Lightweight response schema used by the list endpoint.\n\nAttributes:\n    image_id: Public-facing 24-char MongoDB ObjectId hex string.\n    name: User-provided image name.\n    description: Optional description.\n    latest_version: Highest version number currently registered.\n    latest_status: Build status of the latest version.\n    created_at: Row creation timestamp.\n    updated_at: Last modification timestamp."
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        latestStatus:
+          $ref: '#/components/schemas/PipelineImageStatus'
+        latestVersion:
+          title: Latestversion
+          type: integer
+        name:
+          title: Name
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+      required:
+      - id
+      - name
+      - latestVersion
+      - latestStatus
+      - createdAt
+      - updatedAt
+      title: PipelineImageSummaryResponse
+      type: object
+    PipelineImageVersionResponse:
+      description: 'Response schema for a single image version.
+
+
+        Carries the full ``definition`` round-trip so clients see exactly what
+
+        was sent at create time. ``status`` / ``error_detail`` reflect the
+
+        build outcome. ``image_uri`` is populated once an IBS-direct build
+
+        completes successfully.'
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        definition:
+          $ref: '#/components/schemas/PipelineImageDefinition'
+        errorDetail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errordetail
+        imageUri:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Imageuri
+        status:
+          $ref: '#/components/schemas/PipelineImageStatus'
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          title: Version
+          type: integer
+      required:
+      - version
+      - definition
+      - status
+      - createdAt
+      - updatedAt
+      title: PipelineImageVersionResponse
+      type: object
+    CondaSpec:
+      description: "Structured conda specification with explicit channels and dependencies.\n\nEquivalent to the dict-form ``conda`` kwarg of\n``covalent.create_env``:\n\n.. code-block:: python\n\n    conda={\n        \"channels\": [\"conda-forge\", \"defaults\"],\n        \"dependencies\": [\"numpy=1.21.*\", \"xarray=0.15.1\"],\n    }"
+      properties:
+        channels:
+          items:
+            type: string
+          title: Channels
+          type: array
+        dependencies:
+          items:
+            type: string
+          title: Dependencies
+          type: array
+      title: CondaSpec
+      type: object
+    PipelineImageCreateRequest:
+      description: 'Request body for ``POST /pipelines/images``.
+
+
+        Carries the canonical image definition plus an optional human-readable
+
+        description. The description is stored on the parent
+
+        ``PipelineImage`` row, not the version.
+
+
+        ``conda`` is accepted but not shown in the OpenAPI schema; use
+
+        ``packages`` (pip specifiers) and ``pythonVersion`` as the primary fields.
+
+        ``gpu`` is documented but gated by the ``gpu_enabled`` flag (422 when off).
+
+
+        ``is_ephemeral`` (wire: ``isEphemeral``) marks the built image for
+
+        automatic cleanup by the Image Build Service (deleted from the registry
+
+        ~48h after build). Defaults to ``False`` so real pipeline images remain
+
+        durable for the life of the pipeline; acceptance/regression tests set it
+
+        ``True`` so their throwaway build artifacts are auto-GC''d instead of
+
+        accumulating in the registry. Named to match build-service''s own
+
+        ``is_ephemeral`` build flag. Not part of the persisted image definition
+
+        (a build-time directive, like ``description``), so it does not affect
+
+        version dedup.'
+      properties:
+        description:
+          anyOf:
+          - maxLength: 2048
+            type: string
+          - type: 'null'
+          title: Description
+        gpu:
+          default: false
+          description: 'Request GPU support for the built image. A pod-scheduling signal (GPU resource claim + tolerations + affinity applied at dispatch); the image bakes no CUDA by default — bring your own GPU wheels. Gated by the environment''s GPU capacity: when GPU support is not enabled a ``gpu: true`` request is rejected with 422. Accepted as the deprecated alias ``nvidia``.'
+          title: Gpu
+          type: boolean
+        name:
+          maxLength: 255
+          minLength: 1
+          title: Name
+          type: string
+        packages:
+          items:
+            type: string
+          title: Packages
+          type: array
+        pythonBaseImage:
+          anyOf:
+          - maxLength: 512
+            type: string
+          - type: 'null'
+          deprecated: true
+          description: DEPRECATED — use ``pythonVersion``. A bare ``major.minor`` value is folded into ``pythonVersion``; a full image reference is accepted but ignored at build time (it would bypass the FIPS base image).
+          title: Pythonbaseimage
+        pythonVersion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Python interpreter version for the built image, e.g. ``3.11``. Selects the DR runtime base-image tag; the venv is built against this interpreter. Allowed: 3.10, 3.11, 3.12, 3.13. When omitted, the runtime template''s default applies.'
+          title: Pythonversion
+      required:
+      - name
+      title: PipelineImageCreateRequest
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PipelineImageStatus:
+      description: Build status of a pipeline image version.
+      enum:
+      - CREATING
+      - READY
+      - ERROR
+      title: PipelineImageStatus
+      type: string
+    PipelineImageUpdateRequest:
+      description: 'Request body for ``PATCH /pipelines/images/{image_id}``.
+
+
+        Creates a new immutable ``PipelineImageVersion`` carrying the full
+
+        definition supplied here. The previous version is left untouched —
+
+        pipelines locked against it keep working.
+
+
+        Replacement semantics: the body is a complete redefinition, not a
+
+        merge. To "add a package" the caller posts the previous definition
+
+        plus the new entry.
+
+
+        ``conda`` is accepted but not shown in the OpenAPI schema. ``gpu`` is
+
+        documented but gated by the ``gpu_enabled`` flag (422 when off).
+
+
+        ``is_ephemeral`` (wire: ``isEphemeral``, default ``False``) marks the new
+
+        version''s build for automatic IBS cleanup — see
+
+        ``PipelineImageCreateRequest``. Build-time directive only; not persisted
+
+        in the definition.'
+      properties:
+        gpu:
+          default: false
+          description: 'Request GPU support for the built image. A pod-scheduling signal (GPU resource claim + tolerations + affinity applied at dispatch); the image bakes no CUDA by default — bring your own GPU wheels. Gated by the environment''s GPU capacity: when GPU support is not enabled a ``gpu: true`` request is rejected with 422. Accepted as the deprecated alias ``nvidia``.'
+          title: Gpu
+          type: boolean
+        name:
+          maxLength: 255
+          minLength: 1
+          title: Name
+          type: string
+        packages:
+          items:
+            type: string
+          title: Packages
+          type: array
+        pythonBaseImage:
+          anyOf:
+          - maxLength: 512
+            type: string
+          - type: 'null'
+          deprecated: true
+          description: DEPRECATED — use ``pythonVersion``. A bare ``major.minor`` value is folded into ``pythonVersion``; a full image reference is accepted but ignored at build time (it would bypass the FIPS base image).
+          title: Pythonbaseimage
+        pythonVersion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Python interpreter version for the built image, e.g. ``3.11``. Selects the DR runtime base-image tag; the venv is built against this interpreter. Allowed: 3.10, 3.11, 3.12, 3.13. When omitted, the runtime template''s default applies.'
+          title: Pythonversion
+      required:
+      - name
+      title: PipelineImageUpdateRequest
+      type: object
+    PipelineImageLogsResponse:
+      description: "Response schema for image build logs.\n\nAttributes:\n    logs: Full raw build output as a UTF-8 decoded string."
+      properties:
+        logs:
+          title: Logs
+          type: string
+      required:
+      - logs
+      title: PipelineImageLogsResponse
+      type: object
+    PipelineImageDefinition:
+      description: 'Canonical image definition stored on ``PipelineImageVersion``.
+
+
+        ``packages`` maps to covalent''s ``pip`` kwarg. ``python_base_image``
+
+        maps to covalent''s ``base_image`` kwarg. ``gpu`` maps to covalent''s
+
+        ``nvidia`` kwarg (a pod-scheduling signal). ``conda`` is supported for
+
+        power users but not surfaced in the public API schema. Persisted as JSONB
+
+        in ``PipelineImageVersion.definition``.'
+      properties:
+        conda:
+          anyOf:
+          - $ref: '#/components/schemas/CondaSpec'
+          - items:
+              type: string
+            type: array
+          title: Conda
+        gpu:
+          default: false
+          description: 'Request GPU support for the built image. A pod-scheduling signal (GPU resource claim + tolerations + affinity applied at dispatch); the image bakes no CUDA by default — bring your own GPU wheels. Gated by the environment''s GPU capacity: when GPU support is not enabled a ``gpu: true`` request is rejected with 422. Accepted as the deprecated alias ``nvidia``.'
+          title: Gpu
+          type: boolean
+        name:
+          maxLength: 255
+          minLength: 1
+          title: Name
+          type: string
+        packages:
+          items:
+            type: string
+          title: Packages
+          type: array
+        pythonBaseImage:
+          anyOf:
+          - maxLength: 512
+            type: string
+          - type: 'null'
+          deprecated: true
+          description: DEPRECATED — use ``pythonVersion``. A bare ``major.minor`` value is folded into ``pythonVersion``; a full image reference is accepted but ignored at build time (it would bypass the FIPS base image).
+          title: Pythonbaseimage
+        pythonVersion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Python interpreter version for the built image, e.g. ``3.11``. Selects the DR runtime base-image tag; the venv is built against this interpreter. Allowed: 3.10, 3.11, 3.12, 3.13. When omitted, the runtime template''s default applies.'
+          title: Pythonversion
+      required:
+      - name
+      title: PipelineImageDefinition
+      type: object
+    DataPage_PipelineImageSummaryResponse_:
+      properties:
+        count:
+          readOnly: true
+          title: Count
+          type: integer
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineImageSummaryResponse'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous
+        totalCount:
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - totalCount
+      - count
+      title: DataPage[PipelineImageSummaryResponse]
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

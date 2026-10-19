@@ -1,0 +1,5136 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public AI Robustness Tests API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: The following endpoints outline how to manage AI robustness tests.
+  name: AI Robustness Tests
+paths:
+  /api/v2/genai/costMetricConfigurations/:
+    post:
+      description: Create a new cost metric configuration.
+      operationId: create_cost_metric_configuration_costMetricConfigurations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCostMetricConfigurationRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostMetricConfigurationResponse'
+          description: Cost configuration created successfully
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create cost metric configuration
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/costMetricConfigurations/{costMetricConfigurationId}/:
+    delete:
+      description: Delete an existing cost metric configuration.
+      operationId: delete_cost_metric_configuration_costMetricConfigurations__costMetricConfigurationId___delete
+      parameters:
+      - description: The ID of the cost metric configuration to delete.
+        in: path
+        name: costMetricConfigurationId
+        required: true
+        schema:
+          description: The ID of the cost metric configuration to delete.
+          title: costMetricConfigurationId
+          type: string
+      responses:
+        '204':
+          description: Cost metric configuration successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete cost metric configuration by cost metric configuration ID
+      tags:
+      - AI Robustness Tests
+    get:
+      description: Retrieve an existing cost metric configuration.
+      operationId: get_cost_metric_configuration_costMetricConfigurations__costMetricConfigurationId___get
+      parameters:
+      - description: The ID of the cost metric configuration to retrieve.
+        in: path
+        name: costMetricConfigurationId
+        required: true
+        schema:
+          description: The ID of the cost metric configuration to retrieve.
+          title: costMetricConfigurationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostMetricConfigurationResponse'
+          description: Cost metric configuration successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve cost metric configuration by cost metric configuration ID
+      tags:
+      - AI Robustness Tests
+    patch:
+      description: Edit an existing cost metric configuration.
+      operationId: update_cost_metric_configuration_costMetricConfigurations__costMetricConfigurationId___patch
+      parameters:
+      - description: The ID of the cost metric configuration to edit.
+        in: path
+        name: costMetricConfigurationId
+        required: true
+        schema:
+          description: The ID of the cost metric configuration to edit.
+          title: costMetricConfigurationId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCostMetricConfigurationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostMetricConfigurationResponse'
+          description: Cost metric configuration successfully updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit cost metric configuration by cost metric configuration ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/evaluationDatasetConfigurations/:
+    get:
+      description: List evaluation dataset configurations.
+      operationId: list_evaluation_dataset_configuration_evaluationDatasetConfigurations__get
+      parameters:
+      - description: Only retrieve the evaluation dataset configurations associated with this use case ID.
+        in: query
+        name: useCaseId
+        required: true
+        schema:
+          description: Only retrieve the evaluation dataset configurations associated with this use case ID.
+          title: useCaseId
+          type: string
+      - description: Only retrieve the evaluation dataset configuration associated with this playground ID.
+        in: query
+        name: playgroundId
+        required: true
+        schema:
+          description: Only retrieve the evaluation dataset configuration associated with this playground ID.
+          title: playgroundId
+          type: string
+      - description: Only retrieve the evaluation dataset configuration with this ID.
+        in: query
+        name: evaluationDatasetConfigurationId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the evaluation dataset configuration with this ID.
+          title: evaluationDatasetConfigurationId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the evaluation dataset configurations matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the evaluation dataset configurations matching the search query.
+          title: search
+      - description: Apply this sort order to the results. Valid options are "name", "creationUserId", "creationDate", "datasetId", "userName", "datasetName", "promptColumnName", "responseColumnName". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListEvaluationDatasetConfigurationsQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "creationUserId", "creationDate", "datasetId", "userName", "datasetName", "promptColumnName", "responseColumnName". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: If `true`, only retrieve the evaluation dataset configurations with correctness enabled. The default is `false`.
+        in: query
+        name: correctnessEnabledOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the evaluation dataset configurations with correctness enabled. The default is `false`.
+          title: correctnessEnabledOnly
+          type: boolean
+      - description: If `true`, only retrieve the evaluation dataset configurations where the evaluation dataset is in the completed status. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the evaluation dataset configurations where the evaluation dataset is in the completed status. The default is `false`.
+          title: completedOnly
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEvaluationDatasetConfigurationResponse'
+          description: Evaluation dataset configurations successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List evaluation dataset configurations
+      tags:
+      - AI Robustness Tests
+    post:
+      description: Create a new evaluation dataset configuration.
+      operationId: create_evaluation_dataset_configuration_evaluationDatasetConfigurations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEvaluationDatasetConfigurationRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDatasetConfigurationResponse'
+          description: Evaluation dataset configuration successfully created
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create evaluation dataset configuration
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/evaluationDatasetConfigurations/{evaluationDatasetConfigurationId}/:
+    delete:
+      description: Delete an existing evaluation dataset configuration.
+      operationId: delete_evaluation_dataset_configuration_evaluationDatasetConfigurations__evaluationDatasetConfigurationId___delete
+      parameters:
+      - description: The ID of the evaluation dataset configuration to delete.
+        in: path
+        name: evaluationDatasetConfigurationId
+        required: true
+        schema:
+          description: The ID of the evaluation dataset configuration to delete.
+          title: evaluationDatasetConfigurationId
+          type: string
+      responses:
+        '204':
+          description: Evaluation dataset configuration successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete evaluation dataset configuration by evaluation dataset configuration ID
+      tags:
+      - AI Robustness Tests
+    get:
+      description: Retrieve an existing evaluation dataset configuration.
+      operationId: get_evaluation_dataset_configuration_evaluationDatasetConfigurations__evaluationDatasetConfigurationId___get
+      parameters:
+      - description: The ID of the evaluation dataset configuration to retrieve.
+        in: path
+        name: evaluationDatasetConfigurationId
+        required: true
+        schema:
+          description: The ID of the evaluation dataset configuration to retrieve.
+          title: evaluationDatasetConfigurationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDatasetConfigurationResponse'
+          description: Evaluation dataset configuration successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve evaluation dataset configuration by evaluation dataset configuration ID
+      tags:
+      - AI Robustness Tests
+    patch:
+      description: Edit an existing evaluation dataset configuration.
+      operationId: update_evaluation_dataset_configuration_evaluationDatasetConfigurations__evaluationDatasetConfigurationId___patch
+      parameters:
+      - description: The ID of the evaluation dataset configuration to edit.
+        in: path
+        name: evaluationDatasetConfigurationId
+        required: true
+        schema:
+          description: The ID of the evaluation dataset configuration to edit.
+          title: evaluationDatasetConfigurationId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditEvaluationDatasetConfigurationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDatasetConfigurationResponse'
+          description: Evaluation dataset configuration successfully updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit evaluation dataset configuration by evaluation dataset configuration ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/evaluationDatasetMetricAggregations/:
+    delete:
+      description: Delete the evaluation dataset metric aggregation associated with the specified LLM blueprint IDs and/or chat IDs.
+      operationId: delete_evaluation_dataset_metric_aggregation_evaluationDatasetMetricAggregations__delete
+      parameters:
+      - description: The IDs of the LLM blueprints to delete the associated evaluation dataset metric aggregation for. If both `llmBlueprintIds` and `chatIds` are specified, will delete the aggregation record only if it matches both criteria.
+        in: query
+        name: llmBlueprintIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: The IDs of the LLM blueprints to delete the associated evaluation dataset metric aggregation for. If both `llmBlueprintIds` and `chatIds` are specified, will delete the aggregation record only if it matches both criteria.
+          title: llmBlueprintIds
+      - description: The IDs of the chats to delete the associated evaluation dataset metric aggregation for. If both `llmBlueprintIds` and `chatIds` are specified, will delete the aggregation record only if it matches both criteria.
+        in: query
+        name: chatIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: The IDs of the chats to delete the associated evaluation dataset metric aggregation for. If both `llmBlueprintIds` and `chatIds` are specified, will delete the aggregation record only if it matches both criteria.
+          title: chatIds
+      responses:
+        '204':
+          description: Evaluation dataset metric aggregation successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete evaluation dataset metric aggregation
+      tags:
+      - AI Robustness Tests
+    get:
+      description: List evaluation dataset metric aggregations.
+      operationId: list_evaluation_dataset_metric_aggregation_evaluationDatasetMetricAggregations__get
+      parameters:
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these LLM blueprint IDs.
+        in: query
+        name: llmBlueprintIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these LLM blueprint IDs.
+          title: llmBlueprintIds
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these chat IDs.
+        in: query
+        name: chatIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these chat IDs.
+          title: chatIds
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these evaluation dataset configuration IDs.
+        in: query
+        name: evaluationDatasetConfigurationIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these evaluation dataset configuration IDs.
+          title: evaluationDatasetConfigurationIds
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these metric names.
+        in: query
+        name: metricNames
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these metric names.
+          title: metricNames
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these aggregation types.
+        in: query
+        name: aggregationTypes
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AggregationType'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these aggregation types.
+          title: aggregationTypes
+      - description: Only retrieve the evaluation dataset metric aggregations associated with the current configuration of the llmblueprints.
+        in: query
+        name: currentConfigurationOnly
+        required: false
+        schema:
+          default: false
+          description: Only retrieve the evaluation dataset metric aggregations associated with the current configuration of the llmblueprints.
+          title: currentConfigurationOnly
+          type: boolean
+      - description: Apply this sort order to the results. Valid options are "name", "creationUserId", "creationDate", "datasetId", "userName", "datasetName", "promptColumnName", "responseColumnName". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListEvaluationDatasetMetricAggregationSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "creationUserId", "creationDate", "datasetId", "userName", "datasetName", "promptColumnName", "responseColumnName". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: If `true`, only retrieve the evaluation dataset metric aggregations that are in a non-errored status. The default is `false`.
+        in: query
+        name: nonErroredOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the evaluation dataset metric aggregations that are in a non-errored status. The default is `false`.
+          title: nonErroredOnly
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEvaluationDatasetMetricAggregationResponse'
+          description: Evaluation dataset metric aggregations successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List evaluation dataset metric aggregations
+      tags:
+      - AI Robustness Tests
+    post:
+      description: Create a new evaluation dataset metric aggregation.
+      operationId: create_evaluation_dataset_metric_aggregation_evaluationDatasetMetricAggregations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEvaluationDatasetMetricAggregationRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEvaluationDatasetMetricAggregationResponse'
+          description: Evaluation dataset metric aggregation job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create evaluation dataset metric aggregation
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/evaluationDatasetMetricAggregations/aggregateByLLMBlueprint/:
+    get:
+      description: List evaluation dataset metric aggregations aggregated by llm blueprint.
+      operationId: list_evaluation_dataset_metric_aggregation_aggregated_by_llm_blueprint_evaluationDatasetMetricAggregations_aggregateByLLMBlueprint__get
+      parameters:
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these LLM blueprint IDs.
+        in: query
+        name: llmBlueprintIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these LLM blueprint IDs.
+          title: llmBlueprintIds
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these chat IDs.
+        in: query
+        name: chatIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these chat IDs.
+          title: chatIds
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these evaluation dataset configuration IDs.
+        in: query
+        name: evaluationDatasetConfigurationIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these evaluation dataset configuration IDs.
+          title: evaluationDatasetConfigurationIds
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these metric names.
+        in: query
+        name: metricNames
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these metric names.
+          title: metricNames
+      - description: Only retrieve the evaluation dataset metric aggregations associated with these aggregation types.
+        in: query
+        name: aggregationTypes
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AggregationType'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the evaluation dataset metric aggregations associated with these aggregation types.
+          title: aggregationTypes
+      - description: Only retrieve the evaluation dataset metric aggregations associated with the current configuration of the llmblueprints.
+        in: query
+        name: currentConfigurationOnly
+        required: false
+        schema:
+          default: false
+          description: Only retrieve the evaluation dataset metric aggregations associated with the current configuration of the llmblueprints.
+          title: currentConfigurationOnly
+          type: boolean
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: If `true`, only retrieve the evaluation dataset metric aggregations that are in a non-errored status. The default is `false`.
+        in: query
+        name: nonErroredOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the evaluation dataset metric aggregations that are in a non-errored status. The default is `false`.
+          title: nonErroredOnly
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEvaluationDatasetMetricAggregationAggregatedByLLMBlueprintResponse'
+          description: Evaluation dataset metric aggregations aggregated by llm blueprint successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List evaluation dataset metric aggregations aggregated by llm blueprint
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/evaluationDatasetMetricAggregations/uniqueFieldValues/{uniqueField}/:
+    get:
+      description: List evaluation dataset metric aggregations unique computed metrics.
+      operationId: list_evaluation_dataset_metric_aggregation_unique_field_values_evaluationDatasetMetricAggregations_uniqueFieldValues__uniqueField___get
+      parameters:
+      - description: Retrieve the list of this unique field.
+        in: path
+        name: uniqueField
+        required: true
+        schema:
+          $ref: '#/components/schemas/EvaluationDatasetMetricAggregationFieldQueryParam'
+          description: Retrieve the list of this unique field.
+      - description: Only retrieve the list of the unique field associated with these LLM blueprint IDs.
+        in: query
+        name: llmBlueprintIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the list of the unique field associated with these LLM blueprint IDs.
+          title: llmBlueprintIds
+      - description: Only retrieve the list of the unique field associated with these metric names.
+        in: query
+        name: metricNames
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the list of the unique field associated with these metric names.
+          title: metricNames
+      - description: Only retrieve the list of the unique field associated with these chat IDs.
+        in: query
+        name: chatIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the list of the unique field associated with these chat IDs.
+          title: chatIds
+      - description: Only retrieve the list of the unique field associated with these evaluation dataset configuration IDs.
+        in: query
+        name: evaluationDatasetConfigurationIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the list of the unique field associated with these evaluation dataset configuration IDs.
+          title: evaluationDatasetConfigurationIds
+      - description: Only retrieve the list of the unique field associated with these aggregation types.
+        in: query
+        name: aggregationTypes
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AggregationType'
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the list of the unique field associated with these aggregation types.
+          title: aggregationTypes
+      - description: Only retrieve the evaluation dataset metric aggregations associated with the current configuration of the llmblueprints.
+        in: query
+        name: currentConfigurationOnly
+        required: false
+        schema:
+          default: false
+          description: Only retrieve the evaluation dataset metric aggregations associated with the current configuration of the llmblueprints.
+          title: currentConfigurationOnly
+          type: boolean
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: If `true`, only retrieve the list of the unique field for aggregation records that are in a non-errored status. The default is `false`.
+        in: query
+        name: nonErroredOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the list of the unique field for aggregation records that are in a non-errored status. The default is `false`.
+          title: nonErroredOnly
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEvaluationDatasetMetricAggregationUniqueFieldValuesResponse'
+          description: Evaluation dataset metric aggregations unique computed metrics successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List evaluation dataset metric aggregations unique computed metrics by…
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestConfigurations/:
+    get:
+      description: List LLM test configuration.
+      operationId: list_llm_test_configurations_llmTestConfigurations__get
+      parameters:
+      - description: Use Case ID.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Use Case ID.
+          title: useCaseId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Whether to return out-of-the-box (ootb) or custom LLM test configurations in the response.
+        in: query
+        name: testConfigType
+        required: false
+        schema:
+          $ref: '#/components/schemas/LLMTestConfigurationType'
+          default: custom
+          description: Whether to return out-of-the-box (ootb) or custom LLM test configurations in the response.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLLMTestConfigurationsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List LLM test configuration
+      tags:
+      - AI Robustness Tests
+    post:
+      description: Create a new LLM test configuration.
+      operationId: create_llm_test_configuration_llmTestConfigurations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLLMTestConfigurationRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestConfigurationResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create LLM test configuration
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestConfigurations/nonOotbDatasets/:
+    get:
+      description: List the supported non out-of-the-box datasets that can be used with an LLM test configuration.
+      operationId: list_llm_test_configuration_non_ootb_datasets_llmTestConfigurations_nonOotbDatasets__get
+      parameters:
+      - description: Use Case ID.
+        in: query
+        name: useCaseId
+        required: true
+        schema:
+          description: Use Case ID.
+          title: useCaseId
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the datasets with names matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the datasets with names matching the search query.
+          title: search
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLLMTestConfigurationNonOOTBDatasetsResponse'
+          description: Non out-of-the-box datasets successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List non out-of-the-box datasets
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestConfigurations/ootbDatasets/:
+    get:
+      description: List the supported out-of-the-box datasets that can be used with an LLM test configuration.
+      operationId: list_llm_test_configuration_ootb_datasets_llmTestConfigurations_ootbDatasets__get
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the datasets with names matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the datasets with names matching the search query.
+          title: search
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLLMTestConfigurationOOTBDatasetsResponse'
+          description: Out-of-the-box datasets successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List out-of-the-box datasets
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestConfigurations/supportedInsights/:
+    get:
+      description: List the supported LLM test insight configurations for the specified use case.
+      operationId: list_llm_test_configuration_supported_insights_llmTestConfigurations_supportedInsights__get
+      parameters:
+      - description: If specified, only retrieve the insights supported by this use case ID.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, only retrieve the insights supported by this use case ID.
+          title: useCaseId
+      - description: If specified, only retrieve the insights supported by the use case for which the playgroundId belongs.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, only retrieve the insights supported by the use case for which the playgroundId belongs.
+          title: playgroundId
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestConfigurationSupportedInsightsResponse'
+          description: LLM test supported insight configurations successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List supported insights
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestConfigurations/{llmTestConfigurationId}/:
+    delete:
+      description: Delete an existing LLM test configuration.
+      operationId: delete_llm_test_configuration_llmTestConfigurations__llmTestConfigurationId___delete
+      parameters:
+      - description: The ID of the LLM Test Configuration to delete.
+        in: path
+        name: llmTestConfigurationId
+        required: true
+        schema:
+          description: The ID of the LLM Test Configuration to delete.
+          title: llmTestConfigurationId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete LLM test configuration by LLM test configuration ID
+      tags:
+      - AI Robustness Tests
+    get:
+      description: Retrieve an existing LLM test configuration.
+      operationId: get_llm_test_configuration_llmTestConfigurations__llmTestConfigurationId___get
+      parameters:
+      - description: The ID of the LLM Test Configuration to retrieve.
+        in: path
+        name: llmTestConfigurationId
+        required: true
+        schema:
+          description: The ID of the LLM Test Configuration to retrieve.
+          title: llmTestConfigurationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestConfigurationResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve LLM test configuration by LLM test configuration ID
+      tags:
+      - AI Robustness Tests
+    patch:
+      description: Edit an existing LLM test configuration.
+      operationId: edit_llm_test_configuration_llmTestConfigurations__llmTestConfigurationId___patch
+      parameters:
+      - description: The ID of the LLM Test Configuration to update.
+        in: path
+        name: llmTestConfigurationId
+        required: true
+        schema:
+          description: The ID of the LLM Test Configuration to update.
+          title: llmTestConfigurationId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditLLMTestConfigurationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestConfigurationResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit LLM test configuration by LLM test configuration ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestResults/:
+    get:
+      description: List LLM test results.
+      operationId: list_llm_test_results_llmTestResults__get
+      parameters:
+      - description: LLM Test Configuration ID.
+        in: query
+        name: llmTestConfigurationId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: LLM Test Configuration ID.
+          title: llmTestConfigurationId
+      - description: LLM Blueprint ID.
+        in: query
+        name: llmBlueprintId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: LLM Blueprint ID.
+          title: llmBlueprintId
+      - description: LLM Test Suite ID.
+        in: query
+        name: llmTestSuiteId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: LLM Test Suite ID.
+          title: llmTestSuiteId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLLMTestResultResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List LLM test results
+      tags:
+      - AI Robustness Tests
+    post:
+      description: Create a new LLM test result.
+      operationId: create_llm_test_result_llmTestResults__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLLMTestResultRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestResultResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create LLM test result
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestResults/{llmTestResultId}/:
+    delete:
+      description: Delete an existing LLM test result.
+      operationId: delete_llm_test_result_llmTestResults__llmTestResultId___delete
+      parameters:
+      - description: The ID of the LLM Test Result to delete.
+        in: path
+        name: llmTestResultId
+        required: true
+        schema:
+          description: The ID of the LLM Test Result to delete.
+          title: llmTestResultId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete LLM test result by LLM test result ID
+      tags:
+      - AI Robustness Tests
+    get:
+      description: Retrieve an existing LLM test result.
+      operationId: get_llm_test_result_llmTestResults__llmTestResultId___get
+      parameters:
+      - description: The ID of the LLM Test Result to retrieve.
+        in: path
+        name: llmTestResultId
+        required: true
+        schema:
+          description: The ID of the LLM Test Result to retrieve.
+          title: llmTestResultId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestResultResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve LLM test result by LLM test result ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestSuites/:
+    get:
+      description: List LLM test suites.
+      operationId: list_llm_test_suites_llmTestSuites__get
+      parameters:
+      - description: Only retrieve the LLM test suites associated with this use case ID.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the LLM test suites associated with this use case ID.
+          title: useCaseId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Apply this sort order to the results. Valid options are "name" and "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListLLMTestSuiteSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name" and "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLLMTestSuitesResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List LLM test suites
+      tags:
+      - AI Robustness Tests
+    post:
+      description: Create a new LLM test suite.
+      operationId: create_llm_test_suite_llmTestSuites__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLLMTestSuiteRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestSuiteResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create LLM test suite
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/llmTestSuites/{llmTestSuiteId}/:
+    delete:
+      description: Delete an existing LLM test suite.
+      operationId: delete_llm_test_suite_llmTestSuites__llmTestSuiteId___delete
+      parameters:
+      - description: The ID of the LLM test suite to delete.
+        in: path
+        name: llmTestSuiteId
+        required: true
+        schema:
+          description: The ID of the LLM test suite to delete.
+          title: llmTestSuiteId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete LLM test suite by LLM test suite ID
+      tags:
+      - AI Robustness Tests
+    get:
+      description: Retrieve an existing LLM test suite.
+      operationId: get_llm_test_suite_llmTestSuites__llmTestSuiteId___get
+      parameters:
+      - description: The ID of the LLM test suite to retrieve.
+        in: path
+        name: llmTestSuiteId
+        required: true
+        schema:
+          description: The ID of the LLM test suite to retrieve.
+          title: llmTestSuiteId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestSuiteResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve LLM test suite by LLM test suite ID
+      tags:
+      - AI Robustness Tests
+    patch:
+      description: Edit an existing LLM test suite.
+      operationId: edit_llm_test_suite_llmTestSuites__llmTestSuiteId___patch
+      parameters:
+      - description: The ID of the LLM test suite to edit.
+        in: path
+        name: llmTestSuiteId
+        required: true
+        schema:
+          description: The ID of the LLM test suite to edit.
+          title: llmTestSuiteId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditLLMTestSuiteRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LLMTestSuiteResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit LLM test suite by LLM test suite ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/ootbMetricConfigurations/{ootbMetricConfigurationId}/:
+    delete:
+      description: Delete single OOTB metric configuration.
+      operationId: delete_ootb_metric_configuration_ootbMetricConfigurations__ootbMetricConfigurationId___delete
+      parameters:
+      - description: The ID of the metric configuration.
+        in: path
+        name: ootbMetricConfigurationId
+        required: true
+        schema:
+          description: The ID of the metric configuration.
+          title: ootbMetricConfigurationId
+          type: string
+      responses:
+        '204':
+          description: OOTB metric configuration successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete OOTB metric configuration by ootb metric configuration ID
+      tags:
+      - AI Robustness Tests
+    get:
+      description: Get OOTB metric configuration from the configuration.
+      operationId: get_ootb_metric_configuration_ootbMetricConfigurations__ootbMetricConfigurationId___get
+      parameters:
+      - description: The ID of the metric configuration.
+        in: path
+        name: ootbMetricConfigurationId
+        required: true
+        schema:
+          description: The ID of the metric configuration.
+          title: ootbMetricConfigurationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OOTBMetricConfigurationResponse'
+          description: OOTB metric configuration
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Get OOTB metric configuration by ootb metric configuration ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/sidecarModelMetricValidations/:
+    get:
+      description: List sidecar model metric validations.
+      operationId: list_sidecar_model_validations_sidecarModelMetricValidations__get
+      parameters:
+      - description: Only retrieve the sidecar model metric validations associated with these use case IDs.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the sidecar model metric validations associated with these use case IDs.
+          title: useCaseId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the sidecar model metric validations matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the sidecar model metric validations matching the search query.
+          title: search
+      - description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListCustomModelValidationSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: If `true`, only retrieve the completed sidecar model metric validations. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the completed sidecar model metric validations. The default is `false`.
+          title: completedOnly
+          type: boolean
+      - description: Only retrieve the sidecar model metric validations associated with this deployment ID.
+        in: query
+        name: deploymentId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the sidecar model metric validations associated with this deployment ID.
+          title: deploymentId
+      - description: Only retrieve the sidecar model metric validations associated with this model ID.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the sidecar model metric validations associated with this model ID.
+          title: modelId
+      - description: Only retrieve the sidecar model metric validations where the custom model uses this column name for prompt input.
+        in: query
+        name: promptColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the sidecar model metric validations where the custom model uses this column name for prompt input.
+          title: promptColumnName
+      - description: Only retrieve the sidecar model metric validations where the custom model uses this column name for prediction output.
+        in: query
+        name: targetColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the sidecar model metric validations where the custom model uses this column name for prediction output.
+          title: targetColumnName
+      - description: Only retrieve the sidecar model metric validations where the custom model uses this column name prefix for citation inputs.
+        in: query
+        name: citationsPrefixColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the sidecar model metric validations where the custom model uses this column name prefix for citation inputs.
+          title: citationsPrefixColumnName
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSidecarModelMetricValidationnResponse'
+          description: Sidecar model metric validations successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List sidecar model metric validations
+      tags:
+      - AI Robustness Tests
+    post:
+      description: Validate a metric hosted in a custom model deployment (also known as a sidecar model metric) for use in the playground.
+      operationId: create_sidecar_model_metric_validation_sidecarModelMetricValidations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSidecarModelMetricValidationRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidecarModelMetricValidationResponse'
+          description: Sidecar model metric validation job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Validate sidecar model metric
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/sidecarModelMetricValidations/{validationId}/:
+    delete:
+      description: Delete an existing sidecar model metric validation.
+      operationId: delete_sidecar_model_metric_validation_sidecarModelMetricValidations__validationId___delete
+      parameters:
+      - description: The ID of the sidecar model metric validation to delete.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the sidecar model metric validation to delete.
+          title: validationId
+          type: string
+      responses:
+        '204':
+          description: Sidecar model metric validation successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete sidecar model metric validation by validation ID
+      tags:
+      - AI Robustness Tests
+    get:
+      description: Retrieve the status of validating a sidecar model metric.
+      operationId: get_sidecar_model_metric_validation_sidecarModelMetricValidations__validationId___get
+      parameters:
+      - description: The ID of the sidecar model metric validation to retrieve.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the sidecar model metric validation to retrieve.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidecarModelMetricValidationResponse'
+          description: Sidecar model metric validation status successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve sidecar model metric validation status by validation ID
+      tags:
+      - AI Robustness Tests
+    patch:
+      description: Edit an existing sidecar model metric validation.
+      operationId: update_sidecar_model_metric_validation_sidecarModelMetricValidations__validationId___patch
+      parameters:
+      - description: The ID of the sidecar model metric validation to edit.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the sidecar model metric validation to edit.
+          title: validationId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditSidecarModelMetricValidationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidecarModelMetricValidationResponse'
+          description: Sidecar model metric validation successfully updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit sidecar model metric validation by validation ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/sidecarModelMetricValidations/{validationId}/revalidate/:
+    post:
+      description: Revalidate an existing sidecar model metric validation.
+      operationId: revalidate_sidecar_model_validation_sidecarModelMetricValidations__validationId__revalidate__post
+      parameters:
+      - description: The ID of the sidecar model metric validation to revalidate.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the sidecar model metric validation to revalidate.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidecarModelMetricValidationResponse'
+          description: Sidecar model metric successfully revalidated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Revalidate sidecar model metric by validation ID
+      tags:
+      - AI Robustness Tests
+  /api/v2/genai/syntheticEvaluationDatasetGenerations/:
+    post:
+      description: Generate a synthetic evaluation dataset.
+      operationId: generate_synthetic_dataset_syntheticEvaluationDatasetGenerations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyntheticEvaluationDatasetGenerationRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyntheticEvaluationDatasetGenerationResponse'
+          description: Synthetic evaluation data generation job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Generate synthetic evaluation dataset
+      tags:
+      - AI Robustness Tests
+components:
+  schemas:
+    RetrievalMode:
+      description: Retrieval modes for vector databases.
+      enum:
+      - similarity
+      - maximal_marginal_relevance
+      title: RetrievalMode
+      type: string
+    InsightsConfigurationWithAdditionalData:
+      description: The configuration of insights with extra data.
+      properties:
+        aggregationTypes:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AggregationType'
+            type: array
+          - type: 'null'
+          description: The aggregation types used in the insights configuration.
+          title: aggregationTypes
+        costConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the cost configuration.
+          title: costConfigurationId
+        customMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom metric (if using a custom metric).
+          title: customMetricId
+        customModelGuard:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelGuard'
+          - type: 'null'
+          description: Guard as configured in the custom model.
+        customModelLLMValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model LLM validation if using a custom model LLM for OOTB metrics.
+          title: customModelLLMValidationId
+        deploymentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model deployment associated with the insight.
+          title: deploymentId
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the evaluation dataset configuration or sidecar model metric validation or OOTB metric.
+          title: errorMessage
+        errorResolution:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The error type associated with the insight error status and error message as an indicator of what fields needs to be edited if any.
+          title: errorResolution
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration.
+          title: evaluationDatasetConfigurationId
+        executionStatus:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionStatus'
+          - type: 'null'
+          description: The execution status of the evaluation dataset configuration.
+        extraMetricSettings:
+          anyOf:
+          - $ref: '#/components/schemas/ExtraMetricSettings'
+          - type: 'null'
+          description: Extra settings for the metric that do not reference other entities.
+        insightName:
+          description: The name of the insight.
+          maxLength: 5000
+          minLength: 1
+          title: insightName
+          type: string
+        insightType:
+          anyOf:
+          - $ref: '#/components/schemas/InsightTypes'
+          - type: 'null'
+          description: The type of the insight.
+        isTransferable:
+          default: false
+          description: Indicates if insight can be transferred to production.
+          title: isTransferable
+          type: boolean
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The LLM ID for OOTB metrics that use LLMs.
+          title: llmId
+        llmIsActive:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the LLM is active.
+          title: llmIsActive
+        llmIsDeprecated:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the LLM is deprecated and will be removed in a future release.
+          title: llmIsDeprecated
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the model associated with `deploymentId`.
+          title: modelId
+        modelPackageRegisteredModelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the registered model package associated with `deploymentId`.
+          title: modelPackageRegisteredModelId
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithID'
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration associated with the insight configuration.
+          title: moderationConfiguration
+        nemoMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the Nemo configuration.
+          title: nemoMetricId
+        ootbMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the ootb metric (if using an ootb metric).
+          title: ootbMetricId
+        ootbMetricName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBMetricInsightNames'
+          - $ref: '#/components/schemas/OOTBAgenticMetricInsightNames'
+          - $ref: '#/components/schemas/OTELMetricInsightNames'
+          - type: 'null'
+          description: The OOTB metric name.
+          title: ootbMetricName
+        resultUnit:
+          anyOf:
+          - $ref: '#/components/schemas/MetricUnit'
+          - type: 'null'
+          description: The unit of measurement associated with the insight result.
+        sidecarModelMetricMetadata:
+          anyOf:
+          - $ref: '#/components/schemas/SidecarModelMetricMetadata'
+          - type: 'null'
+          description: The metadata of the sidecar model metric (if using a sidecar model metric).
+        sidecarModelMetricValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the sidecar model metric validation (if using a sidecar model metric).
+          title: sidecarModelMetricValidationId
+        stage:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineStage'
+          - type: 'null'
+          description: The stage (prompt or response) where insight is calculated at.
+      required:
+      - insightName
+      - aggregationTypes
+      title: InsightsConfigurationWithAdditionalData
+      type: object
+    CreateSidecarModelMetricValidationRequest:
+      description: The body of the "Validate sidecar model metric" request.
+      properties:
+        citationsPrefixColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The column name prefix the custom model uses for citation inputs.
+          title: citationsPrefixColumnName
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        expectedResponseColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for the expected response text input.
+          title: expectedResponseColumnName
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the model used in the deployment.
+          title: modelId
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration to be associated with the sidecar model metric.
+        name:
+          default: Untitled
+          description: The name to use for the validated custom model.
+          maxLength: 5000
+          title: name
+          type: string
+        playgroundId:
+          description: The ID of the playground to associate with the validated custom model.
+          title: playgroundId
+          type: string
+        predictionTimeout:
+          default: 300
+          description: The timeout in seconds for the prediction when validating a custom model. Defaults to 300.
+          maximum: 600.0
+          minimum: 1.0
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prompt text input.
+          title: promptColumnName
+        responseColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for response text input.
+          title: responseColumnName
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          maxLength: 5000
+          title: targetColumnName
+          type: string
+        useCaseId:
+          description: The ID of the use case to associate with the validated custom model.
+          title: useCaseId
+          type: string
+      required:
+      - deploymentId
+      - useCaseId
+      - playgroundId
+      - targetColumnName
+      title: CreateSidecarModelMetricValidationRequest
+      type: object
+    SyntheticEvaluationDatasetGenerationRequest:
+      description: The body of the "Generate synthetic evaluation dataset" request.
+      properties:
+        datasetName:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          description: The name to use for the generated dataset.
+          title: datasetName
+        language:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The language to use for the generated dataset.
+          title: language
+        llmId:
+          description: The ID of the LLM to use for synthetic dataset generation.
+          title: llmId
+          type: string
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: If specified, uses these LLM settings for the prompt and updates the settings of the corresponding chat or LLM blueprint to use these LLM settings.
+          title: llmSettings
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database to use for synthetic dataset generation.
+          title: vectorDatabaseId
+      required:
+      - llmId
+      title: SyntheticEvaluationDatasetGenerationRequest
+      type: object
+    ToolCallAccuracySettings:
+      description: Additional arguments for the tool call accuracy metric.
+      properties:
+        argumentComparison:
+          $ref: '#/components/schemas/ArgumentMatchMode'
+          description: Setting defining how arguments of tool calls should be compared during the metric computation.
+      required:
+      - argumentComparison
+      title: ToolCallAccuracySettings
+      type: object
+    InsightEvaluationResultResponse:
+      description: API response object for a single InsightEvaluationResult.
+      properties:
+        aggregationType:
+          anyOf:
+          - $ref: '#/components/schemas/AggregationType'
+          - type: 'null'
+          description: Aggregation type.
+        aggregationValue:
+          anyOf:
+          - type: number
+          - items:
+              $ref: '#/components/schemas/AggregationValue'
+            type: array
+          - type: 'null'
+          description: Aggregation value. None indicates that the aggregation failed.
+          title: aggregationValue
+        chatId:
+          description: Chat ID.
+          title: chatId
+          type: string
+        chatName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Chat name.
+          title: chatName
+        customModelLLMValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom Model LLM Validation ID if using custom model LLM.
+          title: customModelLLMValidationId
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Evaluation dataset configuration ID.
+          title: evaluationDatasetConfigurationId
+        evaluationDatasetName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Evaluation dataset name.
+          title: evaluationDatasetName
+        evaluationName:
+          description: Evaluation name.
+          maxLength: 5000
+          title: evaluationName
+          type: string
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          default: NEW
+          description: The execution status of the insight evaluation result.
+        gradingResult:
+          anyOf:
+          - $ref: '#/components/schemas/GradingResult'
+          - type: 'null'
+          description: The grading result for this insight evaluation result. If not specified, execution status is not COMPLETED.
+        id:
+          description: Insight evaluation result ID.
+          title: id
+          type: string
+        insightGradingCriteria:
+          $ref: '#/components/schemas/InsightGradingCriteria'
+          description: Insight grading criteria.
+        lastUpdateDate:
+          description: Last update date of the insight evaluation result (ISO 8601 formatted).
+          format: date-time
+          title: lastUpdateDate
+          type: string
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: LLM ID used for this insight evaluation result.
+          title: llmId
+        llmTestResultId:
+          description: LLM test result ID this insight evaluation result is associated to.
+          title: llmTestResultId
+          type: string
+        maxNumPrompts:
+          description: Number of prompts used in evaluation.
+          title: maxNumPrompts
+          type: integer
+        metricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the metric.
+          title: metricName
+        promptSamplingStrategy:
+          $ref: '#/components/schemas/PromptSamplingStrategy'
+          description: Prompt sampling strategy for maxNumPrompts.
+      required:
+      - id
+      - llmTestResultId
+      - maxNumPrompts
+      - promptSamplingStrategy
+      - chatId
+      - chatName
+      - evaluationName
+      - insightGradingCriteria
+      - lastUpdateDate
+      title: InsightEvaluationResultResponse
+      type: object
+    HTTPValidationErrorResponse:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: detail
+          type: array
+      title: HTTPValidationErrorResponse
+      type: object
+    ModerationAction:
+      description: The moderation strategy.
+      enum:
+      - block
+      - report
+      - reportAndBlock
+      title: ModerationAction
+      type: string
+    CommonLLMSettings:
+      additionalProperties: true
+      description: The settings that are available for all non-custom LLMs.
+      properties:
+        maxCompletionLength:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Maximum number of tokens allowed in the chat completion. Use this value to, for example, control costs on token-based charges or manage response length for chat text limits.
+          title: maxCompletionLength
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+      title: CommonLLMSettings
+      type: object
+    ListEvaluationDatasetConfigurationResponse:
+      description: Paginated list of evaludation dataset configurations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/EvaluationDatasetConfigurationResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListEvaluationDatasetConfigurationResponse
+      type: object
+    OOTBDatasetName:
+      description: Out-of-the-box dataset name.
+      enum:
+      - jailbreak-v1.csv
+      - bbq-lite-age-v1.csv
+      - bbq-lite-gender-v1.csv
+      - bbq-lite-race-ethnicity-v1.csv
+      - bbq-lite-religion-v1.csv
+      - bbq-lite-disability-status-v1.csv
+      - bbq-lite-sexual-orientation-v1.csv
+      - bbq-lite-nationality-v1.csv
+      - bbq-lite-ses-v1.csv
+      - completeness-parent-v1.csv
+      - completeness-grandparent-v1.csv
+      - completeness-great-grandparent-v1.csv
+      - pii-v1.csv
+      - toxicity-v2.csv
+      - jbbq-age-v1.csv
+      - jbbq-gender-identity-v1.csv
+      - jbbq-physical-appearance-v1.csv
+      - jbbq-disability-status-v1.csv
+      - jbbq-sexual-orientation-v1.csv
+      title: OOTBDatasetName
+      type: string
+    ListEvaluationDatasetMetricAggregationResponse:
+      description: Paginated list of evaluation dataset metric aggregations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/EvaluationDatasetMetricAggregationResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListEvaluationDatasetMetricAggregationResponse
+      type: object
+    CreateLLMTestSuiteRequest:
+      description: The body of the "Create LLM test suite" request.
+      properties:
+        description:
+          default: ''
+          description: The description of the LLM test suite.
+          maxLength: 5000
+          title: description
+          type: string
+        llmTestConfigurationIds:
+          default: []
+          description: The IDs of the LLM test configurations in the LLM test suite.
+          items:
+            type: string
+          maxItems: 100
+          title: llmTestConfigurationIds
+          type: array
+        name:
+          description: The name of the LLM test suite.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+        useCaseId:
+          description: The ID of the use case to associate with the LLM test suite.
+          title: useCaseId
+          type: string
+      required:
+      - name
+      - useCaseId
+      title: CreateLLMTestSuiteRequest
+      type: object
+    ListLLMTestResultResponse:
+      description: Paginated list of LLM test results.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/LLMTestResultResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListLLMTestResultResponse
+      type: object
+    GradingResult:
+      description: Grading result.
+      enum:
+      - PASS
+      - FAIL
+      title: GradingResult
+      type: string
+    CreateCostMetricConfigurationRequest:
+      description: The body of the "Create cost metric configuration" request.
+      properties:
+        costMetricConfigurations:
+          description: The list of cost metric configurations to use.
+          items:
+            $ref: '#/components/schemas/LLMCostConfigurationResponse'
+          title: costMetricConfigurations
+          type: array
+        name:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name to use for the cost configuration.
+          title: name
+        playgroundId:
+          description: The ID of the playground to associate with the cost metric configuration.
+          title: playgroundId
+          type: string
+        useCaseId:
+          description: The ID of the use case to associate with the cost metric configuration.
+          title: useCaseId
+          type: string
+      required:
+      - useCaseId
+      - playgroundId
+      - costMetricConfigurations
+      title: CreateCostMetricConfigurationRequest
+      type: object
+    CustomModelLLMSettings:
+      additionalProperties: false
+      description: The settings that are available for custom model LLMs.
+      properties:
+        externalLlmContextSize:
+          anyOf:
+          - maximum: 128000.0
+            minimum: 128.0
+            type: integer
+          - type: 'null'
+          default: 4096
+          description: The external LLM's context size, in tokens. This value is only used for pruning documents supplied to the LLM when a vector database is associated with the LLM blueprint. It does not affect the external LLM's actual context size in any way and is not supplied to the LLM.
+          title: externalLlmContextSize
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+        validationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the custom model LLM.
+          title: validationId
+      title: CustomModelLLMSettings
+      type: object
+    Intervention:
+      description: The intervention configuration for a metric.
+      properties:
+        action:
+          $ref: '#/components/schemas/ModerationAction'
+          description: The intervention strategy.
+        message:
+          description: The intervention message to replace the prediction when a guard condition is satisfied.
+          minLength: 1
+          title: message
+          type: string
+      required:
+      - action
+      - message
+      title: Intervention
+      type: object
+    SidecarModelMetricValidationResponse:
+      description: API response object for a single sidecar model metric validation.
+      properties:
+        citationsPrefixColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The column name prefix the custom model uses for citation inputs.
+          title: citationsPrefixColumnName
+        creationDate:
+          description: The creation date of the custom model validation (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        deploymentAccessData:
+          anyOf:
+          - $ref: '#/components/schemas/DeploymentAccessData'
+          - type: 'null'
+          description: The parameters used for accessing the deployment.
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        deploymentName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the custom model deployment.
+          title: deploymentName
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the validation error (if the validation failed).
+          title: errorMessage
+        errorResolution:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/InsightErrorResolution'
+            type: array
+          - type: 'null'
+          description: The error type associated with the insight error status and error message as an indicator of what fields needs to be edited if any.
+          title: errorResolution
+        expectedResponseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for expected response text input.
+          title: expectedResponseColumnName
+        id:
+          description: The ID of the custom model validation.
+          title: id
+          type: string
+        modelId:
+          description: The ID of the model used in the deployment.
+          title: modelId
+          type: string
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration associated with the sidecar model metric.
+        name:
+          description: The name of the validated custom model.
+          title: name
+          type: string
+        playgroundId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the playground associated with the sidecar model metric validation.
+          title: playgroundId
+        predictionTimeout:
+          description: The timeout in seconds for the prediction API used in this custom model validation.
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prompt text input.
+          title: promptColumnName
+        responseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for response text input.
+          title: responseColumnName
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          title: targetColumnName
+          type: string
+        tenantId:
+          description: The ID of the tenant the custom model validation belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the use case associated with the validated custom model.
+          title: useCaseId
+        userId:
+          description: The ID of the user that created this custom model validation.
+          title: userId
+          type: string
+        userName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the user that created this custom model validation.
+          title: userName
+        validationStatus:
+          $ref: '#/components/schemas/CustomModelValidationStatus'
+          description: The status of the custom model validation.
+      required:
+      - id
+      - deploymentId
+      - targetColumnName
+      - validationStatus
+      - modelId
+      - deploymentAccessData
+      - tenantId
+      - name
+      - useCaseId
+      - creationDate
+      - userId
+      - predictionTimeout
+      - playgroundId
+      - citationsPrefixColumnName
+      - promptColumnName
+      - responseColumnName
+      - expectedResponseColumnName
+      title: SidecarModelMetricValidationResponse
+      type: object
+    OOTBMetricInsightNames:
+      description: The Out-Of-The-Box metric name that can be used in the playground.
+      enum:
+      - latency
+      - citations
+      - rouge_1
+      - faithfulness
+      - correctness
+      - prompt_tokens
+      - response_tokens
+      - document_tokens
+      - all_tokens
+      - jailbreak_violation
+      - toxicity_violation
+      - pii_violation
+      - exact_match
+      - starts_with
+      - contains
+      title: OOTBMetricInsightNames
+      type: string
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    DatasetIdentifier:
+      description: Dataset identifier.
+      properties:
+        datasetId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the dataset, if any.
+          title: datasetId
+        datasetName:
+          description: The name of the dataset.
+          title: datasetName
+          type: string
+      required:
+      - datasetName
+      - datasetId
+      title: DatasetIdentifier
+      type: object
+    SyntheticEvaluationDatasetGenerationResponse:
+      description: The body of the "Create synthetic evaluation dataset" response.
+      properties:
+        datasetId:
+          description: The ID of the created dataset.
+          title: datasetId
+          type: string
+        promptColumnName:
+          description: The name of the dataset column containing the prompt text.
+          title: promptColumnName
+          type: string
+        responseColumnName:
+          description: The name of the dataset column containing the response text.
+          title: responseColumnName
+          type: string
+      required:
+      - datasetId
+      - promptColumnName
+      - responseColumnName
+      title: SyntheticEvaluationDatasetGenerationResponse
+      type: object
+    CreateEvaluationDatasetMetricAggregationResponse:
+      description: The body of the "Create evaluation dataset metric aggregation" response.
+      properties:
+        chatIds:
+          description: The IDs of the chats associated with the metric aggregation.
+          items:
+            type: string
+          title: chatIds
+          type: array
+        jobId:
+          description: The ID of the evaluation dataset metric aggregation job.
+          format: uuid4
+          title: jobId
+          type: string
+      required:
+      - jobId
+      - chatIds
+      title: CreateEvaluationDatasetMetricAggregationResponse
+      type: object
+    PromptType:
+      description: Determines whether chat history is submitted as context to the user prompt.
+      enum:
+      - CHAT_HISTORY_AWARE
+      - ONE_TIME_PROMPT
+      title: PromptType
+      type: string
+    EvaluationDatasetMetricAggregationResponse:
+      description: API response object for a single evaluation dataset metric aggregation.
+      properties:
+        aggregationType:
+          $ref: '#/components/schemas/AggregationType'
+          description: The type of metric aggregation.
+        aggregationValue:
+          anyOf:
+          - type: number
+          - items:
+              $ref: '#/components/schemas/AggregationValue'
+            type: array
+          - items:
+              $ref: '#/components/schemas/AggregatedAggregationValue'
+            type: array
+          - type: 'null'
+          description: The aggregated value of the metric.
+          title: aggregationValue
+        chatId:
+          description: The ID of the chat associated with the metric aggregation.
+          title: chatId
+          type: string
+        chatLink:
+          description: The link to the chat associated with the metric aggregation.
+          title: chatLink
+          type: string
+        chatName:
+          description: The name of the chat associated with the metric aggregation.
+          title: chatName
+          type: string
+        creationDate:
+          description: The creation date of the metric aggregation (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the metric aggregation.
+          title: creationUserId
+          type: string
+        creationUserName:
+          description: The name of the user that created the metric aggregation.
+          title: creationUserName
+          type: string
+        customModelGuardId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model's guard the metric aggregation belongs to.
+          title: customModelGuardId
+        datasetId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The dataset ID of the evaluation dataset configuration.
+          title: datasetId
+        datasetName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Data Registry dataset name of the evaluation dataset configuration.
+          title: datasetName
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration associated with the metric aggregation.
+          title: evaluationDatasetConfigurationId
+        llmBlueprintId:
+          description: The ID of the LLM blueprint associated with the metric aggregation.
+          title: llmBlueprintId
+          type: string
+        metricName:
+          description: The name of the metric associated with the metric aggregation.
+          title: metricName
+          type: string
+        ootbDatasetName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBDatasetName'
+          - type: 'null'
+          description: The name of the out-of-the-box dataset.
+        tenantId:
+          description: The ID of the tenant the metric aggregation belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+      required:
+      - chatId
+      - chatName
+      - chatLink
+      - creationDate
+      - creationUserId
+      - creationUserName
+      - llmBlueprintId
+      - evaluationDatasetConfigurationId
+      - ootbDatasetName
+      - datasetId
+      - datasetName
+      - metricName
+      - aggregationValue
+      - aggregationType
+      - tenantId
+      - customModelGuardId
+      title: EvaluationDatasetMetricAggregationResponse
+      type: object
+    InsightErrorResolution:
+      description: Error type linking directly to the field name that is related to the error.
+      enum:
+      - ootbMetricName
+      - intervention
+      - guardCondition
+      - sidecarOverall
+      - sidecarRevalidate
+      - sidecarDeploymentId
+      - sidecarInputColumnName
+      - sidecarOutputColumnName
+      - promptPipelineFiles
+      - promptPipelineTemplateId
+      - responsePipelineFiles
+      - responsePipelineTemplateId
+      title: InsightErrorResolution
+      type: string
+    EditEvaluationDatasetConfigurationRequest:
+      description: The body of the "Edit evaluation dataset configuration" request.
+      properties:
+        agentGoalsColumnName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: If specified, changes the expected name of the dataset column containing expected agent goals. It is required to evaluate the AgentGoalAccuracyWithReference metric for agentic workflows.
+          title: agentGoalsColumnName
+        correctnessEnabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          deprecated: true
+          description: If specified, enables or disables correctness for the evaluation dataset configuration.
+          title: correctnessEnabled
+        datasetId:
+          default: '000000000000000000000000'
+          description: If specified, updates the ID of the evaluation dataset.
+          title: datasetId
+          type: string
+        name:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, renames the evaluation dataset configuration to this value.
+          title: name
+        promptColumnName:
+          default: None
+          description: If specified, changes the expected name of the dataset column containing the prompt text.
+          maxLength: 5000
+          minLength: 1
+          title: promptColumnName
+          type: string
+        responseColumnName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: If specified, changes the expected name of the dataset column containing the response text.
+          title: responseColumnName
+        toolCallsColumnName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: If specified, changes the expected name of the dataset column containing expected tool calls. It is required to evaluate the ToolCallAccuracy metric for agentic workflows.
+          title: toolCallsColumnName
+      title: EditEvaluationDatasetConfigurationRequest
+      type: object
+    InsightToEvalDatasetsCompatibility:
+      description: Insight to evaluation datasets compatibility.
+      properties:
+        incompatibleDatasets:
+          description: The list of incompatible datasets.
+          items:
+            $ref: '#/components/schemas/DatasetIdentifier'
+          title: incompatibleDatasets
+          type: array
+        insightName:
+          description: The name of the insight.
+          title: insightName
+          type: string
+      required:
+      - insightName
+      - incompatibleDatasets
+      title: InsightToEvalDatasetsCompatibility
+      type: object
+    LLMTestSuiteResponse:
+      description: LLMTestSuite object formatted for API output.
+      properties:
+        creationDate:
+          description: The creation date of the chat (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the chat.
+          title: creationUserId
+          type: string
+        description:
+          description: The description of the LLM test suite.
+          title: description
+          type: string
+        id:
+          description: The ID of the LLM test suite.
+          title: id
+          type: string
+        llmTestConfigurationIds:
+          description: The IDs of the LLM test configurations in this LLM test suite.
+          items:
+            type: string
+          title: llmTestConfigurationIds
+          type: array
+        name:
+          description: The name of the LLM test suite.
+          title: name
+          type: string
+        useCaseId:
+          description: The ID of the use case associated with the LLM test suite.
+          title: useCaseId
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - useCaseId
+      - llmTestConfigurationIds
+      - creationDate
+      - creationUserId
+      title: LLMTestSuiteResponse
+      type: object
+    SidecarModelMetricMetadata:
+      description: The metadata of a sidecar model metric.
+      properties:
+        expectedResponseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for expected response text input.
+          title: expectedResponseColumnName
+        promptColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prompt text input.
+          title: promptColumnName
+        responseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for response text input.
+          title: responseColumnName
+        targetColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the column the custom model uses for prediction output.
+          title: targetColumnName
+      required:
+      - targetColumnName
+      title: SidecarModelMetricMetadata
+      type: object
+    ListLLMTestSuiteSortQueryParam:
+      description: Sort order values for listing chats.
+      enum:
+      - name
+      - -name
+      - creationDate
+      - -creationDate
+      title: ListLLMTestSuiteSortQueryParam
+      type: string
+    OTELMetricInsightNames:
+      description: Metrics that can only be calculated using OTEL Trace/metric data.
+      enum:
+      - agent_latency
+      - agent_tokens
+      - agent_cost
+      title: OTELMetricInsightNames
+      type: string
+    EvaluationDatasetMetricAggregationAggregatedByLLMBlueprintResponse:
+      description: 'API response object for multiple evaluation dataset metric aggregation
+
+        aggregated by llm blueprint.'
+      properties:
+        aggregatedItemCount:
+          description: Number of items aggregated.
+          title: aggregatedItemCount
+          type: integer
+        aggregatedItemDetails:
+          description: List of details for aggregated items.
+          items:
+            $ref: '#/components/schemas/EvaluationDatasetMetricAggregationChatDetails'
+          title: aggregatedItemDetails
+          type: array
+        aggregationType:
+          $ref: '#/components/schemas/AggregationType'
+          description: The type of metric aggregation.
+        aggregationValue:
+          anyOf:
+          - type: number
+          - items:
+              $ref: '#/components/schemas/AggregationValue'
+            type: array
+          - items:
+              $ref: '#/components/schemas/AggregatedAggregationValue'
+            type: array
+          - type: 'null'
+          description: The aggregated value of the metric.
+          title: aggregationValue
+        customModelGuardId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model's guard the metric aggregation belongs to.
+          title: customModelGuardId
+        datasetId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The dataset ID of the evaluation dataset configuration.
+          title: datasetId
+        datasetName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Data Registry dataset name of the evaluation dataset configuration.
+          title: datasetName
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration associated with the metric aggregation.
+          title: evaluationDatasetConfigurationId
+        llmBlueprintId:
+          description: The ID of the LLM blueprint associated with the metric aggregation.
+          title: llmBlueprintId
+          type: string
+        metricName:
+          description: The name of the metric associated with the metric aggregation.
+          title: metricName
+          type: string
+        ootbDatasetName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBDatasetName'
+          - type: 'null'
+          description: The name of the out-of-the-box dataset.
+        tenantId:
+          description: The ID of the tenant the metric aggregation belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+      required:
+      - llmBlueprintId
+      - evaluationDatasetConfigurationId
+      - ootbDatasetName
+      - datasetId
+      - datasetName
+      - metricName
+      - aggregationValue
+      - aggregationType
+      - tenantId
+      - customModelGuardId
+      - aggregatedItemDetails
+      - aggregatedItemCount
+      title: EvaluationDatasetMetricAggregationAggregatedByLLMBlueprintResponse
+      type: object
+    DatasetEvaluationRequest:
+      description: Dataset evaluation.
+      properties:
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration for this dataset evaluation.
+          title: evaluationDatasetConfigurationId
+        evaluationName:
+          description: The name of the evaluation. This name should provide context regarding what is being evaluated.
+          maxLength: 5000
+          minLength: 1
+          title: evaluationName
+          type: string
+        insightConfiguration:
+          $ref: '#/components/schemas/InsightsConfigurationWithAdditionalData'
+        insightGradingCriteria:
+          $ref: '#/components/schemas/InsightGradingCriteria'
+        maxNumPrompts:
+          default: 0
+          description: The max number of prompts to evaluate.
+          maximum: 5000.0
+          minimum: 0.0
+          title: maxNumPrompts
+          type: integer
+        ootbDatasetName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBDatasetName'
+          - type: 'null'
+          description: Out-of-the-box evaluation dataset name. This applies only to our predefined public evaluation datasets.
+        promptSamplingStrategy:
+          $ref: '#/components/schemas/PromptSamplingStrategy'
+          default: first_n_rows
+          description: The prompt sampling strategy. Controls how max_num_prompts are sampled.
+      required:
+      - evaluationName
+      - insightConfiguration
+      - insightGradingCriteria
+      title: DatasetEvaluationRequest
+      type: object
+    DatasetEvaluationResponse:
+      description: Dataset evaluation.
+      properties:
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the dataset evaluation.
+          title: errorMessage
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration for this dataset evaluation.
+          title: evaluationDatasetConfigurationId
+        evaluationDatasetName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Evaluation dataset name.
+          title: evaluationDatasetName
+        evaluationName:
+          description: The name of the evaluation. This name should provide context regarding what is being evaluated.
+          maxLength: 5000
+          minLength: 1
+          title: evaluationName
+          type: string
+        insightConfiguration:
+          $ref: '#/components/schemas/InsightsConfigurationWithAdditionalData'
+        insightGradingCriteria:
+          $ref: '#/components/schemas/InsightGradingCriteria'
+        maxNumPrompts:
+          default: 100
+          description: The max number of prompts to evaluate.
+          exclusiveMinimum: 0.0
+          maximum: 5000.0
+          title: maxNumPrompts
+          type: integer
+        ootbDataset:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBDataset'
+          - type: 'null'
+          description: Out-of-the-box evaluation dataset. This applies only to our predefined public evaluation datasets.
+        promptSamplingStrategy:
+          $ref: '#/components/schemas/PromptSamplingStrategy'
+          default: first_n_rows
+          description: The prompt sampling strategy. Controls how max_num_prompts are sampled.
+      required:
+      - evaluationName
+      - insightConfiguration
+      - insightGradingCriteria
+      - evaluationDatasetName
+      title: DatasetEvaluationResponse
+      type: object
+    EditLLMTestSuiteRequest:
+      description: The body of the "Edit LLM test suite" request.
+      properties:
+        description:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The description of the LLM test suite.
+          title: description
+        llmTestConfigurationIds:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+          - type: 'null'
+          description: The IDs of the LLM test configurations in the LLM test suite.
+          title: llmTestConfigurationIds
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The name of the LLM test suite.
+          title: name
+      title: EditLLMTestSuiteRequest
+      type: object
+    CustomModelGuardType:
+      description: Guard type as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - ootb
+      - model
+      - nemo_guardrails
+      - nemo_evaluator
+      title: CustomModelGuardType
+      type: string
+    VectorDatabaseRetrievers:
+      description: The method used to retrieve relevant chunks from the vector database.
+      enum:
+      - SINGLE_LOOKUP_RETRIEVER
+      - CONVERSATIONAL_RETRIEVER
+      - MULTI_STEP_RETRIEVER
+      title: VectorDatabaseRetrievers
+      type: string
+    GuardCondition:
+      description: The guard condition for a metric.
+      properties:
+        comparand:
+          anyOf:
+          - type: number
+          - type: string
+          - type: boolean
+          - items:
+              type: string
+            type: array
+          description: The comparand(s) used in the guard condition.
+          title: comparand
+        comparator:
+          $ref: '#/components/schemas/GuardConditionComparator'
+          description: The comparator used in the guard condition.
+      required:
+      - comparator
+      - comparand
+      title: GuardCondition
+      type: object
+    InsightGradingCriteria:
+      description: Grading criteria for an insight.
+      properties:
+        passThreshold:
+          description: The percentage threshold for Pass result. Greater than or equal to this threshold indicates a Pass.
+          maximum: 100.0
+          minimum: 0.0
+          title: passThreshold
+          type: integer
+      required:
+      - passThreshold
+      title: InsightGradingCriteria
+      type: object
+    CustomModelGuardNemoEvaluatorType:
+      description: NeMo evaluator type as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - llm_judge
+      - context_relevance
+      - response_groundedness
+      - topic_adherence
+      - agent_goal_accuracy
+      - response_relevancy
+      - faithfulness
+      title: CustomModelGuardNemoEvaluatorType
+      type: string
+    ListCustomModelValidationSortQueryParam:
+      description: Sort order values for listing custom model validations.
+      enum:
+      - name
+      - -name
+      - deploymentName
+      - -deploymentName
+      - userName
+      - -userName
+      - creationDate
+      - -creationDate
+      title: ListCustomModelValidationSortQueryParam
+      type: string
+    OOTBDataset:
+      description: Out-of-the-box dataset.
+      properties:
+        datasetName:
+          $ref: '#/components/schemas/OOTBDatasetName'
+          description: The name of the evaluation dataset.
+        datasetUrl:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBDatasetUrl'
+          - type: 'null'
+          description: The public URL of the evaluation dataset. This applies only to our predefined public evaluation datasets.
+        promptColumnName:
+          description: The name of the prompt column.
+          maxLength: 5000
+          minLength: 1
+          title: promptColumnName
+          type: string
+        responseColumnName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The name of the response column, if present.
+          title: responseColumnName
+        rowsCount:
+          description: The number rows in the dataset.
+          title: rowsCount
+          type: integer
+        warning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warning about the content of the dataset.
+          title: warning
+      required:
+      - datasetName
+      - datasetUrl
+      - promptColumnName
+      - responseColumnName
+      - rowsCount
+      title: OOTBDataset
+      type: object
+    ListEvaluationDatasetMetricAggregationSortQueryParam:
+      description: Sort order values for listing evaluation dataset metric aggregations.
+      enum:
+      - metricName
+      - -metricName
+      - aggregationValue
+      - -aggregationValue
+      - datasetName
+      - -datasetName
+      - datasetId
+      - -datasetId
+      - creationUserId
+      - -creationUserId
+      - creationUserName
+      - -creationUserName
+      - creationDate
+      - -creationDate
+      - evaluationDatasetConfigurationId
+      - -evaluationDatasetConfigurationId
+      title: ListEvaluationDatasetMetricAggregationSortQueryParam
+      type: string
+    DeploymentAccessData:
+      description: Add authorization_header to avoid breaking change to API.
+      properties:
+        authorizationHeader:
+          default: '[REDACTED]'
+          description: The `Authorization` header to use for the deployment.
+          title: authorizationHeader
+          type: string
+        chatApiUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL of the deployment's chat API.
+          title: chatApiUrl
+        datarobotKey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The server key associated with the prediction API.
+          title: datarobotKey
+        inputType:
+          $ref: '#/components/schemas/DeploymentInputType'
+          description: The format of the input data.
+        modelType:
+          $ref: '#/components/schemas/SupportedDeploymentType'
+          description: The type of the target output the deployment produces.
+        predictionApiUrl:
+          description: The URL of the deployment's prediction API.
+          title: predictionApiUrl
+          type: string
+      required:
+      - predictionApiUrl
+      - datarobotKey
+      - inputType
+      - modelType
+      title: DeploymentAccessData
+      type: object
+    CustomModelValidationStatus:
+      description: Status of custom model validation.
+      enum:
+      - TESTING
+      - PASSED
+      - FAILED
+      title: CustomModelValidationStatus
+      type: string
+    LLMTestConfigurationSupportedInsightsResponse:
+      description: Response model for supported insights.
+      properties:
+        datasetsCompatibility:
+          description: The list of insight to evaluation datasets compatibility.
+          items:
+            $ref: '#/components/schemas/InsightToEvalDatasetsCompatibility'
+          title: datasetsCompatibility
+          type: array
+        supportedInsightConfigurations:
+          description: The list of supported insight configurations for the LLM Tests.
+          items:
+            $ref: '#/components/schemas/InsightsConfigurationWithAdditionalData'
+          title: supportedInsightConfigurations
+          type: array
+      required:
+      - supportedInsightConfigurations
+      - datasetsCompatibility
+      title: LLMTestConfigurationSupportedInsightsResponse
+      type: object
+    AggregatedAggregationValue:
+      description: Aggregated record of multiple of the same item across different metric aggregation runs.
+      properties:
+        count:
+          description: The number of metric aggregation items aggregated.
+          title: count
+          type: integer
+        item:
+          description: The name of the item.
+          title: item
+          type: string
+        value:
+          description: The value associated with the item.
+          title: value
+          type: number
+      required:
+      - item
+      - value
+      - count
+      title: AggregatedAggregationValue
+      type: object
+    MetricUnit:
+      description: The unit of measurement associated with a metric.
+      enum:
+      - s
+      - ms
+      - '%'
+      title: MetricUnit
+      type: string
+    ListLLMTestConfigurationOOTBDatasetsResponse:
+      description: Paginated list of OOTB datasets for use with LLM test configurations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/LLMTestConfigurationOOTBDatasetResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListLLMTestConfigurationOOTBDatasetsResponse
+      type: object
+    CreateEvaluationDatasetMetricAggregationRequest:
+      description: The body of the "Create evaluation dataset metric aggregation" request.
+      properties:
+        chatName:
+          default: Aggregated chat
+          description: The name for the new chat that will contain the associated prompts and responses.
+          maxLength: 5000
+          title: chatName
+          type: string
+        evaluationDatasetConfigurationId:
+          description: The ID of the evaluation dataset configuration.
+          title: evaluationDatasetConfigurationId
+          type: string
+        insightsConfiguration:
+          description: The configuration of insights for the metric aggregation.
+          items:
+            $ref: '#/components/schemas/InsightsConfigurationWithAdditionalData'
+          minItems: 1
+          title: insightsConfiguration
+          type: array
+        llmBlueprintIds:
+          description: The IDs of the LLM blueprints to use for the metric aggregation.
+          items:
+            type: string
+          maxItems: 3
+          minItems: 1
+          title: llmBlueprintIds
+          type: array
+      required:
+      - llmBlueprintIds
+      - evaluationDatasetConfigurationId
+      - insightsConfiguration
+      title: CreateEvaluationDatasetMetricAggregationRequest
+      type: object
+    InsightTypes:
+      description: The type of insight.
+      enum:
+      - Reference
+      - Quality metric
+      - Operational metric
+      - Evaluation deployment
+      - Custom metric
+      - Nemo
+      title: InsightTypes
+      type: string
+    ExecutionStatus:
+      description: Job and entity execution status.
+      enum:
+      - NEW
+      - RUNNING
+      - COMPLETED
+      - REQUIRES_USER_INPUT
+      - SKIPPED
+      - ERROR
+      title: ExecutionStatus
+      type: string
+    LLMCostConfigurationResponse:
+      description: API request/response object for a cost configuration of a single LLM.
+      properties:
+        currencyCode:
+          default: USD
+          description: The arbitrary code code of the currency of `inputTokenPrice` and `outputTokenPrice`.
+          maxLength: 7
+          title: currencyCode
+          type: string
+        customModelLLMValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model LLM validation (if using a custom model LLM).
+          title: customModelLLMValidationId
+        inputTokenPrice:
+          default: 0.01
+          description: The price of processing `referenceInputTokenCount` input tokens.
+          minimum: 0.0
+          title: inputTokenPrice
+          type: number
+        llmId:
+          description: The ID of the LLM associated with this cost configuration.
+          title: llmId
+          type: string
+        outputTokenPrice:
+          default: 0.01
+          description: The price of processing `referenceOutputTokenCount` output tokens.
+          minimum: 0.0
+          title: outputTokenPrice
+          type: number
+        referenceInputTokenCount:
+          default: 1000
+          description: The number of input tokens corresponding to `inputTokenPrice`.
+          minimum: 0.0
+          title: referenceInputTokenCount
+          type: integer
+        referenceOutputTokenCount:
+          default: 1000
+          description: The number of output tokens corresponding to `outputTokenPrice`.
+          minimum: 0.0
+          title: referenceOutputTokenCount
+          type: integer
+      required:
+      - llmId
+      title: LLMCostConfigurationResponse
+      type: object
+    EditCostMetricConfigurationRequest:
+      description: The body of the "Edit cost metric configuration" request.
+      properties:
+        costMetricConfigurations:
+          description: The list of LLM cost configurations to apply to this cost metric configuration.
+          items:
+            $ref: '#/components/schemas/LLMCostConfigurationResponse'
+          minItems: 1
+          title: costMetricConfigurations
+          type: array
+        name:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name to use for the cost configuration.
+          title: name
+      required:
+      - costMetricConfigurations
+      title: EditCostMetricConfigurationRequest
+      type: object
+    GuardConditionComparator:
+      description: The comparator used in a guard condition.
+      enum:
+      - greaterThan
+      - lessThan
+      - equals
+      - notEquals
+      - is
+      - isNot
+      - matches
+      - doesNotMatch
+      - contains
+      - doesNotContain
+      title: GuardConditionComparator
+      type: string
+    EditLLMTestConfigurationRequest:
+      description: Request object for editing a LLMTestConfiguration.
+      properties:
+        datasetEvaluations:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/DatasetEvaluationRequest'
+            maxItems: 10
+            minItems: 1
+            type: array
+          - type: 'null'
+          description: New Dataset evaluations.
+          title: datasetEvaluations
+        description:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: New LLM test configuration description.
+          title: description
+        llmTestGradingCriteria:
+          anyOf:
+          - $ref: '#/components/schemas/LLMTestGradingCriteria'
+          - type: 'null'
+          description: New LLM test grading criteria.
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: New LLM test configuration name.
+          title: name
+      title: EditLLMTestConfigurationRequest
+      type: object
+    ModerationConfigurationWithID:
+      description: Moderation Configuration associated with an insight.
+      properties:
+        guardConditions:
+          description: The guard conditions associated with a metric.
+          items:
+            $ref: '#/components/schemas/GuardCondition'
+          maxItems: 1
+          minItems: 1
+          title: guardConditions
+          type: array
+        intervention:
+          $ref: '#/components/schemas/Intervention'
+          description: The intervention specific moderation configuration.
+      required:
+      - guardConditions
+      - intervention
+      title: ModerationConfigurationWithID
+      type: object
+    EvaluationDatasetMetricAggregationUniqueFieldValuesResponse:
+      description: API response object for a single unique computed metric.
+      properties:
+        uniqueFieldValue:
+          description: The unique value associated with the metric aggregation.
+          title: uniqueFieldValue
+          type: string
+      required:
+      - uniqueFieldValue
+      title: EvaluationDatasetMetricAggregationUniqueFieldValuesResponse
+      type: object
+    CustomModelGuardStage:
+      description: Guard stage as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - prompt
+      - response
+      title: CustomModelGuardStage
+      type: string
+    CreateLLMTestResultRequest:
+      description: Request object for creating a LLMTestResult.
+      properties:
+        llmBlueprintId:
+          description: The LLM Blueprint ID associated with the LLM Test result.
+          title: llmBlueprintId
+          type: string
+        llmTestConfigurationId:
+          description: The use case ID associated with the LLM Test result.
+          title: llmTestConfigurationId
+          type: string
+      required:
+      - llmTestConfigurationId
+      - llmBlueprintId
+      title: CreateLLMTestResultRequest
+      type: object
+    CostMetricConfigurationResponse:
+      description: API response object for a single cost metric configuration.
+      properties:
+        costConfigurationId:
+          description: The ID of the cost metric configuration.
+          title: costConfigurationId
+          type: string
+        costMetricConfigurations:
+          description: The list of individual LLM cost configurations that constitute this cost metric configuration.
+          items:
+            $ref: '#/components/schemas/LLMCostConfigurationResponse'
+          title: costMetricConfigurations
+          type: array
+        name:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name to use for the cost configuration.
+          title: name
+        playgroundId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the playground associated with the cost metric configuration.
+          title: playgroundId
+        useCaseId:
+          description: The ID of the use case associated with the cost metric configuration.
+          title: useCaseId
+          type: string
+      required:
+      - costConfigurationId
+      - useCaseId
+      - costMetricConfigurations
+      title: CostMetricConfigurationResponse
+      type: object
+    LLMTestConfigurationNonOOTBDatasetResponse:
+      description: Non out-of-the-box dataset used with an LLM test configuration.
+      properties:
+        agentGoalsColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset column containing expected agent goals (For agentic workflows).
+          title: agentGoalsColumnName
+        correctnessEnabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          deprecated: true
+          description: Whether correctness is enabled for the evaluation dataset configuration.
+          title: correctnessEnabled
+        creationDate:
+          description: The creation date of the evaluation dataset configuration (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the evaluation dataset configuration.
+          title: creationUserId
+          type: string
+        datasetId:
+          description: The ID of the evaluation dataset.
+          title: datasetId
+          type: string
+        datasetName:
+          description: The name of the evaluation dataset.
+          title: datasetName
+          type: string
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the evaluation dataset configuration.
+          title: errorMessage
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the evaluation dataset.
+        id:
+          description: The ID of the evaluation dataset configuration.
+          title: id
+          type: string
+        name:
+          description: The name of the evaluation dataset configuration.
+          title: name
+          type: string
+        playgroundId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the playground associated with the evaluation dataset configuration.
+          title: playgroundId
+        promptColumnName:
+          description: The name of the dataset column containing the prompt text.
+          title: promptColumnName
+          type: string
+        responseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset column containing the response text.
+          title: responseColumnName
+        rowsCount:
+          description: The rows count of the evaluation dataset.
+          title: rowsCount
+          type: integer
+        size:
+          description: The size of the evaluation dataset (in bytes).
+          title: size
+          type: integer
+        tenantId:
+          description: The ID of the DataRobot tenant this evaluation dataset configuration belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+        toolCallsColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset column containing expected tool calls (For agentic workflows).
+          title: toolCallsColumnName
+        useCaseId:
+          description: The ID of the use case associated with the evaluation dataset configuration.
+          title: useCaseId
+          type: string
+        userName:
+          description: The name of the user that created the evaluation dataset configuration.
+          title: userName
+          type: string
+      required:
+      - id
+      - name
+      - size
+      - rowsCount
+      - useCaseId
+      - playgroundId
+      - datasetId
+      - datasetName
+      - promptColumnName
+      - responseColumnName
+      - toolCallsColumnName
+      - agentGoalsColumnName
+      - userName
+      - correctnessEnabled
+      - creationUserId
+      - creationDate
+      - tenantId
+      - executionStatus
+      title: LLMTestConfigurationNonOOTBDatasetResponse
+      type: object
+    CustomModelGuardOOTBType:
+      description: OOTB type as used in the moderation_config.yaml file of the custom model.
+      enum:
+      - token_count
+      - rouge_1
+      - faithfulness
+      - agent_goal_accuracy
+      - custom_metric
+      - cost
+      - task_adherence
+      title: CustomModelGuardOOTBType
+      type: string
+    LLMTestResultResponse:
+      description: API response object for a single LLMTestResult.
+      properties:
+        creationDate:
+          description: LLM test result creation date (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: ID of the user that created this LLM test result.
+          title: creationUserId
+          type: string
+        creationUserName:
+          description: The name of the user who created this LLM result.
+          title: creationUserName
+          type: string
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the LLM Test Result failed.
+          title: errorMessage
+        errorResolution:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error resolution message if the LLM Test Result failed.
+          title: errorResolution
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The LLM Test execution status.
+        gradingResult:
+          anyOf:
+          - $ref: '#/components/schemas/GradingResult'
+          - type: 'null'
+          description: The grading result based on the llm test grading criteria. If not specified, execution status is not COMPLETED.
+        id:
+          description: LLM test result ID.
+          title: id
+          type: string
+        insightEvaluationResults:
+          description: The Insight evaluation results.
+          items:
+            $ref: '#/components/schemas/InsightEvaluationResultResponse'
+          title: insightEvaluationResults
+          type: array
+        isOutOfTheBoxTestConfiguration:
+          description: Identifies the LLM Test configuration as an out-of-the-box (OOTB) test configuration.
+          title: isOutOfTheBoxTestConfiguration
+          type: boolean
+        llmBlueprintId:
+          description: LLM Blueprint ID.
+          title: llmBlueprintId
+          type: string
+        llmBlueprintSnapshot:
+          $ref: '#/components/schemas/LLMBlueprintSnapshot'
+          description: A snapshot of the llm blueprint entity at the time of LLM Test execution.
+        llmTestConfigurationId:
+          description: LLM test configuration ID this LLM result is associated to.
+          title: llmTestConfigurationId
+          type: string
+        llmTestConfigurationName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Name of the LLM test configuration this LLM result is associated to.
+          title: llmTestConfigurationName
+        llmTestGradingCriteria:
+          $ref: '#/components/schemas/LLMTestGradingCriteria'
+          description: LLM test grading criteria.
+        llmTestSuiteId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: LLM test suite ID to which the LLM test configuration is associated to.
+          title: llmTestSuiteId
+        passPercentage:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The percentage of underlying insight evaluation results that have a PASS grading result. If not specified, execution status is not COMPLETED.
+          title: passPercentage
+        useCaseId:
+          description: Use case ID this LLM test result belongs to.
+          title: useCaseId
+          type: string
+      required:
+      - id
+      - llmTestConfigurationId
+      - llmTestConfigurationName
+      - isOutOfTheBoxTestConfiguration
+      - useCaseId
+      - llmBlueprintId
+      - llmBlueprintSnapshot
+      - llmTestGradingCriteria
+      - executionStatus
+      - insightEvaluationResults
+      - creationDate
+      - creationUserId
+      - creationUserName
+      title: LLMTestResultResponse
+      type: object
+    ListLLMTestSuitesResponse:
+      description: Paginated list of LLM test suites.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/LLMTestSuiteResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListLLMTestSuitesResponse
+      type: object
+    PromptSamplingStrategy:
+      description: The prompt sampling strategy for the evaluation dataset configuration.
+      enum:
+      - random_without_replacement
+      - first_n_rows
+      title: PromptSamplingStrategy
+      type: string
+    LLMTestConfigurationType:
+      description: Type of LLMTestConfiguration.
+      enum:
+      - ootb
+      - custom
+      title: LLMTestConfigurationType
+      type: string
+    ExtraMetricSettings:
+      description: Extra settings for the metric that do not reference other entities.
+      properties:
+        toolCallAccuracy:
+          anyOf:
+          - $ref: '#/components/schemas/ToolCallAccuracySettings'
+          - type: 'null'
+          description: Extra settings for the tool call accuracy metric.
+      title: ExtraMetricSettings
+      type: object
+    ListEvaluationDatasetConfigurationsQueryParam:
+      description: Sort order values for listing evaluation dataset configurations.
+      enum:
+      - name
+      - -name
+      - creationUserId
+      - -creationUserId
+      - creationDate
+      - -creationDate
+      - datasetId
+      - -datasetId
+      - userName
+      - -userName
+      - datasetName
+      - -datasetName
+      - promptColumnName
+      - -promptColumnName
+      - responseColumnName
+      - -responseColumnName
+      title: ListEvaluationDatasetConfigurationsQueryParam
+      type: string
+    VectorDatabaseSettings:
+      description: Vector database retrieval settings.
+      properties:
+        addNeighborChunks:
+          default: false
+          description: Add neighboring chunks to those that the similarity search retrieves, such that when selected, search returns i, i-1, and i+1.
+          title: addNeighborChunks
+          type: boolean
+        maxDocumentsRetrievedPerPrompt:
+          anyOf:
+          - maximum: 10.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of chunks to retrieve from the vector database.
+          title: maxDocumentsRetrievedPerPrompt
+        maxTokens:
+          anyOf:
+          - maximum: 51200.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of tokens to retrieve from the vector database.
+          title: maxTokens
+        maximalMarginalRelevanceLambda:
+          default: 0.5
+          description: Adjust the retrieval of chunks when using maximal marginal relevance to favor diversity (0.0) or similarity (1.0).
+          maximum: 1.0
+          minimum: 0.0
+          title: maximalMarginalRelevanceLambda
+          type: number
+        retrievalMode:
+          $ref: '#/components/schemas/RetrievalMode'
+          default: similarity
+          description: The retrieval mode to use. Similarity search or maximal marginal relevance.
+          title: retrievalMode
+        retriever:
+          $ref: '#/components/schemas/VectorDatabaseRetrievers'
+          default: SINGLE_LOOKUP_RETRIEVER
+          title: retriever
+      title: VectorDatabaseSettings
+      type: object
+    ArgumentMatchMode:
+      description: The different modes for comparing the arguments of tool calls.
+      enum:
+      - exact_match
+      - ignore_arguments
+      title: ArgumentMatchMode
+      type: string
+    ListSidecarModelMetricValidationnResponse:
+      description: Paginated list of sidecar model metric validations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/SidecarModelMetricValidationResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListSidecarModelMetricValidationnResponse
+      type: object
+    OOTBDatasetUrl:
+      description: Out-of-the-box dataset URL.
+      enum:
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/jailbreak-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-age-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-gender-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-race-ethnicity-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-religion-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-disability-status-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-sexual-orientation-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-nationality-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/bbq-lite-ses-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/completeness-parent-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/completeness-grandparent-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/completeness-great-grandparent-v1.csv
+      - https://s3.amazonaws.com/datarobot_public_datasets/genai/pii-v1.csv
+      title: OOTBDatasetUrl
+      type: string
+    LLMBlueprintSnapshot:
+      description: A snapshot in time of a LLMBlueprint's functional parameters.
+      properties:
+        description:
+          description: The description of the LLMBlueprint at the time of snapshotting.
+          title: description
+          type: string
+        id:
+          description: The ID of the LLMBlueprint for which the snapshot was produced.
+          title: id
+          type: string
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM selected for this LLM blueprint.
+          title: llmId
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: A key/value dictionary of LLM settings.
+          title: llmSettings
+        name:
+          description: The name of the LLMBlueprint at the time of snapshotting.
+          title: name
+          type: string
+        playgroundId:
+          description: The playground id of the LLMBlueprint.
+          title: playgroundId
+          type: string
+        promptType:
+          $ref: '#/components/schemas/PromptType'
+          description: The prompting type of the LLMBlueprint at the time of snapshotting.
+        snapshotDate:
+          description: The date when the snapshot was produced.
+          format: date-time
+          title: snapshotDate
+          type: string
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database linked to this LLM blueprint.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettings'
+          - type: 'null'
+          description: A key/value dictionary of vector database settings.
+      required:
+      - id
+      - name
+      - description
+      - playgroundId
+      - promptType
+      title: LLMBlueprintSnapshot
+      type: object
+    LLMTestGradingCriteria:
+      description: Grading criteria for the LLM Test configuration.
+      properties:
+        passThreshold:
+          description: The percentage threshold for Pass results across dataset-insight pairs.
+          maximum: 100.0
+          minimum: 0.0
+          title: passThreshold
+          type: integer
+      required:
+      - passThreshold
+      title: LLMTestGradingCriteria
+      type: object
+    ListEvaluationDatasetMetricAggregationUniqueFieldValuesResponse:
+      description: Paginated list of evaluation dataset metric aggregations with unique computed metrics.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/EvaluationDatasetMetricAggregationUniqueFieldValuesResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListEvaluationDatasetMetricAggregationUniqueFieldValuesResponse
+      type: object
+    CustomModelChatLLMSettings:
+      additionalProperties: false
+      description: The settings that are available for custom model LLMs used via chat completion interface.
+      properties:
+        customModelId:
+          description: The ID of the custom model used via chat completion interface.
+          title: customModelId
+          type: string
+        customModelVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model version used via chat completion interface.
+          title: customModelVersionId
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+      required:
+      - customModelId
+      title: CustomModelChatLLMSettings
+      type: object
+    EvaluationDatasetConfigurationResponse:
+      description: API response object for a single evaluation dataset configuration.
+      properties:
+        agentGoalsColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset column containing expected agent goals (For agentic workflows).
+          title: agentGoalsColumnName
+        correctnessEnabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          deprecated: true
+          description: Whether correctness is enabled for the evaluation dataset configuration.
+          title: correctnessEnabled
+        creationDate:
+          description: The creation date of the evaluation dataset configuration (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the evaluation dataset configuration.
+          title: creationUserId
+          type: string
+        datasetId:
+          description: The ID of the evaluation dataset.
+          title: datasetId
+          type: string
+        datasetName:
+          description: The name of the evaluation dataset.
+          title: datasetName
+          type: string
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the evaluation dataset configuration.
+          title: errorMessage
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the evaluation dataset.
+        id:
+          description: The ID of the evaluation dataset configuration.
+          title: id
+          type: string
+        name:
+          description: The name of the evaluation dataset configuration.
+          title: name
+          type: string
+        playgroundId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the playground associated with the evaluation dataset configuration.
+          title: playgroundId
+        promptColumnName:
+          description: The name of the dataset column containing the prompt text.
+          title: promptColumnName
+          type: string
+        responseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset column containing the response text.
+          title: responseColumnName
+        rowsCount:
+          description: The rows count of the evaluation dataset.
+          title: rowsCount
+          type: integer
+        size:
+          description: The size of the evaluation dataset (in bytes).
+          title: size
+          type: integer
+        tenantId:
+          description: The ID of the DataRobot tenant this evaluation dataset configuration belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+        toolCallsColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset column containing expected tool calls (For agentic workflows).
+          title: toolCallsColumnName
+        useCaseId:
+          description: The ID of the use case associated with the evaluation dataset configuration.
+          title: useCaseId
+          type: string
+        userName:
+          description: The name of the user that created the evaluation dataset configuration.
+          title: userName
+          type: string
+      required:
+      - id
+      - name
+      - size
+      - rowsCount
+      - useCaseId
+      - playgroundId
+      - datasetId
+      - datasetName
+      - promptColumnName
+      - responseColumnName
+      - toolCallsColumnName
+      - agentGoalsColumnName
+      - userName
+      - correctnessEnabled
+      - creationUserId
+      - creationDate
+      - tenantId
+      - executionStatus
+      title: EvaluationDatasetConfigurationResponse
+      type: object
+    ListLLMTestConfigurationsResponse:
+      description: Paginated list of LLM test configurations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/LLMTestConfigurationResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListLLMTestConfigurationsResponse
+      type: object
+    OOTBMetricConfigurationResponse:
+      description: API response object for a single OOTB metric.
+      properties:
+        customModelLLMValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model LLM validation (if using a custom model LLM).
+          title: customModelLLMValidationId
+        customOotbMetricName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The custom OOTB metric name to be associated with the OOTB metric.
+          title: customOotbMetricName
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the OOTB metric configuration.
+          title: errorMessage
+        errorResolution:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/InsightErrorResolution'
+            type: array
+          - type: 'null'
+          description: The error type associated with the insight error status and error message as an indicator of what fields needs to be edited if any.
+          title: errorResolution
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the OOTB metric configuration.
+        extraMetricSettings:
+          anyOf:
+          - $ref: '#/components/schemas/ExtraMetricSettings'
+          - type: 'null'
+          description: Extra settings for the metric that do not reference other entities.
+        isAgentic:
+          default: false
+          description: Whether the OOTB metric configuration is specific to agentic workflows.
+          title: isAgentic
+          type: boolean
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM to use for `correctness` and `faithfulness` metrics.
+          title: llmId
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration to be associated with the OOTB metric.
+        ootbMetricConfigurationId:
+          description: The ID of OOTB metric.
+          title: ootbMetricConfigurationId
+          type: string
+        ootbMetricName:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBMetricInsightNames'
+          - $ref: '#/components/schemas/OOTBAgenticMetricInsightNames'
+          - $ref: '#/components/schemas/OTELMetricInsightNames'
+          description: The name of the OOTB metric.
+          title: ootbMetricName
+      required:
+      - ootbMetricName
+      - ootbMetricConfigurationId
+      - executionStatus
+      title: OOTBMetricConfigurationResponse
+      type: object
+    LLMTestConfigurationOOTBDatasetResponse:
+      description: Out-of-the-box dataset used with an LLM test configuration.
+      properties:
+        datasetName:
+          $ref: '#/components/schemas/OOTBDatasetName'
+          description: The name of the evaluation dataset.
+        datasetUrl:
+          anyOf:
+          - $ref: '#/components/schemas/OOTBDatasetUrl'
+          - type: 'null'
+          description: The public URL of the evaluation dataset. This applies only to our predefined public evaluation datasets.
+        promptColumnName:
+          description: The name of the prompt column.
+          maxLength: 5000
+          minLength: 1
+          title: promptColumnName
+          type: string
+        responseColumnName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The name of the response column, if present.
+          title: responseColumnName
+        rowsCount:
+          description: The number rows in the dataset.
+          title: rowsCount
+          type: integer
+        warning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warning about the content of the dataset.
+          title: warning
+      required:
+      - datasetName
+      - datasetUrl
+      - promptColumnName
+      - responseColumnName
+      - rowsCount
+      title: LLMTestConfigurationOOTBDatasetResponse
+      type: object
+    ModerationConfigurationWithoutID:
+      description: Moderation Configuration associated with an insight.
+      properties:
+        guardConditions:
+          description: The guard conditions associated with a metric.
+          items:
+            $ref: '#/components/schemas/GuardCondition'
+          maxItems: 1
+          minItems: 1
+          title: guardConditions
+          type: array
+        intervention:
+          $ref: '#/components/schemas/Intervention'
+          description: The intervention specific moderation configuration.
+      required:
+      - guardConditions
+      - intervention
+      title: ModerationConfigurationWithoutID
+      type: object
+    OOTBAgenticMetricInsightNames:
+      description: The Out-Of-The-Box metric name that can be used in an Agentic playground.
+      enum:
+      - tool_call_accuracy
+      - agent_goal_accuracy_with_reference
+      title: OOTBAgenticMetricInsightNames
+      type: string
+    EditSidecarModelMetricValidationRequest:
+      description: The body of the "Edit sidecar model metric validation" request.
+      properties:
+        chatModelId:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The model ID to specify when calling the OpenAI chat completion API of the deployment. If this parameter is specified, the deployment must support the OpenAI chat completion API.
+          title: chatModelId
+        citationsPrefixColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the column name prefix that will be used to submit the citation inputs to the sidecar model.
+          title: citationsPrefixColumnName
+        deploymentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the ID of the deployment associated with this custom model validation.
+          title: deploymentId
+        expectedResponseColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to submit the expected response text input to the sidecar model.
+          title: expectedResponseColumnName
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the ID of the model associated with this custom model validation.
+          title: modelId
+        moderationConfiguration:
+          anyOf:
+          - $ref: '#/components/schemas/ModerationConfigurationWithoutID'
+          - type: 'null'
+          description: The moderation configuration to be associated with the sidecar model metric.
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: If specified, renames the custom model validation to this value.
+          title: name
+        predictionTimeout:
+          anyOf:
+          - maximum: 600.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: If specified, sets the timeout in seconds for the prediction when validating a custom model.
+          title: predictionTimeout
+        promptColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to format the prompt text input for the custom model deployment.
+          title: promptColumnName
+        responseColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to submit the response text input to the sidecar model.
+          title: responseColumnName
+        targetColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to extract the prediction response from the custom model deployment.
+          title: targetColumnName
+      title: EditSidecarModelMetricValidationRequest
+      type: object
+    ListLLMTestConfigurationNonOOTBDatasetsResponse:
+      description: Paginated list of non-OOTB datasets for use with LLM test configurations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/LLMTestConfigurationNonOOTBDatasetResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListLLMTestConfigurationNonOOTBDatasetsResponse
+      type: object
+    AggregationValue:
+      description: An individual record in an itemized metric aggregation.
+      properties:
+        item:
+          description: The name of the item.
+          title: item
+          type: string
+        value:
+          description: The value associated with the item.
+          title: value
+          type: number
+      required:
+      - item
+      - value
+      title: AggregationValue
+      type: object
+    EvaluationDatasetMetricAggregationFieldQueryParam:
+      description: Field used for aggregation when listing evaluation dataset metric aggregations.
+      enum:
+      - metricName
+      - llmBlueprintId
+      - aggregationType
+      - evaluationDatasetConfigurationId
+      title: EvaluationDatasetMetricAggregationFieldQueryParam
+      type: string
+    SupportedDeploymentType:
+      description: The type of the target output a DataRobot deployment produces.
+      enum:
+      - TEXT_GENERATION
+      - VECTOR_DATABASE
+      - UNSTRUCTURED
+      - REGRESSION
+      - MULTICLASS
+      - BINARY
+      - NOT_SUPPORTED
+      title: SupportedDeploymentType
+      type: string
+    LLMTestConfigurationResponse:
+      description: API response object for a single LLMTestConfiguration.
+      properties:
+        creationDate:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The creation date of the LLM Test configuration. For OOTB LLM Test configurations this is null.
+          title: creationDate
+        creationUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user who created the LLM Test configuration. For OOTB LLM Test configurations this is null.
+          title: creationUserId
+        datasetEvaluations:
+          description: The LLM test dataset evaluations.
+          items:
+            $ref: '#/components/schemas/DatasetEvaluationResponse'
+          title: datasetEvaluations
+          type: array
+        description:
+          description: The description of the LLM Test configuration.
+          title: description
+          type: string
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the LLM test configuration.
+          title: errorMessage
+        id:
+          description: The ID of the LLM Test configuration.
+          title: id
+          type: string
+        isOutOfTheBoxTestConfiguration:
+          description: Identifies the LLM Test configuration as an out-of-the-box (OOTB) test configuration.
+          title: isOutOfTheBoxTestConfiguration
+          type: boolean
+        lastUpdateDate:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The last update date of the LLM Test configuration. For OOTB LLM Test configurations this is null.
+          title: lastUpdateDate
+        lastUpdateUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user who last updated the LLM Test configuration. For OOTB LLM Test configurations this is null.
+          title: lastUpdateUserId
+        llmTestGradingCriteria:
+          $ref: '#/components/schemas/LLMTestGradingCriteria'
+          description: The LLM test grading criteria.
+        name:
+          description: The name of the LLM Test configuration.
+          title: name
+          type: string
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, the use case ID associated with the LLM Test configuration.
+          title: useCaseId
+        warnings:
+          description: Warnings for this LLM test configuration.
+          items:
+            additionalProperties:
+              type: string
+            propertyNames:
+              $ref: '#/components/schemas/OOTBDatasetName'
+            type: object
+          title: warnings
+          type: array
+      required:
+      - id
+      - name
+      - description
+      - datasetEvaluations
+      - llmTestGradingCriteria
+      - isOutOfTheBoxTestConfiguration
+      - warnings
+      title: LLMTestConfigurationResponse
+      type: object
+    PipelineStage:
+      description: Enum that describes at which stage the metric may be calculated.
+      enum:
+      - prompt_pipeline
+      - response_pipeline
+      title: PipelineStage
+      type: string
+    CreateLLMTestConfigurationRequest:
+      description: Request object for creating a LLMTestConfiguration.
+      properties:
+        datasetEvaluations:
+          description: Dataset evaluations.
+          items:
+            $ref: '#/components/schemas/DatasetEvaluationRequest'
+          maxItems: 10
+          minItems: 1
+          title: datasetEvaluations
+          type: array
+        description:
+          default: ''
+          description: LLM test configuration description.
+          maxLength: 5000
+          title: description
+          type: string
+        llmTestGradingCriteria:
+          $ref: '#/components/schemas/LLMTestGradingCriteria'
+          description: LLM test grading criteria.
+        name:
+          description: LLM test configuration name.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+        useCaseId:
+          description: The use case ID associated with the LLM Test configuration.
+          title: useCaseId
+          type: string
+      required:
+      - name
+      - useCaseId
+      - datasetEvaluations
+      - llmTestGradingCriteria
+      title: CreateLLMTestConfigurationRequest
+      type: object
+    AggregationType:
+      description: The type of the metric aggregation.
+      enum:
+      - average
+      - percentYes
+      - classPercentCoverage
+      - ngramImportance
+      - guardConditionPercentYes
+      title: AggregationType
+      type: string
+    ListEvaluationDatasetMetricAggregationAggregatedByLLMBlueprintResponse:
+      description: Paginated list of evaluation dataset metric aggregations, aggregated by LLM blueprint.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/EvaluationDatasetMetricAggregationAggregatedByLLMBlueprintResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListEvaluationDatasetMetricAggregationAggregatedByLLMBlueprintResponse
+      type: object
+    DeploymentInputType:
+      description: The format of the input data submitted to a DataRobot deployment.
+      enum:
+      - CSV
+      - JSON
+      title: DeploymentInputType
+      type: string
+    CustomModelGuard:
+      description: Details of a guard as defined for the custom model.
+      properties:
+        name:
+          description: The name of the guard.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+        nemoEvaluatorType:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelGuardNemoEvaluatorType'
+          - type: 'null'
+          description: NeMo Evaluator type of the guard.
+        ootbType:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelGuardOOTBType'
+          - type: 'null'
+          description: Out of the box type of the guard.
+        stage:
+          $ref: '#/components/schemas/CustomModelGuardStage'
+          description: Stage on which the guard gets applied.
+        type:
+          $ref: '#/components/schemas/CustomModelGuardType'
+          description: Type of the guard.
+      required:
+      - type
+      - stage
+      - name
+      title: CustomModelGuard
+      type: object
+    CreateEvaluationDatasetConfigurationRequest:
+      description: The body of the "Create evaluation dataset configuration" request.
+      properties:
+        agentGoalsColumnName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The name of the dataset column containing expected agent goals. It is required to evaluate the AgentGoalAccuracyWithReference metric for agentic workflows.
+          title: agentGoalsColumnName
+        correctnessEnabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          deprecated: true
+          description: Whether correctness is enabled for the evaluation dataset configuration.
+          title: correctnessEnabled
+        datasetId:
+          description: The ID of the evaluation dataset.
+          title: datasetId
+          type: string
+        isSyntheticDataset:
+          default: false
+          description: Whether the evaluation dataset is synthetic.
+          title: isSyntheticDataset
+          type: boolean
+        name:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the evaluation dataset configuration.
+          title: name
+        playgroundId:
+          description: The ID of the playground to associate with the evaluation dataset configuration.
+          title: playgroundId
+          type: string
+        promptColumnName:
+          description: The name of the dataset column containing the prompt text.
+          title: promptColumnName
+          type: string
+        responseColumnName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset column containing the response text.
+          title: responseColumnName
+        toolCallsColumnName:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The name of the dataset column containing expected tool calls. It is required to evaluate the ToolCallAccuracy metric for agentic workflows.
+          title: toolCallsColumnName
+        useCaseId:
+          description: The ID of the use case to associate with the evaluation dataset configuration.
+          title: useCaseId
+          type: string
+      required:
+      - useCaseId
+      - playgroundId
+      - datasetId
+      - promptColumnName
+      title: CreateEvaluationDatasetConfigurationRequest
+      type: object
+    EvaluationDatasetMetricAggregationChatDetails:
+      description: Details for aggregated items.
+      properties:
+        chatId:
+          description: The ID of the chat associated with the metric aggregation.
+          title: chatId
+          type: string
+        chatLink:
+          description: The link to the chat associated with the metric aggregation.
+          title: chatLink
+          type: string
+        chatName:
+          description: The name of the chat associated with the metric aggregation.
+          title: chatName
+          type: string
+        creationDate:
+          description: The creation date of the metric aggregation (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the metric aggregation.
+          title: creationUserId
+          type: string
+        creationUserName:
+          description: The name of the user that created the metric aggregation.
+          title: creationUserName
+          type: string
+      required:
+      - chatId
+      - chatName
+      - chatLink
+      - creationDate
+      - creationUserId
+      - creationUserName
+      title: EvaluationDatasetMetricAggregationChatDetails
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

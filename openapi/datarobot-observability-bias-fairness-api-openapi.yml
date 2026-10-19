@@ -1,0 +1,278 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Observability Bias Fairness API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage Bias and Fairness. Bias and Fairness testing provides methods to calculate fairness for a binary classification model and attempt to identify any biases in the model's predictive behavior. In DataRobot, bias represents the difference between a model's predictions for different populations (or groups) while fairness is the measure of the model's bias. Select protected features in the dataset and choose fairness metrics and mitigation techniques either before model building or from the Leaderboard once models are built. Bias and Fairness insights help identify bias in a model and visualize the root-cause analysis, explaining why the model is learning bias from the training data and from where.
+  name: observability_bias_fairness
+paths:
+  /api/v2/deployments/{deploymentId}/fairnessScoresOverTime/:
+    get:
+      description: Retrieve fairness scores for all features, or for different classes of a single feature changes over a specific time period.
+      operationId: deploymentsFairnessScoresOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: Time duration of buckets
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          default: P1D
+          enum:
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+      - description: The ID of the model to retrieve the statistics for.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The name of the fairness metric to compute fairness over time.
+        in: query
+        name: fairnessMetric
+        required: false
+        schema:
+          enum:
+          - proportionalParity
+          - equalParity
+          - favorableClassBalance
+          - unfavorableClassBalance
+          - trueUnfavorableRateParity
+          - trueFavorableRateParity
+          - favorablePredictiveValueParity
+          - unfavorablePredictiveValueParity
+          type:
+          - string
+          - 'null'
+      - description: Name of the protected feature. When present, will return per class fairness score of the protected feature, otherwise returning fairness score of all protected features.
+        in: query
+        name: protectedFeature
+        required: false
+        schema:
+          type: string
+      - description: The type of FairnessScore to order the response by.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: relativeFairnessScore
+          enum:
+          - absoluteFairnessScore
+          - relativeFairnessScore
+          - -absoluteFairnessScore
+          - -relativeFairnessScore
+          type: string
+      - description: Always include privileged class in response.
+        in: query
+        name: includePrivilegedClass
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Include only statistically significant attributes.
+        in: query
+        name: onlyStatisticallySignificant
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Max number of features in response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: Number of features to offset in response.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FairnessOverTimeResponse'
+          description: Fairness summary and over time.
+      summary: Retrieve fairness over time info of the deployment by deployment ID
+      tags:
+      - observability_bias_fairness
+      x-versionadded: v2.31
+components:
+  schemas:
+    TimeRange:
+      description: An object with the keys "start" and "end" defining the period.
+      properties:
+        end:
+          description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        start:
+          description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      type: object
+    FairnessOverTimeScore:
+      properties:
+        absoluteValue:
+          description: Absolute fairness score.
+          type: number
+        classesCount:
+          description: Count of occurences of the class within the data the fairness is calculated on.
+          type: integer
+        healthyClassesCount:
+          description: Count of statistically significant classes above fairness threshold.
+          type: integer
+        healthyCount:
+          description: Total number of classes with fairness score above the threshold.
+          minimum: 0
+          type: integer
+        isStatisticallySignificant:
+          description: Class is statistically significant.
+          type: boolean
+        label:
+          description: Name of the feature.
+          type: string
+        message:
+          description: Explanation message.
+          type: string
+        privilegedClass:
+          description: Name of the privileged class (the one with the highest fairness score) within the feature.
+          type: string
+        sampleSize:
+          description: Sample size used for fairness status calculation
+          exclusiveMinimum: 0
+          type: integer
+        totalCount:
+          description: Total number of classes.
+          minimum: 1
+          type: integer
+        value:
+          description: Fairness score in relation to the privileged class fairness score.
+          maximum: 1
+          minimum: 0
+          type: number
+      type: object
+    FairnessOverTimeResponse:
+      properties:
+        buckets:
+          description: Per bucket summary.
+          items:
+            $ref: '#/components/schemas/FairnessOverTimeBucket'
+          type: array
+        fairnessThreshold:
+          description: Threshold used to compute fairness results.
+          maximum: 1
+          minimum: 0
+          type: number
+        favorableTargetOutcome:
+          description: Preferable class of target.
+          oneOf:
+          - type: boolean
+          - type: string
+          - type: integer
+        modelId:
+          description: Model Id for which fairness is computed.
+          type: string
+        modelPackageId:
+          description: Model package Id.
+          type: string
+        protectedFeature:
+          description: Name of the protected feature.
+          type: string
+        summary:
+          $ref: '#/components/schemas/FairnessOverTimeBucket'
+      required:
+      - buckets
+      - fairnessThreshold
+      - favorableTargetOutcome
+      - modelId
+      - modelPackageId
+      - summary
+      type: object
+    FairnessOverTimeBucket:
+      description: Summary of per feature fairness.
+      properties:
+        metricName:
+          description: Name of the metric.
+          enum:
+          - proportionalParity
+          - equalParity
+          - favorableClassBalance
+          - unfavorableClassBalance
+          - trueUnfavorableRateParity
+          - trueFavorableRateParity
+          - favorablePredictiveValueParity
+          - unfavorablePredictiveValueParity
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        scores:
+          description: List of per-feature fairness details.
+          items:
+            $ref: '#/components/schemas/FairnessOverTimeScore'
+          type: array
+      required:
+      - metricName
+      - period
+      - scores
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

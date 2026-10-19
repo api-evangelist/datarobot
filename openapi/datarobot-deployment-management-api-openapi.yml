@@ -1,0 +1,3499 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Deployment Management API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage deployments.
+  name: deployment_management
+paths:
+  /api/v2/customModelDeployments/:
+    get:
+      description: List of model deployments for user sorted by creation time descending.
+      operationId: customModelDeployments_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: List of ID's of the custom model which model deployments will be retrieved.
+        in: query
+        name: customModelIds
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+      - description: List of ID's of the execution environment which model deployments will be retrieved.
+        in: query
+        name: environmentIds
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelDeploymentListResponse'
+          description: OK.
+        '400':
+          description: Query parameters are invalid.
+      summary: List custom model deployments
+      tags:
+      - deployment_management
+      x-versionadded: v2.24
+  /api/v2/customModelDeployments/limitState/:
+    get:
+      description: 'Retrieve custom model deployment limit state: maximum allowed, current count, and whether the limit has been reached.'
+      operationId: customModelDeploymentsLimitState_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelDeploymentsLimitsResponse'
+          description: OK.
+        '404':
+          description: User not found or user does not have an organization.
+      summary: Get custom model deployment limits
+      tags:
+      - deployment_management
+      x-versionadded: v2.42
+  /api/v2/customModelDeployments/{deploymentId}/logs/:
+    get:
+      description: Retrieve the logs generated during deployment of the custom model.
+      operationId: customModelDeploymentsLogs_list
+      parameters:
+      - description: The ID of the custom model deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The response will contain a text file with the contents of the Custom Model deployment log.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename of the log file ("attachment;filename=deployment-<deployment_id>.log").
+              schema:
+                type: string
+        '404':
+          description: No logs found.
+      summary: Get custom model log by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.30
+    post:
+      description: Request logs from a custom deployed model.
+      operationId: customModelDeploymentsLogs_create
+      parameters:
+      - description: The ID of the custom model deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelAsyncOperationResponse'
+          description: 'Accepted: request placed to a queue for processing.'
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '404':
+          description: Deployment not found or model is not a Custom Model.
+        '422':
+          description: Deployed model is not a Custom Model.
+      summary: Create logs by ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.30
+  /api/v2/customModelDeployments/{deploymentId}/logs/{logId}/:
+    get:
+      description: Retrieve the logs generated during predictions on the deployed custom model.
+      operationId: customModelDeploymentsLogs_retrieve
+      parameters:
+      - description: The ID of the custom model deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the custom model deployment log.
+        in: path
+        name: logId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The response will contain a text file with the contents of the Custom Model deployment log.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename of the log file ("attachment;filename=deployment-<deployment_id>.log").
+              schema:
+                type: string
+        '404':
+          description: No logs found.
+      summary: Retrieve logs by ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.30
+  /api/v2/deletedDeployments/:
+    get:
+      description: List deleted deployments.Only available as part of an enterprise (on-prem) installation. Requires a CAN_DELETE_APP_PROJECTS permission to execute.
+      operationId: deletedDeployments_list
+      parameters:
+      - description: The number of deleted deployments to skip.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of deleted deployments to return.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 20
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedDeploymentListResponse'
+          description: The deleted deployments
+      summary: List deleted deployments
+      tags:
+      - deployment_management
+      x-versionadded: v2.21
+    patch:
+      description: Permanently erase data for deleted deployments. Only available as part of an on-premise or private/hybrid cloud deployment. Requires a CAN_DELETE_APP_PROJECTS permission to execute.
+      operationId: deletedDeployments_patchMany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentPermanentDelete'
+      responses:
+        '202':
+          description: Job submitted. See Location header.
+          headers:
+            Location:
+              description: URL for tracking deployment permanently erase job status.
+              schema:
+                type: string
+      summary: Erase deleted deployments
+      tags:
+      - deployment_management
+      x-versionadded: v2.21
+  /api/v2/deployments/:
+    get:
+      description: List deployments a user can view.
+      operationId: deployments_list
+      parameters:
+      - description: The number of deployments to skip. Defaults to 0.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of deployments (greater than zero, max 100) to return. Defaults to 20.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 20
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: The order to sort the deployments.Defaults to order by deployment last prediction timestamp in descending order.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - label
+          - -label
+          - serviceHealth
+          - -serviceHealth
+          - modelHealth
+          - -modelHealth
+          - accuracyHealth
+          - -accuracyHealth
+          - recentPredictions
+          - -recentPredictions
+          - lastPredictionTimestamp
+          - -lastPredictionTimestamp
+          - currentModelDeployedTimestamp
+          - -currentModelDeployedTimestamp
+          - createdAtTimestamp
+          - -createdAtTimestamp
+          - importance
+          - -importance
+          - fairnessHealth
+          - -fairnessHealth
+          - customMetricsHealth
+          - -customMetricsHealth
+          - actualsTimelinessHealth
+          - -actualsTimelinessHealth
+          - predictionsTimelinessHealth
+          - -predictionsTimelinessHealth
+          type: string
+        x-versionadded: v2.18
+      - description: Case insensitive search against deployment's label and description.
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 100
+          type: string
+        x-versionadded: v2.18
+      - description: Filters deployments by their service health status.
+        in: query
+        name: serviceHealth
+        required: false
+        schema:
+          items:
+            enum:
+            - failing
+            - not_started
+            - passing
+            - unavailable
+            - unknown
+            - warning
+            type: string
+          type: array
+        x-versionadded: v2.20
+      - description: Filters deployments by their model health status.
+        in: query
+        name: modelHealth
+        required: false
+        schema:
+          items:
+            enum:
+            - failing
+            - not_started
+            - passing
+            - unavailable
+            - unknown
+            - warning
+            type: string
+          type: array
+        x-versionadded: v2.20
+      - description: Filters deployments by their accuracy health status.
+        in: query
+        name: accuracyHealth
+        required: false
+        schema:
+          items:
+            enum:
+            - failing
+            - not_started
+            - passing
+            - unavailable
+            - unknown
+            - warning
+            type: string
+          type: array
+        x-versionadded: v2.20
+      - description: Filter deployments to only those that the authenticated user has the specified role for.
+        in: query
+        name: role
+        required: false
+        schema:
+          enum:
+          - OWNER
+          - USER
+          type: string
+        x-versionadded: v2.20
+      - description: Filters deployments by their status
+        in: query
+        name: status
+        required: false
+        schema:
+          items:
+            enum:
+            - active
+            - archived
+            - errored
+            - inactive
+            - launching
+            - replacingModel
+            - stopping
+            type: string
+          type: array
+        x-versionadded: v2.25
+      - description: Filters deployments by their importance
+        in: query
+        name: importance
+        required: false
+        schema:
+          items:
+            enum:
+            - CRITICAL
+            - HIGH
+            - MODERATE
+            - LOW
+            type: string
+          type: array
+        x-versionadded: v2.21
+      - description: Only include deployments that have had a prediction request on or after the specified timestamp.
+        in: query
+        name: lastPredictionTimestampStart
+        required: false
+        schema:
+          format: date-time
+          type: string
+        x-versionadded: v2.23
+      - description: Only include deployments that have had a prediction request before the specified timestamp.
+        in: query
+        name: lastPredictionTimestampEnd
+        required: false
+        schema:
+          format: date-time
+          type: string
+        x-versionadded: v2.23
+      - description: only include deployments that have had more than the specified number of predictions per day on average over the past week.
+        in: query
+        name: predictionUsageDailyAvgGreaterThan
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        x-versionadded: v2.23
+      - description: Only include deployments that have had fewer than the specified number of predictions per day on average over the past week.
+        in: query
+        name: predictionUsageDailyAvgLessThan
+        required: false
+        schema:
+          exclusiveMinimum: 0
+          type: integer
+        x-versionadded: v2.23
+      - description: Filter deployments to those whose default prediction server has the specified id.
+        in: query
+        name: defaultPredictionServerId
+        required: false
+        schema:
+          items:
+            type: string
+          type: array
+        x-versionadded: v2.23
+      - description: Filter deployments based on the type of their current model's build environment type.
+        in: query
+        name: buildEnvironmentType
+        required: false
+        schema:
+          items:
+            enum:
+            - DataRobot
+            - Python
+            - R
+            - Java
+            - Julia
+            - Legacy
+            - Other
+            type: string
+          type: array
+        x-versionadded: v2.21
+      - description: Filter deployments based on the type of their execution environment.
+        in: query
+        name: executionEnvironmentType
+        required: false
+        schema:
+          items:
+            enum:
+            - datarobot
+            - external
+            type: string
+          type: array
+        x-versionadded: v2.20
+      - description: Filter deployments based on prediction environment platform
+        in: query
+        name: predictionEnvironmentPlatform
+        required: false
+        schema:
+          items:
+            enum:
+            - aws
+            - gcp
+            - azure
+            - onPremise
+            - datarobot
+            - datarobotServerless
+            - openShift
+            - other
+            - snowflake
+            - sapAiCore
+            type: string
+          type: array
+        x-versionadded: v2.22
+      - description: Filter deployments to those created by the current user.
+        in: query
+        name: createdByMe
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.29
+      - description: Filters deployments by those created by the given user.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          type: string
+        x-versionadded: v2.34
+      - description: Filter deployments by the execution type of the champion model.
+        in: query
+        name: championModelExecutionType
+        required: false
+        schema:
+          enum:
+          - custom_inference_model
+          - external
+          - dedicated
+          type: string
+        x-versionadded: v2.34
+      - description: 'Filter deployments by the target type of the champion model. Example: Binary'
+        in: query
+        name: championModelTargetType
+        required: false
+        schema:
+          type: string
+      - description: List of tag keys to filter for. If multiple values are specified, deployments with tags that match any of the values will be returned.
+        in: query
+        name: tagKeys
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 10
+            type: array
+        x-versionadded: v2.35
+      - description: List of tag values to filter for. If multiple values are specified, deployments with tags that match any of the values will be returned.
+        in: query
+        name: tagValues
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 10
+            type: array
+        x-versionadded: v2.35
+      - description: Filter deployments by whether the deployment is an A2A agent. When true, returns only deployments that are A2A agents. When false, returns only deployments that are not A2A agents.
+        in: query
+        name: isA2AAgent
+        required: false
+        schema:
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-datarobot-public-preview: false
+        x-datarobot-required-feature-flags:
+        - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+          enabled_by_default: false
+          maturity: GA_PREMIUM
+          name: GENAI_EXPERIMENTATION
+        x-versionadded: v2.43.0
+      - description: List of tag keys. If specified, only deployments with prediction environments that have tags matching any of the keys will be returned.
+        in: query
+        name: predictionEnvironmentTagKeys
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 10
+            type: array
+        x-versionadded: v2.44
+      - description: List of tag values. If specified, only deployments with prediction environments that have tags matching any of the values will be returned.
+        in: query
+        name: predictionEnvironmentTagValues
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 10
+            type: array
+        x-versionadded: v2.44
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentListResponse'
+          description: The deployments
+      summary: List deployments
+      tags:
+      - deployment_management
+      x-versionadded: v2.17
+  /api/v2/deployments/fromLearningModel/:
+    post:
+      description: 'Create a deployment from a DataRobot model.
+
+
+        DEPRECATED in v2.37: Register the Leaderboard model with `POST /api/v2/modelPackages/fromLeaderboard/`.
+
+
+        Use the following route to create a deployment `POST /api/v2/deployments/fromModelPackage/`.'
+      operationId: deploymentsFromLearningModel_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentCreateFromLearningModel'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentCreateResponse'
+          description: Deployment successfully created.
+        '403':
+          description: User does not have permission to create a deployment.
+        '409':
+          description: User's organization has reached the maximum number of deployments.
+        '422':
+          description: Unable to process the deployment creation request.
+      summary: Create deployment
+      tags:
+      - deployment_management
+      x-versionadded: v2.17
+  /api/v2/deployments/fromModelPackage/:
+    post:
+      description: Create a deployment from a model package.
+      operationId: deploymentsFromModelPackage_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentCreateFromModelPackage'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentCreateResponse'
+          description: Job submitted. The URL at the Location header can be used to track when the deployment is ready for predictions.
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '422':
+          description: Unable to process the deployment creation request.
+      summary: Create a deployment from a model package
+      tags:
+      - deployment_management
+      x-versionadded: v2.37
+  /api/v2/deployments/limits/:
+    get:
+      description: Fetch deployment limit information.
+      operationId: deploymentsLimits_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentGetLimitsResponse'
+          description: The deployment limits.
+      summary: Get deployment limits
+      tags:
+      - deployment_management
+      x-versionadded: v2.43
+  /api/v2/deployments/migrateDPStoServerless/:
+    post:
+      description: Update a deployment's prediction environment from dedicated to serverless.
+      operationId: deploymentsMigrateDPStoServerless_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentPredictionEnvironmentUpdate'
+      responses:
+        '204':
+          description: Deployment successfully updated.
+      summary: Update a deployment's prediction environment from dedicated
+      tags:
+      - deployment_management
+      x-versionadded: v2.38
+  /api/v2/deployments/{deploymentId}/:
+    delete:
+      description: Delete a deployment.
+      operationId: deployments_delete
+      parameters:
+      - description: Do not wait for management agent to delete the deployment first.
+        in: query
+        name: ignoreManagementAgent
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Deployment successfully deleted.
+        '422':
+          description: Unable to process the request.
+      summary: Delete deployment by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.17
+    get:
+      description: Retrieve a deployment.
+      operationId: deployments_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentRetrieveResponse'
+          description: The deployment
+      summary: Retrieve deployment by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.17
+    patch:
+      description: Update a deployment's label and description.
+      operationId: deployments_patch
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentUpdate'
+      responses:
+        '204':
+          description: Deployment successfully updated
+      summary: Update deployment by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.19
+  /api/v2/deployments/{deploymentId}/agentCard/:
+    delete:
+      description: Delete the agent card associated with an external agent deployment. This operation is idempotent - returns 204 even if no agent card exists.
+      operationId: deploymentsAgentCard_deleteMany
+      parameters:
+      - description: The ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '404':
+          description: Deployment not found.
+        '405':
+          description: Agent card deletion is only allowed for external deployments.
+      summary: Delete the agent card by deployment ID
+      tags:
+      - deployment_management
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.44
+    get:
+      description: Retrieve the agent card associated with an agent deployment. The agent card is returned by this route as it was returned by the agent during deployment creation or as it was uploaded to DataRobot.
+      operationId: deploymentsAgentCard_list
+      parameters:
+      - description: The ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The agent card for the deployment.
+        '404':
+          description: No agent card found for this deployment.
+      summary: Retrieve the agent card by deployment ID
+      tags:
+      - deployment_management
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.44
+    put:
+      description: Upload the agent card for an agent deployment. The request body must be the agent card document as a JSON object. If an agent card already exists for this deployment it will be replaced. This operation is only supported for external deployments. For DataRobot hosted deployments, the agent card document is pulled automatically from the deployment.
+      operationId: deploymentsAgentCard_putMany
+      parameters:
+      - description: The ID of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The stored agent card for the deployment.
+        '413':
+          description: The agent card exceeds the maximum allowed size.
+        '422':
+          description: Agent card upload is only supported for external deployments.
+      summary: Create by deployment ID
+      tags:
+      - deployment_management
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables the creation, management, and utilization of a vector database-augmented LLM solution, allowing organizations to use their content to experiment and leverage GenAI for a specific use case.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: GENAI_EXPERIMENTATION
+      x-versionadded: v2.44
+  /api/v2/deployments/{deploymentId}/capabilities/:
+    get:
+      description: Retrieve the capabilities for the deployment.
+      operationId: deploymentsCapabilities_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentCapabilitiesRetrieveResponse'
+          description: ''
+      summary: Retrieve capabilities by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.29
+  /api/v2/deployments/{deploymentId}/features/:
+    get:
+      description: Retrieve features contained within the universe dataset associated with a specific deployment. By default, this returns all raw features required for predictions.
+      operationId: deploymentsFeatures_list
+      parameters:
+      - description: The number of features to skip, defaults to 0.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of features to return, defaults to 0.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 50
+          minimum: 0
+          type: integer
+      - description: When True will return all raw features in the universe dataset associated with the deployment, and when False will return only those raw features used to make predictions on the deployment.
+        in: query
+        name: includeNonPredictionFeatures
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.20
+      - description: When True, features returned will be filtered to those usable for segmented analysis.
+        in: query
+        name: forSegmentedAnalysis
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Case insensitive search against names of the deployment's features.
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 100
+          type: string
+        x-versionadded: v2.24
+      - description: The sort order to apply to the list of features. Prefix the attribute name with a dash to sort in descending order, e.g., "-name".
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - name
+          - -name
+          - importance
+          - -importance
+          type: string
+        x-versionadded: v2.35
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureListResponse'
+          description: The deployment's features
+      summary: Get deployment features by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.18
+  /api/v2/deployments/{deploymentId}/modelHistory/:
+    get:
+      description: Retrieve champion model history of deployment.
+      operationId: deploymentsModelHistory_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelHistoryListResponse'
+          description: List of deployment model history.
+      summary: Retrieve champion model history of deployment by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.36
+  /api/v2/deployments/{deploymentId}/onDemandReports/:
+    post:
+      description: Add report to execution queue.
+      operationId: deploymentsOnDemandReports_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduledReportOnDemmand'
+      responses:
+        '200':
+          description: Scheduled report job was addded to execution.
+          headers:
+            Location:
+              description: URL to poll to track report generation has finished.
+              schema:
+                type: string
+      summary: Add report by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/quotaConsumers/:
+    get:
+      description: Retrieve list of unique agents/users that have made requests to this deployment. Only available to deployment owners and users with read permissions.
+      operationId: deploymentsQuotaConsumers_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Deployment consumer information retrieved.
+      summary: Retrieve deployment consumers by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.4
+  /api/v2/deployments/{deploymentId}/scoringCode/:
+    get:
+      description: 'Retrieve Scoring Code of the current deployed model for making predictions outside of a DataRobot prediction server.
+
+        You need the "Scoring Code" feature enabled to use this route.
+
+
+        By default, returns a compiled executable JAR that can be executed locally to calculate model predictions, or it can be used as a library for a Java application. Execute it with the ''--help` parameters to learn how to use it as a command-line utility.
+
+        See model API documentation at https://javadoc.io/doc/com.datarobot/datarobot-prediction/latest/index.html to be able to use it inside an existing Java application.
+
+
+        With sourceCode query parameter set to ''true'', returns a source code archive that can be used to review internal calculations of the model.
+
+        This JAR is NOT executable.
+
+
+        See "https://docs.datarobot.com/en/docs/predictions/port-pred/scoring-code/index.html" documentation in DataRobot application for more information.
+
+
+        *Note*
+
+        Cannot retrieve source code if agent is included.'
+      operationId: deploymentsScoringCode_list
+      parameters:
+      - description: Whether source code or binary of the Scoring Code will be retrieved
+        in: query
+        name: sourceCode
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Whether the Scoring code retrieved will include tracking agent
+        in: query
+        name: includeAgent
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Please use includePredictionExplanations parameter instead
+        in: query
+        name: includePe
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versiondeprecated: v2.28
+      - description: Whether the Scoring Code retrieved will include prediction explanations
+        in: query
+        name: includePredictionExplanations
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.28
+      - description: Whether the Scoring Code retrieved will include prediction intervals
+        in: query
+        name: includePredictionIntervals
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        x-versionadded: v2.28
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: JAR file
+          headers:
+            Content-Disposition:
+              description: Indicating the content is supposed to be downloaded as an attachment
+              schema:
+                type: string
+            Content-Type:
+              description: application/java-archive
+              schema:
+                type: string
+      summary: Retrieve Scoring Code by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/scoringCodeBuilds/:
+    post:
+      description: Build Java package containing Scoring Code with agent integration.
+      operationId: deploymentsScoringCodeBuilds_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentsScoringCodeBuildPayload'
+      responses:
+        '200':
+          description: ''
+      summary: Build Java package containing Scoring Code by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.23
+  /api/v2/deployments/{deploymentId}/settings/checklist/:
+    get:
+      description: Return a checklist of deployment settings indicating which settings are configured and which are not.
+      operationId: deploymentsSettingsChecklist_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentChecklistResponse'
+          description: The deployment settings checklist
+      summary: Retrieve deployment settings checklist by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.38
+  /api/v2/deployments/{deploymentId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups and organizations who have access to this deployment and their roles.
+      operationId: deploymentsSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The deployment ID.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListV2Response'
+          description: ''
+        '404':
+          description: Either the deployment does not exist or the user does not have permissions to view the deployment.
+        '422':
+          description: Both username and userId were specified
+      summary: Get the model deployment access control list by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.21
+    patch:
+      description: Set roles for users on this model deployment.
+      operationId: deploymentsSharedRoles_patchMany
+      parameters:
+      - description: The deployment ID.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdateWithGrant'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '409':
+          description: The request would leave the project without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid
+      summary: Update the model deployment access controls by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.22
+  /api/v2/deployments/{deploymentId}/status/:
+    patch:
+      description: Change deployment status.
+      operationId: deploymentsStatus_patchMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentStatusUpdate'
+      responses:
+        '202':
+          description: Job submitted. See Location header.
+          headers:
+            Location:
+              description: URL for tracking async job status.
+              schema:
+                type: string
+        '409':
+          description: Deployment is already in process of status change or already in requested status.
+        '422':
+          description: Deployment status change request could not be processed.
+      summary: Change deployment status by deployment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.29
+  /api/v2/executionEnvironments/{environmentId}/accessControl/:
+    get:
+      description: Get a list of users who have access to this execution environment and their roles.
+      operationId: executionEnvironmentsAccessControl_list
+      parameters:
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Optional, only return the access control information for a user with this username.
+        in: query
+        name: username
+        required: false
+        schema:
+          type: string
+      - description: Optional, only return the access control information for a user with this user ID.
+        in: query
+        name: userId
+        required: false
+        schema:
+          type: string
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListResponse'
+          description: ''
+        '400':
+          description: Bad Request. Both username and userId were specified
+        '403':
+          description: Forbidden. The user does not have permissions to view the execution environment access list.
+        '404':
+          description: Execution environment not found. Either the execution environment does not exist or user does not have permission to view it.
+      summary: Get a list of users who have access by environment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.25
+    patch:
+      description: Grant access or update roles for users on this execution environment. Up to 100 user roles may be set in a single request.
+      operationId: executionEnvironmentsAccessControl_patchMany
+      parameters:
+      - description: The ID of the environment.
+        in: path
+        name: environmentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharingUpdateOrRemoveWithGrant'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: Roles updated successfully.
+        '403':
+          description: User can view execution environment but does not have permission to grant these roles on the execution environment.
+        '404':
+          description: Either the execution environment does not exist or the user does not have permissions to view the execution environment.
+        '409':
+          description: The request would leave the execution environment without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid.
+      summary: Grant access by environment ID
+      tags:
+      - deployment_management
+      x-versionadded: v2.25
+  /api/v2/mlops/compute/bundles/:
+    get:
+      description: Retrieve metadata for all resource bundles the user has access to.
+      feature_flags:
+      - description: Instead of managing resources (i.e. CPU, memory, and GPU) individually, users select an available bundle of resources that best fits their Custom Model/Job/App, etc.
+        enabled_by_default: false
+        maturity: PUBLIC_PREVIEW
+        name: MLOPS_RESOURCE_REQUEST_BUNDLES
+      maturity: PUBLIC_PREVIEW
+      operationId: mlopsComputeBundles_list
+      parameters:
+      - description: Identifier used to return recommended resource bundles. Must be used together with entityType parameter.
+        in: query
+        name: entityId
+        required: false
+        schema:
+          type: string
+        x-versionadded: v2.37
+      - description: Type of entity for which to get recommended bundles. Must be provided with entityId.
+        in: query
+        name: entityType
+        required: false
+        schema:
+          enum:
+          - customModelTemplate
+          type: string
+        x-versionadded: v2.37
+      - description: If it is specified, only bundles for this use case will be returned.
+        in: query
+        name: useCases
+        required: false
+        schema:
+          enum:
+          - customApplication
+          - customJob
+          - customModel
+          - customTaskFit
+          - modelingMachineWorker
+          - predictionAPI
+          - sapAICore
+          - sparkApplication
+          - workload
+          type: string
+      - description: Number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      public_preview: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceRequestBundleListResponse'
+          description: List of resource bundle metadata.
+        '403':
+          description: Resource bundles are not enabled.
+      summary: List resource bundles
+      tags:
+      - deployment_management
+      x-datarobot-public-preview: true
+      x-datarobot-required-feature-flags:
+      - description: Instead of managing resources (i.e. CPU, memory, and GPU) individually, users select an available bundle of resources that best fits their Custom Model/Job/App, etc.
+        enabled_by_default: false
+        maturity: PUBLIC_PREVIEW
+        name: MLOPS_RESOURCE_REQUEST_BUNDLES
+  /api/v2/mlops/compute/bundles/{resourceRequestBundleId}/:
+    get:
+      description: Retrieve resource bundle.
+      feature_flags:
+      - description: Instead of managing resources (i.e. CPU, memory, and GPU) individually, users select an available bundle of resources that best fits their Custom Model/Job/App, etc.
+        enabled_by_default: false
+        maturity: PUBLIC_PREVIEW
+        name: MLOPS_RESOURCE_REQUEST_BUNDLES
+      maturity: PUBLIC_PREVIEW
+      operationId: mlopsComputeBundles_retrieve
+      parameters:
+      - description: ID of the bundle.
+        in: path
+        name: resourceRequestBundleId
+        required: true
+        schema:
+          type: string
+      public_preview: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceRequestBundleResponse'
+          description: Resource bundle
+        '403':
+          description: Resource bundles are not enabled or the user does not have access to specified bundle.
+        '404':
+          description: Resource bundle does not exist.
+      summary: Retrieve resource bundle by resource request bundle ID
+      tags:
+      - deployment_management
+      x-datarobot-public-preview: true
+      x-datarobot-required-feature-flags:
+      - description: Instead of managing resources (i.e. CPU, memory, and GPU) individually, users select an available bundle of resources that best fits their Custom Model/Job/App, etc.
+        enabled_by_default: false
+        maturity: PUBLIC_PREVIEW
+        name: MLOPS_RESOURCE_REQUEST_BUNDLES
+  /api/v2/mlops/portablePredictionServerImage/:
+    get:
+      description: Fetches the latest Portable Prediction Server (PPS) Docker image. The resulting image can be docker-loaded. Since the image can be quite large (14GB+) consider querying its metadata to check the image size in advance and content hash to verify the downloaded image afterwards. In some environments it can HTTP redirect to some other service (like S3 or GCP) using pre-signed URLs.
+      operationId: mlopsPortablePredictionServerImage_list
+      responses:
+        '200':
+          description: Download the latest available Portable Prediction Server (PPS) Docker image
+        '302':
+          description: Redirect to another service for more efficient content download using pre-signed URL
+        '404':
+          description: No PPS images found in the system
+      summary: Downloads the latest Portable Prediction Server (PPS) Docker image
+      tags:
+      - deployment_management
+      x-versionadded: v2.26
+  /api/v2/mlops/portablePredictionServerImage/metadata/:
+    get:
+      operationId: mlopsPortablePredictionServerImageMetadata_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PPSImageMetadataResponse'
+          description: Available Portable Prediction Server (PPS) image metadata
+        '404':
+          description: No PPS images found in the system
+      summary: Fetches currently active PPS Docker image metadata
+      tags:
+      - deployment_management
+      x-versionadded: v2.26
+components:
+  schemas:
+    DeploymentCreateFromLearningModel:
+      properties:
+        defaultPredictionServerId:
+          description: ID of the default prediction server for deployment. Required for DataRobot Cloud, must be omitted for Enterprise installations.
+          type: string
+        description:
+          default: null
+          description: A description for the deployment.
+          maxLength: 10000
+          type:
+          - string
+          - 'null'
+        grantInitialDeploymentRolesFromProject:
+          default: true
+          description: If True, initial roles on the deployment will be granted to users who have roles on the project that the deployed model comes from. If False, only the creator of the deployment will be given a role on the deployment. Defaults to True.
+          type: boolean
+          x-versionadded: v2.31
+        importance:
+          description: Importance of the deployment. Defaults to LOW when MLOps is enabled, must not be provided when MLOps disabled.
+          enum:
+          - CRITICAL
+          - HIGH
+          - MODERATE
+          - LOW
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.21
+        label:
+          description: A human-readable name for the deployment.
+          maxLength: 512
+          type: string
+        modelId:
+          description: ID of the model to be deployed.
+          type: string
+        predictionThreshold:
+          description: Prediction threshold used for binary classification. If not specified, model default prediction threshold will be used.
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        status:
+          default: active
+          description: Status of the deployment
+          enum:
+          - active
+          - inactive
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.23
+      required:
+      - description
+      - label
+      - modelId
+      type: object
+    ModelPackagePredictionThresholdWarning:
+      description: Lower and upper boundaries for outlier detection.
+      properties:
+        lower:
+          description: Lower boundary for outlier detection.
+          type: number
+        upper:
+          description: Upper boundary for outlier detection.
+          type: number
+      required:
+      - lower
+      - upper
+      type: object
+      x-versionadded: v2.36
+    DeletedDeploymentListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of deleted deployments.
+          items:
+            $ref: '#/components/schemas/DeletedDeploymentResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+    DeploymentCreateResponse:
+      properties:
+        id:
+          description: The ID of the created deployment.
+          type: string
+      required:
+      - id
+      type: object
+    CustomModelDeploymentsLimitsLimitInfo:
+      description: Limit info for the maximum number of custom model deployments.
+      properties:
+        limitReached:
+          description: Whether the custom model deployment limit has been reached.
+          type: boolean
+        value:
+          description: The maximum number of custom model deployments allowed (null if unlimited).
+          type:
+          - integer
+          - 'null'
+      required:
+      - limitReached
+      type: object
+      x-versionadded: v2.42
+    PPSImageMetadataResponse:
+      properties:
+        baseImageId:
+          description: Internal base image entity id for troubleshooting purposes
+          type: string
+        created:
+          description: ISO formatted image upload date
+          format: date-time
+          type: string
+        datarobotRuntimeImageTag:
+          description: For internal use only.
+          type:
+          - string
+          - 'null'
+        dockerImageId:
+          description: A Docker image id (immutable, content-based) hash associated with the given image
+          type: string
+        filename:
+          description: The name of the file when the download requested
+          type: string
+        hash:
+          description: Hash of the image content, supposed to be used for verifying content after the download. The algorithm used for hashing is specified in `hashAlgorithm` field. Note that hash is calculated over compressed image data.
+          type: string
+        hashAlgorithm:
+          description: An algorithm name used for calculating content `hash`
+          enum:
+          - SHA256
+          type: string
+        imageSize:
+          description: Size in bytes of the compressed PPS image data
+          type: integer
+        shortDockerImageId:
+          description: A 12-chars shortened version of the `dockerImageId` as shown in 'docker images' command line command output
+          type: string
+      required:
+      - baseImageId
+      - created
+      - dockerImageId
+      - filename
+      - hash
+      - hashAlgorithm
+      - imageSize
+      - shortDockerImageId
+      type: object
+    DeploymentModelPackageResponse:
+      description: Information related to the current ModelPackage.
+      properties:
+        id:
+          description: ID of the ModelPackage.
+          type: string
+        name:
+          description: Name of the ModelPackage.
+          type: string
+        registeredModelId:
+          description: The ID of the associated registered model
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - name
+      - registeredModelId
+      type: object
+    SingleDeploymentSetting:
+      properties:
+        hint:
+          description: An optional hint for the setting.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        label:
+          description: A descriptive label for the setting.
+          maxLength: 80
+          type: string
+        setting:
+          description: The identifier of the setting.
+          enum:
+          - deploymentName
+          - DeploymentName
+          - DEPLOYMENT_NAME
+          - settingsDataDrift
+          - SettingsDataDrift
+          - SETTINGS_DATA_DRIFT
+          - settingsAccuracy
+          - SettingsAccuracy
+          - SETTINGS_ACCURACY
+          - settingsFairness
+          - SettingsFairness
+          - SETTINGS_FAIRNESS
+          - settingsCustomMetrics
+          - SettingsCustomMetrics
+          - SETTINGS_CUSTOM_METRICS
+          - settingsHumility
+          - SettingsHumility
+          - SETTINGS_HUMILITY
+          - settingsChallengers
+          - SettingsChallengers
+          - SETTINGS_CHALLENGERS
+          - settingsPredictions
+          - SettingsPredictions
+          - SETTINGS_PREDICTIONS
+          - settingsRetraining
+          - SettingsRetraining
+          - SETTINGS_RETRAINING
+          - settingsUsage
+          - SettingsUsage
+          - SETTINGS_USAGE
+          - settingsDataExploration
+          - SettingsDataExploration
+          - SETTINGS_DATA_EXPLORATION
+          - settingsNotifications
+          - SettingsNotifications
+          - SETTINGS_NOTIFICATIONS
+          type: string
+        status:
+          description: Indicates the completion status of the setting.
+          enum:
+          - notSet
+          - NotSet
+          - NOT_SET
+          - partial
+          - Partial
+          - PARTIAL
+          - configured
+          - Configured
+          - CONFIGURED
+          type: string
+      required:
+      - hint
+      - label
+      - setting
+      - status
+      type: object
+      x-versionadded: v2.38
+    DeploymentPredictionEnvironmentResponse:
+      description: Information related to the current PredictionEnvironment.
+      properties:
+        id:
+          description: ID of the PredictionEnvironment.
+          type:
+          - string
+          - 'null'
+        isManagedByManagementAgent:
+          description: True if PredictionEnvironment is using Management Agent.
+          type: boolean
+        name:
+          description: Name of the PredictionEnvironment.
+          type: string
+        platform:
+          description: Platform of the PredictionEnvironment.
+          enum:
+          - aws
+          - gcp
+          - azure
+          - onPremise
+          - datarobot
+          - datarobotServerless
+          - openShift
+          - other
+          - snowflake
+          - sapAiCore
+          type: string
+        plugin:
+          description: Plugin name of the PredictionEnvironment.
+          type:
+          - string
+          - 'null'
+        supportedModelFormats:
+          description: Model formats that the PredictionEnvironment supports.
+          items:
+            enum:
+            - datarobot
+            - datarobotScoringCode
+            - customModel
+            - externalModel
+            type: string
+          maxItems: 4
+          minItems: 1
+          type: array
+      required:
+      - id
+      - isManagedByManagementAgent
+      - name
+      - platform
+      type: object
+    ScheduledReportOnDemmand:
+      properties:
+        id:
+          description: ID of Scheduled report record.
+          type: string
+      required:
+      - id
+      type: object
+    CustomModelDeploymentResponse:
+      properties:
+        customModel:
+          $ref: '#/components/schemas/CustomModelShortResponse'
+        customModelImageId:
+          description: The id of the custom model image associated with this deployment.
+          type: string
+        customModelVersion:
+          $ref: '#/components/schemas/CustomModelVersionShortResponse'
+        deployed:
+          description: ISO-8601 timestamp of when deployment was created.
+          type: string
+        deployedBy:
+          description: The username of the user that deployed the custom model.
+          type: string
+        executionEnvironment:
+          $ref: '#/components/schemas/ExecutionEnvironmentShortResponse'
+        executionEnvironmentVersion:
+          $ref: '#/components/schemas/ExecutionEnvironmentVersionShortResponse'
+        id:
+          description: The ID of the deployment.
+          type: string
+        imageType:
+          description: The type of the image, either customModelImage if the testing attempt is using a customModelImage as its model or customModelVersion if the testing attempt is using a customModelVersion with dependency management.
+          enum:
+          - customModelImage
+          - customModelVersion
+          type: string
+        label:
+          description: User-friendly name of the model deployment.
+          type: string
+        status:
+          description: Deployment status.
+          enum:
+          - active
+          - archived
+          - errored
+          - inactive
+          - launching
+          - replacingModel
+          - stopping
+          type: string
+        testingStatus:
+          description: Latest testing status of the deployed custom model image.
+          enum:
+          - not_tested
+          - queued
+          - failed
+          - canceled
+          - succeeded
+          - in_progress
+          - aborted
+          - warning
+          - skipped
+          type: string
+      required:
+      - customModel
+      - customModelImageId
+      - customModelVersion
+      - deployed
+      - deployedBy
+      - executionEnvironment
+      - executionEnvironmentVersion
+      - id
+      - label
+      - status
+      - testingStatus
+      type: object
+    DeploymentPredictionUsageResponse:
+      description: Prediction usage of the deployment.
+      properties:
+        dailyRates:
+          description: Number of predictions made in the last 7 days.
+          items:
+            type: integer
+          type: array
+        lastTimestamp:
+          description: Timestamp of the last prediction request.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        serverErrorRates:
+          description: Number of server errors (5xx) in the last 7 days.
+          items:
+            type: integer
+          maxItems: 7
+          type: array
+          x-versionadded: v2.39
+        userErrorRates:
+          description: Number of user errors (4xx) in the last 7 days.
+          items:
+            type: integer
+          maxItems: 7
+          type: array
+          x-versionadded: v2.39
+      required:
+      - dailyRates
+      - lastTimestamp
+      - serverErrorRates
+      - userErrorRates
+      type: object
+    ResourceRequestBundleListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.35
+        data:
+          description: List of bundles.
+          items:
+            $ref: '#/components/schemas/ResourceRequestBundleResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.35
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    ModelHistoryListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: History of deployment's champion models, including the current champion model.
+          items:
+            $ref: '#/components/schemas/ModelHistoryResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    SharedRolesUpdateWithGrant:
+      properties:
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: An array of RoleRequest objects. May contain at most 100 such objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsernameWithGrant'
+            - $ref: '#/components/schemas/GrantAccessControlWithIdWithGrant'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - operation
+      - roles
+      type: object
+    CustomModelDeploymentListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of custom model deployments.
+          items:
+            $ref: '#/components/schemas/CustomModelDeploymentResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeploymentModelPackageInitialDownloadResponse:
+      description: If a model package has been downloaded for this deployment, then this will tell you when it was first downloaded.
+      properties:
+        timestamp:
+          description: Timestamp of the first time model package was downloaded.
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - timestamp
+      type: object
+    DeploymentListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of deployments.
+          items:
+            $ref: '#/components/schemas/DeploymentRetrieveResponse'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    GrantAccessControlWithUsernameWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: The username of the user to update the access role for.
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      type: object
+    DeploymentReviewerResponse:
+      properties:
+        email:
+          description: The email address of the reviewer.
+          type:
+          - string
+          - 'null'
+        fullName:
+          description: The full name of the reviewer.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+        id:
+          description: The ID of the reviewer.
+          type: string
+        status:
+          description: The latest review status.
+          enum:
+          - APPROVED
+          - CHANGES_REQUESTED
+          - COMMENTED
+          type:
+          - string
+          - 'null'
+        userhash:
+          description: Reviewer's gravatar hash.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+        username:
+          description: The username of the reviewer.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+      required:
+      - email
+      - id
+      - status
+      type: object
+      x-versionadded: v2.37
+    DeploymentModelCustomModelImageResponse:
+      description: Information related to the custom model image of the deployment.
+      properties:
+        customModelId:
+          description: ID of the custom model.
+          type: string
+        customModelName:
+          description: Name of the custom model.
+          type: string
+        customModelVersionId:
+          description: ID of the custom model version.
+          type: string
+        customModelVersionLabel:
+          description: Label of the custom model version.
+          type: string
+        executionEnvironmentId:
+          description: ID of the execution environment.
+          type: string
+        executionEnvironmentName:
+          description: Name of the execution environment.
+          type: string
+        executionEnvironmentVersionId:
+          description: ID of the execution environment version.
+          type: string
+        executionEnvironmentVersionLabel:
+          description: Label of the execution environment version.
+          type: string
+      required:
+      - customModelId
+      - customModelName
+      - customModelVersionId
+      - customModelVersionLabel
+      - executionEnvironmentId
+      - executionEnvironmentName
+      - executionEnvironmentVersionId
+      - executionEnvironmentVersionLabel
+      type: object
+    FeatureListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of features.
+          items:
+            $ref: '#/components/schemas/Feature'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.35
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeploymentCreateFromModelPackage:
+      properties:
+        additionalMetadata:
+          description: Key/Value pair list, with additional metadata
+          items:
+            $ref: '#/components/schemas/KeyValuePair'
+          maxItems: 40
+          type:
+          - array
+          - 'null'
+        defaultPredictionServerId:
+          description: ID of the default prediction server for deployment. Required for DataRobot Cloud for non-external models, must be omitted for Enterprise installations.
+          type: string
+        description:
+          default: null
+          description: A description for the deployment.
+          maxLength: 10000
+          type:
+          - string
+          - 'null'
+        importance:
+          description: Importance of the deployment. Defaults to LOW when MLOps is enabled, must not be provided when MLOps disabled.
+          enum:
+          - CRITICAL
+          - HIGH
+          - MODERATE
+          - LOW
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.21
+        label:
+          description: A human-readable name for the deployment.
+          maxLength: 512
+          type: string
+        modelPackageId:
+          description: ID of the model package to deploy.
+          type: string
+        predictionEnvironmentId:
+          description: ID of prediction environment where to deploy
+          type: string
+        runtimeParameterValues:
+          description: "Inject values into a model at runtime. The fieldName must match a fieldName defined in the model package. This list is merged with any existing runtime values set through the deployed model package.\n                    <blockquote>This property is gated behind the feature flags **`['CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT']`**.\n                    To enable this feature, you can contact your DataRobot representative or administrator.\n                    </blockquote>"
+          feature_flags:
+          - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+            enabled_by_default: true
+            maturity: PUBLIC_PREVIEW
+            name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+          public_preview: true
+          type: string
+          x-datarobot-public-preview: true
+          x-datarobot-required-feature-flags:
+          - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+            enabled_by_default: true
+            maturity: PUBLIC_PREVIEW
+            name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+        status:
+          default: active
+          description: Status of the deployment
+          enum:
+          - active
+          - inactive
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.23
+        userProvidedId:
+          description: A user-provided unique ID associated with a deployment definition in a remote git repository.
+          maxLength: 100
+          type: string
+          x-versionadded: v2.29
+      required:
+      - description
+      - label
+      - modelPackageId
+      type: object
+      x-versionadded: v2.37
+    DeploymentCapability:
+      properties:
+        messages:
+          description: Messages explaining why the capability is supported or not supported.
+          items:
+            type: string
+          type: array
+        name:
+          description: The name of the capability.
+          type: string
+        supported:
+          description: Whether the capability is supported.
+          type: boolean
+      required:
+      - messages
+      - name
+      - supported
+      type: object
+    DeploymentAccuracyHealthResponse:
+      description: Accuracy health of the deployment.
+      properties:
+        endDate:
+          description: End date of accuracy health period.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        message:
+          description: A message providing more detail on the status.
+          type: string
+        startDate:
+          description: Start date of accuracy health period.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        status:
+          description: Accuracy health status.
+          enum:
+          - failing
+          - notStarted
+          - passing
+          - unavailable
+          - unknown
+          - warning
+          type: string
+      required:
+      - endDate
+      - message
+      - startDate
+      - status
+      type: object
+    DeploymentChecklistResponse:
+      properties:
+        data:
+          description: The list of settings for the deployment.
+          items:
+            $ref: '#/components/schemas/SingleDeploymentSetting'
+          maxItems: 12
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.38
+    DeploymentTagRetrieveResponse:
+      properties:
+        id:
+          description: The ID of the tag.
+          type: string
+        name:
+          description: The name of the tag.
+          maxLength: 50
+          type: string
+        value:
+          description: The value of the tag.
+          maxLength: 50
+          type: string
+      required:
+      - id
+      - name
+      - value
+      type: object
+    DeploymentDefaultPredictionServerResponse:
+      description: The prediction server associated with the deployment.
+      properties:
+        datarobot-key:
+          description: The `datarobot-key` header used in requests to this prediction server.
+          type: string
+        id:
+          description: ID of the prediction server for the deployment.
+          type:
+          - string
+          - 'null'
+        url:
+          description: URL of the prediction server.
+          type: string
+      required:
+      - datarobot-key
+      - id
+      - url
+      type: object
+    CustomModelVersionShortResponse:
+      description: Custom model version associated with this deployment.
+      properties:
+        id:
+          description: The ID of the custom model version.
+          type: string
+        label:
+          description: User-friendly name of the model version.
+          type: string
+      required:
+      - id
+      - label
+      type: object
+    CustomModelImage:
+      description: Contains information about the custom model image.
+      properties:
+        customModelId:
+          description: ID of the custom model.
+          type:
+          - string
+          - 'null'
+        customModelName:
+          description: Name of the custom model.
+          type:
+          - string
+          - 'null'
+        customModelVersionId:
+          description: ID of the custom model version.
+          type:
+          - string
+          - 'null'
+        customModelVersionLabel:
+          description: Label of the custom model version.
+          type:
+          - string
+          - 'null'
+        executionEnvironmentId:
+          description: ID of the execution environment.
+          type:
+          - string
+          - 'null'
+        executionEnvironmentName:
+          description: Name of the execution environment.
+          type:
+          - string
+          - 'null'
+        executionEnvironmentVersionId:
+          description: ID of the execution environment version.
+          type:
+          - string
+          - 'null'
+        executionEnvironmentVersionLabel:
+          description: Label of the execution environment version.
+          type:
+          - string
+          - 'null'
+      required:
+      - customModelId
+      - customModelName
+      - customModelVersionId
+      - customModelVersionLabel
+      - executionEnvironmentId
+      - executionEnvironmentName
+      - executionEnvironmentVersionId
+      - executionEnvironmentVersionLabel
+      type: object
+      x-versionadded: v2.36
+    CustomModelAsyncOperationResponse:
+      properties:
+        statusId:
+          description: ID that can be used with :http:get:`/api/v2/status/(statusId)/` to poll for the testing job's status
+          type: string
+      required:
+      - statusId
+      type: object
+    SharingUpdateOrRemoveWithGrant:
+      properties:
+        data:
+          description: List of sharing roles to update.
+          items:
+            $ref: '#/components/schemas/UserRoleWithGrant'
+          maxItems: 100
+          type: array
+      required:
+      - data
+      type: object
+    ModelPackageObject:
+      description: Contains information about the model package.
+      properties:
+        id:
+          description: ID of the model package.
+          type:
+          - string
+          - 'null'
+        modelId:
+          description: ID of the model.
+          type: string
+        name:
+          description: Name of the model package.
+          type:
+          - string
+          - 'null'
+        predictionThreshold:
+          description: The threshold value used for binary classification prediction.
+          type:
+          - number
+          - 'null'
+        projectId:
+          description: ID of the project.
+          type: string
+        registeredModelId:
+          description: ID of the associated registered model.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - modelId
+      - name
+      - predictionThreshold
+      - registeredModelId
+      type: object
+      x-versionadded: v2.36
+    AccessControlV2:
+      properties:
+        id:
+          description: The identifier of the recipient.
+          type: string
+        name:
+          description: The name of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The type of the recipient.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    ExecutionEnvironmentVersionShortResponse:
+      description: Execution environment version associated with this deployment.
+      properties:
+        id:
+          description: The ID of the execution environment version.
+          type: string
+        label:
+          description: User-friendly name of the execution environment version.
+          type: string
+      required:
+      - id
+      - label
+      type: object
+    DeploymentUpdate:
+      properties:
+        description:
+          description: A description for the deployment.
+          maxLength: 10000
+          type:
+          - string
+          - 'null'
+        importance:
+          description: Shows how important this deployment is.
+          enum:
+          - CRITICAL
+          - HIGH
+          - MODERATE
+          - LOW
+          type: string
+          x-versionadded: v2.21
+        label:
+          description: A human-readable name for the deployment.
+          maxLength: 512
+          type:
+          - string
+          - 'null'
+      type: object
+    ResourceRequestBundleResponse:
+      properties:
+        cpuCount:
+          description: Max number of CPUs available.
+          type: number
+        description:
+          description: A short description of CPU, Memory and other resources.
+          type: string
+        gpuCount:
+          description: Max number of GPUs available.
+          type:
+          - number
+          - 'null'
+        gpuMaker:
+          description: The manufacture of the GPU.
+          enum:
+          - nvidia
+          - amd
+          - intel
+          type:
+          - string
+          - 'null'
+        gpuMemoryBytes:
+          description: Max amount of GPU memory available.
+          type: integer
+          x-versionadded: v2.36
+        gpuTypeLabel:
+          description: A label that identifies the GPU type.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.4
+        hasGpu:
+          description: If this bundle provides at least one GPU resource.
+          type: boolean
+        id:
+          description: The id of the bundle.
+          type: string
+        isBillable:
+          default: false
+          description: If the bundle has been billable or unbillable.
+          type: boolean
+          x-versionadded: v2.44
+        isDefault:
+          description: If this should be the default resource choice.
+          type: boolean
+        isDeleted:
+          description: If the bundle has been deleted and should not be used.
+          type: boolean
+        memoryBytes:
+          description: Max amount of memory available.
+          type: integer
+        name:
+          description: A short name for the bundle.
+          type: string
+        scalingMetrics:
+          description: List of scaling metrics supported by this bundle.
+          items:
+            type: string
+          maxItems: 50
+          type: array
+          x-versionadded: v2.46
+        useCases:
+          description: List of use cases this bundle supports.
+          items:
+            enum:
+            - customApplication
+            - customJob
+            - customModel
+            - customTaskFit
+            - modelingMachineWorker
+            - predictionAPI
+            - sapAICore
+            - sparkApplication
+            - workload
+            type: string
+          type: array
+      required:
+      - cpuCount
+      - description
+      - gpuMemoryBytes
+      - hasGpu
+      - id
+      - memoryBytes
+      - name
+      - useCases
+      type: object
+      x-versionadded: v2.35
+    DeploymentSettingsInfo:
+      description: Settings of the deployment.
+      properties:
+        batchMonitoringEnabled:
+          description: if batch monitoring is enabled.
+          type: boolean
+        humbleAiEnabled:
+          description: if humble ai is enabled.
+          type: boolean
+        predictionIntervalsEnabled:
+          description: If  prediction intervals are enabled.
+          type: boolean
+        predictionWarningEnabled:
+          description: If prediction warning is enabled.
+          type: boolean
+      type: object
+    ModelHistoryResponse:
+      properties:
+        customModelImage:
+          $ref: '#/components/schemas/CustomModelImage'
+        endDate:
+          description: The timestamp when the model is replaced by another model.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        forecastEndDate:
+          description: The max timestamp of all predictions made when the model is or was champion of the deployment, if predictions by forecast date is enabled.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        forecastStartDate:
+          description: The min timestamp of all predictions made when the model is or was champion of the deployment, if predictions by forecast date is enabled.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        modelPackage:
+          $ref: '#/components/schemas/ModelPackageObject'
+        predictionWarningBoundaries:
+          $ref: '#/components/schemas/ModelPackagePredictionThresholdWarning'
+        replacementReason:
+          description: Reason for model replacement.
+          type:
+          - string
+          - 'null'
+        startDate:
+          description: The timestamp when the model becomes champion of the deployment.
+          format: date-time
+          type: string
+      required:
+      - endDate
+      - forecastEndDate
+      - forecastStartDate
+      - modelPackage
+      - replacementReason
+      - startDate
+      type: object
+      x-versionadded: v2.36
+    ExecutionEnvironmentShortResponse:
+      description: Execution environment associated with this deployment.
+      properties:
+        id:
+          description: The ID of the execution environment.
+          type: string
+        name:
+          description: User-friendly name of the execution environment.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    DeploymentCapabilitiesRetrieveResponse:
+      properties:
+        data:
+          description: The list of all capabilities.
+          items:
+            $ref: '#/components/schemas/DeploymentCapability'
+          type: array
+      required:
+      - data
+      type: object
+    CustomModelShortResponse:
+      description: Custom model associated with this deployment.
+      properties:
+        id:
+          description: The ID of the custom model.
+          type: string
+        name:
+          description: User-friendly name of the model.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    GrantAccessControlWithIdWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        id:
+          description: The ID of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      type: object
+    SharingListResponse:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControl'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+      required:
+      - count
+      - data
+      - next
+      - previous
+      type: object
+    DeploymentModelHealthResponse:
+      description: Model health of the deployment.
+      properties:
+        endDate:
+          description: End date of model health period.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        message:
+          description: A message providing more detail on the status.
+          type: string
+        startDate:
+          description: Start date of model health period.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        status:
+          description: Model health status.
+          enum:
+          - failing
+          - notStarted
+          - passing
+          - unavailable
+          - unknown
+          - warning
+          type: string
+      required:
+      - endDate
+      - message
+      - startDate
+      - status
+      type: object
+    DeploymentsScoringCodeBuildPayload:
+      properties:
+        includeAgent:
+          description: Whether the Scoring Code built will include tracking agent
+          type: boolean
+        includePredictionExplanations:
+          description: Whether the Scoring Code built will include prediction explanations
+          type: boolean
+        includePredictionIntervals:
+          description: Whether the Scoring Code built will include prediction intervals
+          type: boolean
+      type: object
+    DeploymentGetLimitsResponse:
+      properties:
+        maxDeploymentLimit:
+          $ref: '#/components/schemas/LimitInfo'
+        prepaidDeploymentLimit:
+          $ref: '#/components/schemas/LimitInfo'
+        totalDeploymentCount:
+          description: Total number of deployments counted for limit information.
+          type: integer
+      required:
+      - maxDeploymentLimit
+      - prepaidDeploymentLimit
+      - totalDeploymentCount
+      type: object
+      x-versionadded: v2.43
+    SharingListV2Response:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControlV2'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items matching the condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    DeploymentPermanentDelete:
+      properties:
+        action:
+          description: Action to perform on these deleted deployments.
+          enum:
+          - PermanentlyErase
+          type: string
+        deploymentIds:
+          description: ID of a list of deleted deployments to perform action on.
+          items:
+            type: string
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - action
+      - deploymentIds
+      type: object
+    UserRoleWithGrant:
+      properties:
+        canShare:
+          default: true
+          description: Whether the org/group/user should be able to share with others.If true, the org/group/user will be able to grant any role up to and includingtheir own to other orgs/groups/user. If `role` is `NO_ROLE` `canShare` is ignored.
+          type: boolean
+        role:
+          description: The role to set on the entity. When it is None, the role of this user will be removedfrom this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the user to update the access role for.
+          type: string
+      required:
+      - role
+      - username
+      type: object
+    DeploymentModelResponse:
+      description: Information related to the current model of the deployment.
+      properties:
+        buildEnvironmentType:
+          description: Build environment type of the current model.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.21
+        customModelImage:
+          $ref: '#/components/schemas/DeploymentModelCustomModelImageResponse'
+        deployedAt:
+          description: Timestamp of when current model was deployed.
+          format: date-time
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.21
+        id:
+          description: ID of the current model.
+          type: string
+        isDeprecated:
+          description: Whether the current model is deprecated model. eg. python2 based model.
+          type: boolean
+          x-versionadded: v2.29
+        projectId:
+          description: Project ID of the current model.
+          type:
+          - string
+          - 'null'
+        projectName:
+          description: Project name of the current model.
+          type:
+          - string
+          - 'null'
+        targetName:
+          description: Target name of the current model.
+          type: string
+        targetType:
+          description: Target type of the current model.
+          type: string
+        type:
+          description: Type of the current model.
+          type: string
+        unstructuredModelKind:
+          description: Whether the current model is an unstructured model.
+          type: boolean
+          x-versionadded: v2.29
+        unsupervisedMode:
+          description: Whether the current model's project is unsupervised.
+          type: boolean
+          x-versionadded: v2.18
+        unsupervisedType:
+          description: Only valid when unsupervisedMode is True. The type of unsupervised project, anomaly or clustering. If unsupervisedMode, defaults to 'anomaly'.
+          enum:
+          - anomaly
+          - clustering
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.23
+      required:
+      - id
+      - isDeprecated
+      - projectName
+      - targetType
+      - type
+      - unstructuredModelKind
+      - unsupervisedMode
+      type: object
+    DeploymentRetrieveResponse:
+      properties:
+        accuracyHealth:
+          $ref: '#/components/schemas/DeploymentAccuracyHealthResponse'
+        approvalStatus:
+          description: Status to show whether the deployment was approved or not. It also shows up as a part of metadata within the prediction response.
+          enum:
+          - PENDING
+          - APPROVED
+          type: string
+        createdAt:
+          description: The date and time of when the deployment was created, in ISO 8601 format.
+          format: date-time
+          type: string
+          x-versionadded: v2.20
+        creator:
+          $ref: '#/components/schemas/DeploymentOwnerResponse'
+          x-versionadded: v2.37
+        defaultPredictionServer:
+          $ref: '#/components/schemas/DeploymentDefaultPredictionServerResponse'
+        description:
+          description: Description of the deployment.
+          type:
+          - string
+          - 'null'
+        governance:
+          $ref: '#/components/schemas/DeploymentGovernanceResponse'
+          x-versionadded: v2.21
+        hasError:
+          description: Whether the deployment is not operational because it failed to start properly.
+          type: boolean
+          x-versionadded: v2.32
+        id:
+          description: The ID of the deployment.
+          type: string
+        importance:
+          description: Shows how important this deployment is.
+          enum:
+          - CRITICAL
+          - HIGH
+          - MODERATE
+          - LOW
+          type: string
+          x-versionadded: v2.21
+        label:
+          description: Label of the deployment.
+          maxLength: 512
+          type: string
+        model:
+          $ref: '#/components/schemas/DeploymentModelResponse'
+        modelHealth:
+          $ref: '#/components/schemas/DeploymentModelHealthResponse'
+        modelPackage:
+          $ref: '#/components/schemas/DeploymentModelPackageResponse'
+          x-versionadded: v2.23
+        modelPackageInitialDownload:
+          $ref: '#/components/schemas/DeploymentModelPackageInitialDownloadResponse'
+          x-versionadded: v2.23
+        openedChangeRequests:
+          description: An array of the change request IDs related to this deployment that have.
+          items:
+            type: string
+          type: array
+        owners:
+          $ref: '#/components/schemas/DeploymentOwnersResponse'
+        permissions:
+          description: Permissions that the user making the request has on the deployment.
+          items:
+            enum:
+            - CAN_ADD_CHALLENGERS
+            - CAN_APPROVE_REPLACEMENT_MODEL
+            - CAN_BE_MANAGED_BY_MLOPS_AGENT
+            - CAN_DELETE_CHALLENGERS
+            - CAN_DELETE_DEPLOYMENT
+            - CAN_DOWNLOAD_DOCUMENTATION
+            - CAN_EDIT_CHALLENGERS
+            - CAN_EDIT_DEPLOYMENT
+            - CAN_GENERATE_DOCUMENTATION
+            - CAN_MAKE_PREDICTIONS
+            - CAN_REPLACE_MODEL
+            - CAN_SCORE_CHALLENGERS
+            - CAN_SHARE
+            - CAN_SHARE_DEPLOYMENT_OWNERSHIP
+            - CAN_SUBMIT_ACTUALS
+            - CAN_UPDATE_DEPLOYMENT_THRESHOLDS
+            - CAN_VIEW
+            type: string
+          type: array
+          x-versionadded: v2.18
+        predictionEnvironment:
+          $ref: '#/components/schemas/DeploymentPredictionEnvironmentResponse'
+          x-versionadded: v2.23
+        predictionUsage:
+          $ref: '#/components/schemas/DeploymentPredictionUsageResponse'
+        scoringCodeInitialDownload:
+          $ref: '#/components/schemas/DeploymentScoringCodeInitialDownloadResponse'
+          x-versionadded: v2.21
+        serviceHealth:
+          $ref: '#/components/schemas/DeploymentServiceHealthResponse'
+        settings:
+          $ref: '#/components/schemas/DeploymentSettingsInfo'
+          x-versionadded: v2.21
+        status:
+          description: Displays current deployment status.
+          enum:
+          - active
+          - archived
+          - errored
+          - inactive
+          - launching
+          - replacingModel
+          - stopping
+          type: string
+          x-versionadded: v2.22
+        tags:
+          description: The list of formatted deployment tags.
+          items:
+            $ref: '#/components/schemas/DeploymentTagRetrieveResponse'
+          type: array
+        userProvidedId:
+          description: A user-provided unique ID associated with a deployment definition in a remote git repository.
+          maxLength: 100
+          type: string
+          x-versionadded: v2.29
+      required:
+      - accuracyHealth
+      - createdAt
+      - defaultPredictionServer
+      - description
+      - id
+      - label
+      - model
+      - modelHealth
+      - permissions
+      - predictionUsage
+      - serviceHealth
+      - settings
+      - status
+      - tags
+      type: object
+    Feature:
+      properties:
+        dateFormat:
+          description: The date format string for how this feature was interpreted.
+          type:
+          - string
+          - 'null'
+        featureType:
+          description: Feature type.
+          type:
+          - string
+          - 'null'
+        importance:
+          description: Numeric measure of the relationship strength between the feature and target (independent of model or other features).
+          type:
+          - number
+          - 'null'
+        knownInAdvance:
+          description: Whether the feature was selected as known in advance in a time-series model, false for non-time-series models.
+          type: boolean
+        name:
+          description: Feature name.
+          type: string
+      required:
+      - dateFormat
+      - featureType
+      - importance
+      - knownInAdvance
+      - name
+      type: object
+    DeploymentGovernanceResponse:
+      description: Deployment governance info.
+      properties:
+        approvalStatus:
+          description: Status to show whether the deployment was approved or not. It also shows up as a part of metadata within the prediction response.
+          enum:
+          - PENDING
+          - APPROVED
+          type: string
+        hasOpenedChangeRequests:
+          description: If there are change request related to this deployment with `PENDING` status.
+          type: boolean
+        reviewers:
+          description: A list of reviewers to approve deployment change requests.
+          items:
+            $ref: '#/components/schemas/DeploymentReviewerResponse'
+          maxItems: 20
+          type: array
+          x-versionadded: v2.37
+      required:
+      - approvalStatus
+      - hasOpenedChangeRequests
+      type: object
+    DeploymentStatusUpdate:
+      properties:
+        status:
+          description: Status that deployment should be transition in.
+          enum:
+          - active
+          - inactive
+          type: string
+      required:
+      - status
+      type: object
+    DeploymentScoringCodeInitialDownloadResponse:
+      description: If scoring code has been downloaded for this deployment, then this will tell you when it was first downloaded.
+      properties:
+        timestamp:
+          description: Timestamp of the first time scoring code was downloaded.
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - timestamp
+      type: object
+    KeyValuePair:
+      properties:
+        key:
+          description: The key, a unique identifier for this item of metadata
+          maxLength: 50
+          type: string
+        value:
+          description: The value, the actual content for this item of metadata
+          maxLength: 256
+          type: string
+      required:
+      - key
+      - value
+      type: object
+      x-versionadded: v2.37
+    CustomModelDeploymentsLimitsResponse:
+      properties:
+        customModelDeploymentLimitUsageCount:
+          description: Number of custom model deployments that count toward the limit (current limit usage).
+          type: integer
+        maxCustomDeploymentsLimit:
+          $ref: '#/components/schemas/CustomModelDeploymentsLimitsLimitInfo'
+      required:
+      - customModelDeploymentLimitUsageCount
+      - maxCustomDeploymentsLimit
+      type: object
+      x-versionadded: v2.42
+    DeploymentOwnerResponse:
+      description: Creator of the deployment.
+      properties:
+        email:
+          description: Email address of the owner.
+          type:
+          - string
+          - 'null'
+        firstName:
+          description: First name of the owner.
+          type:
+          - string
+          - 'null'
+        id:
+          description: ID of the owner.
+          type: string
+        lastName:
+          description: Last name of the owner.
+          type:
+          - string
+          - 'null'
+      required:
+      - email
+      - firstName
+      - id
+      - lastName
+      type: object
+    LimitInfo:
+      description: A limitInfo object for prepaid deployment information.
+      properties:
+        limitReached:
+          description: Whether the limit named has been reached.
+          type: boolean
+        reason:
+          description: The reason why the limit has been reached.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.43
+        value:
+          description: The limit value of the given limit.
+          type: integer
+      required:
+      - limitReached
+      - reason
+      - value
+      type: object
+      x-versionadded: v2.43
+    DeploymentServiceHealthResponse:
+      description: Service health of the deployment.
+      properties:
+        endDate:
+          description: End date of model service period.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        startDate:
+          description: Start date of service health period.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        status:
+          description: Service health status.
+          enum:
+          - failing
+          - notStarted
+          - passing
+          - unavailable
+          - unknown
+          - warning
+          type: string
+      required:
+      - endDate
+      - startDate
+      - status
+      type: object
+    DeletedDeploymentResponse:
+      properties:
+        deletedAt:
+          description: The date and time of when the deployment was deleted, in ISO 8601 format.
+          format: date-time
+          type: string
+        id:
+          description: ID of the deployment.
+          type: string
+        label:
+          description: Label of the deployment.
+          maxLength: 512
+          type: string
+      required:
+      - deletedAt
+      - id
+      - label
+      type: object
+    DeploymentPredictionEnvironmentUpdate:
+      properties:
+        dpsDeploymentId:
+          description: The ID of the deployment on dedicated prediction environment that will be updated to serverless.
+          type: string
+        serverlessPredictionEnvironmentId:
+          description: The ID of serverless prediction environment.
+          type: string
+      required:
+      - dpsDeploymentId
+      - serverlessPredictionEnvironmentId
+      type: object
+      x-versionadded: v2.38
+    DeploymentOwnersResponse:
+      description: Count and preview of owners of the deployment.
+      properties:
+        count:
+          description: Total count of owners.
+          type: integer
+        preview:
+          description: A list of owner objects.
+          items:
+            $ref: '#/components/schemas/DeploymentOwnerResponse'
+          type: array
+      required:
+      - count
+      - preview
+      type: object
+    AccessControl:
+      properties:
+        canShare:
+          description: Whether the recipient can share the role further.
+          type: boolean
+        role:
+          description: The role of the user on this entity.
+          type: string
+        userId:
+          description: The identifier of the user that has access to this entity.
+          type: string
+        username:
+          description: The username of the user that has access to the entity.
+          type: string
+      required:
+      - canShare
+      - role
+      - userId
+      - username
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

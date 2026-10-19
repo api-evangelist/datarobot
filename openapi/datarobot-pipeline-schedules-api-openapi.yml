@@ -1,0 +1,464 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Pipeline Schedules API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- name: pipeline-schedules
+paths:
+  /api/v2/pipelines/{pipeline_id}/schedules:
+    get:
+      description: List all schedules for a pipeline (across every version).
+      operationId: list_schedules_api_v2_pipelines__pipeline_id__schedules_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineScheduleResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Schedules
+      tags:
+      - pipeline-schedules
+    post:
+      description: 'Create a scheduled recurring dispatch for a locked pipeline.
+
+
+        User identity is captured here and persisted on the schedule
+
+        row so the internal fire endpoint can impersonate the creator
+
+        on each firing (rather than storing the user''s API token).'
+      operationId: create_schedule_api_v2_pipelines__pipeline_id__schedules_post
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineScheduleCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineScheduleResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Schedule
+      tags:
+      - pipeline-schedules
+  /api/v2/pipelines/{pipeline_id}/schedules/{schedule_id}:
+    delete:
+      description: Delete a schedule (soft on the row, hard on the K8s CronJob).
+      operationId: delete_schedule_api_v2_pipelines__pipeline_id__schedules__schedule_id__delete
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: schedule_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Schedule Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Schedule
+      tags:
+      - pipeline-schedules
+    get:
+      description: Get details of a specific schedule.
+      operationId: get_schedule_api_v2_pipelines__pipeline_id__schedules__schedule_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: schedule_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Schedule Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineScheduleResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Schedule
+      tags:
+      - pipeline-schedules
+    patch:
+      description: Update a schedule's cron expression or timezone.
+      operationId: update_schedule_api_v2_pipelines__pipeline_id__schedules__schedule_id__patch
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: schedule_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Schedule Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineScheduleUpdateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineScheduleResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Schedule
+      tags:
+      - pipeline-schedules
+components:
+  schemas:
+    DataPage_PipelineScheduleResponse_:
+      properties:
+        count:
+          readOnly: true
+          title: Count
+          type: integer
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineScheduleResponse'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous
+        totalCount:
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - totalCount
+      - count
+      title: DataPage[PipelineScheduleResponse]
+      type: object
+    PipelineScheduleStatus:
+      description: Lifecycle status of a pipeline schedule.
+      enum:
+      - ACTIVE
+      - PAUSED
+      - DELETED
+      title: PipelineScheduleStatus
+      type: string
+    PipelineScheduleCreateRequest:
+      description: 'Request body for POST /pipelines/{pid}/schedules.
+
+
+        Every field except ``timezone`` is user-supplied and required.
+
+        ``pipeline_version_id`` identifies the locked version (source +
+
+        entrypoint) that the schedule fires; ``pipeline_input_id`` the
+
+        immutable input payload; ``image_id`` + ``image_version`` the
+
+        ``PipelineImage`` the CronJob''s container runs. Together they
+
+        form the reproducibility tuple the spec''s Design Decision A
+
+        snapshots at create-time.'
+      properties:
+        cronExpression:
+          title: Cronexpression
+          type: string
+        imageId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Imageid
+          type: string
+        imageVersion:
+          title: Imageversion
+          type: integer
+        pipelineInputId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipelineinputid
+          type: string
+        pipelineVersionId:
+          title: Pipelineversionid
+          type: integer
+        timezone:
+          default: UTC
+          title: Timezone
+          type: string
+      required:
+      - cronExpression
+      - pipelineVersionId
+      - pipelineInputId
+      - imageId
+      - imageVersion
+      title: PipelineScheduleCreateRequest
+      type: object
+    PipelineScheduleResponse:
+      description: 'Response schema for a pipeline schedule.
+
+
+        ``image_id`` + ``image_version`` surface the snapshot values so
+
+        a client can render the image the schedule locked to (useful for
+
+        an upgrade-my-schedule flow that recreates the schedule against
+
+        a newer image version).'
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        cronExpression:
+          title: Cronexpression
+          type: string
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        imageId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Imageid
+          type: string
+        imageVersion:
+          title: Imageversion
+          type: integer
+        pipelineId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipelineid
+          type: string
+        status:
+          $ref: '#/components/schemas/PipelineScheduleStatus'
+        timezone:
+          title: Timezone
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          title: Version
+          type: integer
+      required:
+      - id
+      - pipelineId
+      - version
+      - imageId
+      - imageVersion
+      - cronExpression
+      - timezone
+      - status
+      - createdAt
+      - updatedAt
+      title: PipelineScheduleResponse
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PipelineScheduleUpdateRequest:
+      description: 'Request body for PATCH /pipelines/{pid}/schedules/{sid}.
+
+
+        Only the mutable fields — the image snapshot + user identity
+
+        are frozen at create-time (see model docstring).'
+      properties:
+        cronExpression:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cronexpression
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
+      title: PipelineScheduleUpdateRequest
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

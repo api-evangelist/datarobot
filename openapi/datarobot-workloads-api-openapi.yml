@@ -1,0 +1,4736 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Workloads API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Manage AI workload deployments and their lifecycle.
+  name: Workloads
+paths:
+  /api/v2/workloadResourceBundles:
+    get:
+      description: 'List resource bundles available to the authenticated user.
+
+
+        Union of the platform''s workload-curated compute bundles and any additional bundles
+
+        already in use across the user''s enclaves. Bundle listing is tenant-wide, so no
+
+        enclave id is needed (or accepted) here.'
+      operationId: listWorkloadResourceBundles
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeBundlesResponse'
+          description: Successful Response
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+      summary: List Resource Bundles
+      tags:
+      - Workloads
+  /api/v2/workloads:
+    get:
+      description: List all workloads accessible to the authenticated user.
+      operationId: listWorkloads
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: Filters by those created by the given user.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filters by those created by the given user.
+          title: Created By
+      - description: Filter by specific IDs
+        in: query
+        name: ids
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Filter by specific IDs
+          title: Ids
+      - description: Case insensitive search against name, description and partial ID.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Case insensitive search against name, description and partial ID.
+          title: Search
+      - description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagKeys
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Keys
+      - description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagValues
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Values
+      - description: The order to sort the results.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/WorkloadSortQueryParam'
+          - type: 'null'
+          description: The order to sort the results.
+          title: Order By
+      - description: Filters workloads by status.
+        in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WorkloadStatus'
+            type: array
+          - type: 'null'
+          description: Filters workloads by status.
+          title: Status
+      - description: Filters workloads by their corresponding artifact status.
+        in: query
+        name: artifactStatus
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ArtifactStatus'
+            type: array
+          - type: 'null'
+          description: Filters workloads by their corresponding artifact status.
+          title: Artifact Status
+      - description: Filters workloads by their importance.
+        in: query
+        name: importance
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WorkloadImportance'
+            type: array
+          - type: 'null'
+          description: Filters workloads by their importance.
+          title: Importance
+      - description: Filter workloads by their active artifact ID.
+        in: query
+        name: artifactId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by their active artifact ID.
+          title: Artifact ID
+      - description: Filter workloads by the ID of the Enclave they actually run on.
+        in: query
+        name: enclaveId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by the ID of the Enclave they actually run on.
+          title: Enclave ID
+      - description: Filter workloads by the name of the Enclave they actually run on.
+        in: query
+        name: enclave
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by the name of the Enclave they actually run on.
+          title: Enclave
+      - description: Filter workloads by their active artifact's repository ID.
+        in: query
+        name: repositoryId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by their active artifact's repository ID.
+          title: Artifact Repository ID
+      - description: List of artifact types to filter for. If multiple values are specified, workloads matching any of the values will be returned.
+        in: query
+        name: type
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ArtifactType'
+            type: array
+          - type: 'null'
+          description: List of artifact types to filter for. If multiple values are specified, workloads matching any of the values will be returned.
+          title: Type
+      - description: If true, includes recent service statistics in the response.
+        in: query
+        name: serviceStats
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: If true, includes recent service statistics in the response.
+          title: Service Statistics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadListResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Workloads
+      tags:
+      - Workloads
+    post:
+      description: Create a workload from the specified artifact and schedule its initial runtime.
+      operationId: createWorkload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkloadRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Workload
+      tags:
+      - Workloads
+  /api/v2/workloads/stats:
+    get:
+      description: Get aggregated statistics across all workloads accessible to the authenticated user.
+      operationId: listWorkloadsStats
+      parameters:
+      - description: Filters by those created by the given user.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filters by those created by the given user.
+          title: Created By
+      - description: Filter by specific IDs
+        in: query
+        name: ids
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Filter by specific IDs
+          title: Ids
+      - description: Case insensitive search against name, description and partial ID.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Case insensitive search against name, description and partial ID.
+          title: Search
+      - description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagKeys
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag keys to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Keys
+      - description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+        in: query
+        name: tagValues
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of tag values to filter for. If multiple values are specified, results with tags that match any of the values will be returned.
+          title: Tag Values
+      - description: The order to sort the results.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/WorkloadSortQueryParam'
+          - type: 'null'
+          description: The order to sort the results.
+          title: Order By
+      - description: Filters workloads by status.
+        in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WorkloadStatus'
+            type: array
+          - type: 'null'
+          description: Filters workloads by status.
+          title: Status
+      - description: Filters workloads by their corresponding artifact status.
+        in: query
+        name: artifactStatus
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ArtifactStatus'
+            type: array
+          - type: 'null'
+          description: Filters workloads by their corresponding artifact status.
+          title: Artifact Status
+      - description: Filters workloads by their importance.
+        in: query
+        name: importance
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WorkloadImportance'
+            type: array
+          - type: 'null'
+          description: Filters workloads by their importance.
+          title: Importance
+      - description: Filter workloads by their active artifact ID.
+        in: query
+        name: artifactId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by their active artifact ID.
+          title: Artifact ID
+      - description: Filter workloads by the ID of the Enclave they actually run on.
+        in: query
+        name: enclaveId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by the ID of the Enclave they actually run on.
+          title: Enclave ID
+      - description: Filter workloads by the name of the Enclave they actually run on.
+        in: query
+        name: enclave
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by the name of the Enclave they actually run on.
+          title: Enclave
+      - description: Filter workloads by their active artifact's repository ID.
+        in: query
+        name: repositoryId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter workloads by their active artifact's repository ID.
+          title: Artifact Repository ID
+      - description: List of artifact types to filter for. If multiple values are specified, workloads matching any of the values will be returned.
+        in: query
+        name: type
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ArtifactType'
+            type: array
+          - type: 'null'
+          description: List of artifact types to filter for. If multiple values are specified, workloads matching any of the values will be returned.
+          title: Type
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadStatsResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get All Workloads Stats
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}:
+    delete:
+      description: 'Delete a workload permanently.
+
+
+        Returns 204 on success. Proton stop failures are logged internally
+
+        but do not change the response status.'
+      operationId: deleteWorkload
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Workload by workload_ ID
+      tags:
+      - Workloads
+    get:
+      description: Retrieve a workload by ID.
+      operationId: getWorkload
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload by workload_ ID
+      tags:
+      - Workloads
+    patch:
+      description: 'Partially update a workload''s name, description and importance.
+
+
+        Runtime settings are changed with PATCH /workloads/{workloadId}/settings and the deployed
+
+        artifact with POST /workloads/{workloadId}/replacement. A body naming a field that another
+
+        endpoint changes is rejected with 422, one error per such field saying where it is changed;
+
+        any other field is ignored.'
+      operationId: updateWorkload
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkloadRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Workload by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/events:
+    get:
+      description: List events for a workload, such as status changes and errors.
+      operationId: listWorkloadEvents
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadEventsResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Events by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/history:
+    get:
+      description: List the artifact deployment history for a workload.
+      operationId: listWorkloadArtifactHistory
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplacementHistoryListResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Artifact Histories by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/promote:
+    post:
+      description: 'Lock the draft artifact currently running on a workload.
+
+
+        The workload continues running the same artifact, which is promoted from
+
+        draft to locked and assigned a version number. Workload stats are reset
+
+        and the event is recorded in the replacement history.'
+      operationId: promoteWorkloadArtifact
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          description: Artifact is not a draft, workload has no active proton, or a replacement is in progress
+      summary: Promote Workload Artifact by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/protons:
+    get:
+      description: List all protons associated with a workload.
+      operationId: listWorkloadProtons
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtonListResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Workload Protons by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/protons/{proton_id}:
+    get:
+      description: Get a specific proton for a workload.
+      operationId: getWorkloadProton
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Proton ID
+        in: path
+        name: proton_id
+        required: true
+        schema:
+          description: Proton ID
+          title: Proton Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtonFormatted'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Proton by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/protons/{proton_id}/statusDetails:
+    get:
+      description: 'Get per-replica status details for a proton.
+
+
+        Returns 204 if no status update has been received yet.
+
+        Returns 200 with the latest replica snapshot when available.'
+      operationId: getWorkloadProtonStatusDetails
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Proton ID
+        in: path
+        name: proton_id
+        required: true
+        schema:
+          description: Proton ID
+          title: Proton Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplicaStatusesSnapshot'
+          description: Successful Response
+        '204':
+          description: No status update has been received for this proton yet
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Proton Status Details by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/related:
+    get:
+      description: List entities related to a workload, such as linked artifacts.
+      operationId: getWorkloadRelatedEntities
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatedEntitiesResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Related Entities by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/replacement:
+    delete:
+      operationId: deleteWorkloadReplacement
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Replacement by workload_ ID
+      tags:
+      - Workloads
+    get:
+      operationId: getWorkloadReplacement
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Replacement'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Replacement by workload_ ID
+      tags:
+      - Workloads
+    post:
+      description: 'Start a rolling replacement of a workload onto an existing artifact.
+
+
+        A body naming a field that another endpoint changes is rejected with 422, one error per such
+
+        field saying where it is changed; any other field is ignored.'
+      operationId: createWorkloadReplacement
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartReplacementRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Replacement'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Replacement by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/settings:
+    get:
+      description: Retrieve the configuration settings for a workload.
+      operationId: getWorkloadSettings
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadSettingsResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Settings by workload_ ID
+      tags:
+      - Workloads
+    patch:
+      description: 'Update workload runtime settings by triggering a rolling replacement with the current artifact.
+
+
+        Only runtime is applied here. A body naming a field that another endpoint changes is rejected
+
+        with 422, one error per such field saying where it is changed; any other field is ignored.'
+      operationId: updateWorkloadSettings
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Replacement'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '409':
+          description: A replacement is already in progress for this workload
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Workload Settings by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/sharedRoles:
+    get:
+      description: List the shared roles granted on a workload.
+      operationId: listWorkloadSharedRoles
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Retrieve only the specified number of values.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedRoleListResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Shared Roles by workload_ ID
+      tags:
+      - Workloads
+    patch:
+      description: Replace the shared roles for a workload with the provided list.
+      operationId: updateWorkloadSharedRoles
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdateRequest'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Workload Shared Roles by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/start:
+    post:
+      description: Start a workload by scheduling its proton.
+      operationId: startWorkload
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadOperationResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '409':
+          description: Workload proton must be stopped before starting
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Start Workload by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/stats:
+    delete:
+      description: Clear collected statistics for a workload within the specified time range.
+      operationId: resetWorkloadStats
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Proton ID to get stats for (optional, defaults to current proton)
+        in: query
+        name: protonId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Proton ID to get stats for (optional, defaults to current proton)
+          title: Proton ID
+      - description: Start time for stats
+        in: query
+        name: startTime
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Start time for stats
+          title: Start Time
+      - description: End time for stats
+        in: query
+        name: endTime
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: End time for stats
+          title: End Time
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: Invalid time range
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Reset Workload Stats by workload_ ID
+      tags:
+      - Workloads
+    get:
+      description: 'Get aggregated performance statistics for a workload.
+
+
+        For `agent` workloads, and only for users with agent monitoring enabled, the response also
+
+        carries an `agent` block with token usage, tool, component and guard-quality statistics.
+
+        Unlike the request metrics, the `agent` block is scoped to the whole workload, not to
+
+        `protonId`, and each of its sections is `null` when it could not be retrieved.'
+      operationId: getWorkloadStats
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Proton ID to get stats for (optional, defaults to current proton)
+        in: query
+        name: protonId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Proton ID to get stats for (optional, defaults to current proton)
+          title: Proton ID
+      - description: Start time for stats
+        in: query
+        name: startTime
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Start time for stats
+          title: Start Time
+      - description: End time for stats
+        in: query
+        name: endTime
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: End time for stats
+          title: End Time
+      - description: Response time quantile (e.g., 0.95 for p95)
+        in: query
+        name: responseTimeQuantile
+        required: false
+        schema:
+          default: 0.5
+          description: Response time quantile (e.g., 0.95 for p95)
+          maximum: 1
+          minimum: 0
+          title: Response Time Quantile
+          type: number
+      - description: Slow requests threshold in milliseconds
+        in: query
+        name: slowRequestsThreshold
+        required: false
+        schema:
+          default: 2000
+          description: Slow requests threshold in milliseconds
+          minimum: 0
+          title: Slow Requests Threshold
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtonRequestStats'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Stats by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/stats/{metric_name}:
+    get:
+      description: Get time-series data for a specific performance metric of a workload.
+      operationId: getWorkloadMetricTimeSeries
+      parameters:
+      - description: Name of the metric to retrieve
+        in: path
+        name: metric_name
+        required: true
+        schema:
+          $ref: '#/components/schemas/WorkloadStatsMetricName'
+          description: Name of the metric to retrieve
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      - description: Proton ID to get stats for (optional, defaults to current proton)
+        in: query
+        name: protonId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Proton ID to get stats for (optional, defaults to current proton)
+          title: Proton ID
+      - description: Start time for stats
+        in: query
+        name: startTime
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Start time for stats
+          title: Start Time
+      - description: End time for stats
+        in: query
+        name: endTime
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: End time for stats
+          title: End Time
+      - description: Response time quantile (e.g., 0.95 for p95)
+        in: query
+        name: responseTimeQuantile
+        required: false
+        schema:
+          default: 0.5
+          description: Response time quantile (e.g., 0.95 for p95)
+          maximum: 1
+          minimum: 0
+          title: Response Time Quantile
+          type: number
+      - description: Slow requests threshold in milliseconds
+        in: query
+        name: slowRequestsThreshold
+        required: false
+        schema:
+          default: 2000
+          description: Slow requests threshold in milliseconds
+          minimum: 0
+          title: Slow Requests Threshold
+          type: integer
+      - description: Time resolution for data aggregation
+        in: query
+        name: resolution
+        required: false
+        schema:
+          $ref: '#/components/schemas/OtelMetricResolution'
+          default: P1D
+          description: Time resolution for data aggregation
+          title: Resolution
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtonRequestMetricOverTime'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Workload Stats Per Metric by workload_ ID
+      tags:
+      - Workloads
+  /api/v2/workloads/{workload_id}/stop:
+    post:
+      description: Stop a workload by stopping its proton.
+      operationId: stopWorkload
+      parameters:
+      - description: Workload ID
+        in: path
+        name: workload_id
+        required: true
+        schema:
+          description: Workload ID
+          title: Workload Id
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadOperationResponse'
+          description: Successful Response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Insufficient permissions
+        '404':
+          description: Workload not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Stop Workload by workload_ ID
+      tags:
+      - Workloads
+components:
+  schemas:
+    StringEnvironmentVariable:
+      properties:
+        name:
+          description: Name of the environment variable
+          maxLength: 256
+          minLength: 1
+          title: Name
+          type: string
+        source:
+          const: string
+          default: string
+          title: Source
+          type: string
+        value:
+          description: Value of the environment variable
+          maxLength: 131072
+          title: Value
+          type: string
+      required:
+      - name
+      - value
+      title: StringEnvironmentVariable
+      type: object
+    ArtifactInfoFormatted:
+      description: Artifact basic information.
+      properties:
+        artifactRepositoryId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the artifact repository this artifact belongs to (for versioning)
+          title: Artifactrepositoryid
+        id:
+          description: Unique identifier of the entity
+          title: Id
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the entity
+          title: Name
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactStatus'
+          - type: 'null'
+          description: Artifact status. Draft artifacts carry an 8-hour TTL; the workload is auto-terminated after that period unless promoted to production.
+        templateId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the template used to create this artifact
+          title: Templateid
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactType'
+          - type: 'null'
+          description: Artifact type
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number of the artifact (set only for locked artifacts)
+          title: Version
+      required:
+      - id
+      title: ArtifactInfoFormatted
+      type: object
+    WorkloadRoute:
+      description: A workload route exposed publicly.
+      properties:
+        auth:
+          $ref: '#/components/schemas/RouteAuth'
+          description: Authentication applied to this route.
+        path:
+          description: Route path relative to the workload root, excluding the URL prefix the workload is mounted on. Must start with '/'. For example '/.well-known/agent-card.json'.
+          maxLength: 1024
+          pattern: ^/
+          title: Path
+          type: string
+      required:
+      - path
+      - auth
+      title: WorkloadRoute
+      type: object
+    ReplicaStatusesSnapshot:
+      properties:
+        overallStatus:
+          $ref: '#/components/schemas/WorkloadMonitorOverallStatus'
+        replicas:
+          items:
+            $ref: '#/components/schemas/ReplicaDetail'
+          title: Replicas
+          type: array
+      required:
+      - overallStatus
+      - replicas
+      title: ReplicaStatusesSnapshot
+      type: object
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    ContainerBuildInfo:
+      description: The image build this container came from.
+      properties:
+        artifactImageBuildId:
+          description: Identifies the build. Full detail, including what it consumed, is available from GET /artifacts/{artifactId}/builds/{buildId}.
+          title: Artifactimagebuildid
+          type: string
+        builtFrom:
+          anyOf:
+          - $ref: '#/components/schemas/BuiltFrom'
+          - type: 'null'
+          description: What this build consumed. Compare against imageBuildConfig to see what the current image was built from, in particular the execution environment version, which a codeRef-keyed build pointer does not track. Absent on builds triggered before this was recorded.
+        createdAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the build was created (UTC), read from the build record. Null when that record cannot be read.
+          title: Createdat
+        imageDeleted:
+          default: false
+          description: True once the built image is confirmed gone from the registry. The build still reads COMPLETED, because it did complete, but the imageUri has been withdrawn and the container must be rebuilt before it can be deployed.
+          title: Imagedeleted
+          type: boolean
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Build status, read from the build record. Null when that record cannot be read.
+          title: Status
+      required:
+      - artifactImageBuildId
+      title: ContainerBuildInfo
+      type: object
+    ContainerStatusDetail:
+      properties:
+        exitCode:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Exit Code
+        image:
+          title: Image
+          type: string
+        lastState:
+          anyOf:
+          - $ref: '#/components/schemas/ContainerLastStateDetail'
+          - type: 'null'
+          title: Last State
+        message:
+          default: ''
+          title: Message
+          type: string
+        name:
+          title: Name
+          type: string
+        ready:
+          title: Ready
+          type: boolean
+        reason:
+          default: ''
+          title: Reason
+          type: string
+        restartCount:
+          title: Restartcount
+          type: integer
+        startedAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Startedat
+        status:
+          $ref: '#/components/schemas/ContainerStatus'
+      required:
+      - name
+      - status
+      - startedAt
+      - ready
+      - restartCount
+      - image
+      title: ContainerStatusDetail
+      type: object
+    WorkloadsResponseTimeStats:
+      description: Workload response time statistics.
+      properties:
+        millis:
+          default: 0
+          description: Response time in milliseconds
+          title: Millis
+          type: integer
+        trend:
+          default: 0.0
+          description: Trend indicator (positive = increasing)
+          title: Trend
+          type: number
+      title: WorkloadsResponseTimeStats
+      type: object
+    ANY_PERMISSION:
+      const: '*'
+      type: string
+    ProbeConfig:
+      properties:
+        failureThreshold:
+          default: 3
+          description: Minimum consecutive failures for the probe to be considered failed
+          maximum: 2147483647.0
+          minimum: 1.0
+          title: Failurethreshold
+          type: integer
+        host:
+          anyOf:
+          - maxLength: 253
+            minLength: 0
+            type: string
+          - type: 'null'
+          description: Host name to connect to, defaults to the pod IP.
+          title: Host
+        httpHeaders:
+          additionalProperties:
+            type: string
+          description: HTTP headers for probe
+          title: Httpheaders
+          type: object
+        initialDelaySeconds:
+          default: 0
+          description: Number of seconds to wait before the first probe is executed
+          maximum: 3600.0
+          minimum: 0.0
+          title: Initialdelayseconds
+          type: integer
+        path:
+          description: URL path to query for health check
+          maxLength: 2048
+          title: Path
+          type: string
+        periodSeconds:
+          default: 10
+          description: How often (in seconds) to perform the probe
+          maximum: 3600.0
+          minimum: 1.0
+          title: Periodseconds
+          type: integer
+        port:
+          default: 8080
+          description: Port number to access on the container.
+          maximum: 65535.0
+          minimum: 1.0
+          title: Port
+          type: integer
+        scheme:
+          default: HTTP
+          description: Scheme to use for connecting to the host.
+          enum:
+          - HTTP
+          - HTTPS
+          title: Scheme
+          type: string
+        successThreshold:
+          default: 1
+          description: Minimum consecutive successes for the probe to be considered successful after having failed
+          maximum: 10.0
+          minimum: 1.0
+          title: Successthreshold
+          type: integer
+        timeoutSeconds:
+          default: 10
+          description: Number of seconds after which the probe times out
+          maximum: 3600.0
+          minimum: 1.0
+          title: Timeoutseconds
+          type: integer
+      required:
+      - path
+      title: ProbeConfig
+      type: object
+    NimArtifactSpec:
+      properties:
+        containerGroups:
+          default: []
+          description: List of container groups.
+          items:
+            $ref: '#/components/schemas/ContainerGroup'
+          title: Containergroups
+          type: array
+        storage:
+          anyOf:
+          - $ref: '#/components/schemas/NimStorageConfig'
+          - type: 'null'
+          description: Model weight storage configuration. When omitted, defaults to a dedicated per-workload PVC provisioned exclusively for this workload.
+        templateId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the template used to create this NIM Artifact
+          title: Templateid
+        type:
+          const: nim
+          default: nim
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          title: Type
+          type: string
+      title: NimArtifactSpec
+      type: object
+    ApiKeyEnvironmentVariable:
+      description: 'A platform-managed DataRobot API token injected as an environment variable.
+
+        The token value is resolved at proton creation (find-or-create a per-workload
+
+        ``Workload <workloadId>`` API key scoped to the invoking user); no value or id
+
+        is supplied by the user.
+
+
+        ``name`` is optional for this source: when omitted it resolves to
+
+        ``DATAROBOT_API_TOKEN`` at consumption time. The default is intentionally not
+
+        persisted — an omitted name is stored as absent, not as ``DATAROBOT_API_TOKEN``.'
+      properties:
+        name:
+          anyOf:
+          - maxLength: 256
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Name of the environment variable. Optional for the api-key source; defaults to DATAROBOT_API_TOKEN when omitted.
+          title: Name
+        source:
+          const: api-key
+          title: Source
+          type: string
+      required:
+      - source
+      title: ApiKeyEnvironmentVariable
+      type: object
+    ReplicaPhase:
+      description: Lifecycle phase of a deployment replica.
+      enum:
+      - pending
+      - running
+      - succeeded
+      - failed
+      - unknown
+      title: ReplicaPhase
+      type: string
+    ProtonListResponse:
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ProtonFormatted'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ProtonListResponse
+      type: object
+    LlmArtifactSpec:
+      description: 'Spec for `llm` artifacts: an open-weights model the platform serves on its own
+
+        inference engine. No images, no builds, no containers; the engine image, ports and
+
+        routes are platform-owned.
+
+
+        The helpers below mirror ``MultiContainerArtifactSpec`` so the services that walk
+
+        container groups (builds, credentials, routes, code refs) see an empty topology
+
+        instead of needing a type check at every call site.'
+      properties:
+        model:
+          $ref: '#/components/schemas/LlmModelSpec'
+          description: The model to serve.
+        type:
+          const: llm
+          default: llm
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          title: Type
+          type: string
+      required:
+      - model
+      title: LlmArtifactSpec
+      type: object
+    Container:
+      properties:
+        build:
+          anyOf:
+          - $ref: '#/components/schemas/ContainerBuildInfo'
+          - type: 'null'
+          description: Server-set image build metadata (e.g. after lock or draft build trigger). Workload API clears this on artifact create/update before persistence; clients must not rely on sending it.
+        description:
+          default: ''
+          description: Description of the container
+          maxLength: 5000
+          title: Description
+          type: string
+        entrypoint:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 256
+            type: array
+          - type: 'null'
+          description: Runtime entrypoint override for the container command. Independent of build entrypoint.
+          title: Entrypoint
+        environmentVars:
+          default: []
+          description: Environment variables
+          items:
+            discriminator:
+              mapping:
+                api-key: '#/components/schemas/ApiKeyEnvironmentVariable'
+                dr-credential: '#/components/schemas/CredentialEnvironmentVariable'
+                string: '#/components/schemas/StringEnvironmentVariable'
+              propertyName: source
+            oneOf:
+            - $ref: '#/components/schemas/StringEnvironmentVariable'
+            - $ref: '#/components/schemas/CredentialEnvironmentVariable'
+            - $ref: '#/components/schemas/ApiKeyEnvironmentVariable'
+          title: Environmentvars
+          type: array
+        imageBuildConfig:
+          anyOf:
+          - $ref: '#/components/schemas/ImageBuildConfig'
+          - type: 'null'
+          description: Configuration for server-side image builds from source code.
+        imageOutdated:
+          description: True when imageUri is set but the latest build is still pending/in-progress or failed, i.e. the image is from a previous build. A cancelled build (prior image kept on purpose) or an unknown status does not mark the image outdated. Read-only and derived; never persisted.
+          readOnly: true
+          title: Image Outdated
+          type: boolean
+        imageUri:
+          anyOf:
+          - maxLength: 2048
+            type: string
+          - type: 'null'
+          description: Docker Image URI. Required when imageBuildConfig is not set; server-populated after a successful image build.
+          title: Imageuri
+        livenessProbe:
+          anyOf:
+          - $ref: '#/components/schemas/ProbeConfig'
+          - type: 'null'
+          description: Container liveness check configuration
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the container. Lowercase letters, digits, and hyphens only; must start with a lowercase letter and end with a letter or digit; max 63 characters.
+          title: Name
+        port:
+          anyOf:
+          - maximum: 65535.0
+            minimum: 1024.0
+            type: integer
+          - type: 'null'
+          description: Container access port. When set, must be >= 1024 for security and platform compatibility reasons. Primary containers must define a port; non-primary containers must omit it.
+          title: Port
+        primary:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          description: Whether this is the primary container
+          title: Primary
+        readinessProbe:
+          anyOf:
+          - $ref: '#/components/schemas/ProbeConfig'
+          - type: 'null'
+          description: Container readiness check configuration
+        routes:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WorkloadRoute'
+            maxItems: 50
+            type: array
+          - type: 'null'
+          description: Routes of the workload to expose publicly. Primary containers only. The workload root is exposed authenticated unless '/' is declared here with another policy.
+          title: Routes
+        securityContext:
+          anyOf:
+          - $ref: '#/components/schemas/SecurityContext'
+          - type: 'null'
+          description: Container security context
+        startupProbe:
+          anyOf:
+          - $ref: '#/components/schemas/ProbeConfig'
+          - type: 'null'
+          description: Container startup check configuration
+      title: Container
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    ImageBuildConfig:
+      description: User-provided configuration for server-side image builds from source code.
+      properties:
+        codeRef:
+          anyOf:
+          - $ref: '#/components/schemas/CodeRef'
+          - type: 'null'
+          description: Reference to source code (e.g. Files API catalog). Optional at create time; required before build or lock.
+        dockerfile:
+          description: How the Dockerfile is obtained. Defaults to using ./Dockerfile from the source code.
+          discriminator:
+            mapping:
+              generated: '#/components/schemas/GeneratedDockerfile'
+              provided: '#/components/schemas/ProvidedDockerfile'
+            propertyName: source
+          oneOf:
+          - $ref: '#/components/schemas/ProvidedDockerfile'
+          - $ref: '#/components/schemas/GeneratedDockerfile'
+          title: Dockerfile
+      title: ImageBuildConfig
+      type: object
+    ComputeBundleResource:
+      description: Represents a single compute bundle resource configuration.
+      properties:
+        cpuCount:
+          description: Number of CPU cores
+          title: Cpucount
+          type: number
+        description:
+          description: Description of the bundle resources
+          title: Description
+          type: string
+        gpuCount:
+          default: 0
+          description: Number of GPU units
+          title: Gpucount
+          type: integer
+        gpuMaker:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: GPU manufacturer
+          title: Gpumaker
+        gpuMemoryBytes:
+          default: 0
+          description: GPU memory in bytes
+          title: Gpumemorybytes
+          type: integer
+        gpuTypeLabel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: GPU type label for the compute bundle
+          title: Gputypelabel
+        hasGpu:
+          default: false
+          description: Whether the bundle has GPU support
+          title: Hasgpu
+          type: boolean
+        id:
+          description: Unique identifier for the compute bundle
+          title: Id
+          type: string
+        memoryBytes:
+          description: Memory size in bytes
+          title: Memorybytes
+          type: integer
+        name:
+          description: Human-readable name of the bundle
+          title: Name
+          type: string
+        useCases:
+          description: List of use cases supported by this bundle
+          items:
+            type: string
+          title: Usecases
+          type: array
+      required:
+      - id
+      - name
+      - description
+      - cpuCount
+      - memoryBytes
+      - useCases
+      title: ComputeBundleResource
+      type: object
+    WorkloadSortQueryParam:
+      anyOf:
+      - $ref: '#/components/schemas/CommonSortQueryParams'
+      - const: status
+        description: Sort by status in ascending order (e.g., STOPPED before RUNNING)
+        title: Status Ascending
+        type: string
+      - const: -status
+        description: Sort by status in descending order (e.g., RUNNING before STOPPED)
+        title: Status Descending
+        type: string
+      - const: importance
+        description: Sort by importance in ascending order (least important first)
+        title: Importance Ascending
+        type: string
+      - const: -importance
+        description: Sort by importance in descending order (most important first)
+        title: Importance Descending
+        type: string
+    WorkloadsErrorRateStats:
+      description: Workload error rate statistics.
+      properties:
+        rate:
+          default: 0.0
+          description: Error rate percentage
+          title: Rate
+          type: number
+        trend:
+          default: 0.0
+          description: Trend indicator (positive = increasing)
+          title: Trend
+          type: number
+      title: WorkloadsErrorRateStats
+      type: object
+    WorkloadStatsMetricName:
+      description: Metric names for workload statistics.
+      enum:
+      - totalRequests
+      - requestsOverN
+      - requestsPerMinute
+      - concurrentRequests
+      - responseTime
+      - totalErrorRate
+      title: WorkloadStatsMetricName
+      type: string
+    WorkloadMonitorOverallStatus:
+      description: Overall status as reported by the workload-monitor service.
+      properties:
+        lastUpdated:
+          description: RFC3339 timestamp of the last state transition
+          title: Lastupdated
+          type: string
+        state:
+          $ref: '#/components/schemas/ProtonStatus'
+          description: Proton state mapped to team-owned ProtonStatus
+        summary:
+          description: Human-readable description of the current state
+          title: Summary
+          type: string
+      required:
+      - state
+      - summary
+      - lastUpdated
+      title: WorkloadMonitorOverallStatus
+      type: object
+    ReplacementConfig:
+      description: Configuration for workload replacement.
+      properties:
+        keepOldVersionMinutes:
+          default: 0
+          description: Duration in minutes to keep the old version during replacement
+          title: Keepoldversionminutes
+          type: integer
+        warmupDurationMinutes:
+          default: 0
+          description: Duration in minutes for the warmup phase during replacement
+          title: Warmupdurationminutes
+          type: integer
+      title: ReplacementConfig
+      type: object
+    ReplicaConditionDetail:
+      properties:
+        lastTransitionTime:
+          title: Lasttransitiontime
+          type: string
+        message:
+          default: ''
+          title: Message
+          type: string
+        reason:
+          default: ''
+          title: Reason
+          type: string
+        type:
+          title: Type
+          type: string
+        value:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Value
+      required:
+      - type
+      - value
+      - lastTransitionTime
+      title: ReplicaConditionDetail
+      type: object
+    BuiltFrom:
+      description: 'What a build consumed, captured when the build was triggered and never rewritten.
+
+
+        A container''s build pointer is dropped when its ``code_ref`` changes, so a surviving
+
+        ``build`` already implies the code is unchanged. The execution environment is not part of
+
+        that check, which makes ``execution_environment_version_id`` here the only way to see that
+
+        an image was built on a different environment version than the container now declares.
+
+
+        Both execution environment fields are null for a build from a user-provided Dockerfile,
+
+        which resolves no execution environment at all.'
+      properties:
+        codeRef:
+          $ref: '#/components/schemas/CodeRef'
+          description: Source code reference this image was built from.
+          title: Code Ref
+        executionEnvironmentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Execution environment declared for the generated Dockerfile, if any.
+          title: Execution Environment ID
+        executionEnvironmentVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Execution environment version the base image was resolved from, if any.
+          title: Execution Environment Version ID
+      required:
+      - codeRef
+      title: BuiltFrom
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SecurityContext:
+      description: 'Container-level security context.
+
+
+        Lets workload creators tighten security constraints beyond the platform defaults. runAsNonRoot and runAsUser are enforced by the platform and are not user-settable. Elevated fields (capabilities.add, allowPrivilegeEscalation=true, seccompProfile.type=Unconfined) require the MLOps Admin role; regular users may only tighten defaults — drop capabilities, enable read-only rootfs, or set a RuntimeDefault/Localhost seccomp profile.'
+      properties:
+        allowPrivilegeEscalation:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether a process can gain more privileges than its parent. Requires the MLOps Admin role to set to True.
+          title: Allowprivilegeescalation
+        capabilities:
+          anyOf:
+          - $ref: '#/components/schemas/Capabilities'
+          - type: 'null'
+          description: Linux capabilities to add or drop
+        readOnlyRootFilesystem:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the root filesystem is read-only
+          title: Readonlyrootfilesystem
+        seccompProfile:
+          anyOf:
+          - $ref: '#/components/schemas/SeccompProfile'
+          - type: 'null'
+          description: Seccomp profile for the container
+      title: SecurityContext
+      type: object
+    BundleSelectionPolicy:
+      enum:
+      - availability
+      title: BundleSelectionPolicy
+      type: string
+    SeccompProfile:
+      description: Seccomp profile configuration.
+      properties:
+        localhostProfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Path to a seccomp profile on the node. Only valid when type is Localhost.
+          title: Localhostprofile
+        type:
+          $ref: '#/components/schemas/SeccompProfileType'
+          description: Seccomp profile type
+      required:
+      - type
+      title: SeccompProfile
+      type: object
+    DataRobotCodeRef:
+      properties:
+        catalogId:
+          title: Catalogid
+          type: string
+        catalogVersionId:
+          title: Catalogversionid
+          type: string
+      required:
+      - catalogId
+      - catalogVersionId
+      title: DataRobotCodeRef
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    AgentToolStats:
+      description: 'Per-tool call stats of an agent workload, capped to the most-called tools.
+
+
+        `truncated` tells the caller more tools exist beyond the ones returned, without requiring
+
+        the response to carry every long-tail tool.'
+      properties:
+        tools:
+          description: Stats per tool, most-called first
+          items:
+            $ref: '#/components/schemas/AgentToolCallStat'
+          title: Tools
+          type: array
+        truncated:
+          default: false
+          description: True when more tools exist beyond those returned
+          title: Truncated
+          type: boolean
+      title: AgentToolStats
+      type: object
+    ReplacementStrategy:
+      description: "Types of replacement strategies.\n`rolling` - the new proton is deployed alongside the old one, and trafic\n    is switched to the new proton once it is ready. The old proton is then decommissioned."
+      enum:
+      - rolling
+      title: ReplacementStrategy
+      type: string
+    Summary:
+      description: Summary information for proton statistics.
+      properties:
+        period:
+          $ref: '#/components/schemas/Period'
+          description: Time period for the summary
+        protonId:
+          description: Proton ID
+          title: Protonid
+          type: string
+      required:
+      - protonId
+      - period
+      title: Summary
+      type: object
+    WorkloadsConcurrentRequestsStats:
+      description: Workload concurrent requests statistics.
+      properties:
+        count:
+          default: 0
+          description: Number of concurrent requests
+          title: Count
+          type: integer
+        trend:
+          default: 0.0
+          description: Trend indicator (positive = increasing)
+          title: Trend
+          type: number
+      title: WorkloadsConcurrentRequestsStats
+      type: object
+    CommonSortQueryParams:
+      anyOf:
+      - const: name
+        description: Sort by name in ascending order (A-Z)
+        title: Name Ascending
+        type: string
+      - const: -name
+        description: Sort by name in descending order (Z-A)
+        title: Name Descending
+        type: string
+      - const: createdAt
+        description: Sort by creation date in ascending order (oldest first)
+        title: Creation Date Ascending
+        type: string
+      - const: -createdAt
+        description: Sort by creation date in descending order (newest first)
+        title: Creation Date Descending
+        type: string
+      - const: updatedAt
+        description: Sort by update date in ascending order (oldest first)
+        title: Update Date Ascending
+        type: string
+      - const: -updatedAt
+        description: Sort by update date in descending order (newest first)
+        title: Update Date Descending
+        type: string
+    WorkloadsRequestsStats:
+      description: Workload request statistics.
+      properties:
+        failed:
+          default: 0
+          description: Number of failed requests
+          title: Failed
+          type: integer
+        succeeded:
+          default: 0
+          description: Number of successful requests
+          title: Succeeded
+          type: integer
+        total:
+          default: 0
+          description: Total number of requests
+          title: Total
+          type: integer
+        trend:
+          default: 0.0
+          description: Trend indicator (positive = increasing)
+          title: Trend
+          type: number
+      title: WorkloadsRequestsStats
+      type: object
+    ResourceAllocation:
+      description: Per-container resource allocation declared at runtime.
+      properties:
+        cpu:
+          anyOf:
+          - minimum: 0.1
+            type: number
+          - type: 'null'
+          description: CPU cores allocated to this container.
+          title: Cpu
+        gpu:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: GPUs allocated to this container.
+          title: Gpu
+        memory:
+          anyOf:
+          - pattern: ^\s*(\d*\.?\d+)\s*(\w+)?
+            type: string
+          - minimum: 0.0
+            type: integer
+          - type: 'null'
+          description: 'RAM allocated to this container. Accepts a human-readable string with one of: B, KB, MB, GB (1000-based) — e.g. ''8GB'', ''512MB''. Also accepts raw byte integers.'
+          examples:
+          - 8GB
+          - 512MB
+          title: Memory
+      title: ResourceAllocation
+      type: object
+    Period:
+      description: Time period definition.
+      properties:
+        end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Period end time
+          title: End
+        start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Period start time
+          title: Start
+      title: Period
+      type: object
+    AgentStats:
+      description: 'Agent-specific statistics embedded in the workload stats response.
+
+
+        Present only for `agent` workloads; the period is the enclosing response''s. Each section
+
+        is `null` when it could not be retrieved.'
+      properties:
+        components:
+          anyOf:
+          - $ref: '#/components/schemas/AgentComponentStats'
+          - type: 'null'
+          description: Top (tool, agent) components by call volume
+        quality:
+          anyOf:
+          - $ref: '#/components/schemas/QualityCounts'
+          - type: 'null'
+          description: Aggregated guard/moderation event counts
+        tokenUsage:
+          anyOf:
+          - $ref: '#/components/schemas/AgentTokenUsageStats'
+          - type: 'null'
+          description: Aggregated input/output token counts
+          title: Token Usage
+        tools:
+          anyOf:
+          - $ref: '#/components/schemas/AgentToolStats'
+          - type: 'null'
+          description: Call, error and latency stats per tool
+      title: AgentStats
+      type: object
+    ProtonFormatted:
+      properties:
+        artifactId:
+          description: ID of the artifact deployed by this proton
+          title: Artifactid
+          type: string
+        createdAt:
+          description: Timestamp of when the entity was created
+          format: date-time
+          title: Created At
+          type: string
+        creator:
+          anyOf:
+          - $ref: '#/components/schemas/UserData'
+          - type: 'null'
+          description: Owner user details including ID, username and email
+        deployedImages:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          description: Container name to the image URI this proton is running, recorded when it was scheduled. A draft artifact's imageUri moves with every rebuild without redeploying, so this is the only record of what was launched. For a container built from source the tag is the build id. Null on protons that predate it.
+          title: Deployed Images
+        endpoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API endpoint to use to send service requests
+          title: Endpoint
+        id:
+          description: Unique identifier of the entity
+          title: ID
+          type: string
+        name:
+          description: Name of the entity
+          title: Name
+          type: string
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProtonRole'
+          - type: 'null'
+          description: Role of the proton within its workload, either 'active' or 'candidate'.
+        runningSince:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp of when the proton entered RUNNING status
+          title: Runningsince
+        runtime:
+          $ref: '#/components/schemas/WorkloadRuntime'
+          description: Runtime configuration for this proton
+        status:
+          $ref: '#/components/schemas/ProtonStatus'
+          description: Proton status
+        updatedAt:
+          description: Timestamp of when the entity was last updated
+          format: date-time
+          title: Updated At
+          type: string
+        workloadId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the workload this proton belongs to
+          title: Workloadid
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      - status
+      - artifactId
+      title: ProtonFormatted
+      type: object
+    InputArtifact:
+      description: Request to create an artifact. An artifact is always created as a draft.
+      properties:
+        artifactRepositoryId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the artifact repository this artifact belongs to (for versioning support)
+          title: Artifactrepositoryid
+        description:
+          default: ''
+          description: Description of the artifact
+          maxLength: 5000
+          title: Description
+          type: string
+        name:
+          description: Name of the artifact
+          maxLength: 5000
+          minLength: 1
+          title: Name
+          type: string
+        spec:
+          description: Artifact specification
+          discriminator:
+            mapping:
+              agent: '#/components/schemas/AgentArtifactSpec'
+              llm: '#/components/schemas/LlmArtifactSpec'
+              mcp: '#/components/schemas/ServiceArtifactSpec'
+              nim: '#/components/schemas/NimArtifactSpec'
+              service: '#/components/schemas/ServiceArtifactSpec'
+            propertyName: type
+          oneOf:
+          - $ref: '#/components/schemas/ServiceArtifactSpec'
+          - $ref: '#/components/schemas/NimArtifactSpec'
+          - $ref: '#/components/schemas/AgentArtifactSpec'
+          - $ref: '#/components/schemas/LlmArtifactSpec'
+          title: Spec
+        status:
+          $ref: '#/components/schemas/ArtifactStatus'
+          default: draft
+          description: Artifact status
+        type:
+          $ref: '#/components/schemas/ArtifactType'
+          default: service
+          description: Artifact type
+      required:
+      - name
+      - spec
+      title: InputArtifact
+      type: object
+    WorkloadEvent:
+      description: 'A single workload event record.
+
+
+        Note: full event schema will be defined once event storage is implemented (P7).
+
+        This placeholder documents the known shape.'
+      properties:
+        actorId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the user or system that triggered the event
+          title: Actor ID
+        details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Additional event-specific details
+          title: Details
+        eventType:
+          description: Type of event
+          title: Event Type
+          type: string
+        id:
+          description: Event ID
+          title: ID
+          type: string
+        timestamp:
+          description: When the event occurred
+          format: date-time
+          title: Timestamp
+          type: string
+        workloadId:
+          description: ID of the workload this event belongs to
+          title: Workload ID
+          type: string
+      required:
+      - id
+      - workloadId
+      - timestamp
+      - eventType
+      title: WorkloadEvent
+      type: object
+    AgentToolComponent:
+      description: 'Call-count and error-count stats for one (tool, agent) pair -- one ''component''
+
+        of a multi-agent workload.'
+      properties:
+        agentName:
+          description: Name of the agent (`gen_ai.agent.name`) that invoked it
+          title: Agent Name
+          type: string
+        callCount:
+          default: 0
+          description: Number of times this pair was observed
+          title: Call Count
+          type: integer
+        errorCount:
+          default: 0
+          description: Number of those calls that errored
+          title: Error Count
+          type: integer
+        toolName:
+          description: Name of the tool (`gen_ai.tool.name`) invoked
+          title: Tool Name
+          type: string
+      required:
+      - toolName
+      - agentName
+      title: AgentToolComponent
+      type: object
+    RequestMetrics:
+      description: Detailed request metrics.
+      properties:
+        concurrentRequests:
+          default: 0
+          description: Current concurrent requests
+          title: Concurrentrequests
+          type: integer
+        requestsPerMinute:
+          default: 0
+          description: Average requests per minute
+          title: Requestsperminute
+          type: integer
+        responseTime:
+          default: 0
+          description: Average response time in milliseconds
+          title: Responsetime
+          type: integer
+        serverErrorRate:
+          default: 0.0
+          description: Server error rate
+          title: Servererrorrate
+          type: number
+        serverErrors:
+          default: 0
+          description: Number of server errors (5xx)
+          title: Servererrors
+          type: integer
+        slowRequests:
+          default: 0
+          description: Number of slow requests exceeding threshold
+          title: Slowrequests
+          type: integer
+        totalErrorRate:
+          default: 0.0
+          description: Total error rate
+          title: Totalerrorrate
+          type: number
+        totalRequests:
+          default: 0
+          description: Total number of requests
+          title: Totalrequests
+          type: integer
+        userErrorRate:
+          default: 0.0
+          description: User error rate
+          title: Usererrorrate
+          type: number
+        userErrors:
+          default: 0
+          description: Number of user errors (4xx)
+          title: Usererrors
+          type: integer
+      title: RequestMetrics
+      type: object
+    ResourcePermission:
+      description: Represents the particular role a user, group or organization holds on an entity.
+      enum:
+      - CAN_VIEW
+      - CAN_UPDATE
+      - CAN_DELETE
+      - CAN_SHARE
+      - CAN_MAKE_PREDICTIONS
+      - CAN_OVERRIDE_WORKLOAD_PLACEMENT
+      - CAN_SHARE_ROLE_OWNER
+      - CAN_SHARE_ROLE_READ_WRITE
+      - CAN_SHARE_ROLE_READ_ONLY
+      title: ResourcePermission
+      type: string
+    UpdateWorkloadRequest:
+      description: Request to update an existing workload.
+      properties:
+        description:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Updated workload description
+          title: Description
+        importance:
+          anyOf:
+          - $ref: '#/components/schemas/WorkloadImportance'
+          - type: 'null'
+          description: Updated workload importance level
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: Updated workload name
+          title: Name
+      title: UpdateWorkloadRequest
+      type: object
+    CredentialEnvironmentVariable:
+      properties:
+        drCredentialId:
+          description: ID of the DataRobot credential to use
+          title: DR Credential ID
+          type: string
+        key:
+          description: Key within the credential
+          title: Key
+          type: string
+        name:
+          description: Name of the environment variable
+          maxLength: 256
+          minLength: 1
+          title: Name
+          type: string
+        source:
+          const: dr-credential
+          title: Source
+          type: string
+      required:
+      - source
+      - name
+      - drCredentialId
+      - key
+      title: CredentialEnvironmentVariable
+      type: object
+    WorkloadsCountStats:
+      description: Workload count statistics.
+      properties:
+        active:
+          default: 0
+          description: Number of active workloads
+          title: Active
+          type: integer
+        total:
+          default: 0
+          description: Total number of workloads
+          title: Total
+          type: integer
+      title: WorkloadsCountStats
+      type: object
+    QualityCounts:
+      description: 'Raw guard-event counts for a period.
+
+
+        Raw counts only: a rate such as blocked/total is derived from these fields by the caller.'
+      properties:
+        blockedPrompts:
+          default: 0
+          description: Prompts blocked by input guards
+          title: Blocked Prompts
+          type: integer
+        blockedResponses:
+          default: 0
+          description: Responses blocked by output guards
+          title: Blocked Responses
+          type: integer
+        totalPrompts:
+          default: 0
+          description: Prompts evaluated by input guards
+          title: Total Prompts
+          type: integer
+        totalResponses:
+          default: 0
+          description: Responses evaluated by output guards
+          title: Total Responses
+          type: integer
+        violationCount:
+          default: 0
+          description: Total guard violations (block, report, replace) across all guards and stages
+          title: Violation Count
+          type: integer
+      title: QualityCounts
+      type: object
+    WorkloadListResponse:
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/WorkloadFormatted'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: WorkloadListResponse
+      type: object
+    StartReplacementRequest:
+      description: Request to start a replacement for a workload.
+      properties:
+        artifactId:
+          description: Existing Artifact ID to deploy
+          title: Artifactid
+          type: string
+        config:
+          $ref: '#/components/schemas/ReplacementConfig'
+          description: Configuration for the replacement process, including warmup duration and old version retention time
+        runtime:
+          anyOf:
+          - $ref: '#/components/schemas/WorkloadRuntime'
+          - type: 'null'
+          description: Runtime for the workload; if omitted, the current runtime is reused
+        strategy:
+          $ref: '#/components/schemas/ReplacementStrategy'
+          description: Replacement strategy
+      required:
+      - artifactId
+      - strategy
+      title: StartReplacementRequest
+      type: object
+    SharedRolesUpdateRequest:
+      description: 'Request model for updating shared roles on an entity.
+
+
+        Used to grant access, remove access, or update roles for organizations,
+
+        groups, users, or external applications. Up to 100 roles may be set in a
+
+        single request.'
+      properties:
+        operation:
+          const: updateRoles
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          title: Operation
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects, up to maximum 100 objects.
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          title: Roles
+          type: array
+      required:
+      - operation
+      - roles
+      title: SharedRolesUpdateRequest
+      type: object
+    ComputeBundlesResponse:
+      description: Response model for the compute bundles API.
+      properties:
+        data:
+          description: List of available compute bundles
+          items:
+            $ref: '#/components/schemas/ComputeBundleResource'
+          title: Data
+          type: array
+        totalCount:
+          description: Total number of bundles
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - totalCount
+      title: ComputeBundlesResponse
+      type: object
+    ResourceTypes:
+      enum:
+      - artifact
+      - artifact_repository
+      - proton
+      - workload
+      - custom_model
+      title: ResourceTypes
+      type: string
+    WorkloadSettingsResponse:
+      description: Response containing workload settings.
+      properties:
+        replacement:
+          anyOf:
+          - $ref: '#/components/schemas/Replacement'
+          - type: 'null'
+          description: Active replacement in progress, if any. When present, the runtime field reflects the current (old) proton; the replacement's runtime shows the desired (new) configuration.
+        runtime:
+          $ref: '#/components/schemas/WorkloadRuntime'
+          description: Runtime configuration sourced from the current proton
+      title: WorkloadSettingsResponse
+      type: object
+    ProtonStatus:
+      enum:
+      - unknown
+      - submitted
+      - initializing
+      - provisioning
+      - launching
+      - running
+      - suspended
+      - warming
+      - draining
+      - interrupted
+      - restarting
+      - stopping
+      - stopped
+      - errored
+      - terminated
+      title: ProtonStatus
+      type: string
+    ArtifactType:
+      description: "Discriminator for the artifact spec variant. Used to label the workload so it can be\nscheduled on the best-matching runtime. Defaults to ``service`` when omitted.\n- ``service``: generic service artifact.\n- ``nim``: NVIDIA NIM model artifact.\n- ``agent``: A2A-capable agent artifact; scheduled like ``service`` (the ``a2a_enabled``\n    spec flag turns on agent-card management and the A2A surface).\n- ``mcp``: MCP server artifact; scheduled like ``service``.\n- ``llm``: open-weights model served by the platform's inference engine. The user\n    declares a model, not containers."
+      enum:
+      - service
+      - nim
+      - agent
+      - mcp
+      - llm
+      title: ArtifactType
+      type: string
+    AutoscalingPolicy:
+      description: A single autoscaling metric target.
+      properties:
+        scalingMetric:
+          anyOf:
+          - $ref: '#/components/schemas/ScalingMetricType'
+          - type: string
+          description: Metric used for scaling decisions. Use one of the predefined values for standard autoscaling, or provide a custom metric name for NIM 2.0 workloads (e.g. 'vllm:kv_cache_usage_perc'). Custom metric names are only supported for NIM artifacts.
+          title: Scaling Metric
+        target:
+          description: Target value for the scaling metric
+          minimum: 0.0
+          title: Target
+          type: number
+      required:
+      - scalingMetric
+      - target
+      title: AutoscalingPolicy
+      type: object
+    ArtifactStatus:
+      enum:
+      - draft
+      - locked
+      title: ArtifactStatus
+      type: string
+    ResolvedBundle:
+      description: Bundle details returned in the runtime response after scheduling.
+      properties:
+        cpuCount:
+          description: Number of CPU cores
+          title: CPU Count
+          type: number
+        gpuCount:
+          default: 0
+          description: Number of GPU units
+          title: GPU Count
+          type: integer
+        gpuMaker:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: GPU manufacturer
+          title: GPU Maker
+        gpuTypeLabel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: GPU type label
+          title: GPU Type Label
+        id:
+          description: Bundle identifier that was selected
+          title: Id
+          type: string
+        memoryBytes:
+          description: Memory size in bytes
+          title: Memory Bytes
+          type: integer
+      required:
+      - id
+      - cpuCount
+      - memoryBytes
+      title: ResolvedBundle
+      type: object
+    ProtonRequestMetricOverTime:
+      description: Proton request metric over time.
+      properties:
+        buckets:
+          description: Time-bucketed metric values with flexible structure
+          items:
+            additionalProperties: true
+            type: object
+          title: Buckets
+          type: array
+        metric:
+          $ref: '#/components/schemas/WorkloadStatsMetricName'
+          description: Metric name being tracked
+        summary:
+          $ref: '#/components/schemas/Summary'
+          description: Summary information for the metric
+      required:
+      - metric
+      - summary
+      title: ProtonRequestMetricOverTime
+      type: object
+    RelatedItemID:
+      description: Basic information about a related entity, identified by its ID and type.
+      properties:
+        id:
+          description: Unique identifier of the entity
+          title: Id
+          type: string
+        type:
+          $ref: '#/components/schemas/ResourceTypes'
+          description: Type of the related entity
+      required:
+      - id
+      - type
+      title: RelatedItemID
+      type: object
+    RoleRuntime:
+      description: Runtime for one role of an `llm` serving graph. The only role today is ``workers``.
+      properties:
+        bundleSelectionPolicy:
+          $ref: '#/components/schemas/BundleSelectionPolicy'
+          default: availability
+          description: 'How to select among resourceBundles. Default: availability.'
+        resolvedBundle:
+          anyOf:
+          - $ref: '#/components/schemas/ResolvedBundle'
+          - type: 'null'
+          description: Full details of the bundle selected at scheduling time. Read-only.
+          readOnly: true
+        resourceBundles:
+          description: GPU bundles the platform may pick from, in order of preference. When empty the platform chooses a GPU bundle available to the user.
+          items:
+            type: string
+          title: Resourcebundles
+          type: array
+      title: RoleRuntime
+      type: object
+    AgentToolCallStat:
+      description: Call, error and latency stats for a single tool invoked by the agent.
+      properties:
+        callCount:
+          default: 0
+          description: Number of times the tool was called
+          title: Call Count
+          type: integer
+        errorCount:
+          default: 0
+          description: Number of those calls that errored
+          title: Error Count
+          type: integer
+        medianDurationMs:
+          default: 0.0
+          description: Median (p50) call duration in milliseconds
+          title: Median Duration Ms
+          type: number
+        p95DurationMs:
+          default: 0.0
+          description: 95th percentile call duration in milliseconds
+          title: P95 Duration Ms
+          type: number
+        toolName:
+          description: Name of the tool (`gen_ai.tool.name`) invoked
+          title: Tool Name
+          type: string
+      required:
+      - toolName
+      title: AgentToolCallStat
+      type: object
+    GroupRuntime:
+      description: Runtime configuration for a single container group.
+      properties:
+        autoscaling:
+          anyOf:
+          - $ref: '#/components/schemas/AutoscalingProperties'
+          - type: 'null'
+          description: Autoscaling configuration for this group. Mutually exclusive with replicaCount.
+        bundleSelectionPolicy:
+          $ref: '#/components/schemas/BundleSelectionPolicy'
+          default: availability
+          description: 'How to select among resourceBundles. Default: availability.'
+        containers:
+          description: Per-container overrides for this group.
+          items:
+            $ref: '#/components/schemas/ContainerOverride'
+          title: Containers
+          type: array
+        name:
+          default: default
+          description: Group name. Must match a container group name declared in the artifact.
+          title: Name
+          type: string
+        replicaCount:
+          anyOf:
+          - minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: 'Number of replicas. Cannot be set alongside autoscaling.enabled=true. When neither replicaCount nor autoscaling is provided — on create, and likewise on replace or settings update — the platform resolves a default and persists the concrete value: scale-to-zero autoscaling for non-GPU service workloads on clusters with the platform scale-to-zero default enabled, otherwise 1 replica.'
+          title: Replicacount
+        resolvedBundle:
+          anyOf:
+          - $ref: '#/components/schemas/ResolvedBundle'
+          - type: 'null'
+          description: Full details of the bundle selected at scheduling time. Read-only.
+          readOnly: true
+        resourceBundles:
+          description: Ordered list of bundle IDs. One is selected at scheduling time.
+          items:
+            type: string
+          title: Resourcebundles
+          type: array
+      title: GroupRuntime
+      type: object
+    NimStorageConfig:
+      description: Model weight storage configuration for NIM artifacts.
+      properties:
+        mode:
+          default: dedicatedPvc
+          description: Storage mode for model weights. `dedicatedPvc` (default) provisions a separate PVC owned exclusively by this workload. `nimCache` reuses a single cluster-wide PVC per model image, shared across all workloads using the same model.
+          enum:
+          - dedicatedPvc
+          - nimCache
+          title: Mode
+          type: string
+        pvcSize:
+          anyOf:
+          - pattern: ^\d+(\.\d+)?(Gi|Mi|Ti)$
+            type: string
+          - type: 'null'
+          description: PVC size for dedicated storage (e.g. '150Gi'). Only applies when mode is `dedicatedPvc`. When omitted, the platform-configured default is used.
+          title: Pvcsize
+      title: NimStorageConfig
+      type: object
+    ProvidedDockerfile:
+      description: User supplies a Dockerfile in the uploaded source code.
+      properties:
+        path:
+          default: ./Dockerfile
+          description: Relative path to the Dockerfile in the source code. Defaults to ./Dockerfile.
+          maxLength: 2048
+          title: Path
+          type: string
+        source:
+          const: provided
+          default: provided
+          title: Source
+          type: string
+      title: ProvidedDockerfile
+      type: object
+    AgentArtifactSpec:
+      properties:
+        a2aEnabled:
+          default: false
+          description: Turns on agent-to-agent (A2A) card management and the A2A surface for this agent. Defaults to off. Valid only on `agent` artifacts.
+          title: A2A Enabled
+          type: boolean
+        containerGroups:
+          default: []
+          description: List of container groups.
+          items:
+            $ref: '#/components/schemas/ContainerGroup'
+          title: Containergroups
+          type: array
+        type:
+          const: agent
+          default: agent
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          title: Type
+          type: string
+      title: AgentArtifactSpec
+      type: object
+    Capabilities:
+      description: Linux capabilities to add or drop from the container.
+      properties:
+        add:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Capabilities to add
+          title: Add
+        drop:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Capabilities to drop
+          title: Drop
+      title: Capabilities
+      type: object
+    WorkloadOperationResponse:
+      description: 'Acknowledgement returned by asynchronous workload lifecycle operations (start/stop).
+
+
+        The operation has been accepted and queued. Poll ``GET /workloads/{workloadId}``
+
+        to observe the resulting status transition.'
+      properties:
+        status:
+          description: Human-readable description of the operation outcome.
+          title: Status
+          type: string
+        trackVia:
+          description: URL to poll in order to observe the status transition.
+          title: Track Via
+          type: string
+        workloadId:
+          description: ID of the workload on which the operation was requested.
+          title: Workload ID
+          type: string
+      required:
+      - status
+      - workloadId
+      - trackVia
+      title: WorkloadOperationResponse
+      type: object
+    AgentComponentStats:
+      description: 'Top (tool, agent) components of an agent workload, by call volume.
+
+
+        Deliberately capped rather than exhaustive: `truncated` tells the caller more
+
+        components exist beyond the ones returned, without requiring the response to
+
+        carry every long-tail pair.'
+      properties:
+        agentSegmentationAvailable:
+          default: true
+          description: False when no span in the period carries `gen_ai.agent.name` yet -- e.g. the workload's SDK predates agent-name emission -- rather than there simply being no tool calls
+          title: Agent Segmentation Available
+          type: boolean
+        components:
+          description: Top components by call volume, most-called first
+          items:
+            $ref: '#/components/schemas/AgentToolComponent'
+          title: Components
+          type: array
+        sessionCount:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of distinct end-to-end flows (first input through final output) the totals above cover. `None` if flow-scoping is unavailable for this period; a real `0` means flow-scoping ran but found none.
+          title: Session Count
+        truncated:
+          default: false
+          description: True when more components exist beyond those returned
+          title: Truncated
+          type: boolean
+      title: AgentComponentStats
+      type: object
+    WorkloadReplacementFormatted:
+      description: Formatted replacement information for API responses.
+      properties:
+        candidateProtonIds:
+          description: IDs of protons pending promotion during artifact replacement
+          items:
+            type: string
+          title: Candidateprotonids
+          type: array
+        status:
+          $ref: '#/components/schemas/ReplacementStatus'
+          default: unknown
+          description: Replacement status
+        strategy:
+          $ref: '#/components/schemas/ReplacementStrategy'
+          default: rolling
+          description: Replacement strategy
+      title: WorkloadReplacementFormatted
+      type: object
+    WorkloadEventsResponse:
+      description: Response containing workload events.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/WorkloadEvent'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: WorkloadEventsResponse
+      type: object
+    RelatedItem:
+      description: Related entity item.
+      properties:
+        createdAt:
+          description: Timestamp of when the entity was created
+          format: date-time
+          title: Created At
+          type: string
+        creator:
+          anyOf:
+          - $ref: '#/components/schemas/UserData'
+          - type: 'null'
+          description: Owner user details including ID, username and email
+          title: Creator
+        id:
+          description: Unique identifier of the entity
+          title: ID
+          type: string
+        name:
+          description: Name of the entity
+          title: Name
+          type: string
+        permissions:
+          $ref: '#/components/schemas/ResourcePermissions'
+          description: User permissions for this related entity
+        type:
+          $ref: '#/components/schemas/ResourceTypes'
+          description: Type of the related entity
+        updatedAt:
+          description: Timestamp of when the entity was last updated
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      - type
+      title: RelatedItem
+      type: object
+    ContainerStatus:
+      description: Lifecycle state of a container within a deployment replica.
+      enum:
+      - running
+      - waiting
+      - terminated
+      - unknown
+      title: ContainerStatus
+      type: string
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    WorkloadRuntime:
+      description: 'Runtime configuration for a workload.
+
+
+        For service and nim artifacts, all configuration is scoped inside
+
+        ``container_groups``, each identified by name matching the artifact topology.'
+      properties:
+        containerGroups:
+          description: Per-group runtime configuration. Each entry's name must match a group in the artifact.
+          items:
+            $ref: '#/components/schemas/GroupRuntime'
+          title: Containergroups
+          type: array
+        enclaveSelectionPolicy:
+          anyOf:
+          - $ref: '#/components/schemas/EnclaveSelectionPolicy'
+          - type: 'null'
+          description: 'Where the workload runs, and how that can change later. At creation: unset (the default) runs the workload on the Hub, outside any Enclave, and needs no Use Case. When the policy is set, the workload runs on an Enclave granted to its Use Case; this requires the organization''s Enclave entitlement, a useCaseId, and deploy access (CAN_DEPLOY) to the Enclave it lands on. ''availability'' lets the scheduler choose among the Use Case''s Enclaves; ''enclaves'' must be omitted or empty. ''manual'' pins it to the one Enclave named in ''enclaves'' (exactly one entry), which must be one of the Use Case''s Enclaves; because a pin overrides the scheduler''s choice it also requires the CAN_OVERRIDE_WORKLOAD_PLACEMENT permission. A useCaseId without a policy is refused when that Use Case has Enclaves; with a Use Case that has none, the workload runs on the Hub. On a settings update or replacement: a workload that runs on an Enclave keeps running on an Enclave, and its Use Case cannot be changed through this API; to run it under a different Use Case, or on the Hub, create a new workload with the values above. Clearing this field is refused (422 ENCLAVE_POLICY_REQUIRED). Changing the policy or the pinned Enclave is allowed: ''availability'' drops the pin and leaves the workload where it runs; ''manual'' pins it to one of the Use Case''s Enclaves, with the same permission as at creation, and the rolling replacement the update starts moves it there if that is a different Enclave. An Enclave outside the Use Case is refused (422 ENCLAVE_NOT_IN_USE_CASE).'
+          title: Enclave Selection Policy
+        enclaves:
+          description: 'Enclave names to run on. Required with enclaveSelectionPolicy ''manual''. Exactly one entry is accepted today; the list shape is forward-compatible with running a workload on several Enclaves. Each named Enclave must still be eligible and the caller must hold deploy access to it. Desired state: the platform never rewrites it. See ''placements'' for where the workload actually runs.'
+          items:
+            type: string
+          title: Enclaves
+          type: array
+        workers:
+          anyOf:
+          - $ref: '#/components/schemas/RoleRuntime'
+          - type: 'null'
+          description: '`llm` artifacts only: the GPU workers that serve the model. Mutually exclusive with containerGroups, which `llm` runtimes do not use.'
+      title: WorkloadRuntime
+      type: object
+    ContainerOverride:
+      description: Runtime diff targeting a single named container within a group.
+      properties:
+        name:
+          description: Container name. Must match a container declared in the artifact group.
+          title: Name
+          type: string
+        resourceAllocation:
+          anyOf:
+          - $ref: '#/components/schemas/ResourceAllocation'
+          - type: 'null'
+          description: Resource allocation for this container. Required for multi-container groups.
+      required:
+      - name
+      title: ContainerOverride
+      type: object
+    CreateWorkloadRequest:
+      description: Request to create a new workload.
+      properties:
+        artifact:
+          anyOf:
+          - $ref: '#/components/schemas/InputArtifact'
+          - type: 'null'
+          description: Inline artifact spec to create and deploy in one step
+          title: Artifact
+        artifactId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of an existing artifact to deploy
+          title: Artifact ID
+        description:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Workload description
+          title: Description
+        importance:
+          $ref: '#/components/schemas/WorkloadImportance'
+          default: low
+          description: Workload importance level
+          title: Importance
+        name:
+          description: Workload name
+          maxLength: 5000
+          minLength: 1
+          title: Name
+          type: string
+        runtime:
+          $ref: '#/components/schemas/WorkloadRuntime'
+          description: Runtime configuration
+          title: Runtime
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The Use Case to link this workload to. Optional for any workload: the link organizes the workload alongside the Use Case''s other assets. Required when the workload targets an Enclave (enclaveSelectionPolicy: ''manual'' or ''availability'') on an organization with Enclaves enabled: placement is then restricted to the Enclaves an administrator has granted to that Use Case.'
+          title: Use Case ID
+      required:
+      - name
+      title: CreateWorkloadRequest
+      type: object
+    AutoscalingProperties:
+      description: 'Autoscaling configuration for a proton.
+
+
+        ``min_replica_count`` and ``max_replica_count`` are global replica bounds that apply
+
+        regardless of how many metric policies are defined.'
+      properties:
+        enabled:
+          default: true
+          description: Whether autoscaling is enabled
+          title: Enabled
+          type: boolean
+        maxReplicaCount:
+          default: 1
+          description: Maximum number of replicas. Defaults to 1.
+          minimum: 1.0
+          title: Max Replica Count
+          type: integer
+        minReplicaCount:
+          default: 0
+          description: Minimum number of replicas. Defaults to 0 (scale to zero when idle). Must be greater than 0 for cpuAverageUtilization scaling.
+          minimum: 0.0
+          title: Min Replica Count
+          type: integer
+        policies:
+          items:
+            $ref: '#/components/schemas/AutoscalingPolicy'
+          title: Policies
+          type: array
+      required:
+      - policies
+      title: AutoscalingProperties
+      type: object
+    SharedRoleListResponse:
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/SharedRole'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: SharedRoleListResponse
+      type: object
+    OtelMetricResolution:
+      enum:
+      - PT1M
+      - PT5M
+      - PT1H
+      - P1D
+      - P7D
+      - P1M
+      title: OtelMetricResolution
+      type: string
+    ProtonRole:
+      enum:
+      - active
+      - candidate
+      title: ProtonRole
+      type: string
+    HuggingFaceModelSource:
+      description: Weights pulled from the Hugging Face Hub by the inference engine at start.
+      properties:
+        kind:
+          const: huggingFace
+          default: huggingFace
+          title: Kind
+          type: string
+        repoId:
+          description: Hugging Face repository id, for example `Qwen/Qwen3-0.6B`.
+          maxLength: 256
+          pattern: ^[A-Za-z0-9][\w.-]*/[A-Za-z0-9][\w.-]*$
+          title: Repoid
+          type: string
+        revision:
+          default: main
+          description: Branch, tag or commit to pin. Defaults to `main`.
+          maxLength: 128
+          title: Revision
+          type: string
+      required:
+      - repoId
+      title: HuggingFaceModelSource
+      type: object
+    WorkloadStatsResponse:
+      description: Response containing workload statistics.
+      properties:
+        concurrentRequests:
+          $ref: '#/components/schemas/WorkloadsConcurrentRequestsStats'
+          description: Concurrent requests statistics
+        errorRate:
+          $ref: '#/components/schemas/WorkloadsErrorRateStats'
+          description: Error rate statistics
+        requests:
+          $ref: '#/components/schemas/WorkloadsRequestsStats'
+          description: Request statistics across all workloads
+        responseTime:
+          $ref: '#/components/schemas/WorkloadsResponseTimeStats'
+          description: Response time statistics
+        workloads:
+          $ref: '#/components/schemas/WorkloadsCountStats'
+          description: Workload count statistics
+      title: WorkloadStatsResponse
+      type: object
+    ServiceArtifactSpec:
+      properties:
+        containerGroups:
+          default: []
+          description: List of container groups.
+          items:
+            $ref: '#/components/schemas/ContainerGroup'
+          title: Containergroups
+          type: array
+        type:
+          default: service
+          description: Artifact type discriminator. Injected automatically from the top-level `type` field — do not set this directly.
+          enum:
+          - service
+          - mcp
+          title: Type
+          type: string
+      title: ServiceArtifactSpec
+      type: object
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    WorkloadStatus:
+      description: 'User-facing workload status.
+
+
+        A subset of :class:`ProtonStatus` — excludes internal proton-lifecycle
+
+        states (WARMING, DRAINING, RESTARTING) that should never be surfaced as
+
+        a workload status.'
+      enum:
+      - unknown
+      - submitted
+      - provisioning
+      - launching
+      - running
+      - suspended
+      - stopping
+      - stopped
+      - errored
+      - terminated
+      title: WorkloadStatus
+      type: string
+    UserData:
+      description: User information embedded in API responses.
+      properties:
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User email address
+          title: Email
+        fullName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User's full name
+          title: Full Name
+        id:
+          description: User ID associated with this resource
+          title: User ID
+          type: string
+        userhash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User's gravatar hash
+          title: Userhash
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Username
+          title: Username
+      required:
+      - id
+      title: UserData
+      type: object
+    LlmModelSpec:
+      description: The model an `llm` artifact serves.
+      properties:
+        servedName:
+          description: Name clients send as `model` in OpenAI requests. Lowercase letters, digits, dots, underscores and hyphens; must start and end with a letter or digit.
+          maxLength: 63
+          title: Servedname
+          type: string
+        source:
+          $ref: '#/components/schemas/HuggingFaceModelSource'
+          description: Where the weights come from.
+      required:
+      - source
+      - servedName
+      title: LlmModelSpec
+      type: object
+    ScalingMetricType:
+      oneOf:
+      - const: cpuAverageUtilization
+        description: Scale replicas to maintain a target average CPU utilization across pods.
+        title: CPU Average Utilization
+      - const: httpRequestsConcurrency
+        description: Scale replicas based on HTTP request concurrency using an external HTTP-aware autoscaler. The platform manages the underlying autoscaling resources on your behalf. This scaling option will scale to zero replicas when the proton is idle.
+        title: HTTP Requests Concurrency
+      - const: gpuCacheUtilization
+        description: Scales replicas based on model-specific GPU memory cache utilization. This signal reflects how the model's KV cache is used during inference, when such metrics are exposed by the serving runtime. High cache utilization may indicate memory pressure and can be used to trigger scale-out to maintain throughput. Applicable to NIM Artifacts only.
+        title: GPU Cache Utilization
+      - const: gpuRequestQueueDepth
+        description: Scales replicas based on the depth of the inference request queue. This metric represents the number of incoming requests waiting to be processed by the inference service. Increasing queue depth may indicate insufficient capacity and can be used to trigger additional replicas to reduce latency. Applicable to NIM Artifacts only.
+        title: GPU Request Queue Depth
+      title: ScalingMetricType
+      type: string
+    ContainerGroup:
+      properties:
+        containers:
+          default: []
+          description: List of containers making this container group.
+          items:
+            $ref: '#/components/schemas/Container'
+          title: Containers
+          type: array
+        name:
+          default: default
+          description: Name of the container group. Used as the lookup key for runtime overrides. Lowercase letters, digits, and hyphens only; must start with a lowercase letter and end with a letter or digit; max 63 characters.
+          title: Name
+          type: string
+      title: ContainerGroup
+      type: object
+    Replacement:
+      description: Store replacement information for workloads.
+      properties:
+        candidateArtifactId:
+          description: Candidate Artifact ID
+          title: Candidateartifactid
+          type: string
+        candidateProtonIds:
+          description: IDs of protons pending promotion during artifact replacement
+          items:
+            type: string
+          title: Candidateprotonids
+          type: array
+        config:
+          $ref: '#/components/schemas/ReplacementConfig'
+          description: Configuration for the replacement process, including warmup duration and old version retention time
+        createdAt:
+          description: Timestamp of when the entity was created
+          format: date-time
+          title: Createdat
+          type: string
+        deletedAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp of when the entity was deleted
+          title: Deletedat
+        id:
+          description: Unique identifier of the entity
+          title: Id
+          type: string
+        isDeleted:
+          default: false
+          description: Whether this entity has been deleted
+          title: Isdeleted
+          type: boolean
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information about the replacement status, such as validation errors or reasons for failure
+          title: Message
+        name:
+          description: Name of the entity
+          title: Name
+          type: string
+        previousProtonIds:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: IDs of protons pending decommissioning during artifact replacement
+          title: Previousprotonids
+        protonStatuses:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/ReplicaStatusesSnapshot'
+            type: object
+          - type: 'null'
+          description: Latest known status of candidate protons, used to determine replacement status transitions
+          title: Protonstatuses
+        runtime:
+          $ref: '#/components/schemas/WorkloadRuntime'
+          description: Runtime for the workload; required if there is no active artifact for the workload
+        status:
+          $ref: '#/components/schemas/ReplacementStatus'
+          default: unknown
+          description: Replacement status
+        strategy:
+          $ref: '#/components/schemas/ReplacementStrategy'
+          default: rolling
+          description: Replacement strategy
+        switchedAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp of when the replacement take action
+          title: Switchedat
+        tenantId:
+          description: ID of the tenant this entity belongs to
+          format: uuid4
+          title: Tenantid
+          type: string
+        updatedAt:
+          description: Timestamp of when the entity was last updated
+          format: date-time
+          title: Updatedat
+          type: string
+        userId:
+          description: ID of the user who owns this entity
+          title: Userid
+          type: string
+        workloadId:
+          description: Workload ID
+          title: Workloadid
+          type: string
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      - userId
+      - tenantId
+      - workloadId
+      - candidateArtifactId
+      title: Replacement
+      type: object
+    SeccompProfileType:
+      description: Allowed seccomp profile types.
+      enum:
+      - RuntimeDefault
+      - Unconfined
+      - Localhost
+      title: SeccompProfileType
+      type: string
+    WorkloadImportance:
+      description: Importance level for workloads.
+      enum:
+      - critical
+      - high
+      - moderate
+      - low
+      title: WorkloadImportance
+      type: string
+    ContainerLastStateDetail:
+      description: 'The container''s previous recorded state — in practice its most recent termination — using the same encoding as the container''s current-state fields: a `status` label plus detail fields. It carries the failure verdict while the container is waiting between restarts, when the current state has no reason: for example reason "OOMKilled" with exitCode 137, or reason "StartError" with the failure text in `message`.
+
+
+        `startedAt`/`finishedAt` bound the previous run: a near-zero span means the container failed during startup; a long span points at a runtime termination such as a failed liveness probe.'
+      properties:
+        exitCode:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Exit Code
+        finishedAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Finished At
+        message:
+          default: ''
+          title: Message
+          type: string
+        reason:
+          default: ''
+          title: Reason
+          type: string
+        startedAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Started At
+        status:
+          $ref: '#/components/schemas/ContainerStatus'
+      required:
+      - status
+      title: ContainerLastStateDetail
+      type: object
+    RelatedEntitiesResponse:
+      description: Response containing related entities.
+      properties:
+        count:
+          default: 0
+          description: Total number of related entities
+          title: Count
+          type: integer
+        data:
+          description: List of related entities
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/RelatedItem'
+            - $ref: '#/components/schemas/RelatedItemID'
+          title: Data
+          type: array
+      title: RelatedEntitiesResponse
+      type: object
+    UpdateSettingsRequest:
+      description: Request to update runtime settings for a workload.
+      properties:
+        runtime:
+          $ref: '#/components/schemas/WorkloadRuntime'
+          description: Runtime configuration to apply to the workload
+      required:
+      - runtime
+      title: UpdateSettingsRequest
+      type: object
+    ResourcePermissions:
+      anyOf:
+      - items:
+          $ref: '#/components/schemas/ResourcePermission'
+        type: array
+      - items:
+          $ref: '#/components/schemas/ANY_PERMISSION'
+        type: array
+    Tags:
+      items:
+        $ref: '#/components/schemas/TagInfo'
+      type: array
+    SharedRole:
+      description: 'Represents a recipient (user, group, organization, or external application) with
+
+        access to an entity.
+
+
+        This model is used for listing and managing access control on shared resources,
+
+        providing information about who has access and what role they have.'
+      properties:
+        id:
+          description: The identifier of the recipient.
+          title: Id
+          type: string
+        name:
+          description: The name of the recipient.
+          title: Name
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: The type of the recipient.
+      required:
+      - id
+      - name
+      - shareRecipientType
+      - role
+      title: SharedRole
+      type: object
+    EnclaveSelectionPolicy:
+      enum:
+      - availability
+      - manual
+      title: EnclaveSelectionPolicy
+      type: string
+    ReplacementHistoryListResponse:
+      description: Response model for listing replacement history of a workload.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: Count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/Replacement'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: Previous
+        totalCount:
+          description: The total number of records.
+          title: Totalcount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ReplacementHistoryListResponse
+      type: object
+    RouteAuth:
+      description: "Authentication applied to a workload route.\n\n- ``required``: unauthenticated requests are rejected.\n- ``optional``: authenticated when an ``Authorization`` header is present, otherwise passed\n  through without an authentication attempt.\n- ``disabled``: no authentication is ever attempted."
+      enum:
+      - required
+      - optional
+      - disabled
+      title: RouteAuth
+      type: string
+    CodeRef:
+      properties:
+        datarobot:
+          $ref: '#/components/schemas/DataRobotCodeRef'
+        provider:
+          const: datarobot
+          default: datarobot
+          title: Provider
+          type: string
+        type:
+          const: datarobot
+          default: datarobot
+          title: Type
+          type: string
+      required:
+      - datarobot
+      title: CodeRef
+      type: object
+    ReplicaDetail:
+      properties:
+        address:
+          title: Address
+          type: string
+        conditions:
+          items:
+            $ref: '#/components/schemas/ReplicaConditionDetail'
+          title: Conditions
+          type: array
+        containers:
+          items:
+            $ref: '#/components/schemas/ContainerStatusDetail'
+          title: Containers
+          type: array
+        name:
+          title: Name
+          type: string
+        nodeAddress:
+          title: Nodeaddress
+          type: string
+        startedAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Startedat
+        status:
+          $ref: '#/components/schemas/ReplicaPhase'
+      required:
+      - name
+      - status
+      - address
+      - nodeAddress
+      - startedAt
+      - conditions
+      - containers
+      title: ReplicaDetail
+      type: object
+    TagInfo:
+      properties:
+        id:
+          description: Unique identifier of the tag
+          title: Id
+          type: string
+        name:
+          description: Name of the tag
+          title: Name
+          type: string
+        value:
+          description: Value of the tag
+          title: Value
+          type: string
+      required:
+      - id
+      - name
+      - value
+      title: TagInfo
+      type: object
+    ReplacementStatus:
+      description: Statuses for workload replacement process.
+      enum:
+      - unknown
+      - submitted
+      - initializing
+      - staged
+      - promoting
+      - canceling
+      - completed
+      - errored
+      - cancelled
+      - finalizing
+      title: ReplacementStatus
+      type: string
+    RequestStats:
+      description: Request statistics summary.
+      properties:
+        concurrentRequests:
+          default: 0
+          description: Number of concurrent requests
+          title: Concurrentrequests
+          type: integer
+        errorRate:
+          default: 0.0
+          description: Error rate percentage
+          title: Errorrate
+          type: number
+        errorRates:
+          description: Error rates over the last 7 time periods
+          items:
+            type: integer
+          title: Errorrates
+          type: array
+        lastRequestAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp of the last request
+          title: Lastrequestat
+        requestRates:
+          description: Request rates over the last 7 time periods
+          items:
+            type: integer
+          title: Requestrates
+          type: array
+        responseTime:
+          default: 0
+          description: Average response time in milliseconds
+          title: Responsetime
+          type: integer
+        totalRequests:
+          default: 0
+          description: Total number of requests
+          title: Totalrequests
+          type: integer
+      title: RequestStats
+      type: object
+    Placement:
+      description: 'Describes the single Enclave a workload is currently running on.
+
+
+        This value is populated by the platform and is read-only for API callers.
+
+        While ``runtime.enclaves`` expresses the requested Enclave, this schema
+
+        reports the resolved one.'
+      properties:
+        enclave:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the Enclave the workload runs on.
+          title: Enclave
+        enclaveId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the Enclave.
+          title: Enclave ID
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Region the Enclave is deployed in.
+          title: Region
+      title: Placement
+      type: object
+    WorkloadFormatted:
+      description: 'API representation of a workload.
+
+        This is the formatted version returned to clients, excluding internal fields
+
+        and including computed properties like permissions and statistics.'
+      properties:
+        artifact:
+          anyOf:
+          - $ref: '#/components/schemas/ArtifactInfoFormatted'
+          - type: 'null'
+          description: Basic information about the currently active artifact for this workload
+          title: Artifact
+        artifactId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the currently active artifact for this workload
+          title: Artifact ID
+        createdAt:
+          description: Timestamp of when the entity was created
+          format: date-time
+          title: Created At
+          type: string
+        creator:
+          anyOf:
+          - $ref: '#/components/schemas/UserData'
+          - type: 'null'
+          description: Owner user details including ID, username and email
+          title: Creator
+        deployedImages:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          description: Container name to the image URI currently serving traffic, from the active proton. Read the protons for per-proton values — during a replacement the candidate runs a different image. Null when no proton is active, or when it predates this.
+          title: Deployed Images
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          description: Workload description
+          title: Description
+        endpoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workload endpoint URL
+          title: Endpoint
+        id:
+          description: Unique identifier of the entity
+          title: ID
+          type: string
+        importance:
+          $ref: '#/components/schemas/WorkloadImportance'
+          default: low
+          description: Workload importance level. Draft workloads (backed by a draft artifact) carry an 8-hour TTL and are auto-terminated after that period.
+          title: Importance
+        lastResponse:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp of the last response received from this workload
+          title: Last Response Time
+        liveReplicas:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of live replicas currently running for this workload
+          title: Live Replicas
+        name:
+          description: Name of the entity
+          title: Name
+          type: string
+        owners:
+          description: List of workload owners
+          items:
+            $ref: '#/components/schemas/UserData'
+          title: Owners
+          type: array
+        permissions:
+          $ref: '#/components/schemas/ResourcePermissions'
+          description: User permissions for this workload
+          title: Permissions
+        placements:
+          description: Enclaves this workload actually runs on, as reported by the scheduler. Empty until it has been scheduled. Read-only.
+          items:
+            $ref: '#/components/schemas/Placement'
+          readOnly: true
+          title: Placements
+          type: array
+        protonId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the currently active proton for this workload
+          title: Proton ID
+        replacement:
+          anyOf:
+          - $ref: '#/components/schemas/WorkloadReplacementFormatted'
+          - type: 'null'
+          description: Information about an active replacement process for this workload, if any
+          title: Replacement
+        requestStats:
+          anyOf:
+          - $ref: '#/components/schemas/RequestStats'
+          - type: 'null'
+          description: Request statistics for this workload
+          title: Request Stats
+        runtime:
+          $ref: '#/components/schemas/WorkloadRuntime'
+          description: Runtime configuration sourced from the current proton
+          title: Runtime
+        status:
+          $ref: '#/components/schemas/WorkloadStatus'
+          default: unknown
+          description: Current workload status
+          title: Status
+        tags:
+          $ref: '#/components/schemas/Tags'
+          description: Tags associated with this workload
+          title: Tags
+        type:
+          $ref: '#/components/schemas/ArtifactType'
+          default: service
+          description: Workload artifact type
+          title: Type
+        updatedAt:
+          description: Timestamp of when the entity was last updated
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      title: WorkloadFormatted
+      type: object
+    AgentTokenUsageStats:
+      description: 'Aggregated token counts for an agent workload over the stats period.
+
+
+        Token counts only; no cost figure is reported.'
+      properties:
+        inputTokens:
+          default: 0
+          description: Total input (prompt) tokens consumed
+          title: Input Tokens
+          type: integer
+        outputTokens:
+          default: 0
+          description: Total output (completion) tokens generated
+          title: Output Tokens
+          type: integer
+        sessionCount:
+          default: 0
+          description: Number of sessions counted in the period
+          title: Session Count
+          type: integer
+      title: AgentTokenUsageStats
+      type: object
+    GeneratedDockerfile:
+      description: System generates a Dockerfile from execution environment metadata.
+      properties:
+        entrypoint:
+          description: Entrypoint baked into the generated Dockerfile CMD (e.g. ["python", "app.py"]).
+          items:
+            type: string
+          minItems: 1
+          title: Entrypoint
+          type: array
+        executionEnvironmentId:
+          description: Execution environment that executionEnvironmentVersionId belongs to. A version from a different execution environment is rejected.
+          title: Execution Environment ID
+          type: string
+        executionEnvironmentVersionId:
+          description: Execution environment version that determines the base Docker image, via its source Docker image URI or, failing that, its image ID.
+          title: Execution Environment Version ID
+          type: string
+        source:
+          const: generated
+          default: generated
+          title: Source
+          type: string
+      required:
+      - executionEnvironmentId
+      - executionEnvironmentVersionId
+      - entrypoint
+      title: GeneratedDockerfile
+      type: object
+    ProtonRequestStats:
+      description: Proton request statistics with time period.
+      properties:
+        agent:
+          anyOf:
+          - $ref: '#/components/schemas/AgentStats'
+          - type: 'null'
+          description: Agent-specific statistics. Only set for workloads running an `agent` artifact.
+        metrics:
+          $ref: '#/components/schemas/RequestMetrics'
+          description: Request metrics
+        period:
+          anyOf:
+          - $ref: '#/components/schemas/Period'
+          - type: 'null'
+          description: Time period
+      title: ProtonRequestStats
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

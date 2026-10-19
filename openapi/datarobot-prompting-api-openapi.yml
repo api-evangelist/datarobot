@@ -1,0 +1,2532 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Prompting API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: The following endpoints outline how to manage prompts.
+  name: Prompting
+paths:
+  /api/v2/genai/chatPrompts/:
+    get:
+      description: List chat prompts.
+      operationId: list_chat_prompts_chatPrompts__get
+      parameters:
+      - description: Only retrieve the chat prompts associated with this playground ID.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the chat prompts associated with this playground ID.
+          title: playgroundId
+      - description: Only retrieve the chat prompts associated with this LLM blueprint ID. If specified, will retrieve the chat prompts for the oldest chat in this LLM blueprint.
+        in: query
+        name: llmBlueprintId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the chat prompts associated with this LLM blueprint ID. If specified, will retrieve the chat prompts for the oldest chat in this LLM blueprint.
+          title: llmBlueprintId
+      - description: Only retrieve the chat prompts associated with this chat ID.
+        in: query
+        name: chatId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the chat prompts associated with this chat ID.
+          title: chatId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListChatPromptsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List chat prompts
+      tags:
+      - Prompting
+    post:
+      description: Request the execution of a new prompt within a chat or an LLM blueprint.
+      operationId: create_chat_prompt_chatPrompts__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatPromptRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatPromptResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create chat prompt
+      tags:
+      - Prompting
+  /api/v2/genai/chatPrompts/{chatPromptId}/:
+    delete:
+      description: Delete an existing chat prompt.
+      operationId: delete_chat_prompt_chatPrompts__chatPromptId___delete
+      parameters:
+      - description: The ID of the chat prompt to delete.
+        in: path
+        name: chatPromptId
+        required: true
+        schema:
+          description: The ID of the chat prompt to delete.
+          title: chatPromptId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete chat prompt by chat prompt ID
+      tags:
+      - Prompting
+    get:
+      description: Retrieve an existing chat prompt.
+      operationId: get_chat_prompt_chatPrompts__chatPromptId___get
+      parameters:
+      - description: The ID of the chat prompt to retrieve.
+        in: path
+        name: chatPromptId
+        required: true
+        schema:
+          description: The ID of the chat prompt to retrieve.
+          title: chatPromptId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatPromptResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve chat prompt by chat prompt ID
+      tags:
+      - Prompting
+    patch:
+      description: Edit an existing chat prompt.
+      operationId: update_chat_prompt_data_chatPrompts__chatPromptId___patch
+      parameters:
+      - description: The ID of the chat prompt to edit.
+        in: path
+        name: chatPromptId
+        required: true
+        schema:
+          description: The ID of the chat prompt to edit.
+          title: chatPromptId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditChatPromptRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatPromptResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit chat prompt by chat prompt ID
+      tags:
+      - Prompting
+  /api/v2/genai/chats/:
+    get:
+      description: List chats.
+      operationId: list_chats_chats__get
+      parameters:
+      - description: Only retrieve the chats associated with this LLM blueprint ID.
+        in: query
+        name: llmBlueprintId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the chats associated with this LLM blueprint ID.
+          title: llmBlueprintId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Apply this sort order to the results. Valid options are "name" and "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ChatsSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name" and "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListChatsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List chats
+      tags:
+      - Prompting
+    post:
+      description: Create a new chat.
+      operationId: create_chat_chats__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create chat
+      tags:
+      - Prompting
+  /api/v2/genai/chats/{chatId}/:
+    delete:
+      description: Delete an existing chat.
+      operationId: delete_chat_chats__chatId___delete
+      parameters:
+      - description: The ID of the chat to delete.
+        in: path
+        name: chatId
+        required: true
+        schema:
+          description: The ID of the chat to delete.
+          title: chatId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete chat by chat ID
+      tags:
+      - Prompting
+    get:
+      description: Retrieve an existing chat.
+      operationId: get_chat_chats__chatId___get
+      parameters:
+      - description: The ID of the chat to retrieve.
+        in: path
+        name: chatId
+        required: true
+        schema:
+          description: The ID of the chat to retrieve.
+          title: chatId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve chat by chat ID
+      tags:
+      - Prompting
+    patch:
+      description: Edit an existing chat.
+      operationId: edit_chat_chats__chatId___patch
+      parameters:
+      - description: The ID of the chat to edit.
+        in: path
+        name: chatId
+        required: true
+        schema:
+          description: The ID of the chat to edit.
+          title: chatId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditChatRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit chat by chat ID
+      tags:
+      - Prompting
+  /api/v2/genai/comparisonChats/:
+    get:
+      description: List comparison chats.
+      operationId: list_comparison_chats_comparisonChats__get
+      parameters:
+      - description: Only retrieve the comparison chats associated with this playground ID.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the comparison chats associated with this playground ID.
+          title: playgroundId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Apply this sort order to the results. Valid options are "name" and "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ComparisonChatsSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name" and "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListComparisonChatsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List comparison chats
+      tags:
+      - Prompting
+    post:
+      description: Create a new comparison chat.
+      operationId: create_comparison_chat_comparisonChats__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateComparisonChatRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonChatResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create comparison chat
+      tags:
+      - Prompting
+  /api/v2/genai/comparisonChats/{comparisonChatId}/:
+    delete:
+      description: Delete an existing comparison chat.
+      operationId: delete_comparison_chat_comparisonChats__comparisonChatId___delete
+      parameters:
+      - description: The ID of the comparison chat to delete.
+        in: path
+        name: comparisonChatId
+        required: true
+        schema:
+          description: The ID of the comparison chat to delete.
+          title: comparisonChatId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete comparison chat by comparison chat ID
+      tags:
+      - Prompting
+    get:
+      description: Retrieve an existing comparison chat.
+      operationId: get_comparison_chat_comparisonChats__comparisonChatId___get
+      parameters:
+      - description: The ID of the comparison chat to retrieve.
+        in: path
+        name: comparisonChatId
+        required: true
+        schema:
+          description: The ID of the comparison chat to retrieve.
+          title: comparisonChatId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonChatResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve comparison chat by comparison chat ID
+      tags:
+      - Prompting
+    patch:
+      description: Edit an existing comparison chat.
+      operationId: edit_comparison_chat_comparisonChats__comparisonChatId___patch
+      parameters:
+      - description: The ID of the comparison chat to edit.
+        in: path
+        name: comparisonChatId
+        required: true
+        schema:
+          description: The ID of the comparison chat to edit.
+          title: comparisonChatId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditComparisonChatRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonChatResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit comparison chat by comparison chat ID
+      tags:
+      - Prompting
+  /api/v2/genai/comparisonPrompts/:
+    get:
+      description: List the comparison prompts associated with a comparison chat or a set of LLM blueprints.
+      operationId: list_comparison_prompts_comparisonPrompts__get
+      parameters:
+      - description: Only retrieve the comparison prompts associated with the specified LLM blueprint IDs. Either this parameter or `comparisonChatId` must be specified, but not both.
+        in: query
+        name: llmBlueprintIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the comparison prompts associated with the specified LLM blueprint IDs. Either this parameter or `comparisonChatId` must be specified, but not both.
+          title: llmBlueprintIds
+      - description: Only retrieve the comparison prompts associated with the specified comparison chat ID. Either this parameter or `llmBlueprintIds` must be specified, but not both.
+        in: query
+        name: comparisonChatId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the comparison prompts associated with the specified comparison chat ID. Either this parameter or `llmBlueprintIds` must be specified, but not both.
+          title: comparisonChatId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListComparisonPromptsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List comparison prompts
+      tags:
+      - Prompting
+    post:
+      description: Request the execution of a new comparison prompt.
+      operationId: create_comparison_prompt_comparisonPrompts__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateComparisonPromptRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonPromptResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create comparison prompt
+      tags:
+      - Prompting
+  /api/v2/genai/comparisonPrompts/{comparisonPromptId}/:
+    delete:
+      description: Delete an existing comparison prompt.
+      operationId: delete_comparison_prompt_comparisonPrompts__comparisonPromptId___delete
+      parameters:
+      - description: The ID of the comparison prompt to delete.
+        in: path
+        name: comparisonPromptId
+        required: true
+        schema:
+          description: The ID of the comparison prompt to delete.
+          title: comparisonPromptId
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete comparison prompt by comparison prompt ID
+      tags:
+      - Prompting
+    get:
+      description: Retrieve an existing comparison prompt.
+      operationId: get_comparison_prompt_comparisonPrompts__comparisonPromptId___get
+      parameters:
+      - description: The ID of the comparison prompt to retrieve.
+        in: path
+        name: comparisonPromptId
+        required: true
+        schema:
+          description: The ID of the comparison prompt to retrieve.
+          title: comparisonPromptId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonPromptResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve comparison prompt by comparison prompt ID
+      tags:
+      - Prompting
+    patch:
+      description: Edit an existing comparison prompt. Editing may involve adding new prompt result metadata or executing this comparison prompt on new LLM blueprints.
+      operationId: update_comparison_prompt_comparisonPrompts__comparisonPromptId___patch
+      parameters:
+      - description: The ID of the comparison prompt to edit.
+        in: path
+        name: comparisonPromptId
+        required: true
+        schema:
+          description: The ID of the comparison prompt to edit.
+          title: comparisonPromptId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditComparisonPromptRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                title: Response Update Comparison Prompt Comparisonprompts  Comparisonpromptid   Patch
+                type: string
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit comparison prompt by comparison prompt ID
+      tags:
+      - Prompting
+  /api/v2/genai/promptTemplates/:
+    get:
+      description: List prompt templates for the user with optional filtering and sorting.
+      operationId: list_prompt_templates_promptTemplates__get
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Apply this sort order to the results. Valid options are "name", "description", "creationDate", "lastUpdateDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/PromptTemplatesSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "description", "creationDate", "lastUpdateDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: Only retrieve prompt templates with names matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve prompt templates with names matching the search query.
+          title: search
+      - description: Retrieve only the prompt templates created by these users.
+        in: query
+        name: creationUserIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Retrieve only the prompt templates created by these users.
+          title: creationUserIds
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPromptTemplatesResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List prompt templates
+      tags:
+      - Prompting
+    post:
+      description: Create a new prompt template.
+      operationId: create_prompt_template_promptTemplates__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromptTemplateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptTemplateResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create prompt template
+      tags:
+      - Prompting
+  /api/v2/genai/promptTemplates/versions/:
+    get:
+      description: List prompt templates versions for the user with optional filtering.
+      operationId: list_prompt_templates_versions_promptTemplates_versions__get
+      parameters:
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Retrieve only versions with matching prompt templates ids.
+        in: query
+        name: promptTemplatesIds
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Retrieve only versions with matching prompt templates ids.
+          title: promptTemplatesIds
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPromptTemplateVersionsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List prompt templates versions
+      tags:
+      - Prompting
+  /api/v2/genai/promptTemplates/{promptTemplateId}/:
+    get:
+      description: Get prompt template by ID.
+      operationId: get_prompt_template_promptTemplates__promptTemplateId___get
+      parameters:
+      - description: The ID of the prompt template to retrieve.
+        in: path
+        name: promptTemplateId
+        required: true
+        schema:
+          description: The ID of the prompt template to retrieve.
+          title: promptTemplateId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptTemplateResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Get prompt template by prompt template ID
+      tags:
+      - Prompting
+  /api/v2/genai/promptTemplates/{promptTemplateId}/versions/:
+    get:
+      description: List versions for a prompt template with pagination.
+      operationId: list_prompt_template_versions_promptTemplates__promptTemplateId__versions__get
+      parameters:
+      - description: The ID of the prompt template to retrieve.
+        in: path
+        name: promptTemplateId
+        required: true
+        schema:
+          description: The ID of the prompt template to retrieve.
+          title: promptTemplateId
+          type: string
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPromptTemplateVersionsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List prompt template versions by prompt template ID
+      tags:
+      - Prompting
+    post:
+      description: Create a new prompt template version.
+      operationId: create_prompt_template_version_promptTemplates__promptTemplateId__versions__post
+      parameters:
+      - description: The ID of the prompt template to create a version for.
+        in: path
+        name: promptTemplateId
+        required: true
+        schema:
+          description: The ID of the prompt template to create a version for.
+          title: promptTemplateId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromptTemplateVersionRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptTemplateVersionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create prompt template version by prompt template ID
+      tags:
+      - Prompting
+  /api/v2/genai/promptTemplates/{promptTemplateId}/versions/{promptTemplateVersionId}/:
+    get:
+      description: Get prompt template version by ID.
+      operationId: get_prompt_template_version_promptTemplates__promptTemplateId__versions__promptTemplateVersionId___get
+      parameters:
+      - description: The ID of the prompt template version to retrieve.
+        in: path
+        name: promptTemplateVersionId
+        required: true
+        schema:
+          description: The ID of the prompt template version to retrieve.
+          title: promptTemplateVersionId
+          type: string
+      - description: The ID of the prompt template to retrieve.
+        in: path
+        name: promptTemplateId
+        required: true
+        schema:
+          description: The ID of the prompt template to retrieve.
+          title: promptTemplateId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptTemplateVersionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Get prompt template version by prompt template ID
+      tags:
+      - Prompting
+components:
+  schemas:
+    RetrievalMode:
+      description: Retrieval modes for vector databases.
+      enum:
+      - similarity
+      - maximal_marginal_relevance
+      title: RetrievalMode
+      type: string
+    ListChatPromptsResponse:
+      description: Paginated list of chat prompts.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ChatPromptResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListChatPromptsResponse
+      type: object
+    ProviderGuardStage:
+      description: The data stage where the provider guard metric is acting upon.
+      enum:
+      - prompt
+      - response
+      title: ProviderGuardStage
+      type: string
+    CreatePromptTemplateRequest:
+      description: The body of the Create PromptTemplate request.
+      properties:
+        description:
+          description: New prompt template description.
+          maxLength: 5000
+          title: description
+          type: string
+        name:
+          description: New prompt template name.
+          maxLength: 5000
+          title: name
+          type: string
+      required:
+      - name
+      - description
+      title: CreatePromptTemplateRequest
+      type: object
+    EditComparisonChatRequest:
+      description: The body of the "Edit comparison chat" request.
+      properties:
+        name:
+          description: The new name of the comparison chat.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+      required:
+      - name
+      title: EditComparisonChatRequest
+      type: object
+    PromptTemplatesSortQueryParam:
+      description: Sort order values for listing prompt templates.
+      enum:
+      - name
+      - -name
+      - description
+      - -description
+      - creationDate
+      - -creationDate
+      - lastUpdateDate
+      - -lastUpdateDate
+      title: PromptTemplatesSortQueryParam
+      type: string
+    EditChatPromptRequest:
+      description: The body of the "Update chat prompt" request.
+      properties:
+        customMetrics:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MetricMetadata'
+            type: array
+          - type: 'null'
+          description: The list of metric results to add to the chat prompt.
+          title: customMetrics
+        feedbackMetadata:
+          anyOf:
+          - $ref: '#/components/schemas/FeedbackMetadata'
+          - type: 'null'
+          description: The feedback metadata to add to the chat prompt.
+      title: EditChatPromptRequest
+      type: object
+    ChatsSortQueryParam:
+      description: Sort order values for listing chats.
+      enum:
+      - name
+      - -name
+      - creationDate
+      - -creationDate
+      title: ChatsSortQueryParam
+      type: string
+    ListComparisonChatsResponse:
+      description: Paginated list of comparison chats.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ComparisonChatResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListComparisonChatsResponse
+      type: object
+    VectorDatabaseSettings:
+      description: Vector database retrieval settings.
+      properties:
+        addNeighborChunks:
+          default: false
+          description: Add neighboring chunks to those that the similarity search retrieves, such that when selected, search returns i, i-1, and i+1.
+          title: addNeighborChunks
+          type: boolean
+        maxDocumentsRetrievedPerPrompt:
+          anyOf:
+          - maximum: 10.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of chunks to retrieve from the vector database.
+          title: maxDocumentsRetrievedPerPrompt
+        maxTokens:
+          anyOf:
+          - maximum: 51200.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of tokens to retrieve from the vector database.
+          title: maxTokens
+        maximalMarginalRelevanceLambda:
+          default: 0.5
+          description: Adjust the retrieval of chunks when using maximal marginal relevance to favor diversity (0.0) or similarity (1.0).
+          maximum: 1.0
+          minimum: 0.0
+          title: maximalMarginalRelevanceLambda
+          type: number
+        retrievalMode:
+          $ref: '#/components/schemas/RetrievalMode'
+          default: similarity
+          description: The retrieval mode to use. Similarity search or maximal marginal relevance.
+          title: retrievalMode
+        retriever:
+          $ref: '#/components/schemas/VectorDatabaseRetrievers'
+          default: SINGLE_LOOKUP_RETRIEVER
+          title: retriever
+      title: VectorDatabaseSettings
+      type: object
+    CustomModelChatLLMSettings:
+      additionalProperties: false
+      description: The settings that are available for custom model LLMs used via chat completion interface.
+      properties:
+        customModelId:
+          description: The ID of the custom model used via chat completion interface.
+          title: customModelId
+          type: string
+        customModelVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model version used via chat completion interface.
+          title: customModelVersionId
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+      required:
+      - customModelId
+      title: CustomModelChatLLMSettings
+      type: object
+    PromptTemplateResponse:
+      description: API response object for a single prompt template.
+      properties:
+        creationDate:
+          description: Prompt template creation date (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: ID of the user who created this prompt template.
+          title: creationUserId
+          type: string
+        description:
+          description: Prompt template description.
+          title: description
+          type: string
+        id:
+          description: Prompt template ID.
+          title: id
+          type: string
+        lastUpdateDate:
+          description: Date of the most recent update of this prompt template (ISO 8601 formatted).
+          format: date-time
+          title: lastUpdateDate
+          type: string
+        lastUpdateUserId:
+          description: ID of the user that made the most recent update to this prompt template.
+          title: lastUpdateUserId
+          type: string
+        name:
+          description: Prompt template name.
+          title: name
+          type: string
+        userName:
+          description: Name of the user who created this prompt template.
+          title: userName
+          type: string
+        versionCount:
+          description: The number of versions associated with this prompt template.
+          title: versionCount
+          type: integer
+      required:
+      - id
+      - name
+      - description
+      - creationDate
+      - creationUserId
+      - lastUpdateDate
+      - lastUpdateUserId
+      - userName
+      - versionCount
+      title: PromptTemplateResponse
+      type: object
+    EditComparisonPromptRequest:
+      description: The body of the "Edit comparison prompt" request.
+      properties:
+        additionalLLMBlueprintIds:
+          default: []
+          description: The list of additional LLM blueprint IDs that should execute this comparison prompt.
+          items:
+            type: string
+          maxItems: 10
+          title: additionalLLMBlueprintIds
+          type: array
+        feedbackResult:
+          anyOf:
+          - $ref: '#/components/schemas/ComparisonPromptFeedbackResult'
+          - type: 'null'
+          description: The feedback information to add to the comparison prompt.
+      title: EditComparisonPromptRequest
+      type: object
+    ExecutionStatus:
+      description: Job and entity execution status.
+      enum:
+      - NEW
+      - RUNNING
+      - COMPLETED
+      - REQUIRES_USER_INPUT
+      - SKIPPED
+      - ERROR
+      title: ExecutionStatus
+      type: string
+    CreateComparisonPromptRequest:
+      description: The body of the "Create comparison prompt" request.
+      properties:
+        comparisonChatId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the comparison chat to associate the comparison prompt with.
+          title: comparisonChatId
+        llmBlueprintIds:
+          description: The list of LLM blueprint IDs that should execute the comparison prompt.
+          items:
+            type: string
+          maxItems: 10
+          title: llmBlueprintIds
+          type: array
+        metadataFilter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The metadata dict that defines filters that the retrieved documents need to match.
+          title: metadataFilter
+        text:
+          description: The text of the user prompt.
+          maxLength: 5000000
+          title: text
+          type: string
+      required:
+      - llmBlueprintIds
+      - text
+      title: CreateComparisonPromptRequest
+      type: object
+    HTTPValidationErrorResponse:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: detail
+          type: array
+      title: HTTPValidationErrorResponse
+      type: object
+    CommonLLMSettings:
+      additionalProperties: true
+      description: The settings that are available for all non-custom LLMs.
+      properties:
+        maxCompletionLength:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Maximum number of tokens allowed in the chat completion. Use this value to, for example, control costs on token-based charges or manage response length for chat text limits.
+          title: maxCompletionLength
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+      title: CommonLLMSettings
+      type: object
+    ComparisonChatsSortQueryParam:
+      description: Sort order values for listing comparison chats.
+      enum:
+      - name
+      - -name
+      - creationDate
+      - -creationDate
+      title: ComparisonChatsSortQueryParam
+      type: string
+    ChatResponse:
+      description: Chat object formatted for API output.
+      properties:
+        creationDate:
+          description: The creation date of the chat (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the chat.
+          title: creationUserId
+          type: string
+        id:
+          description: The ID of the chat.
+          title: id
+          type: string
+        isFrozen:
+          description: Whether the chat is frozen (e.g., an evaluation chat). If the chat is frozen, it does not accept new prompts.
+          title: isFrozen
+          type: boolean
+        llmBlueprintId:
+          description: The ID of the LLM blueprint associated with the chat.
+          title: llmBlueprintId
+          type: string
+        name:
+          description: The name of the chat.
+          title: name
+          type: string
+        promptsCount:
+          description: The number of chat prompts in the chat.
+          title: promptsCount
+          type: integer
+        warning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warning about the contents of the chat.
+          title: warning
+      required:
+      - id
+      - name
+      - llmBlueprintId
+      - isFrozen
+      - warning
+      - creationDate
+      - creationUserId
+      - promptsCount
+      title: ChatResponse
+      type: object
+    CreatePromptTemplateVersionRequest:
+      description: The body of the Create PromptTemplateVersion request.
+      properties:
+        commitComment:
+          description: Description of changes for this prompt template version.
+          maxLength: 5000
+          title: commitComment
+          type: string
+        promptText:
+          description: The text of the prompt with variables enclosed in double curly brackets.
+          maxLength: 5000000
+          title: promptText
+          type: string
+        variables:
+          description: Variables for this prompt.
+          items:
+            $ref: '#/components/schemas/Variable'
+          maxItems: 100
+          title: variables
+          type: array
+      required:
+      - promptText
+      - commitComment
+      - variables
+      title: CreatePromptTemplateVersionRequest
+      type: object
+    ResultMetadata:
+      description: The additional information about prompt execution results.
+      properties:
+        blockedResultText:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The message to replace the result text if it is non empty, which represents a blocked response.
+          title: blockedResultText
+        cost:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The estimated cost of executing the prompt.
+          title: cost
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message for the prompt (in case of an errored prompt).
+          title: errorMessage
+        estimatedDocsTokenCount:
+          default: 0
+          description: The estimated number of tokens in the documents retrieved from the vector database.
+          title: estimatedDocsTokenCount
+          type: integer
+        feedbackResult:
+          $ref: '#/components/schemas/FeedbackResult'
+          description: The user feedback associated with the prompt.
+        finalPrompt:
+          anyOf:
+          - type: string
+          - items:
+              additionalProperties:
+                anyOf:
+                - type: string
+                - items:
+                    additionalProperties: true
+                    type: object
+                  type: array
+                - type: 'null'
+              type: object
+            type: array
+          - items:
+              additionalProperties:
+                anyOf:
+                - type: string
+                - items:
+                    additionalProperties: true
+                    type: object
+                  type: array
+              type: object
+            type: array
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - items:
+                  additionalProperties:
+                    type: string
+                  type: object
+                type: array
+            type: object
+          - type: 'null'
+          description: The final representation of the prompt that was submitted to the LLM.
+          title: finalPrompt
+        inputTokenCount:
+          default: 0
+          description: The number of tokens in the LLM input. This number includes the tokens in the system prompt, the user prompt, the chat history (for history-aware chats) and the documents retrieved from the vector database (in case of using a vector database).
+          title: inputTokenCount
+          type: integer
+        latencyMilliseconds:
+          description: The latency of the LLM response (in milliseconds).
+          title: latencyMilliseconds
+          type: integer
+        metrics:
+          default: []
+          description: The evaluation metrics for the prompt.
+          items:
+            $ref: '#/components/schemas/MetricMetadata'
+          title: metrics
+          type: array
+        outputTokenCount:
+          default: 0
+          description: The number of tokens in the LLM output.
+          title: outputTokenCount
+          type: integer
+        providerLLMGuards:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProviderGuardsMetadata'
+            type: array
+          - type: 'null'
+          description: The provider llm guards metadata.
+          title: providerLLMGuards
+        totalTokenCount:
+          default: 0
+          description: The combined number of tokens in the LLM input and output.
+          title: totalTokenCount
+          type: integer
+      required:
+      - latencyMilliseconds
+      title: ResultMetadata
+      type: object
+    ListPromptTemplatesResponse:
+      description: Paginated list of prompt templates.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/PromptTemplateResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListPromptTemplatesResponse
+      type: object
+    ChatPromptResponse:
+      description: API response object for a single chat prompt.
+      properties:
+        chatContextId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the chat context for this prompt.
+          title: chatContextId
+        chatId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the chat this chat prompt belongs to.
+          title: chatId
+        chatPromptIdsIncludedInHistory:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The list of IDs of the chat prompts included in this prompt's history.
+          title: chatPromptIdsIncludedInHistory
+        citations:
+          description: The list of relevant vector database citations (in case of using a vector database).
+          items:
+            $ref: '#/components/schemas/Citation'
+          title: citations
+          type: array
+        confidenceScores:
+          anyOf:
+          - $ref: '#/components/schemas/ConfidenceScores'
+          - type: 'null'
+          description: The confidence scores that measure the similarity between the prompt context and the prompt completion.
+        creationDate:
+          description: The creation date of the chat prompt (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the chat prompt.
+          title: creationUserId
+          type: string
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the chat prompt.
+        id:
+          description: The ID of the chat prompt.
+          title: id
+          type: string
+        llmBlueprintId:
+          description: The ID of the LLM blueprint the chat prompt belongs to.
+          title: llmBlueprintId
+          type: string
+        llmId:
+          description: The ID of the LLM used by the chat prompt.
+          title: llmId
+          type: string
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: A key/value dictionary of LLM settings.
+          title: llmSettings
+        metadataFilter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The metadata dictionary defining the filters that documents must match in order to be retrieved.
+          title: metadataFilter
+        resultMetadata:
+          anyOf:
+          - $ref: '#/components/schemas/ResultMetadata'
+          - type: 'null'
+          description: The additional information about the chat prompt results.
+        resultText:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The text of the prompt completion.
+          title: resultText
+        text:
+          description: The text of the user prompt.
+          title: text
+          type: string
+        userName:
+          description: The name of the user that created the chat prompt.
+          title: userName
+          type: string
+        vectorDatabaseFamilyId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database family this chat prompt belongs to.
+          title: vectorDatabaseFamilyId
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database linked to this LLM blueprint.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettings'
+          - type: 'null'
+          description: A key/value dictionary of vector database settings.
+      required:
+      - llmId
+      - id
+      - text
+      - llmBlueprintId
+      - creationDate
+      - creationUserId
+      - userName
+      - resultMetadata
+      - resultText
+      - confidenceScores
+      - citations
+      - executionStatus
+      title: ChatPromptResponse
+      type: object
+    VectorDatabaseRetrievers:
+      description: The method used to retrieve relevant chunks from the vector database.
+      enum:
+      - SINGLE_LOOKUP_RETRIEVER
+      - CONVERSATIONAL_RETRIEVER
+      - MULTI_STEP_RETRIEVER
+      title: VectorDatabaseRetrievers
+      type: string
+    ConfidenceScores:
+      description: API response object for confidence scores.
+      properties:
+        bleu:
+          description: BLEU score.
+          title: bleu
+          type: number
+        meteor:
+          description: METEOR score.
+          title: meteor
+          type: number
+        rouge:
+          description: ROUGE score.
+          title: rouge
+          type: number
+      required:
+      - rouge
+      - meteor
+      - bleu
+      title: ConfidenceScores
+      type: object
+    FeedbackSentiment:
+      description: The sentiment of the feedback.
+      enum:
+      - '1'
+      - '0'
+      title: FeedbackSentiment
+      type: string
+    EditChatRequest:
+      description: The body of the "Edit chat" request.
+      properties:
+        name:
+          description: The new name of the chat.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+      required:
+      - name
+      title: EditChatRequest
+      type: object
+    ProviderGuardsMetadata:
+      description: Info on the provider guard metrics.
+      properties:
+        name:
+          description: The name of the provider guard metric.
+          title: name
+          type: string
+        satisfyCriteria:
+          description: Whether the configured provider guard metric satisfied its hidden internal guard criteria.
+          title: satisfyCriteria
+          type: boolean
+        stage:
+          $ref: '#/components/schemas/ProviderGuardStage'
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: integer
+          - type: 'null'
+          description: The value of the provider guard metric.
+          title: value
+      required:
+      - satisfyCriteria
+      - name
+      - value
+      - stage
+      title: ProviderGuardsMetadata
+      type: object
+    ListPromptTemplateVersionsResponse:
+      description: Paginated list of prompt template versions.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/PromptTemplateVersionResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListPromptTemplateVersionsResponse
+      type: object
+    CreateComparisonChatRequest:
+      description: The body of the "Create comparison chat" request.
+      properties:
+        name:
+          description: The name of the comparison chat.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+        playgroundId:
+          description: The ID of the playground to associate with the comparison chat.
+          title: playgroundId
+          type: string
+      required:
+      - name
+      - playgroundId
+      title: CreateComparisonChatRequest
+      type: object
+    ComparisonPromptResult:
+      description: API response object for a single comparison prompt result.
+      properties:
+        chatContextId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the chat context for this prompt.
+          title: chatContextId
+        citations:
+          description: The list of relevant vector database citations (in case of using a vector database).
+          items:
+            $ref: '#/components/schemas/Citation'
+          title: citations
+          type: array
+        comparisonPromptResultIdsIncludedInHistory:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The list of IDs of the comparison prompt results included in this prompt's history.
+          title: comparisonPromptResultIdsIncludedInHistory
+        confidenceScores:
+          anyOf:
+          - $ref: '#/components/schemas/ConfidenceScores'
+          - type: 'null'
+          description: The confidence scores that measure the similarity between the prompt context and the prompt completion.
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the comparison prompt by this LLM blueprint.
+        id:
+          description: The ID of the comparison prompt result.
+          title: id
+          type: string
+        llmBlueprintId:
+          description: The ID of the LLM blueprint that produced the result.
+          title: llmBlueprintId
+          type: string
+        resultMetadata:
+          anyOf:
+          - $ref: '#/components/schemas/ResultMetadata'
+          - type: 'null'
+          description: The additional information about the prompt result.
+        resultText:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The text of the prompt completion.
+          title: resultText
+      required:
+      - id
+      - llmBlueprintId
+      - resultText
+      - confidenceScores
+      - citations
+      - executionStatus
+      title: ComparisonPromptResult
+      type: object
+    FeedbackMetadata:
+      description: Prompt feedback metadata.
+      properties:
+        feedback:
+          anyOf:
+          - $ref: '#/components/schemas/FeedbackSentiment'
+          - type: 'null'
+          description: The sentiment of the feedback.
+      required:
+      - feedback
+      title: FeedbackMetadata
+      type: object
+    PipelineStage:
+      description: Enum that describes at which stage the metric may be calculated.
+      enum:
+      - prompt_pipeline
+      - response_pipeline
+      title: PipelineStage
+      type: string
+    MetricMetadata:
+      description: Prompt metric metadata.
+      properties:
+        costConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the cost configuration.
+          title: costConfigurationId
+        customModelGuardId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Id of the custom model guard.
+          title: customModelGuardId
+        customModelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the custom model used for the metric.
+          title: customModelId
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the metric computation.
+          title: errorMessage
+        evaluationDatasetConfigurationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the evaluation dataset configuration.
+          title: evaluationDatasetConfigurationId
+        executionStatus:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionStatus'
+          - type: 'null'
+          description: The computation status of the metric.
+        formattedName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The formatted name of the metric.
+          title: formattedName
+        formattedValue:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The formatted value of the metric.
+          title: formattedValue
+        llmIsDeprecated:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the LLM is deprecated and will be removed in a future release.
+          title: llmIsDeprecated
+        name:
+          description: The name of the metric.
+          title: name
+          type: string
+        nemoMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The id of the NeMo Pipeline configuration.
+          title: nemoMetricId
+        ootbMetricId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The id of the OOTB metric configuration.
+          title: ootbMetricId
+        sidecarModelMetricValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the sidecar model validation(in case of using a sidecar model deployment for the metric).
+          title: sidecarModelMetricValidationId
+        stage:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineStage'
+          - type: 'null'
+          description: The stage (prompt or response) that the metric applies to.
+        value:
+          description: The value of the metric.
+          title: value
+      required:
+      - name
+      - value
+      title: MetricMetadata
+      type: object
+    ComparisonPromptResponse:
+      description: ComparisonPrompt object formatted for API output.
+      properties:
+        comparisonChatId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the comparison chat associated with the comparison prompt.
+          title: comparisonChatId
+        creationDate:
+          description: The creation date of the comparison prompt (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the comparison prompt.
+          title: creationUserId
+          type: string
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The execution status of the entire comparison prompt.
+        id:
+          description: The ID of the comparison prompt.
+          title: id
+          type: string
+        metadataFilter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The metadata filters applied to the comparison prompt.
+          title: metadataFilter
+        results:
+          description: The list of comparison prompt results.
+          items:
+            $ref: '#/components/schemas/ComparisonPromptResult'
+          title: results
+          type: array
+        text:
+          description: The text of the user prompt.
+          title: text
+          type: string
+        userName:
+          description: The name of the user that created the comparison prompt.
+          title: userName
+          type: string
+      required:
+      - id
+      - text
+      - results
+      - creationDate
+      - creationUserId
+      - userName
+      - executionStatus
+      title: ComparisonPromptResponse
+      type: object
+    ComparisonPromptFeedbackResult:
+      description: Feedback metadata for a comparison prompt result.
+      properties:
+        comparisonPromptResultId:
+          description: The ID of the comparison prompt result associated with this feedback.
+          title: comparisonPromptResultId
+          type: string
+        feedbackMetadata:
+          $ref: '#/components/schemas/FeedbackMetadata'
+          description: The feedback metadata for the comparison prompt result.
+      required:
+      - comparisonPromptResultId
+      - feedbackMetadata
+      title: ComparisonPromptFeedbackResult
+      type: object
+    CustomModelLLMSettings:
+      additionalProperties: false
+      description: The settings that are available for custom model LLMs.
+      properties:
+        externalLlmContextSize:
+          anyOf:
+          - maximum: 128000.0
+            minimum: 128.0
+            type: integer
+          - type: 'null'
+          default: 4096
+          description: The external LLM's context size, in tokens. This value is only used for pruning documents supplied to the LLM when a vector database is associated with the LLM blueprint. It does not affect the external LLM's actual context size in any way and is not supplied to the LLM.
+          title: externalLlmContextSize
+        systemPrompt:
+          anyOf:
+          - maxLength: 5000000
+            type: string
+          - type: 'null'
+          description: System prompt guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+          title: systemPrompt
+        validationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the custom model LLM.
+          title: validationId
+      title: CustomModelLLMSettings
+      type: object
+    Citation:
+      description: API response object for a single vector database citation.
+      properties:
+        chunkId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The ID of the chunk in the vector database index.
+          title: chunkId
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: LangChain Document metadata information holder.
+          title: metadata
+        page:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The source page number where the citation was found.
+          title: page
+        similarityScore:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The similarity score between the citation and the user prompt.
+          title: similarityScore
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The source of the citation (e.g., a filename in the original dataset).
+          title: source
+        startIndex:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The chunk's start character index in the source document.
+          title: startIndex
+        text:
+          description: The text of the citation.
+          title: text
+          type: string
+      required:
+      - text
+      - source
+      title: Citation
+      type: object
+    ComparisonChatResponse:
+      description: Comparison chat object formatted for API output.
+      properties:
+        creationDate:
+          description: The creation date of the comparison chat (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: The ID of the user that created the comparison chat.
+          title: creationUserId
+          type: string
+        id:
+          description: The ID of the comparison chat.
+          title: id
+          type: string
+        name:
+          description: The name of the comparison chat.
+          title: name
+          type: string
+        playgroundId:
+          description: The ID of the playground associated with the comparison chat.
+          title: playgroundId
+          type: string
+        promptsCount:
+          description: The number of comparison prompts in the comparison chat.
+          title: promptsCount
+          type: integer
+      required:
+      - id
+      - name
+      - playgroundId
+      - creationDate
+      - creationUserId
+      - promptsCount
+      title: ComparisonChatResponse
+      type: object
+    FeedbackResult:
+      description: Prompt feedback included in the result metadata.
+      properties:
+        negativeUserIds:
+          default: []
+          description: The list of user IDs whose feedback is negative.
+          items:
+            type: string
+          title: negativeUserIds
+          type: array
+        positiveUserIds:
+          default: []
+          description: The list of user IDs whose feedback is positive.
+          items:
+            type: string
+          title: positiveUserIds
+          type: array
+      title: FeedbackResult
+      type: object
+    Variable:
+      description: Variable used in prompt template version.
+      properties:
+        description:
+          description: Description of the variable. This is exposed to MCP clients.
+          title: description
+          type: string
+        name:
+          description: Name of the variable.
+          title: name
+          type: string
+        type:
+          default: str
+          description: Type of the variable.
+          title: type
+          type: string
+      required:
+      - name
+      - description
+      title: Variable
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PromptTemplateVersionResponse:
+      description: API response object for a single prompt template version.
+      properties:
+        commitComment:
+          description: Description of changes for this prompt template version.
+          title: commitComment
+          type: string
+        creationDate:
+          description: Prompt template version creation date (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationUserId:
+          description: ID of the user who created this prompt template version.
+          title: creationUserId
+          type: string
+        id:
+          description: Prompt template version ID.
+          title: id
+          type: string
+        promptTemplateId:
+          description: Prompt template ID.
+          title: promptTemplateId
+          type: string
+        promptText:
+          description: The text of the prompt with variables enclosed in double curly brackets.
+          title: promptText
+          type: string
+        userName:
+          description: Name of the user who created this prompt template version.
+          title: userName
+          type: string
+        variables:
+          description: List of variables associated with this prompt template version.
+          items:
+            $ref: '#/components/schemas/Variable'
+          title: variables
+          type: array
+        version:
+          description: Version of this prompt template version.
+          title: version
+          type: integer
+      required:
+      - id
+      - promptTemplateId
+      - promptText
+      - commitComment
+      - version
+      - variables
+      - creationDate
+      - creationUserId
+      - userName
+      title: PromptTemplateVersionResponse
+      type: object
+    ListComparisonPromptsResponse:
+      description: Paginated list of comparison prompts.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ComparisonPromptResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListComparisonPromptsResponse
+      type: object
+    ListChatsResponse:
+      description: Paginated list of chats.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/ChatResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListChatsResponse
+      type: object
+    CreateChatPromptRequest:
+      description: The body of the "Create chat prompt" request.
+      properties:
+        chatId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the chat this prompt belongs to. If LLM and vector database settings are not specified in the request, then the prompt will use the current settings of the chat.
+          title: chatId
+        llmBlueprintId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the LLM blueprint this prompt belongs to. If LLM and vector database settings are not specified in the request, then the prompt will use the current settings of the LLM blueprint.
+          title: llmBlueprintId
+        llmId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, uses this LLM ID for the prompt and updates the settings of the corresponding chat or LLM blueprint to use this LLM ID.
+          title: llmId
+        llmSettings:
+          anyOf:
+          - $ref: '#/components/schemas/CommonLLMSettings'
+          - $ref: '#/components/schemas/CustomModelLLMSettings'
+          - $ref: '#/components/schemas/CustomModelChatLLMSettings'
+          - type: 'null'
+          description: If specified, uses these LLM settings for the prompt and updates the settings of the corresponding chat or LLM blueprint to use these LLM settings.
+          title: llmSettings
+        metadataFilter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The metadata fields to add to the chat prompt.
+          title: metadataFilter
+        text:
+          description: The text of the user prompt.
+          maxLength: 5000000
+          title: text
+          type: string
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, uses this vector database ID for the prompt and updates the settings of the corresponding chat or LLM blueprint to use this vector database ID.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettings'
+          - type: 'null'
+          description: If specified, uses these vector database settings for the prompt and updates the settings of the corresponding chat or LLM blueprint to use these vector database settings.
+      required:
+      - text
+      title: CreateChatPromptRequest
+      type: object
+    CreateChatRequest:
+      description: The body of the "Create chat" request.
+      properties:
+        llmBlueprintId:
+          description: The ID of the LLM blueprint to associate with the chat.
+          title: llmBlueprintId
+          type: string
+        name:
+          description: The name of the chat.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+      required:
+      - name
+      - llmBlueprintId
+      title: CreateChatRequest
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

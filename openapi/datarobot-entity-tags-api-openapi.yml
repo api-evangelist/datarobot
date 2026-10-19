@@ -1,0 +1,242 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Entity Tags API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to configure tags for your entities (e.g., use cases).
+  name: entity_tags
+paths:
+  /api/v2/entityTags/:
+    get:
+      description: Retrieve the list of entity tags.
+      operationId: entityTags_list
+      parameters:
+      - description: The number of records to skip over. Default 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of records to return in the range from 1 to 100. Default 100.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: Returns only Entity Tags with names that match the given string.
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+      - description: Returns only Entity Tags with entityType that match the given type.
+        in: query
+        name: entityType
+        required: false
+        schema:
+          enum:
+          - experiment_container
+          type: string
+      - description: The order in which to return entity tags.
+        in: query
+        name: orderBy
+        required: true
+        schema:
+          default: id
+          enum:
+          - -entityType
+          - -id
+          - -name
+          - entityType
+          - id
+          - name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityTagListResponse'
+          description: Entity tags retrieved successfully.
+        '403':
+          description: User does not have access to this functionality.
+      summary: Retrieve the list of entity tags
+      tags:
+      - entity_tags
+      x-versionadded: v2.36
+    post:
+      description: Look up an entity tag.
+      operationId: entityTags_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityTagCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityTagResponse'
+          description: The entity tag.
+        '201':
+          description: The tag was successfully created.
+        '422':
+          description: Unprocessable Entity
+      summary: Get entity tag
+      tags:
+      - entity_tags
+      x-versionadded: v2.36
+  /api/v2/entityTags/{entityTagId}/:
+    delete:
+      description: Delete an entity tag.
+      operationId: entityTags_delete
+      parameters:
+      - description: The ID of the entity tag.
+        in: path
+        name: entityTagId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete an entity tag by entity tag ID
+      tags:
+      - entity_tags
+      x-versionadded: v2.36
+    patch:
+      description: Update an entity tag.
+      operationId: entityTags_patch
+      parameters:
+      - description: The ID of the entity tag.
+        in: path
+        name: entityTagId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityTagUpdate'
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityTagResponse'
+          description: The entity tag has been successfully updated.
+        '403':
+          description: User does not have access to this functionality.
+        '404':
+          description: Tag not found.
+        '422':
+          description: Unprocessable Entity
+      summary: Update entity tag by entity tag ID
+      tags:
+      - entity_tags
+      x-versionadded: v2.36
+components:
+  schemas:
+    EntityTagCreate:
+      properties:
+        entityType:
+          description: The type of entity provided.
+          enum:
+          - experiment_container
+          type: string
+        name:
+          description: The name of the Tag.
+          maxLength: 100
+          type: string
+      required:
+      - entityType
+      - name
+      type: object
+      x-versionadded: v2.36
+    EntityTagUpdate:
+      properties:
+        name:
+          description: The name of the entity tag.
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+      type: object
+      x-versionadded: v2.36
+    EntityTagListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of entity tags that match the query.
+          items:
+            $ref: '#/components/schemas/EntityTagResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    EntityTagResponse:
+      properties:
+        entityType:
+          description: The type of entity provided.
+          enum:
+          - experiment_container
+          type: string
+        id:
+          description: The ID of the entity tag.
+          type: string
+        name:
+          description: The name of the entity tag.
+          type: string
+      required:
+      - entityType
+      - id
+      - name
+      type: object
+      x-versionadded: v2.36
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

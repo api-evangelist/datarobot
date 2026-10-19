@@ -1,0 +1,749 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Observability Service Health API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage service health. Service health tracks metrics about a deployment's ability to respond to prediction requests quickly and reliably. This helps identify bottlenecks and assess capacity, which is critical to proper provisioning.
+  name: observability_service_health
+paths:
+  /api/v2/deployments/{deploymentId}/batchServiceStats/:
+    get:
+      description: Retrieve all deployment service health metrics over a set of batches.
+      operationId: deploymentsBatchServiceStats_list
+      parameters:
+      - description: Quantile for executionTime metric.
+        in: query
+        name: executionTimeQuantile
+        required: false
+        schema:
+          default: 0.5
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: Quantile for responseTime metric.
+        in: query
+        name: responseTimeQuantile
+        required: false
+        schema:
+          default: 0.5
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: Threshold for slowRequests metric.
+        in: query
+        name: slowRequestsThreshold
+        required: false
+        schema:
+          default: 1000
+          minimum: 0
+          type: integer
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          enum:
+          - DataRobot-Consumer
+          - DataRobot-Remote-IP
+          - DataRobot-Host-IP
+          type: string
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatsForBatchRetrieveResponse'
+          description: Service health metric data retrieved.
+      summary: Retrieve service health metrics by deployment ID
+      tags:
+      - observability_service_health
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/serviceStats/:
+    get:
+      description: Retrieve all deployment service health metrics over a single period of time.
+      operationId: deploymentsServiceStats_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: Quantile for executionTime metric.
+        in: query
+        name: executionTimeQuantile
+        required: false
+        schema:
+          default: 0.5
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: Quantile for responseTime metric.
+        in: query
+        name: responseTimeQuantile
+        required: false
+        schema:
+          default: 0.5
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: Threshold for slowRequests metric.
+        in: query
+        name: slowRequestsThreshold
+        required: false
+        schema:
+          default: 1000
+          minimum: 0
+          type: integer
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          enum:
+          - DataRobot-Consumer
+          - DataRobot-Remote-IP
+          - DataRobot-Host-IP
+          type: string
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatsForTimeRangeResponse'
+          description: Service health metric data retrieved.
+      summary: Retrieve service stats by ID
+      tags:
+      - observability_service_health
+      x-versionadded: v2.18
+  /api/v2/deployments/{deploymentId}/serviceStatsOverBatch/:
+    get:
+      description: Retrieve values for one single deployment service health metric over batch.
+      operationId: deploymentsServiceStatsOverBatch_list
+      parameters:
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          enum:
+          - DataRobot-Consumer
+          - DataRobot-Remote-IP
+          - DataRobot-Host-IP
+          type: string
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: A service health metric.
+        in: query
+        name: metric
+        required: false
+        schema:
+          default: totalPredictions
+          enum:
+          - totalPredictions
+          - totalRequests
+          - slowRequests
+          - executionTime
+          - responseTime
+          - userErrorRate
+          - serverErrorRate
+          - numConsumers
+          - cacheHitRatio
+          type: string
+      - description: Quantile for executionTime and responseTime metrics
+        in: query
+        name: quantile
+        required: false
+        schema:
+          default: 0.5
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: Threshold for slowQueries metric.
+        in: query
+        name: threshold
+        required: false
+        schema:
+          default: 1000
+          minimum: 0
+          type: integer
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatsOverBatchResponse'
+          description: Service health metric data retrieved.
+      summary: Retrieve service health metric over batch by deployment ID
+      tags:
+      - observability_service_health
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/serviceStatsOverTime/:
+    get:
+      description: Retrieve values for one single deployment service health metric over time.
+      operationId: deploymentsServiceStatsOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The time duration of a bucket. Needs to be multiple of one hour. Can not be longer than the total length of the period. If not set, a default value will be calculated based on the start and end time.
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          format: duration
+          type: string
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          enum:
+          - DataRobot-Consumer
+          - DataRobot-Remote-IP
+          - DataRobot-Host-IP
+          type: string
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The ID of the models for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+      - description: Name of the metric. See below for a list of supported metrics.
+        in: query
+        name: metric
+        required: false
+        schema:
+          default: totalPredictions
+          enum:
+          - totalPredictions
+          - totalRequests
+          - slowRequests
+          - executionTime
+          - responseTime
+          - userErrorRate
+          - serverErrorRate
+          - numConsumers
+          - cacheHitRatio
+          - medianLoad
+          - peakLoad
+          type: string
+      - description: A quantile for resulting data, used if `metric` is `executionTime` or `responseTime`, defaults to 0.5.
+        in: query
+        name: quantile
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+      - description: A threshold for filtering results, used if `metric` is `slowQueries`, defaults to 1000.
+        in: query
+        name: threshold
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatsOverTimeResponse'
+          description: Service health metric data retrieved.
+      summary: Retrieve service health metric over time by deployment ID
+      tags:
+      - observability_service_health
+      x-versionadded: v2.18
+components:
+  schemas:
+    ServiceStatsMetricsForBatch:
+      description: Service health metrics of the deployment
+      properties:
+        cacheHitRatio:
+          description: Number of cache hits.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        executionTime:
+          description: Request execution time at executionTimeQuantile (in milliseconds).
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        numConsumers:
+          description: Number of unique users performing requests.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        responseTime:
+          description: Request response time at responseTimeQuantile (in milliseconds).
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        serverErrorRate:
+          description: Ratio of server errors to the total number of requests.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        slowRequests:
+          description: Number of requests with response time greater than slowRequestsThreshold
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        totalPredictions:
+          description: Total number of prediction rows.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        totalRequests:
+          description: Total number of prediction requests performed.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        userErrorRate:
+          description: Ratio of user errors to the total number of requests.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - cacheHitRatio
+      - executionTime
+      - numConsumers
+      - responseTime
+      - serverErrorRate
+      - slowRequests
+      - totalPredictions
+      - totalRequests
+      - userErrorRate
+      type: object
+    ServiceStatsOverTimeResponse:
+      properties:
+        buckets:
+          description: An array of bucket, representing service health stats of the deployment over time.
+          items:
+            $ref: '#/components/schemas/ServiceStatsOverTimeBucket'
+          type: array
+        metric:
+          description: Name of the metric requested.
+          type: string
+        modelId:
+          description: The id of the model for which metrics are being retrieved. Deprecated, use modelId in each bucket instead.
+          type: string
+          x-versiondeprecated: v2.37
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        summary:
+          $ref: '#/components/schemas/ServiceStatsOverTimeBucket'
+          x-versiondeprecated: v2.37
+      required:
+      - buckets
+      - metric
+      type: object
+    ServiceStatsForBatchRetrieveResponse:
+      properties:
+        batches:
+          description: Info of the batches the metric is aggregated on.
+          items:
+            $ref: '#/components/schemas/Batch'
+          type: array
+          x-versionadded: v2.33
+        metrics:
+          $ref: '#/components/schemas/ServiceStatsMetricsForBatch'
+          x-versionadded: v2.33
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - batches
+      - metrics
+      type: object
+    ServiceStatsMetricsForTimeRange:
+      description: Service health metrics of the deployment
+      properties:
+        cacheHitRatio:
+          description: Number of cache hits.
+          type:
+          - number
+          - 'null'
+        executionTime:
+          description: Request execution time at executionTimeQuantile (in milliseconds).
+          type:
+          - number
+          - 'null'
+        medianLoad:
+          description: Median of the request rate (in requests per minute).
+          type:
+          - number
+          - 'null'
+        numConsumers:
+          description: Number of unique users performing requests.
+          type:
+          - integer
+          - 'null'
+        peakLoad:
+          description: Maximum of the request rate (in requests per minute).
+          type:
+          - number
+          - 'null'
+        responseTime:
+          description: Request response time at responseTimeQuantile (in milliseconds).
+          type:
+          - number
+          - 'null'
+        serverErrorRate:
+          description: Ratio of server errors to the total number of requests.
+          type:
+          - number
+          - 'null'
+        slowRequests:
+          description: Number of requests with response time greater than slowRequestsThreshold
+          type:
+          - integer
+          - 'null'
+        totalPredictions:
+          description: Total number of prediction rows.
+          type:
+          - integer
+          - 'null'
+        totalRequests:
+          description: Total number of prediction requests performed.
+          type:
+          - integer
+          - 'null'
+        userErrorRate:
+          description: Ratio of user errors to the total number of requests.
+          type:
+          - number
+          - 'null'
+      required:
+      - cacheHitRatio
+      - executionTime
+      - medianLoad
+      - numConsumers
+      - peakLoad
+      - responseTime
+      - serverErrorRate
+      - slowRequests
+      - totalPredictions
+      - totalRequests
+      - userErrorRate
+      type: object
+    ServiceStatsOverTimeBucket:
+      description: Service health stats of the deployment over a time range.
+      properties:
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+          x-versionadded: v2.37
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        value:
+          description: Value of the metric in the bucket. Null if no value
+          type:
+          - number
+          - 'null'
+      required:
+      - period
+      - value
+      type: object
+    TimeRange:
+      description: An object with the keys "start" and "end" defining the period.
+      properties:
+        end:
+          description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        start:
+          description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      type: object
+    ServiceStatsOverBatchResponse:
+      properties:
+        buckets:
+          description: An array of buckets, representing service health stats of the deployment over selected batches.
+          items:
+            $ref: '#/components/schemas/ServiceStatsOverBatchBucket'
+          type: array
+          x-versionadded: v2.33
+        metric:
+          description: Name of the metric requested.
+          type: string
+          x-versionadded: v2.33
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - buckets
+      - metric
+      type: object
+    ServiceStatsForTimeRangeResponse:
+      properties:
+        metrics:
+          $ref: '#/components/schemas/ServiceStatsMetricsForTimeRange'
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - metrics
+      - period
+      type: object
+    ServiceStatsOverBatchBucket:
+      description: Service health stats of the deployment over a batch.
+      properties:
+        batch:
+          $ref: '#/components/schemas/Batch'
+          x-versionadded: v2.33
+        value:
+          description: Value of the metric in the bucket.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - batch
+      - value
+      type: object
+    Batch:
+      description: Batch info.
+      properties:
+        earliestPredictionTimestamp:
+          description: Earliest prediction timestamp of a batch.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        id:
+          description: Batch ID.
+          type: string
+          x-versionadded: v2.33
+        latestPredictionTimestamp:
+          description: Latest prediction timestamp of a batch.
+          format: date-time
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        name:
+          description: Batch name.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - earliestPredictionTimestamp
+      - id
+      - latestPredictionTimestamp
+      - name
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

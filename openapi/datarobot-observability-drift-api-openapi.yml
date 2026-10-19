@@ -1,0 +1,1493 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Observability Drift API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage drift. When deploying a model, there is a chance that the dataset used for training and validation differs from the prediction data. DataRobot monitors both target and feature drift information.
+  name: observability_drift
+paths:
+  /api/v2/deployments/{deploymentId}/featureDrift/:
+    get:
+      description: Retrieve drift scores for features of the deployment.
+      operationId: deploymentsFeatureDrift_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: ID of the model in the deployment. If not set, defaults to the deployment current model.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Name of the metric used to calculate the drift. Can be one of psi, kl_divergence, dissimilarity, hellinger, and js_divergence. Defaults to psi.
+        in: query
+        name: metric
+        required: false
+        schema:
+          default: psi
+          enum:
+          - psi
+          - kl_divergence
+          - dissimilarity
+          - hellinger
+          - js_divergence
+          type: string
+      - description: The number of features to skip, defaults to 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of features to return, defaults to 25.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 200
+          minimum: 0
+          type: integer
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type: string
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDriftResponse'
+          description: Features drift over specified time period retrieved.
+      summary: Retrieve feature drift scores by deployment ID
+      tags:
+      - observability_drift
+      x-versionadded: v2.21
+  /api/v2/deployments/{deploymentId}/featureDriftOverBatch/:
+    get:
+      description: Retrieve drift over batch info for a feature of the deployment.
+      operationId: deploymentsFeatureDriftOverBatch_list
+      parameters:
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: List of feature names, limited to two per request.
+        in: query
+        name: featureNames
+        required: true
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 2
+            type: array
+      - description: The metric used to calculate data drift scores.
+        in: query
+        name: driftMetric
+        required: false
+        schema:
+          enum:
+          - psi
+          - kl_divergence
+          - dissimilarity
+          - hellinger
+          - js_divergence
+          type:
+          - string
+          - 'null'
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDriftOverBatchResponse'
+          description: Drift over batch info for a feature of the deployment.
+      summary: Retrieve drift over batch info by deployment ID
+      tags:
+      - observability_drift
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/featureDriftOverSpace/:
+    get:
+      description: Retrieve drift scores for a feature of the deployment over the geospatial feature data.
+      feature_flags:
+      - description: Enables monitoring geospatial features.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: MMM_GEOSPATIAL_FEATURES_MONITORING
+      maturity: PUBLIC_PREVIEW
+      operationId: deploymentsFeatureDriftOverSpace_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The name of the geospatial feature. Segmented analysis must be enabled for the feature specified.
+        in: query
+        name: geoFeatureName
+        required: false
+        schema:
+          type: string
+      - description: The name of the feature to retrieve drift scores for. Defaults to the target or, if there is no target, the most important feature.
+        in: query
+        name: featureName
+        required: false
+        schema:
+          type: string
+      - description: The ID of the model that feature drift is being retrieved from.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The metric used to calculate drift score.
+        in: query
+        name: metric
+        required: false
+        schema:
+          default: psi
+          enum:
+          - psi
+          - klDivergence
+          - dissimilarity
+          - hellinger
+          - jsDivergence
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      public_preview: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDriftOverSpaceResponse'
+          description: The retrieved drift scores for the specified feature over the specified geospatial feature data.
+      summary: Retrieve feature drift scores over space through geospatial monitoring by…
+      tags:
+      - observability_drift
+      x-datarobot-public-preview: true
+      x-datarobot-required-feature-flags:
+      - description: Enables monitoring geospatial features.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: MMM_GEOSPATIAL_FEATURES_MONITORING
+  /api/v2/deployments/{deploymentId}/featureDriftOverTime/:
+    get:
+      description: Retrieve drift over time info for a feature of the deployment.
+      operationId: deploymentsFeatureDriftOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The time duration of a bucket. Needs to be multiple of one hour. Can not be longer than the total length of the period. If not set, a default value will be calculated based on the start and end time.
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          format: duration
+          type: string
+      - description: The id of the model for which the features drift is being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: List of feature names, limited to two per request.
+        in: query
+        name: featureNames
+        required: true
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 2
+            type: array
+      - description: Name of the metric used to calculate the drift. Can be one of psi, kl_divergence, dissimilarity, hellinger, and js_divergence. Defaults to psi.
+        in: query
+        name: metric
+        required: false
+        schema:
+          default: psi
+          enum:
+          - psi
+          - kl_divergence
+          - dissimilarity
+          - hellinger
+          - js_divergence
+          type: string
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDriftOverTimeResponse'
+          description: Feature drift over time info of the deployment retrieved.
+        '400':
+          description: Request invalid, refer to messages for detail.
+        '403':
+          description: Model Deployments and/or Monitoring are not enabled.
+        '404':
+          description: Either the deployment does not exist or user does not have permission to view the deployment.
+      summary: Retrieve drift over time info by deployment ID
+      tags:
+      - observability_drift
+      x-versionadded: v2.29
+  /api/v2/deployments/{deploymentId}/predictionsOverBatch/:
+    get:
+      description: Retrieve metrics about predictions, such as row count, mean predicted value, mean probabilities, and class distribution, over batches.
+      operationId: deploymentsPredictionsOverBatch_list
+      parameters:
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Include percentiles in the response, only applicable to deployments with binary classification, location and regression target.
+        in: query
+        name: includePercentiles
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionsOverBatchResponse'
+          description: Predictions over batch info retrieved.
+      summary: Retrieve prediction metadata over batches by deployment ID
+      tags:
+      - observability_drift
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/predictionsOverSpace/:
+    get:
+      description: Retrieve predictions stats for the deployment over the geospatial feature data.
+      feature_flags:
+      - description: Enables monitoring geospatial features.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: MMM_GEOSPATIAL_FEATURES_MONITORING
+      maturity: PUBLIC_PREVIEW
+      operationId: deploymentsPredictionsOverSpace_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The name of the geospatial feature. Segmented analysis must be enabled for the feature specified.
+        in: query
+        name: geoFeatureName
+        required: false
+        schema:
+          type: string
+      - description: The ID of the model that feature drift is being retrieved from.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Target class to filter out results.
+        in: query
+        name: targetClass
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+        x-versionadded: v2.31
+      - description: Include percentiles in the response, only applicable to deployments with binary classification, location and regression target.
+        in: query
+        name: includePercentiles
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      public_preview: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionsOverSpaceResponse'
+          description: The retrieved prediction stats for the specified feature over the specified geospatial feature data.
+      summary: Retrieve predictions stats over space through geospatial monitoring by…
+      tags:
+      - observability_drift
+      x-datarobot-public-preview: true
+      x-datarobot-required-feature-flags:
+      - description: Enables monitoring geospatial features.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: MMM_GEOSPATIAL_FEATURES_MONITORING
+  /api/v2/deployments/{deploymentId}/predictionsOverTime/:
+    get:
+      description: Retrieve metrics about predictions, such as row count, mean predicted value, mean probabilities, and class distribution, over a specific time range.
+      operationId: deploymentsPredictionsOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: Time duration of buckets
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          default: P1D
+          enum:
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The ID of the models for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+      - description: Target class to filter out results.
+        in: query
+        name: targetClass
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+        x-versionadded: v2.31
+      - description: Include percentiles in the response, only applicable to deployments with binary classification, location and regression target.
+        in: query
+        name: includePercentiles
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionsOverTimeResponse'
+          description: Predictions over time info retrieved.
+      summary: Retrieve metrics about predictions over time by deployment ID
+      tags:
+      - observability_drift
+      x-versionadded: v2.31
+  /api/v2/deployments/{deploymentId}/targetDrift/:
+    get:
+      description: Retrieve target drift data.
+      operationId: deploymentsTargetDrift_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: An ID of the model in the deployment. If not set, defaults to the deployment current model.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Metric used to calculate drift score.
+        in: query
+        name: metric
+        required: false
+        schema:
+          default: psi
+          enum:
+          - psi
+          - kl_divergence
+          - dissimilarity
+          - hellinger
+          - js_divergence
+          type: string
+      - description: The name of a segment attribute used for segment analysis.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type: string
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetDriftResponse'
+          description: Target drift over specified time period retrieved.
+      summary: Retrieve target drift by deployment ID
+      tags:
+      - observability_drift
+      x-versionadded: v2.21
+components:
+  schemas:
+    FeatureDriftOverSpaceBucket:
+      properties:
+        baselineSampleSize:
+          description: The baseline sample size for the hexagon.
+          type: integer
+        driftScore:
+          description: The drift score for this feature.
+          type: number
+        hexagon:
+          description: h3 hexagon.
+          type: string
+        sampleSize:
+          description: The sample size for the hexagon.
+          type: integer
+      required:
+      - baselineSampleSize
+      - driftScore
+      - hexagon
+      - sampleSize
+      type: object
+      x-versionadded: v2.35
+    MeanProbability:
+      properties:
+        className:
+          description: Name of the class
+          type: string
+        value:
+          description: Mean predicted probability for a class for all rows in the bucket
+          type: number
+      required:
+      - className
+      - value
+      type: object
+    Percentile:
+      properties:
+        geoCentroid:
+          $ref: '#/components/schemas/GeoPoint'
+          x-versionadded: v2.36
+        percent:
+          description: Percent of the percentile
+          type: number
+        value:
+          description: Predicted value or probability at a percentile
+          type:
+          - number
+          - 'null'
+      required:
+      - percent
+      type: object
+    ClassDistribution:
+      properties:
+        className:
+          description: Name of the class
+          type: string
+        count:
+          description: Count of rows labeled with a class in the bucket
+          type: integer
+        percent:
+          description: Percent of rows labeled with a class in the bucket
+          type: number
+      required:
+      - className
+      - count
+      - percent
+      type: object
+    TargetBaseline:
+      properties:
+        classDistribution:
+          description: Class distribution for all classes in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/ClassDistribution'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+        meanGeoCentroid:
+          $ref: '#/components/schemas/GeoPoint'
+          x-versionadded: v2.36
+        meanPredictedValue:
+          description: Mean predicted value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+        meanProbabilities:
+          description: Mean predicted probabilities for all classes in the bucket, only for classification deployments
+          items:
+            $ref: '#/components/schemas/MeanProbability'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+        modelId:
+          description: ID of the model
+          type: string
+        percentiles:
+          description: Predicted value or positive class predicted probability at specific percentiles in the bucket, only for regression and binary classification deployments.
+          items:
+            $ref: '#/components/schemas/Percentile'
+          maxItems: 10
+          type:
+          - array
+          - 'null'
+        predictionsWarningCount:
+          description: The number of predictions with warning in the bucket
+          type:
+          - integer
+          - 'null'
+        rowCount:
+          description: Number of rows in the bucket.
+          type:
+          - integer
+          - 'null'
+      required:
+      - modelId
+      - rowCount
+      type: object
+    FeatureDriftOverSpaceResponse:
+      properties:
+        data:
+          description: An array [DriftObject], each in the form described below
+          items:
+            $ref: '#/components/schemas/FeatureDriftOverSpaceBucket'
+          maxItems: 10000
+          type: array
+        featureName:
+          description: The name of the feature to retrieve drift scores for. Defaults to the target or, if there is no target, the most important feature.
+          type: string
+        geoFeatureName:
+          description: The name of the geospatial feature. Segmented analysis must be enabled for the feature specified.
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+      required:
+      - data
+      - featureName
+      - geoFeatureName
+      type: object
+      x-versionadded: v2.35
+    FeatureDriftOverTimeResponse:
+      properties:
+        buckets:
+          description: A list of aggregated drift scores by feature over a given period.
+          items:
+            $ref: '#/components/schemas/FeatureDriftOverTimeBucket'
+          type: array
+        features:
+          description: A list of the requested features and their feature type.
+          items:
+            $ref: '#/components/schemas/FeatureDriftOverTimeFeature'
+          type: array
+        metric:
+          description: Name of requested metric.
+          type: string
+        summaries:
+          description: A list of aggregated drift scores by feature over a given period.
+          items:
+            $ref: '#/components/schemas/FeatureDriftOverTimeSummary'
+          type: array
+      required:
+      - buckets
+      - features
+      - metric
+      - summaries
+      type: object
+    FeatureDriftOverTimeSummary:
+      properties:
+        featureImpact:
+          description: The feature impact score of the feature.
+          type: number
+        featureName:
+          description: Name of the feature.
+          type: string
+      required:
+      - featureImpact
+      - featureName
+      type: object
+    FeatureDriftOverBatchBucket:
+      properties:
+        baselineSampleSize:
+          description: The sample size in the baseline used to calculate drift score.
+          type: integer
+          x-versionadded: v2.33
+        batch:
+          $ref: '#/components/schemas/DriftBatch'
+          x-versionadded: v2.33
+        driftScore:
+          description: Drift score of the feature.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        featureImpact:
+          description: The feature impact score of the feature.
+          type: number
+          x-versionadded: v2.33
+        featureName:
+          description: Feature name.
+          type: string
+          x-versionadded: v2.33
+        sampleSize:
+          description: The sample size in the batch used to calculate drift score.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - baselineSampleSize
+      - batch
+      - driftScore
+      - featureImpact
+      - featureName
+      - sampleSize
+      type: object
+    TimeRange:
+      description: An object with the keys "start" and "end" defining the period.
+      properties:
+        end:
+          description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        start:
+          description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      type: object
+    PredictionsOverSpaceBucket:
+      properties:
+        classDistribution:
+          description: Class distribution for all classes in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/ClassDistribution'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+        hexagon:
+          description: h3 hexagon.
+          type:
+          - string
+          - 'null'
+        meanGeoCentroid:
+          $ref: '#/components/schemas/GeoPoint'
+          x-versionadded: v2.36
+        meanPredictedValue:
+          description: Mean predicted value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+        meanProbabilities:
+          description: Mean predicted probabilities for all classes in the bucket, only for classification deployments
+          items:
+            $ref: '#/components/schemas/MeanProbability'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+        percentiles:
+          description: Predicted value or positive class predicted probability at specific percentiles in the bucket, only for regression and binary classification deployments.
+          items:
+            $ref: '#/components/schemas/Percentile'
+          maxItems: 10
+          type:
+          - array
+          - 'null'
+        predictionsWarningCount:
+          description: The number of predictions with warning in the bucket
+          type:
+          - integer
+          - 'null'
+        rowCount:
+          description: Number of rows in the bucket.
+          type:
+          - integer
+          - 'null'
+      required:
+      - rowCount
+      type: object
+      x-versionadded: v2.35
+    PredictionsOverBatchBucket:
+      properties:
+        batch:
+          $ref: '#/components/schemas/DriftBatch'
+          x-versionadded: v2.33
+        classDistribution:
+          description: Class distribution for all classes in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/ClassDistribution'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        meanGeoCentroid:
+          $ref: '#/components/schemas/GeoPoint'
+          x-versionadded: v2.36
+        meanPredictedValue:
+          description: Mean predicted value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        meanProbabilities:
+          description: Mean predicted probabilities for all classes in the bucket, only for classification deployments
+          items:
+            $ref: '#/components/schemas/MeanProbability'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        percentiles:
+          description: Predicted value or positive class predicted probability at specific percentiles in the bucket, only for regression and binary classification deployments.
+          items:
+            $ref: '#/components/schemas/Percentile'
+          maxItems: 10
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        predictionsWarningCount:
+          description: The number of predictions with warning in the bucket
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        rowCount:
+          description: Number of rows in the bucket.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - batch
+      - rowCount
+      type: object
+    PredictionsOverSpaceResponse:
+      properties:
+        baselines:
+          description: Baseline predictions per geospatial hexagon.
+          items:
+            $ref: '#/components/schemas/PredictionsOverSpaceBucket'
+          maxItems: 10000
+          type: array
+        buckets:
+          description: Predictions per geospatial hexagon.
+          items:
+            $ref: '#/components/schemas/PredictionsOverSpaceBucket'
+          maxItems: 10000
+          type: array
+        geoFeatureName:
+          description: The name of the geospatial feature. Segmented analysis must be enabled for the feature specified.
+          type: string
+        modelId:
+          description: The ID of the model that predictions are being retrieved from.
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+      required:
+      - baselines
+      - buckets
+      - geoFeatureName
+      type: object
+      x-versionadded: v2.35
+    FeatureDriftResponse:
+      properties:
+        batchId:
+          default: []
+          description: The id of the batch for which metrics are being retrieved.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array [DriftObject], each in the form described below
+          items:
+            $ref: '#/components/schemas/FeatureDrift'
+          type: array
+        metric:
+          description: Metric used to calculate drift score.
+          enum:
+          - psi
+          - kl_divergence
+          - dissimilarity
+          - hellinger
+          - js_divergence
+          type: string
+        modelId:
+          description: The id of the model for which the features drift is being retrieved.
+          type: string
+        next:
+          description: A URL pointing to the next page (if null, there is no next page)
+          type:
+          - string
+          - 'null'
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        previous:
+          description: A URL pointing to the previous page (if null, there is no previous page)
+          type:
+          - string
+          - 'null'
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+        segmentValue:
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - modelId
+      type: object
+    PredictionsOverTimeBucket:
+      properties:
+        classDistribution:
+          description: Class distribution for all classes in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/ClassDistribution'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+        meanGeoCentroid:
+          $ref: '#/components/schemas/GeoPoint'
+          x-versionadded: v2.36
+        meanPredictedValue:
+          description: Mean predicted value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+        meanProbabilities:
+          description: Mean predicted probabilities for all classes in the bucket, only for classification deployments
+          items:
+            $ref: '#/components/schemas/MeanProbability'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+        modelId:
+          description: ID of the model
+          type: string
+        percentiles:
+          description: Predicted value or positive class predicted probability at specific percentiles in the bucket, only for regression and binary classification deployments.
+          items:
+            $ref: '#/components/schemas/Percentile'
+          maxItems: 10
+          type:
+          - array
+          - 'null'
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        predictionsWarningCount:
+          description: The number of predictions with warning in the bucket
+          type:
+          - integer
+          - 'null'
+        rowCount:
+          description: Number of rows in the bucket.
+          type:
+          - integer
+          - 'null'
+      required:
+      - modelId
+      - period
+      - rowCount
+      type: object
+    PredictionsOverBatchResponse:
+      properties:
+        baselines:
+          description: Target baselines
+          items:
+            $ref: '#/components/schemas/TargetBaseline'
+          type: array
+          x-versionadded: v2.33
+        buckets:
+          description: Predictions over batch buckets
+          items:
+            $ref: '#/components/schemas/PredictionsOverBatchBucket'
+          type: array
+          x-versionadded: v2.33
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - baselines
+      - buckets
+      type: object
+    DriftBatch:
+      description: Info of the batch associated with the bucket.
+      properties:
+        earliestPredictionTimestamp:
+          description: Earliest prediction timestamp of a batch.
+          format: date-time
+          type: string
+          x-versionadded: v2.33
+        id:
+          description: Batch ID.
+          type: string
+          x-versionadded: v2.33
+        latestPredictionTimestamp:
+          description: Latest prediction timestamp of a batch.
+          format: date-time
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        name:
+          description: Batch name.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - earliestPredictionTimestamp
+      - id
+      - latestPredictionTimestamp
+      - name
+      type: object
+    TargetDriftResponse:
+      properties:
+        baselineSampleSize:
+          description: sample size of the training data.
+          type: integer
+        batchId:
+          default: []
+          description: The id of the batch for which metrics are being retrieved.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+        driftScore:
+          description: drift score for the target.
+          type:
+          - number
+          - 'null'
+        metric:
+          description: Metric used to calculate drift score.
+          enum:
+          - psi
+          - kl_divergence
+          - dissimilarity
+          - hellinger
+          - js_divergence
+          type: string
+        modelId:
+          description: id of the model for which data drift is being retrieved.
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        sampleSize:
+          description: number of predictions used to compute the drift score.
+          type: integer
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        targetName:
+          description: name of the target feature.
+          type: string
+        type:
+          description: Type of the feature.
+          enum:
+          - numeric
+          - categorical
+          - text
+          type: string
+      required:
+      - baselineSampleSize
+      - driftScore
+      - modelId
+      - sampleSize
+      - targetName
+      - type
+      type: object
+    FeatureDriftOverTimeBucket:
+      properties:
+        baselineSampleSize:
+          description: The sample size of the training data used during model creation
+          type: integer
+        driftScore:
+          description: The aggregated drift score for the target.
+          type:
+          - number
+          - 'null'
+        featureImpact:
+          description: The feature impact score of the feature.
+          type: number
+        featureName:
+          description: Name of the feature.
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        sampleSize:
+          description: The sample size in the query period used to calculate drift score.
+          type: integer
+      required:
+      - baselineSampleSize
+      - driftScore
+      - featureImpact
+      - featureName
+      - period
+      - sampleSize
+      type: object
+    PredictionsOverTimeResponse:
+      properties:
+        baselines:
+          description: Target baselines
+          items:
+            $ref: '#/components/schemas/TargetBaseline'
+          type: array
+        buckets:
+          description: Predictions over time buckets
+          items:
+            $ref: '#/components/schemas/PredictionsOverTimeBucket'
+          type: array
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - baselines
+      - buckets
+      type: object
+    GeoPoint:
+      description: Geo centroid.
+      properties:
+        latitude:
+          description: Latitude.
+          type: number
+        longitude:
+          description: Longitude.
+          type: number
+      required:
+      - latitude
+      - longitude
+      type: object
+      x-versionadded: v2.36
+    FeatureDriftOverBatchResponse:
+      properties:
+        buckets:
+          description: A list of buckets to display feature drift over batch.
+          items:
+            $ref: '#/components/schemas/FeatureDriftOverBatchBucket'
+          type: array
+          x-versionadded: v2.33
+        driftMetric:
+          description: The metric used to calculate data drift scores.
+          enum:
+          - psi
+          - kl_divergence
+          - dissimilarity
+          - hellinger
+          - js_divergence
+          type: string
+          x-versionadded: v2.33
+      required:
+      - buckets
+      type: object
+    FeatureDrift:
+      properties:
+        baselineSampleSize:
+          description: The sample size of the training data.
+          type: integer
+        driftScore:
+          description: The drift score for this feature.
+          type:
+          - number
+          - 'null'
+        featureImpact:
+          description: The feature impact score for this feature.
+          type:
+          - number
+          - 'null'
+        name:
+          description: The name of the feature.
+          type: string
+        sampleSize:
+          description: The number of predictions used to compute the drift score.
+          type: integer
+        type:
+          description: Type of the feature.
+          enum:
+          - numeric
+          - categorical
+          - text
+          type: string
+          x-versionadded: v2.30
+      required:
+      - baselineSampleSize
+      - driftScore
+      - featureImpact
+      - name
+      - sampleSize
+      - type
+      type: object
+    FeatureDriftOverTimeFeature:
+      properties:
+        featureName:
+          description: Name of the requested feature.
+          type: string
+        featureType:
+          description: Data type of the requested feature.
+          enum:
+          - numeric
+          - categorical
+          - text
+          type: string
+      required:
+      - featureName
+      - featureType
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

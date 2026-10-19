@@ -1,0 +1,64 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Utilities API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to configure and manage encrypted credentials.
+  name: Utilities
+paths:
+  /api/v2/stringEncryptions/:
+    post:
+      description: DataRobot does not store your credentials when accessing external data stores. Instead you first encrypt your sensitive information with DataRobot and then, when accessing those data stores, supply the encrypted credentials. DataRobot will decrypt your credentials and use them to establish a connection to your data store.
+      operationId: stringEncryptions_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StringEncryption'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringEncryptionResponse'
+          description: The encrypted string.
+      summary: Encrypt a string
+      tags:
+      - Utilities
+      x-versionadded: v2.4
+components:
+  schemas:
+    StringEncryption:
+      properties:
+        plainText:
+          description: String to be encrypted. DataRobot will decrypt the string when needed to access data stores.
+          type: string
+      required:
+      - plainText
+      type: object
+    StringEncryptionResponse:
+      properties:
+        cipherText:
+          description: Encrypted version of plainText input.
+          type: string
+      required:
+      - cipherText
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

@@ -1,0 +1,1656 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Observability Accuracy API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage accuracy. Accuracy allows you to analyze the performance of model deployments over time using standard statistical measures and exportable visualizations. Use this tool to determine whether a model's quality is decaying and if you should consider replacing it.
+  name: observability_accuracy
+paths:
+  /api/v2/deployments/{deploymentId}/accuracy/:
+    get:
+      description: Retrieve accuracy metric for a certain time period.
+      operationId: deploymentsAccuracy_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The ID of the models for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+        x-versionadded: v2.32
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.23
+      - description: Target class to filter out results.
+        in: query
+        name: targetClass
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+        x-versionadded: v2.31
+      - description: Name of the metric to retrieve. Must be provided when using multiple modelId query params.
+        in: query
+        name: metric
+        required: false
+        schema:
+          enum:
+          - AUC
+          - Accuracy
+          - Balanced Accuracy
+          - F1
+          - FPR
+          - FVE Binomial
+          - FVE Gamma
+          - FVE Multinomial
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - MAE
+          - MAPE
+          - MCC
+          - NPV
+          - PPV
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Rate@Top10%
+          - Rate@Top5%
+          - TNR
+          - TPR
+          - Tweedie Deviance
+          - WGS84 MAE
+          - WGS84 RMSE
+          type: string
+      - description: ID of the model whose metric value to use as baseline.
+        in: query
+        name: baselineModelId
+        required: false
+        schema:
+          type: string
+        x-versionadded: v2.36
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccuracyResponse'
+          description: Deployment accuracy metrics are retrieved.
+      summary: Retrieve accuracy metric by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.18
+  /api/v2/deployments/{deploymentId}/accuracyMetrics/:
+    get:
+      description: Retrieve information about which accuracy metrics will be displayed and in what order.
+      operationId: deploymentsAccuracyMetrics_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccuracyMetricList'
+          description: Information on which accuracy metrics will be displayed and in what order.
+        '404':
+          description: Deployment not found.
+      summary: Endpoint by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.36
+    put:
+      description: Update accuracy metrics being returned in accuracy endpoint.
+      operationId: deploymentsAccuracyMetrics_putMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccuracyMetricUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccuracyMetricList'
+          description: The updated accuracy metrics list.
+        '404':
+          description: Deployment not found.
+      summary: Update deployment accuracy metrics settings by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.36
+  /api/v2/deployments/{deploymentId}/accuracyOverBatch/:
+    get:
+      description: Retrieve accuracy metric baseline, and metric value calculated for each batch.
+      operationId: deploymentsAccuracyOverBatch_list
+      parameters:
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: Accuracy metric being requested.
+        in: query
+        name: metric
+        required: false
+        schema:
+          enum:
+          - AUC
+          - Accuracy
+          - Balanced Accuracy
+          - F1
+          - FPR
+          - FVE Binomial
+          - FVE Gamma
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - MAE
+          - MAPE
+          - MCC
+          - NPV
+          - PPV
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Rate@Top10%
+          - Rate@Top5%
+          - TNR
+          - TPR
+          - Tweedie Deviance
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccuracyOverBatchResponse'
+          description: Retrieve accuracy metrics over batches for a deployment.
+      summary: Accuracy over batch by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/accuracyOverSpace/:
+    get:
+      description: Retrieve accuracy metric baseline, and metric value calculated for each geospatial h3 hexagon.
+      operationId: deploymentsAccuracyOverSpace_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The ID of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: Name of the metric.
+        in: query
+        name: metric
+        required: false
+        schema:
+          enum:
+          - AUC
+          - Accuracy
+          - Balanced Accuracy
+          - F1
+          - FPR
+          - FVE Binomial
+          - FVE Gamma
+          - FVE Multinomial
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - MAD
+          - MAE
+          - MAPE
+          - MCC
+          - NPV
+          - PPV
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Rate@Top10%
+          - Rate@Top5%
+          - TNR
+          - TPR
+          - Tweedie Deviance
+          - WGS84 MAE
+          - WGS84 RMSE
+          type: string
+      - description: The name of the geospatial feature.
+        in: query
+        name: geoFeatureName
+        required: false
+        schema:
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccuracyOverSpaceResponse'
+          description: Accuracy over space
+      summary: Retrieve accuracy over space by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.35
+  /api/v2/deployments/{deploymentId}/accuracyOverTime/:
+    get:
+      description: Retrieve accuracy metric baseline, and metric value calculated for each time bucket dividing a longer time period.
+      operationId: deploymentsAccuracyOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The time duration of a bucket. Needs to be multiple of one hour. Can not be longer than the total length of the period. If not set, a default value will be calculated based on the start and end time.
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          format: duration
+          type: string
+      - description: The ID of the models for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+      - description: Name of the metric.
+        in: query
+        name: metric
+        required: false
+        schema:
+          enum:
+          - AUC
+          - Accuracy
+          - Balanced Accuracy
+          - F1
+          - FPR
+          - FVE Binomial
+          - FVE Gamma
+          - FVE Multinomial
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - MAD
+          - MAE
+          - MAPE
+          - MCC
+          - NPV
+          - PPV
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Rate@Top10%
+          - Rate@Top5%
+          - TNR
+          - TPR
+          - Tweedie Deviance
+          - WGS84 MAE
+          - WGS84 RMSE
+          type: string
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: '2.23'
+      - description: Target class to filter out results.
+        in: query
+        name: targetClass
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+        x-versionadded: v2.31
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccuracyOverTimeResponse'
+          description: Accuracy over time.
+      summary: Retrieve accuracy over time by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.18
+  /api/v2/deployments/{deploymentId}/predictionsVsActualsOverBatch/:
+    get:
+      description: Retrieve metrics about predictions and actuals, such as mean predicted & actual value, predicted & actual class distribution, over a specific set of batches.
+      operationId: deploymentsPredictionsVsActualsOverBatch_list
+      parameters:
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The id of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The id of the batch for which metrics are being retrieved.
+        in: query
+        name: batchId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 25
+            type: array
+      - description: Target class to filter out results.
+        in: query
+        name: targetClass
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+        x-versionadded: v2.31
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionsVsActualsOverBatchResponse'
+          description: Predictions vs actuals over batch info.
+      summary: Retrieve metrics about predictions and actuals, such as mean predicted & actual…
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.33
+  /api/v2/deployments/{deploymentId}/predictionsVsActualsOverSpace/:
+    get:
+      description: Retrieve predictions vs. actuals over space.
+      operationId: deploymentsPredictionsVsActualsOverSpace_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The ID of the model for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          type: string
+      - description: The name of the geospatial feature.
+        in: query
+        name: geoFeatureName
+        required: false
+        schema:
+          type: string
+      - description: Target class to filter out results.
+        in: query
+        name: targetClass
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+        x-versionadded: v2.31
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionsVsActualsOverSpaceResponse'
+          description: Predictions vs. actuals over space.
+      summary: Retrieve predictions vs by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.35
+  /api/v2/deployments/{deploymentId}/predictionsVsActualsOverTime/:
+    get:
+      description: Retrieve metrics about predictions and actuals, such as mean predicted & actual value, predicted & actual class distribution, over a specific time range.
+      operationId: deploymentsPredictionsVsActualsOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: Time duration of buckets
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          default: P1D
+          enum:
+          - PT1H
+          - P1D
+          - P7D
+          - P1M
+          type: string
+      - description: The name of the segment on which segment analysis is being performed.
+        in: query
+        name: segmentAttribute
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The value of the `segmentAttribute` to segment on.
+        in: query
+        name: segmentValue
+        required: false
+        schema:
+          default: ''
+          type:
+          - string
+          - 'null'
+        x-versionadded: v2.20
+      - description: The ID of the models for which metrics are being retrieved.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+      - description: Target class to filter out results.
+        in: query
+        name: targetClass
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 5
+            type: array
+        x-versionadded: v2.31
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionsVsActualsOverTimeResponse'
+          description: Predictions vs actuals over time info.
+      summary: Retrieve predictions vs actuals over time info by deployment ID
+      tags:
+      - observability_accuracy
+      x-versionadded: v2.32
+components:
+  schemas:
+    AccuracyOverSpaceResponse:
+      properties:
+        baselines:
+          description: Baseline accuracy per geospatial hexagon.
+          items:
+            $ref: '#/components/schemas/AccuracyOverSpaceBaselineBucket'
+          maxItems: 1000
+          type: array
+        buckets:
+          description: Accuracy per geospatial hexagon.
+          items:
+            $ref: '#/components/schemas/AccuracyOverSpaceBucket'
+          maxItems: 1000
+          type: array
+        geoFeatureName:
+          description: The name of the geospatial feature. Segmented analysis must be enabled for the feature specified.
+          type: string
+        metric:
+          description: The metric being retrieved.
+          enum:
+          - AUC
+          - Accuracy
+          - Balanced Accuracy
+          - F1
+          - FPR
+          - FVE Binomial
+          - FVE Gamma
+          - FVE Multinomial
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - MAE
+          - MAPE
+          - MCC
+          - NPV
+          - PPV
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Rate@Top10%
+          - Rate@Top5%
+          - TNR
+          - TPR
+          - Tweedie Deviance
+          - WGS84 MAE
+          - WGS84 RMSE
+          type: string
+        modelId:
+          description: 'The ID of the model for which metrics are being retrieved. '
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+      required:
+      - baselines
+      - buckets
+      - geoFeatureName
+      - metric
+      type: object
+      x-versionadded: v2.35
+    PredictedClassDistribution:
+      properties:
+        className:
+          description: Name of the class.
+          type: string
+        count:
+          description: Count of prediction rows labeled with a class in the bucket.
+          type: integer
+        percent:
+          description: Percent of prediction rows labeled with a class in the bucket.
+          type: number
+      required:
+      - className
+      - count
+      - percent
+      type: object
+    PredictionsVsActualsTimeBucket:
+      properties:
+        actualClassDistribution:
+          description: Class distribution for all actuals in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/ActualClassDistribution'
+          type:
+          - array
+          - 'null'
+        meanActualValue:
+          description: Mean actual value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+        meanPredictedValue:
+          description: Mean predicted value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+        modelId:
+          description: ID of the model.
+          type: string
+        period:
+          $ref: '#/components/schemas/BatchPeriod'
+        predictedClassDistribution:
+          description: Class distribution for all rows with actual in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/PredictedClassDistribution'
+          type:
+          - array
+          - 'null'
+        rowCountTotal:
+          description: Number of rows in the bucket.
+          type: integer
+        rowCountWithActual:
+          description: Number of rows with actual in the bucket.
+          type: integer
+      required:
+      - modelId
+      - period
+      - rowCountTotal
+      - rowCountWithActual
+      type: object
+    AccuracyTimeBaselineBucket:
+      properties:
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+        perClass:
+          description: Accuracy metric values for selected classes, only available for multiclass deployments.
+          items:
+            $ref: '#/components/schemas/AccuracyPerClass'
+          type: array
+        sampleSize:
+          description: Number of rows used to calculate the metric.
+          type: integer
+        value:
+          description: Accuracy metric value.
+          type:
+          - number
+          - 'null'
+      required:
+      - sampleSize
+      - value
+      type: object
+    AccuracyTimeBucket:
+      properties:
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+        perClass:
+          description: Accuracy metric values for selected classes, only available for multiclass deployments.
+          items:
+            $ref: '#/components/schemas/AccuracyPerClass'
+          type: array
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        sampleSize:
+          description: Number of rows used to calculate the metric.
+          type: integer
+        value:
+          description: Accuracy metric value.
+          type:
+          - number
+          - 'null'
+        valuePerClass:
+          description: A dict keyed by class names with metric calculated for specific classes as values, if targetClass is set. Deprecated and to be removed in v2.35, use perClass instead.
+          type:
+          - object
+          - 'null'
+          x-versiondeprecated: v2.33
+      required:
+      - period
+      - sampleSize
+      - value
+      type: object
+    AccuracyOverBatchResponse:
+      properties:
+        baselines:
+          description: Accuracy metric training baseline.
+          items:
+            $ref: '#/components/schemas/AccuracyBatchBaselineBucket'
+          type: array
+          x-versionadded: v2.33
+        buckets:
+          description: Accuracy metric for batches that are requested, with non-existing batches omitted.
+          items:
+            $ref: '#/components/schemas/AccuracyBatchBucket'
+          type: array
+          x-versionadded: v2.33
+      required:
+      - baselines
+      - buckets
+      type: object
+    AccuracyResponse:
+      properties:
+        batchIds:
+          description: ID of the batches used to calculate accuracy metrics.
+          items:
+            type: string
+          type: array
+        data:
+          description: Accuracy metric data.
+          items:
+            $ref: '#/components/schemas/AccuracyMetric'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.36
+        metrics:
+          description: Accuracy metrics of the deployment. Deprecated and to be removed in v2.40; use data objects.
+          example: "\n                {\"metrics\": {\n                    \"LogLoss\": {\n                        \"baselineValue\": 0.454221484838069,\n                        \"value\": 0.880778024500618,\n                        \"percentChange\": -93.91\n                    },\n                    \"AUC\": {\n                        \"baselineValue\": 0.8690358459556535,\n                        \"value\": 0.5294117647058824,\n                        \"percentChange\": -39.08\n                    },\n                    \"Kolmogorov-Smirnov\": {\n                        \"baselineValue\": 0.5753202944706626,\n                        \"value\": 0.4117647058823529,\n                        \"percentChange\": -28.43\n                    },\n                    \"Rate@Top10%\": {\n                        \"baselineValue\": 0.9603223806571606,\n                        \"value\": 1.0,\n                        \"percentChange\": 4.13\n                    },\n                    \"Gini Norm\": {\n                        \"baselineValue\": 0.7380716919113071,\n                        \"value\": 0.05882352941176472,\n                        \"percentChange\": -92.03\n                    }\n                }\n                "
+          type: object
+          x-versiondeprecated: v2.36
+        modelId:
+          description: The id of the model for which metrics are being retrieved. Deprecated and to be removed in v2.40; use modelId in each data object.
+          type: string
+          x-versiondeprecated: v2.36
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - data
+      type: object
+    TimeRange:
+      description: An object with the keys "start" and "end" defining the period.
+      properties:
+        end:
+          description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        start:
+          description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      type: object
+    BatchPeriod:
+      description: Time period of the batch.
+      properties:
+        end:
+          description: End time of the bucket
+          format: date-time
+          type:
+          - string
+          - 'null'
+        start:
+          description: Start time of the bucket
+          format: date-time
+          type:
+          - string
+          - 'null'
+      required:
+      - end
+      - start
+      type: object
+    PredictionsVsActualsBaseline:
+      properties:
+        actualClassDistribution:
+          description: Class distribution for all actuals in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/ActualClassDistribution'
+          type:
+          - array
+          - 'null'
+        meanActualValue:
+          description: Mean actual value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+        meanPredictedValue:
+          description: Mean predicted value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+        modelId:
+          description: ID of the model.
+          type: string
+        predictedClassDistribution:
+          description: Class distribution for all rows with actual in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/PredictedClassDistribution'
+          type:
+          - array
+          - 'null'
+        rowCountTotal:
+          description: Number of rows in the bucket.
+          type: integer
+        rowCountWithActual:
+          description: Number of rows with actual in the bucket.
+          type: integer
+      required:
+      - modelId
+      - rowCountTotal
+      - rowCountWithActual
+      type: object
+    AccuracyOverSpaceBucket:
+      properties:
+        hexagon:
+          description: h3 hexagon.
+          type: string
+        perClass:
+          description: Accuracy metric values for selected classes, only available for multiclass deployments.
+          items:
+            $ref: '#/components/schemas/AccuracyPerClass'
+          maxItems: 125
+          type: array
+        value:
+          description: Accuracy metric value.
+          type:
+          - number
+          - 'null'
+      required:
+      - hexagon
+      - value
+      type: object
+      x-versionadded: v2.35
+    AccuracyOverTimeResponse:
+      properties:
+        baseline:
+          $ref: '#/components/schemas/AccuracyLegacyTimeBucket'
+          x-versiondeprecated: v2.33
+        baselines:
+          description: Accuracy metric training baseline.
+          items:
+            $ref: '#/components/schemas/AccuracyTimeBaselineBucket'
+          type: array
+        buckets:
+          description: Accuracy metric for requested models and time buckets.
+          items:
+            $ref: '#/components/schemas/AccuracyTimeBucket'
+          type: array
+        metric:
+          description: The metric being retrieved.
+          enum:
+          - AUC
+          - Accuracy
+          - Balanced Accuracy
+          - F1
+          - FPR
+          - FVE Binomial
+          - FVE Gamma
+          - FVE Multinomial
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - MAE
+          - MAPE
+          - MCC
+          - NPV
+          - PPV
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Rate@Top10%
+          - Rate@Top5%
+          - TNR
+          - TPR
+          - Tweedie Deviance
+          - WGS84 MAE
+          - WGS84 RMSE
+          type: string
+        modelId:
+          description: The id of the model for which metrics are being retrieved. Deprecated and to be removed in v2.35, use modelId in each baseline or bucket object.
+          type: string
+          x-versiondeprecated: v2.33
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        summary:
+          $ref: '#/components/schemas/AccuracyLegacyTimeBucket'
+          x-versiondeprecated: v2.33
+      required:
+      - baseline
+      - baselines
+      - buckets
+      - metric
+      - summary
+      type: object
+    AccuracyMetric:
+      properties:
+        baselineSampleSize:
+          description: Number of predictions used to calculate the baseline metric value.
+          type: integer
+          x-versionadded: v2.37
+        baselineValue:
+          description: Baseline value of the metric.
+          type:
+          - number
+          - 'null'
+        metricName:
+          description: Name of the metric.
+          type: string
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+        percentChange:
+          description: Percent of change by comparing metric value to baseline, with metric direction taken into account.
+          type:
+          - number
+          - 'null'
+        sampleSize:
+          description: Number of predictions used to calculate the metric value.
+          type: integer
+          x-versionadded: v2.37
+        value:
+          description: Value of the metric.
+          type:
+          - number
+          - 'null'
+      required:
+      - baselineSampleSize
+      - baselineValue
+      - metricName
+      - percentChange
+      - sampleSize
+      - value
+      type: object
+      x-versionadded: v2.36
+    PredictionsVsActualsOverTimeResponse:
+      properties:
+        baselines:
+          description: Predictions vs actuals baselines.
+          items:
+            $ref: '#/components/schemas/PredictionsVsActualsBaseline'
+          type: array
+        buckets:
+          description: Predictions vs actuals buckets.
+          items:
+            $ref: '#/components/schemas/PredictionsVsActualsTimeBucket'
+          type: array
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        summary:
+          $ref: '#/components/schemas/PredictionsVsActualsSummaryBucket'
+      required:
+      - baselines
+      - buckets
+      - summary
+      type: object
+    PredictionsVsActualsOverSpaceBucket:
+      properties:
+        actualClassDistribution:
+          description: For classification deployments, the class distribution for all actuals in the bucket.
+          items:
+            $ref: '#/components/schemas/ActualClassDistribution'
+          maxItems: 125
+          type:
+          - array
+          - 'null'
+        hexagon:
+          description: The H3 geospatial indexing hexagon.
+          type: string
+        meanActualValue:
+          description: For regression deployments, the mean actual value of all rows in the bucket.
+          type:
+          - number
+          - 'null'
+        meanPredictedValue:
+          description: For regression deployments, the mean predicted value of all rows in the bucket.
+          type:
+          - number
+          - 'null'
+        predictedClassDistribution:
+          description: For classification deployments, the class distribution for all prediction rows in the bucket with associated actuals.
+          items:
+            $ref: '#/components/schemas/PredictedClassDistribution'
+          maxItems: 125
+          type:
+          - array
+          - 'null'
+        rowCountTotal:
+          description: The number of rows in the bucket.
+          type: integer
+        rowCountWithActual:
+          description: The number of prediction rows in the bucket with associated actuals.
+          type: integer
+      required:
+      - hexagon
+      - rowCountTotal
+      - rowCountWithActual
+      type: object
+      x-versionadded: v2.35
+    ActualClassDistribution:
+      properties:
+        className:
+          description: Name of the class.
+          type: string
+        count:
+          description: Count of actual rows labeled with a class in the bucket.
+          type: integer
+        percent:
+          description: Percent of actual rows labeled with a class in the bucket.
+          type: number
+      required:
+      - className
+      - count
+      - percent
+      type: object
+    AccuracyBatchBucket:
+      properties:
+        batchId:
+          description: ID of the batch.
+          type: string
+          x-versionadded: v2.33
+        batchName:
+          description: Name of the batch.
+          type: string
+          x-versionadded: v2.33
+        metric:
+          description: Name of the metric.
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+          x-versionadded: v2.33
+        perClass:
+          description: Accuracy metric for selected classes.
+          items:
+            $ref: '#/components/schemas/AccuracyPerClass'
+          type: array
+          x-versionadded: v2.33
+        period:
+          $ref: '#/components/schemas/BatchPeriod'
+          x-versionadded: v2.33
+        sampleSize:
+          description: Number of rows used to calculate the metric.
+          type: integer
+          x-versionadded: v2.33
+        value:
+          description: Accuracy metric value.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - batchId
+      - batchName
+      - metric
+      - period
+      - sampleSize
+      - value
+      type: object
+    PredictionsVsActualsBatchBucket:
+      properties:
+        actualClassDistribution:
+          description: Class distribution for all actuals in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/ActualClassDistribution'
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        batchId:
+          description: ID of the batch.
+          type: string
+          x-versionadded: v2.33
+        batchName:
+          description: Name of the batch.
+          type: string
+          x-versionadded: v2.33
+        meanActualValue:
+          description: Mean actual value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        meanPredictedValue:
+          description: Mean predicted value for all rows in the bucket, only for regression deployments.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        modelId:
+          description: ID of the model.
+          type: string
+          x-versionadded: v2.33
+        period:
+          $ref: '#/components/schemas/BatchPeriod'
+          x-versionadded: v2.33
+        predictedClassDistribution:
+          description: Class distribution for all rows with actual in the bucket, only for classification deployments.
+          items:
+            $ref: '#/components/schemas/PredictedClassDistribution'
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        rowCountTotal:
+          description: Number of rows in the bucket.
+          type: integer
+          x-versionadded: v2.33
+        rowCountWithActual:
+          description: Number of rows with actual in the bucket.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - batchId
+      - batchName
+      - modelId
+      - period
+      - rowCountTotal
+      - rowCountWithActual
+      type: object
+    AccuracyBatchBaselineBucket:
+      properties:
+        metric:
+          description: Name of the metric.
+          type: string
+          x-versionadded: v2.33
+        modelId:
+          description: The id of the model for which metrics are being retrieved.
+          type: string
+          x-versionadded: v2.33
+        perClass:
+          description: Accuracy metric for selected classes.
+          items:
+            $ref: '#/components/schemas/AccuracyPerClass'
+          type: array
+          x-versionadded: v2.33
+        sampleSize:
+          description: Number of rows used to calculate the metric.
+          type: integer
+          x-versionadded: v2.33
+        value:
+          description: Accuracy metric value.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - metric
+      - sampleSize
+      - value
+      type: object
+    AccuracyPerClass:
+      properties:
+        className:
+          description: Name of the class.
+          type: string
+        value:
+          description: Value of the metric.
+          type:
+          - number
+          - 'null'
+      required:
+      - className
+      - value
+      type: object
+    PredictionsVsActualsOverBatchResponse:
+      properties:
+        baselines:
+          description: Predictions vs actuals baselines.
+          items:
+            $ref: '#/components/schemas/PredictionsVsActualsBaseline'
+          type: array
+          x-versionadded: v2.33
+        buckets:
+          description: Predictions vs actuals buckets.
+          items:
+            $ref: '#/components/schemas/PredictionsVsActualsBatchBucket'
+          type: array
+          x-versionadded: v2.33
+        segmentAttribute:
+          description: The name of the segment on which segment analysis is being performed.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+        segmentValue:
+          default: ''
+          description: The value of the `segmentAttribute` to segment on.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.20
+      required:
+      - baselines
+      - buckets
+      type: object
+    AccuracyLegacyTimeBucket:
+      description: A bucket object containing metric info calculated. Deprecated and to be removed in v2.35, use summaries field with includeSummaries query param to get accuracy metrics computed over the whole time range.
+      properties:
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        sampleSize:
+          description: Number of predictions used to calculate the metric.
+          type:
+          - integer
+          - 'null'
+        value:
+          description: Value of the metric, null if no value.
+          type:
+          - number
+          - 'null'
+        valuePerClass:
+          description: A dict keyed by class names with metric calculated for specific classes as values, if targetClass is set. Deprecated and to be removed in v2.35, use perClass instead.
+          type:
+          - object
+          - 'null'
+      required:
+      - period
+      - sampleSize
+      - value
+      type: object
+    AccuracyOverSpaceBaselineBucket:
+      properties:
+        hexagon:
+          description: h3 hexagon.
+          type: string
+        perClass:
+          description: Accuracy metric values for selected classes, only available for multiclass deployments.
+          items:
+            $ref: '#/components/schemas/AccuracyPerClass'
+          maxItems: 125
+          type: array
+        sampleSize:
+          description: Number of rows used to calculate the metric.
+          type: integer
+        value:
+          description: Accuracy metric value.
+          type:
+          - number
+          - 'null'
+      required:
+      - hexagon
+      - sampleSize
+      - value
+      type: object
+      x-versionadded: v2.35
+    AccuracyMetricUpdate:
+      properties:
+        data:
+          description: List of Accuracy Metrics.
+          items:
+            description: Name of the accuracy metric.
+            enum:
+            - AUC
+            - Accuracy
+            - Balanced Accuracy
+            - F1
+            - FPR
+            - FVE Binomial
+            - FVE Gamma
+            - FVE Multinomial
+            - FVE Poisson
+            - FVE Tweedie
+            - Gamma Deviance
+            - Gini Norm
+            - Kolmogorov-Smirnov
+            - LogLoss
+            - MAE
+            - MAPE
+            - MCC
+            - NPV
+            - PPV
+            - Poisson Deviance
+            - R Squared
+            - RMSE
+            - RMSLE
+            - Rate@Top10%
+            - Rate@Top5%
+            - TNR
+            - TPR
+            - Tweedie Deviance
+            - WGS84 MAE
+            - WGS84 RMSE
+            type: string
+          maxItems: 15
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.36
+    PredictionsVsActualsSummaryBucket:
+      description: Predictions vs actuals summary.
+      properties:
+        rowCountTotal:
+          description: Number of rows for all buckets.
+          type: integer
+        rowCountWithActual:
+          description: Number of rows with actual for all buckets.
+          type: integer
+      required:
+      - rowCountTotal
+      - rowCountWithActual
+      type: object
+    PredictionsVsActualsOverSpaceResponse:
+      properties:
+        baselines:
+          description: The predictions vs. actuals over space baselines.
+          items:
+            $ref: '#/components/schemas/PredictionsVsActualsOverSpaceBucket'
+          maxItems: 1000
+          type: array
+        buckets:
+          description: The predictions vs. actuals over space buckets.
+          items:
+            $ref: '#/components/schemas/PredictionsVsActualsOverSpaceBucket'
+          maxItems: 1000
+          type: array
+        geoFeatureName:
+          description: The name of the geospatial feature.
+          type: string
+        modelId:
+          description: 'The ID of the model for which metrics are being retrieved. '
+          type: string
+        period:
+          $ref: '#/components/schemas/TimeRange'
+        summary:
+          $ref: '#/components/schemas/PredictionsVsActualsSummaryBucket'
+      required:
+      - baselines
+      - buckets
+      - geoFeatureName
+      - summary
+      type: object
+      x-versionadded: v2.35
+    AccuracyMetricList:
+      properties:
+        data:
+          description: List of Accuracy Metrics.
+          items:
+            description: Name of the accuracy metric.
+            enum:
+            - AUC
+            - Accuracy
+            - Balanced Accuracy
+            - F1
+            - FPR
+            - FVE Binomial
+            - FVE Gamma
+            - FVE Multinomial
+            - FVE Poisson
+            - FVE Tweedie
+            - Gamma Deviance
+            - Gini Norm
+            - Kolmogorov-Smirnov
+            - LogLoss
+            - MAE
+            - MAPE
+            - MCC
+            - NPV
+            - PPV
+            - Poisson Deviance
+            - R Squared
+            - RMSE
+            - RMSLE
+            - Rate@Top10%
+            - Rate@Top5%
+            - TNR
+            - TPR
+            - Tweedie Deviance
+            - WGS84 MAE
+            - WGS84 RMSE
+            type: string
+          maxItems: 15
+          type: array
+      required:
+      - data
+      type: object
+      x-versionadded: v2.36
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

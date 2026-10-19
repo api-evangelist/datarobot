@@ -1,0 +1,3681 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Data Wrangling API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: This page outlines the operations and endpoints for data wrangling (preparation).
+  name: data_wrangling
+paths:
+  /api/v2/recipes/:
+    get:
+      description: Get a list of the recipes available for given user.
+      operationId: recipes_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: 'The attribute sort order applied to the returned recipes list: ''recipe_id'', ''name'', ''description'', ''dialect'', ''status'', ''recipe_type'', ''created_at'', ''created_by'', ''updated_at'', ''updated_by''. Prefix the attribute name with a dash to sort in descending order. e.g., orderBy=''-name''. Defaults to ''-created''.'
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          default: -updatedAt
+          enum:
+          - recipeId
+          - -recipeId
+          - name
+          - -name
+          - description
+          - -description
+          - dialect
+          - -dialect
+          - status
+          - -status
+          - recipeType
+          - -recipeType
+          - createdAt
+          - -createdAt
+          - createdBy
+          - -createdBy
+          - updatedAt
+          - -updatedAt
+          - updatedBy
+          - -updatedBy
+          type: string
+      - description: Only return recipes with names that contain the specified string.
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+      - description: SQL dialect for Query Generator.
+        in: query
+        name: dialect
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - snowflake
+            - bigquery
+            - spark-feature-discovery
+            - databricks
+            - spark
+            - postgres
+            type: string
+          - items:
+              enum:
+              - snowflake
+              - bigquery
+              - spark-feature-discovery
+              - databricks
+              - spark
+              - postgres
+              type: string
+            type: array
+      - description: Status used for filtering recipes.
+        in: query
+        name: status
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - draft
+            - preview
+            - published
+            type: string
+          - items:
+              enum:
+              - draft
+              - preview
+              - published
+              type: string
+            type: array
+      - description: Type of the recipe workflow.
+        in: query
+        name: recipeType
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - sql
+            - Sql
+            - SQL
+            - wrangling
+            - Wrangling
+            - WRANGLING
+            - featureDiscovery
+            - FeatureDiscovery
+            - FEATURE_DISCOVERY
+            - featureDiscoveryPrivatePreview
+            - FeatureDiscoveryPrivatePreview
+            - FEATURE_DISCOVERY_PRIVATE_PREVIEW
+            type: string
+          - items:
+              enum:
+              - sql
+              - Sql
+              - SQL
+              - wrangling
+              - Wrangling
+              - WRANGLING
+              - featureDiscovery
+              - FeatureDiscovery
+              - FEATURE_DISCOVERY
+              - featureDiscoveryPrivatePreview
+              - FeatureDiscoveryPrivatePreview
+              - FEATURE_DISCOVERY_PRIVATE_PREVIEW
+              type: string
+            type: array
+      - description: Filter results to display only those created by user(s) associated with the specified ID.
+        in: query
+        name: creatorUserId
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+      - description: Filter results to display only those created by user(s) associated with the specified username.
+        in: query
+        name: creatorUsername
+        required: false
+        schema:
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipesListResponse'
+          description: ''
+      summary: List recipes
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/fromDataStore/:
+    post:
+      description: Create a recipe which could be used for wrangling from a created fully reconfigured source of data. A `data source` specifies, via SQL query or selected table and schema data, which data to extract from the `data connection` (the location of data within a given endpoint) to use for modeling or predictions. A `data source` has one `data connection` and one `connector` but can have many `datasets`.
+      operationId: recipesFromDataStore_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeFromDataSourceCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: Data source and recipe created successfully.
+      summary: Create a recipe and a data source
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/fromDataset/:
+    post:
+      description: Create a recipe which could be used for wrangling from given dataset. Deepcopy the dataset's recipe if available.Otherwise create a new recipe reusing the dataset's data source.A `data source` specifies, via SQL query or selected table and schema data, which data to extract from the `data connection` (the location of data within a given endpoint) to use for modeling or predictions. A `data source` has one `data connection` and one `connector` but can have many `datasets`.
+      operationId: recipesFromDataset_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericRecipeFromDataset'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: Recipe created successfully.
+        '422':
+          description: You can't specify `dialect` or `inputs` when source Recipe is available.
+      summary: Create a recipe given dataset
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/fromRecipe/:
+    post:
+      description: Shallow copy the given recipe, reusing existing data sources. Implicitly creates duplicate of wrangling session.
+      operationId: recipesFromRecipe_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeFromRecipeCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: Recipe created successfully.
+      summary: Clone given wrangling recipe
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/:
+    delete:
+      description: Marks the wrangling recipe with a given ID as deleted.
+      operationId: recipes_delete
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeSettingsUpdate'
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeSettingsResponse'
+          description: Successfully deleted.
+      summary: Deletes the wrangling recipe by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+    get:
+      description: Retrieve a wrangling recipe given ID.
+      operationId: recipes_retrieve
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: ''
+      summary: Retrieve a wrangling recipe by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+    patch:
+      description: Patch a wrangling recipe name and description
+      operationId: recipes_patch
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchRecipe'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: ''
+      summary: Patched wrangling recipe by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/downsampling/:
+    put:
+      description: Updates the downsampling directive in the recipe.Downsampling will be applied on top of the recipe during publishing.
+      operationId: recipesDownsampling_putMany
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeDownsamplingUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: ''
+        '422':
+          description: Cannot modify published recipe.
+      summary: Updates the downsampling by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/inputs/:
+    get:
+      description: Gets inputs of the given recipe.
+      operationId: recipesInputs_list
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeInputsResponse'
+          description: ''
+      summary: Gets inputs by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+    put:
+      description: Set the inputs on a recipe to change the configuration. Implicitly restart the initial sampling job which calculates:1) Column names;2) resulting size of the sample in bytes;3) resulting size of the sample in rows.
+      operationId: recipesInputs_putMany
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeInputUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: ''
+      summary: Sets the input of the given recipe by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.35
+  /api/v2/recipes/{recipeId}/insights/:
+    get:
+      description: Retrieve recipe insights.
+      operationId: recipesInsights_list
+      parameters:
+      - description: At most this many results are returned. The default may change and a maximum limit may be imposed without notice.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 0
+          type: integer
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number indicating how many operations from the beginning to return insights for.
+        in: query
+        name: numberOfOperationsToUse
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        x-versionadded: v2.35
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefinexInsightsResponse'
+          description: ''
+      summary: Retrieve recipe insights by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/operations/:
+    put:
+      description: Updates the operations in a recipe by saving new directives. To validate the new operations, run preview validation and SQL generation. To apply them to the new recipe, you must run a request to preview the results must be run.
+      operationId: recipesOperations_putMany
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeOperationsUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+          description: ''
+        '409':
+          description: Operations can't be applied due to a wrangling session state.
+        '422':
+          description: Cannot modify published recipe.
+      summary: Update the operations by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.35
+  /api/v2/recipes/{recipeId}/operations/{operationIndex}/:
+    get:
+      description: Returns an operation configuration with an additional *inputColumns* field to show the list of columns available at that stage.
+      operationId: recipesOperations_retrieve
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      - description: The zero-based index of the operation.
+        in: path
+        name: operationIndex
+        required: true
+        schema:
+          minimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationDetails'
+          description: ''
+      summary: Retrieve a recipe operation details by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/preview/:
+    get:
+      description: Retrieve a wrangling preview given ID.
+      operationId: recipesPreview_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The number indicating how many operations from the beginning to retrieve a preview for.
+        in: query
+        name: numberOfOperationsToUse
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+        x-versionadded: v2.35
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipePreviewResponse'
+          description: ''
+      summary: Retrieve a wrangling preview by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+    post:
+      description: 'Starts the preview process for the recipe. Since this is an asynchronous process this endpoint returns a status ID to use with the status endpoint and a location header with the URL that can be polled for status.Launch WranglingJob, which includes:
+
+        1. InitialSamplingJob if it hasn’t been launched before
+
+        2. Preview query itself
+
+        3. Launch recipe eda job
+
+
+        Insights computation is launched implicitly if there was sampling specified and no operations specified.'
+      operationId: recipesPreview_create
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeRunPreviewAsync'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+          description: ''
+        '422':
+          description: Credentials were not provided and default credentials were not found.
+      summary: Start the job by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/relationshipQualityAssessments/:
+    post:
+      description: Submit a job to assess the quality of the relationship configuration within a Feature Discovery session in Workbench.
+      operationId: recipesRelationshipQualityAssessments_create
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationshipQualityAssessmentsCreate'
+      responses:
+        '202':
+          description: Relationship quality assessment has successfully started. See the Location header.
+          headers:
+            Location:
+              description: A url that can be polled to check the status.
+              schema:
+                type: string
+        '422':
+          description: Unable to process the request
+      summary: Submit a relationship quality assessment job by recipe ID
+      tags:
+      - data_wrangling
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables support of late project creation in Feature Discovery to separate feature selection from the Feature Discovery editor.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: FEATURE_DISCOVERY_LATE_PROJECT_CREATION
+      - description: Allows users to perform Feature Discovery on datasets in Workbench.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: UXR_FEATURE_DISCOVERY
+      x-versionadded: v2.35
+  /api/v2/recipes/{recipeId}/settings/:
+    patch:
+      description: Updates some recipe settings applicable in the modeling stage.
+      operationId: recipesSettings_patchMany
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeSettingsUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeSettingsResponse'
+          description: ''
+      summary: Updates recipe settings by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/sql/:
+    post:
+      description: Builds a SQL query for the recipe. Overrides operations to get the adjusted query without changing the recipe.
+      operationId: recipesSql_create
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuildRecipeSql'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildRecipeSqlResponse'
+          description: ''
+        '409':
+          description: Input source data is not ready yet.
+        '422':
+          description: Failed to build SQL.
+      summary: Build SQL query by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.33
+  /api/v2/recipes/{recipeId}/timeseriesTransformationPlans/:
+    post:
+      description: Generate a list of recipe operations, which serve as the plan to transform a regular dataset into a time series dataset.
+      operationId: recipesTimeseriesTransformationPlans_create
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateTransformationPlan'
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+          description: ''
+      summary: Generate a time series transformation plan by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.36
+  /api/v2/recipes/{recipeId}/timeseriesTransformationPlans/{id}/:
+    get:
+      description: Returns a list of recipe operations, which serve as the plan to transform a regular dataset into a time series dataset.
+      operationId: recipesTimeseriesTransformationPlans_retrieve
+      parameters:
+      - description: The ID of the recipe.
+        in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the transformation plan.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransformationPlanResponse'
+          description: ''
+      summary: Retrieve generated time series transformation plan by recipe ID
+      tags:
+      - data_wrangling
+      x-versionadded: v2.36
+  /api/v2/sparkSessions/:
+    delete:
+      description: Stop the underlying interactive Spark session, if applicable.
+      operationId: sparkSessions_deleteMany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopSession'
+      responses:
+        '204':
+          description: ''
+      summary: Stop wrangling session
+      tags:
+      - data_wrangling
+      x-versionadded: v2.38
+components:
+  schemas:
+    DatetimeSampleArgumentsCreate:
+      description: The interactive sampling config.
+      properties:
+        datetimePartitionColumn:
+          description: The datetime partition column to order by.
+          type: string
+          x-versionadded: v2.33
+        multiseriesIdColumn:
+          default: null
+          description: The series ID column, if present.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        rows:
+          default: 10000
+          description: The number of rows to be sampled.
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-versionadded: v2.33
+        selectedSeries:
+          description: The selected series to be sampled. Requires "multiseriesIdColumn".
+          items:
+            type: string
+          maxItems: 1000
+          minItems: 1
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+        strategy:
+          default: earliest
+          description: Sets whether to take the latest or earliest rows relative to the datetime partition column.
+          enum:
+          - earliest
+          - latest
+          type: string
+          x-versionadded: v2.33
+      required:
+      - datetimePartitionColumn
+      - skip
+      - strategy
+      type: object
+    RecipeFromRecipeCreate:
+      properties:
+        name:
+          description: The recipe name.
+          maxLength: 255
+          type: string
+          x-versionadded: v2.33
+        recipeId:
+          description: Recipe ID to create a Recipe from.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - recipeId
+      type: object
+    BaseNumericStatsArguments:
+      description: Task arguments.
+      properties:
+        methods:
+          description: Methods to apply in a rolling window.
+          items:
+            enum:
+            - avg
+            - max
+            - median
+            - min
+            - stddev
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+        windowSize:
+          description: Rolling window size, defined in terms of rows. Left end is exclusive, right end is inclusive.
+          exclusiveMinimum: 0
+          maximum: 300
+          type: integer
+      required:
+      - methods
+      - skip
+      - windowSize
+      type: object
+      x-versionadded: v2.35
+    DropColumnsArguments:
+      description: The transformation description.
+      properties:
+        columns:
+          description: The list of columns.
+          items:
+            type: string
+          maxItems: 1000
+          minItems: 1
+          type: array
+          x-versionadded: v2.33
+        keepColumns:
+          default: false
+          description: If True, keep only the specified columns. If False (default), drop the specified columns.
+          type: boolean
+          x-versionadded: v2.37
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - columns
+      - skip
+      type: object
+    DatasetInputCreate:
+      description: Dataset configuration.
+      properties:
+        sampling:
+          $ref: '#/components/schemas/DatasetInputSampling'
+          default: null
+          x-versionadded: v2.33
+      type: object
+    ReplaceDirectiveArguments:
+      description: The transformation description.
+      properties:
+        isCaseSensitive:
+          default: true
+          description: The flag indicating if the "search_for" value is case-sensitive.
+          type: boolean
+          x-versionadded: v2.33
+        matchMode:
+          description: The match mode to use when detecting "search_for" values.
+          enum:
+          - partial
+          - exact
+          - regex
+          type: string
+          x-versionadded: v2.33
+        origin:
+          description: The place name to look for in values.
+          type: string
+          x-versionadded: v2.33
+        replacement:
+          default: ''
+          description: The replacement value.
+          type: string
+          x-versionadded: v2.33
+        searchFor:
+          description: Indicates what needs to be replaced.
+          type: string
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - matchMode
+      - origin
+      - searchFor
+      - skip
+      type: object
+    LimitDirectiveArguments:
+      description: The interactive sampling config.
+      properties:
+        rows:
+          default: 1000
+          description: The number of rows to be selected.
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - rows
+      - skip
+      type: object
+    OneOfDirective:
+      discriminator:
+        propertyName: directive
+      oneOf:
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/FilterDirectiveArguments'
+          directive:
+            description: The single data transformation step.
+            enum:
+            - filter
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/ReplaceDirectiveArguments'
+          directive:
+            description: The single data transformation step.
+            enum:
+            - replace
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/ComputeNewDirectiveArguments'
+          directive:
+            description: The single data transformation step.
+            enum:
+            - compute-new
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/BaseDirectiveArguments'
+            default: {}
+          directive:
+            description: The single data transformation step.
+            enum:
+            - dedupe-rows
+            type: string
+        required:
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/DropColumnsArguments'
+          directive:
+            description: The single data transformation step.
+            enum:
+            - drop-columns
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/RenameColumnsArguments'
+          directive:
+            description: The single data transformation step.
+            enum:
+            - rename-columns
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/JoinArguments'
+          directive:
+            description: The single data transformation step.
+            enum:
+            - join
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/AggregateDirectiveArguments'
+          directive:
+            description: The single data transformation step.
+            enum:
+            - aggregate
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/TimeSeriesDirectiveArguments'
+          directive:
+            description: Time series processing directive, which prepares the dataset for time series modeling. All windows are row-based.
+            enum:
+            - time-series
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+    RecipePreviewResponse:
+      properties:
+        byteSize:
+          description: Data memory usage
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+        columns:
+          description: List of columns in data preview
+          items:
+            description: Column name
+            type: string
+          maxItems: 10000
+          type: array
+          x-versionadded: v2.33
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: List of records output by the query.
+          items:
+            description: List of values for a single database record, ordered as the columns are ordered.
+            items:
+              description: String representation of the column's value.
+              type: string
+            maxItems: 10000
+            type: array
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        estimatedSizeExceedsLimit:
+          description: Defines if downsampling should be done based on sample size
+          type: boolean
+          x-versionadded: v2.33
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        resultSchema:
+          description: JDBC result schema
+          items:
+            $ref: '#/components/schemas/DataStoreExtendedColumnNoKeysResponse'
+          maxItems: 10000
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+        storedCount:
+          description: The number of rows available for preview.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.37
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - byteSize
+      - columns
+      - data
+      - estimatedSizeExceedsLimit
+      - next
+      - previous
+      - resultSchema
+      - storedCount
+      - totalCount
+      type: object
+    TaskPlanItem:
+      properties:
+        column:
+          description: Column to apply transformations to.
+          type: string
+        taskList:
+          description: Tasks to apply to the specific column.
+          items:
+            $ref: '#/components/schemas/OneOfTransforms'
+          maxItems: 15
+          minItems: 1
+          type: array
+      required:
+      - column
+      - taskList
+      type: object
+      x-versionadded: v2.35
+    RecipeInputUpdate:
+      properties:
+        inputs:
+          description: List of data sources and their sampling configurations.
+          items:
+            $ref: '#/components/schemas/RecipeInput'
+          maxItems: 1000
+          minItems: 1
+          type: array
+      required:
+      - inputs
+      type: object
+      x-versionadded: v2.35
+    ComputeNewDirectiveArguments:
+      description: The transformation description.
+      properties:
+        expression:
+          description: The expression for new feature computation.
+          type: string
+          x-versionadded: v2.33
+        newFeatureName:
+          description: The new feature name which will hold results of expression evaluation.
+          type: string
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - expression
+      - newFeatureName
+      - skip
+      type: object
+    SampleDirectiveCreate:
+      description: The input data transformation steps.
+      discriminator:
+        propertyName: directive
+      oneOf:
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/RandomSampleArgumentsCreate'
+            default: {}
+          directive:
+            description: The directive name.
+            enum:
+            - random-sample
+            type: string
+        required:
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/DatetimeSampleArgumentsCreate'
+            default: {}
+          directive:
+            description: The directive name.
+            enum:
+            - datetime-sample
+            type: string
+        required:
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/LimitDirectiveArguments'
+          directive:
+            description: The directive name.
+            enum:
+            - limit
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/TableSampleArgumentsCreate'
+            default: {}
+          directive:
+            description: The directive name.
+            enum:
+            - tablesample
+            type: string
+        required:
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/EfficientRowBasedSampleArgumentsCreate'
+            default: {}
+          directive:
+            description: The directive name.
+            enum:
+            - efficient-rowbased-sample
+            type: string
+        required:
+        - directive
+        type: object
+    TimeSeriesDirective:
+      properties:
+        arguments:
+          $ref: '#/components/schemas/TimeSeriesDirectiveArguments'
+        directive:
+          description: Time series processing directive, which prepares the dataset for time series modeling. All windows are row-based.
+          enum:
+          - time-series
+          type: string
+      required:
+      - arguments
+      - directive
+      type: object
+      x-versionadded: v2.35
+    RecipesListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: A list of the datasets in this Use Case.
+          items:
+            $ref: '#/components/schemas/RecipeResponse'
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    TransformationPlanResponse:
+      properties:
+        id:
+          description: The identifier of the transformation plan.
+          type: string
+        inputParameters:
+          $ref: '#/components/schemas/InputParametersResponse'
+        status:
+          description: Transformation preparation status
+          enum:
+          - INITIALIZED
+          - COMPLETED
+          - ERROR
+          type: string
+        suggestedOperations:
+          description: The list of operations to apply to a recipe to get the dataset ready for time series modeling.
+          items:
+            $ref: '#/components/schemas/TimeSeriesDirective'
+          maxItems: 10
+          type: array
+      required:
+      - id
+      - inputParameters
+      - status
+      - suggestedOperations
+      type: object
+      x-versionadded: v2.35
+    RecipeInputsResponse:
+      properties:
+        inputs:
+          description: List of recipe inputs
+          items:
+            $ref: '#/components/schemas/RecipeInputStatsResponse'
+          maxItems: 1000
+          minItems: 1
+          type: array
+          x-versionadded: v2.33
+      required:
+      - inputs
+      type: object
+    RecipeDownsamplingUpdate:
+      properties:
+        downsampling:
+          $ref: '#/components/schemas/OneOfDownsamplingDirective'
+          x-versionadded: v2.33
+      required:
+      - downsampling
+      type: object
+    DataStoreExtendedColumnNoKeysResponse:
+      description: JDBC result column description
+      properties:
+        columnDefaultValue:
+          description: Default value of the column.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        dataType:
+          description: DataType of the column.
+          type: string
+          x-versionadded: v2.33
+        dataTypeInt:
+          description: Integer value of the column data type.
+          type: integer
+          x-versionadded: v2.33
+        isInPrimaryKey:
+          description: True if the column is in the primary key .
+          type: boolean
+          x-versionadded: v2.33
+        isNullable:
+          description: If the column values can be null.
+          enum:
+          - 'NO'
+          - UNKNOWN
+          - 'YES'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        name:
+          description: Name of the column.
+          type: string
+          x-versionadded: v2.33
+        precision:
+          description: Precision of the column.
+          type: integer
+          x-versionadded: v2.33
+        scale:
+          description: Scale of the column.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - dataType
+      - name
+      type: object
+    RecipeInputStatsResponse:
+      properties:
+        alias:
+          description: The alias for the data source table.
+          maxLength: 256
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.36
+        columnCount:
+          description: Number of features in original (not sampled) data source
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        connectionName:
+          description: The user-friendly name of the data store.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        dataSourceId:
+          description: The ID of the input data source.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        dataStoreId:
+          description: The ID of the input data store.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        datasetId:
+          description: The ID of the input data source.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.36
+        datasetVersionId:
+          description: The ID of the input data source,
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.36
+        inputType:
+          description: Source type data came from
+          enum:
+          - datasource
+          - dataset
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: Combination of "catalog", "schema" and "table" from data source
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        rowCount:
+          description: Number of rows in original (not sampled) data source
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        sampling:
+          $ref: '#/components/schemas/SampleDirectiveCreate'
+          default: null
+          x-versionadded: v2.36
+        snapshotPolicy:
+          description: Snapshot policy to use for this input.
+          enum:
+          - fixed
+          - latest
+          type: string
+          x-versionadded: v2.36
+        status:
+          description: Input preparation status
+          enum:
+          - ABORTED
+          - COMPLETED
+          - ERROR
+          - EXPIRED
+          - INITIALIZED
+          - RUNNING
+          type: string
+          x-versionadded: v2.33
+      required:
+      - alias
+      - columnCount
+      - connectionName
+      - dataSourceId
+      - dataStoreId
+      - inputType
+      - name
+      - rowCount
+      - status
+      type: object
+    FeatureKeySummaryDetailsResponseValidatorSummarizedCategorical:
+      description: Statistics of the key.
+      properties:
+        dataQualities:
+          description: The indicator of data quality assessment of the feature.
+          enum:
+          - ISSUES_FOUND
+          - NOT_ANALYZED
+          - NO_ISSUES_FOUND
+          type: string
+          x-versionadded: v2.20
+        max:
+          description: Maximum value of the key.
+          type: number
+        mean:
+          description: Mean value of the key.
+          type: number
+        median:
+          description: Median value of the key.
+          type: number
+        min:
+          description: Minimum value of the key.
+          type: number
+        pctRows:
+          description: Percentage occurrence of key in the EDA sample of the feature.
+          type: number
+        stdDev:
+          description: Standard deviation of the key.
+          type: number
+      required:
+      - dataQualities
+      - max
+      - mean
+      - median
+      - min
+      - pctRows
+      - stdDev
+      type: object
+    Relationship:
+      properties:
+        dataset1Identifier:
+          description: Identifier of the first dataset in the relationship. If this is not provided, it represents the primary dataset.
+          maxLength: 20
+          minLength: 1
+          type:
+          - string
+          - 'null'
+        dataset1Keys:
+          description: column(s) in the first dataset that are used to join to the second dataset.
+          items:
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+        dataset2Identifier:
+          description: Identifier of the second dataset in the relationship.
+          maxLength: 20
+          minLength: 1
+          type: string
+        dataset2Keys:
+          description: column(s) in the second dataset that are used to join to the first dataset.
+          items:
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+        featureDerivationWindowEnd:
+          description: How many featureDerivationWindowUnits of each dataset's primary temporal key into the past relative to the datetimePartitionColumn the feature derivation window should end. Will be a non-positive integer, if present. If present, time-aware joins will be used. Only applicable when table1Identifier is not provided.
+          maximum: 0
+          type: integer
+        featureDerivationWindowStart:
+          description: How many featureDerivationWindowUnits of each dataset's primary temporal key into the past relative to the datetimePartitionColumn the feature derivation window should begin. Will be a negative integer, if present. If present, time-aware joins will be used. Only applicable when table1Identifier is not provided.
+          exclusiveMaximum: 0
+          type: integer
+        featureDerivationWindowTimeUnit:
+          description: Time unit of the feature derivation window. Supported values are MILLISECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR. If present, time-aware joins will be used. Only applicable when table1Identifier is not provided.
+          enum:
+          - MILLISECOND
+          - SECOND
+          - MINUTE
+          - HOUR
+          - DAY
+          - WEEK
+          - MONTH
+          - QUARTER
+          - YEAR
+          type: string
+        featureDerivationWindows:
+          description: The list of feature derivation window definitions that will be used.
+          items:
+            $ref: '#/components/schemas/FeatureDerivationWindow'
+          maxItems: 3
+          type: array
+          x-versionadded: '2.27'
+        predictionPointRounding:
+          description: Closest value of predictionPointRoundingTimeUnit to round the prediction point into the past when applying the feature derivation window. Will be a positive integer, if present. Only applicable when table1Identifier is not provided.
+          exclusiveMinimum: 0
+          maximum: 30
+          type: integer
+        predictionPointRoundingTimeUnit:
+          description: Time unit of the prediction point rounding. Supported values are MILLISECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR. Only applicable when table1Identifier is not provided.
+          enum:
+          - MILLISECOND
+          - SECOND
+          - MINUTE
+          - HOUR
+          - DAY
+          - WEEK
+          - MONTH
+          - QUARTER
+          - YEAR
+          type: string
+      required:
+      - dataset1Keys
+      - dataset2Identifier
+      - dataset2Keys
+      type: object
+    RandomSampleArgumentsCreate:
+      description: The interactive sampling config.
+      properties:
+        rows:
+          default: 10000
+          description: The number of rows to be sampled.
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-versionadded: v2.33
+        seed:
+          default: 0
+          description: The starting number of the random number generator.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - skip
+      type: object
+    SmartDownsamplingArguments:
+      description: The downsampling configuration.
+      properties:
+        method:
+          description: The smart downsampling method.
+          enum:
+          - binary
+          - zero-inflated
+          type: string
+          x-versionadded: v2.33
+        rows:
+          description: The number of sampled rows.
+          minimum: 2
+          type: integer
+          x-versionadded: v2.33
+        seed:
+          default: null
+          description: The starting number for the random number generator
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - method
+      - rows
+      - skip
+      type: object
+    BaseLagsArguments:
+      description: Task arguments.
+      properties:
+        orders:
+          description: Lag orders.
+          items:
+            exclusiveMinimum: 0
+            maximum: 300
+            type: integer
+          maxItems: 100
+          minItems: 1
+          type: array
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - orders
+      - skip
+      type: object
+      x-versionadded: v2.35
+    DatasetFeaturePlotDataResponse:
+      properties:
+        count:
+          description: Number of values in the bin.
+          type: number
+        label:
+          description: Bin start for numerical/uncapped, or string value for categorical. The bin `==Missing==` is created for rows that did not have the feature.
+          type: string
+      required:
+      - count
+      - label
+      type: object
+    RecipeSettingsUpdate:
+      properties:
+        featureDiscoverySupervisedFeatureReduction:
+          description: Run supervised feature reduction for Feature Discovery.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.34
+        predictionPoint:
+          description: The date column to be used as the prediction point for time-based feature engineering.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        relationshipsConfigurationId:
+          description: '[Deprecated] No effect. The relationships configuration ID field is immutable.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+          x-versiondeprecated: v2.34
+        sparkInstanceSize:
+          default: small
+          description: The Spark instance size to use, if applicable.
+          enum:
+          - small
+          - medium
+          - large
+          type: string
+          x-versionadded: v2.38
+        target:
+          description: The feature to use as the target at the modeling stage.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        weightsFeature:
+          description: The weights feature.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+      type: object
+    RecipeRunPreviewAsync:
+      properties:
+        credentialId:
+          description: The ID of the credentials to use for the connection. If not given, the default credentials for the connection will be used.
+          type: string
+        numberOfOperationsToUse:
+          description: The number indicating how many operations from the beginning to compute a preview for.
+          minimum: 0
+          type: integer
+          x-versionadded: v2.35
+      type: object
+      x-versionadded: v2.35
+    FilterCondition:
+      properties:
+        column:
+          description: The column name.
+          type: string
+          x-versionadded: v2.33
+        function:
+          description: The function used to evaluate each value.
+          enum:
+          - between
+          - contains
+          - eq
+          - gt
+          - gte
+          - lt
+          - lte
+          - neq
+          - notnull
+          - 'null'
+          type: string
+          x-versionadded: v2.33
+        functionArguments:
+          default: []
+          description: The arguments to use with the function.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+            - type: number
+          maxItems: 2
+          type: array
+          x-versionadded: v2.33
+      required:
+      - column
+      - function
+      type: object
+    ExperimentContainerUserResponse:
+      description: A user associated with a Use Case.
+      properties:
+        email:
+          description: The email address of the user.
+          type:
+          - string
+          - 'null'
+        fullName:
+          description: The full name of the user.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the user.
+          type: string
+        userhash:
+          description: The user's gravatar hash.
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the user.
+          type:
+          - string
+          - 'null'
+      required:
+      - email
+      - id
+      type: object
+    StatusResponse:
+      description: API response object for job execution status.
+      properties:
+        code:
+          $ref: '#/components/schemas/JobErrorCode'
+          description: The error code associated with the job.
+        created:
+          description: The creation date of the job (ISO 8601 formatted).
+          format: date-time
+          title: created
+          type: string
+        description:
+          default: ''
+          description: The description associated with the job.
+          title: description
+          type: string
+        message:
+          default: ''
+          description: The error message associated with the job.
+          title: message
+          type: string
+        status:
+          $ref: '#/components/schemas/JobExecutionState'
+          description: The execution status of the job.
+        statusId:
+          description: ID that can be used with :http:get:`/api/v2/status/(statusId)/` to poll for the testing job's status.
+          format: uuid
+          title: statusId
+          type: string
+        statusType:
+          default: ''
+          description: The type of the status object.
+          title: statusType
+          type: string
+      required:
+      - statusId
+      title: StatusResponse
+      type: object
+      x-versionadded: v2.35
+    JobErrorCode:
+      description: Possible job error codes. This enum exists for consistency with the DataRobot Status API.
+      enum:
+      - 0
+      - 1
+      title: JobErrorCode
+      type: integer
+    DatasetInputSampling:
+      description: Sampling data transformation.
+      discriminator:
+        propertyName: directive
+      oneOf:
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/RandomSampleArgumentsCreate'
+            default: {}
+          directive:
+            description: The directive name.
+            enum:
+            - random-sample
+            type: string
+        required:
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/LimitDirectiveArguments'
+          directive:
+            description: The directive name.
+            enum:
+            - limit
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/DatetimeSampleArgumentsCreate'
+            default: {}
+          directive:
+            description: The directive name.
+            enum:
+            - datetime-sample
+            type: string
+        required:
+        - directive
+        type: object
+    FilterDirectiveArguments:
+      description: The transformation description.
+      properties:
+        conditions:
+          description: The list of conditions.
+          items:
+            $ref: '#/components/schemas/FilterCondition'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        keepRows:
+          default: true
+          description: Determines whether matching rows should be kept or dropped.
+          type: boolean
+          x-versionadded: v2.33
+        operator:
+          default: and
+          description: The operator to apply on multiple conditions.
+          enum:
+          - and
+          - or
+          type: string
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - conditions
+      - keepRows
+      - operator
+      - skip
+      type: object
+    StoredCredentials:
+      properties:
+        catalogVersionId:
+          description: Identifier of the catalog version
+          type: string
+        credentialId:
+          description: ID of the credentials object in credential store.Can only be used along with catalogVersionId.
+          type: string
+        url:
+          description: URL that is subject to credentials.
+          type:
+          - string
+          - 'null'
+      required:
+      - credentialId
+      type: object
+    RecipeFromDataSourceCreate:
+      properties:
+        dataSourceType:
+          description: Data source type.
+          enum:
+          - dr-database-v1
+          - jdbc
+          type: string
+          x-versionadded: v2.33
+        dataStoreId:
+          description: Data store ID for this data source.
+          type: string
+          x-versionadded: v2.33
+        dialect:
+          description: Source type data was retrieved from.
+          enum:
+          - snowflake
+          - bigquery
+          - databricks
+          - spark
+          - postgres
+          type: string
+          x-versionadded: v2.33
+        experimentContainerId:
+          description: '[DEPRECATED - replaced with use_case_id] ID assigned to the Use Case, which is an experimental container for the recipe.'
+          type: string
+          x-versionadded: v2.33
+        inputs:
+          description: List of recipe inputs
+          items:
+            $ref: '#/components/schemas/JDBCTableDataSourceInputCreate'
+          maxItems: 1000
+          minItems: 1
+          type: array
+          x-versionadded: v2.33
+        recipeType:
+          default: wrangling
+          description: Type of the recipe workflow.
+          enum:
+          - sql
+          - wrangling
+          type: string
+          x-versionadded: v2.36
+        useCaseId:
+          description: ID of the Use Case associated with the recipe.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - dataSourceType
+      - dataStoreId
+      - dialect
+      - inputs
+      - recipeType
+      type: object
+    JDBCTableDataSourceInputCreate:
+      description: Data source configuration.
+      properties:
+        canonicalName:
+          description: Data source canonical name.
+          type: string
+          x-versionadded: v2.33
+        catalog:
+          description: Catalog name in the database if supported.
+          maxLength: 256
+          type: string
+          x-versionadded: v2.33
+        sampling:
+          $ref: '#/components/schemas/SampleDirectiveCreate'
+          default: null
+          x-versionadded: v2.33
+        schema:
+          description: Schema associated with the table or view in the database if the data source is not query based.
+          maxLength: 256
+          type: string
+          x-versionadded: v2.33
+        table:
+          description: Table or view name in the database if the data source is not query based.
+          maxLength: 256
+          type: string
+          x-versionadded: v2.33
+      required:
+      - canonicalName
+      - table
+      type: object
+    StopSession:
+      properties:
+        size:
+          default: small
+          description: The Spark instance size to stop.
+          enum:
+          - small
+          - medium
+          - large
+          type: string
+      type: object
+      x-versionadded: v2.38
+    PatchRecipe:
+      properties:
+        description:
+          description: New recipe description.
+          maxLength: 1000
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: New recipe name.
+          maxLength: 255
+          type: string
+          x-versionadded: v2.33
+        recipeType:
+          description: The recipe workflow type.
+          enum:
+          - sql
+          - Sql
+          - SQL
+          - wrangling
+          - Wrangling
+          - WRANGLING
+          - featureDiscovery
+          - FeatureDiscovery
+          - FEATURE_DISCOVERY
+          - featureDiscoveryPrivatePreview
+          - FeatureDiscoveryPrivatePreview
+          - FEATURE_DISCOVERY_PRIVATE_PREVIEW
+          type: string
+          x-versionadded: v2.36
+        sql:
+          description: Recipe SQL query.
+          maxLength: 320000
+          type: string
+          x-versionadded: v2.36
+      type: object
+    FeatureKeySummaryResponseValidatorMultilabel:
+      properties:
+        key:
+          description: Name of the key.
+          type: string
+        summary:
+          $ref: '#/components/schemas/FeatureKeySummaryDetailsResponseValidatorMultilabel'
+      required:
+      - key
+      - summary
+      type: object
+    FeatureDerivationWindow:
+      properties:
+        end:
+          description: How many featureDerivationWindowUnits of each dataset's primary temporal key into the past relative to the datetimePartitionColumn the feature derivation window should end. Will be a non-positive integer, if present. If present, time-aware joins will be used. Only applicable when table1Identifier is not provided.
+          maximum: 0
+          type: integer
+          x-versionadded: '2.27'
+        start:
+          description: How many featureDerivationWindowUnits of each dataset's primary temporal key into the past relative to the datetimePartitionColumn the feature derivation window should begin. Will be a negative integer, if present. If present, time-aware joins will be used. Only applicable when table1Identifier is not provided.
+          exclusiveMaximum: 0
+          type: integer
+          x-versionadded: '2.27'
+        unit:
+          description: Time unit of the feature derivation window. Supported values are MILLISECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR. If present, time-aware joins will be used. Only applicable when table1Identifier is not provided.
+          enum:
+          - MILLISECOND
+          - SECOND
+          - MINUTE
+          - HOUR
+          - DAY
+          - WEEK
+          - MONTH
+          - QUARTER
+          - YEAR
+          type: string
+          x-versionadded: '2.27'
+      required:
+      - end
+      - start
+      - unit
+      type: object
+    FeatureKeySummaryDetailsResponseValidatorMultilabel:
+      description: Statistics of the key.
+      properties:
+        max:
+          description: Maximum value of the key.
+          type: number
+        mean:
+          description: Mean value of the key.
+          type: number
+        median:
+          description: Median value of the key.
+          type: number
+        min:
+          description: Minimum value of the key.
+          type: number
+        pctRows:
+          description: Percentage occurrence of key in the EDA sample of the feature.
+          type: number
+        stdDev:
+          description: Standard deviation of the key.
+          type: number
+      required:
+      - max
+      - mean
+      - median
+      - min
+      - pctRows
+      - stdDev
+      type: object
+    FeatureDiscoverySettingResponse:
+      properties:
+        description:
+          description: Description of this feature discovery setting
+          type: string
+        family:
+          description: Family of this feature discovery setting
+          type: string
+        name:
+          description: Name of this feature discovery setting
+          maxLength: 100
+          type: string
+        settingType:
+          description: Type of this feature discovery setting
+          type: string
+        value:
+          description: Value of this feature discovery setting
+          type: boolean
+        verboseName:
+          description: Human readable name of this feature discovery setting
+          type: string
+      required:
+      - description
+      - family
+      - name
+      - settingType
+      - value
+      - verboseName
+      type: object
+    CatalogPasswordCredentials:
+      properties:
+        catalogVersionId:
+          description: Identifier of the catalog version
+          type: string
+        password:
+          description: 'The password (in cleartext) for database authentication. The password will be encrypted on the server side as part of the HTTP request and never saved or stored. '
+          type: string
+        url:
+          description: URL that is subject to credentials.
+          type: string
+        user:
+          description: The username for database authentication.
+          type: string
+      required:
+      - password
+      - user
+      type: object
+    RecipeInputResponse:
+      discriminator:
+        propertyName: inputType
+      oneOf:
+      - properties:
+          alias:
+            description: The alias for the data source table.
+            maxLength: 256
+            type:
+            - string
+            - 'null'
+          dataSourceId:
+            description: The ID of the input data source.
+            type:
+            - string
+            - 'null'
+          dataStoreId:
+            description: The ID of the input data store.
+            type:
+            - string
+            - 'null'
+          datasetId:
+            description: The ID of the input dataset.
+            type:
+            - string
+            - 'null'
+          inputType:
+            description: The data that comes from a database connection.
+            enum:
+            - datasource
+            type: string
+          sampling:
+            $ref: '#/components/schemas/SampleDirectiveCreate'
+            default: null
+        required:
+        - alias
+        - dataSourceId
+        - dataStoreId
+        - datasetId
+        - inputType
+        type: object
+      - properties:
+          alias:
+            description: The alias for the data source table.
+            maxLength: 256
+            type:
+            - string
+            - 'null'
+          datasetId:
+            description: The ID of the input dataset.
+            type: string
+          datasetVersionId:
+            description: The version ID of the input dataset.
+            type:
+            - string
+            - 'null'
+          inputType:
+            description: The data that comes from the Data Registry.
+            enum:
+            - dataset
+            type: string
+          sampling:
+            $ref: '#/components/schemas/SampleDirectiveCreate'
+            default: null
+          snapshotPolicy:
+            description: Snapshot policy to use for this input.
+            enum:
+            - fixed
+            - latest
+            type: string
+        required:
+        - alias
+        - datasetId
+        - datasetVersionId
+        - inputType
+        - snapshotPolicy
+        type: object
+    OperationDetails:
+      type: object
+    DatasetDefinition:
+      properties:
+        catalogId:
+          description: ID of the catalog item.
+          type: string
+        catalogVersionId:
+          description: ID of the catalog item version.
+          type: string
+        featureListId:
+          description: ID of the feature list. This decides which columns in the dataset are used for feature generation.
+          type:
+          - string
+          - 'null'
+        identifier:
+          description: Short name of the dataset (used directly as part of the generated feature names).
+          maxLength: 20
+          minLength: 1
+          type: string
+        primaryTemporalKey:
+          description: Name of the column indicating time of record creation.
+          type:
+          - string
+          - 'null'
+        snapshotPolicy:
+          description: 'Policy for using dataset snapshots when creating a project or making predictions. Must be one of the following values: ''specified'': Use specific snapshot specified by catalogVersionId. ''latest'': Use latest snapshot from the same catalog item. ''dynamic'': Get data from the source (only applicable for JDBC datasets).'
+          enum:
+          - specified
+          - latest
+          - dynamic
+          type: string
+      required:
+      - catalogId
+      - catalogVersionId
+      - identifier
+      type: object
+    OneOfTransforms:
+      discriminator:
+        propertyName: name
+      oneOf:
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/BaseNumericStatsArguments'
+          name:
+            description: Task name.
+            enum:
+            - numeric-stats
+            type: string
+        required:
+        - arguments
+        - name
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/BaseCategoricalStatsArguments'
+          name:
+            description: Task name.
+            enum:
+            - categorical-stats
+            type: string
+        required:
+        - arguments
+        - name
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/BaseLagsArguments'
+          name:
+            description: Task name.
+            enum:
+            - lags
+            type: string
+        required:
+        - arguments
+        - name
+        type: object
+      x-versionadded: v2.35
+    RenameColumnsArguments:
+      description: The transformation description.
+      properties:
+        columnMappings:
+          description: The list of name mappings.
+          items:
+            $ref: '#/components/schemas/RenameColumn'
+          maxItems: 1000
+          minItems: 1
+          type: array
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - columnMappings
+      - skip
+      type: object
+    EfficientRowBasedSampleArgumentsCreate:
+      description: The sampling config.
+      properties:
+        samplingMethod:
+          default: rows
+          description: The sampling method. If the sampling method is "rows", the size is the number of rows to be sampled. If the sampling method is "percent", the size is the percent of the table to be sampled.
+          enum:
+          - percent
+          - rows
+          type: string
+        seed:
+          default: 0
+          description: The starting value used to initialize the pseudo random number generator.
+          minimum: 0
+          type: integer
+        size:
+          description: The number of rows or percent of the table to be sampled. The value is dependent on the sampling method.
+          minimum: 0.01
+          type: number
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+      required:
+      - samplingMethod
+      - skip
+      type: object
+      x-versionadded: v2.38
+    BaseDirectiveArguments:
+      description: The transformation description.
+      properties:
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+      required:
+      - skip
+      type: object
+      x-versionadded: v2.37
+    RecipeOperationsUpdate:
+      properties:
+        force:
+          default: false
+          description: If `true` then operations are stored even if they contain errors
+          type: boolean
+        operations:
+          description: List of directives to run for the recipe.
+          items:
+            $ref: '#/components/schemas/OneOfDirective'
+          maxItems: 1000
+          type: array
+      required:
+      - operations
+      type: object
+      x-versionadded: v2.35
+    RecipeInput:
+      discriminator:
+        propertyName: inputType
+      oneOf:
+      - properties:
+          alias:
+            description: The alias for the data source table.
+            maxLength: 256
+            type:
+            - string
+            - 'null'
+          dataSourceId:
+            description: The ID of the input data source.
+            type:
+            - string
+            - 'null'
+          dataStoreId:
+            description: The ID of the input data store.
+            type:
+            - string
+            - 'null'
+          datasetId:
+            description: The ID of the input dataset.
+            type:
+            - string
+            - 'null'
+          inputType:
+            description: The data that comes from a database connection.
+            enum:
+            - datasource
+            type: string
+          sampling:
+            $ref: '#/components/schemas/SampleDirectiveCreate'
+            default: null
+        required:
+        - inputType
+        type: object
+      - properties:
+          alias:
+            description: The alias for the data source table.
+            maxLength: 256
+            type:
+            - string
+            - 'null'
+          datasetId:
+            description: The ID of the input dataset.
+            type: string
+          datasetVersionId:
+            description: The version ID of the input dataset.
+            type:
+            - string
+            - 'null'
+          inputType:
+            description: The data that comes from the Data Registry.
+            enum:
+            - dataset
+            type: string
+          sampling:
+            $ref: '#/components/schemas/SampleDirectiveCreate'
+            default: null
+          snapshotPolicy:
+            description: Snapshot policy to use for this input.
+            enum:
+            - fixed
+            - latest
+            type: string
+        required:
+        - datasetId
+        - inputType
+        type: object
+      x-versionadded: v2.35
+    RecipeSettingsResponse:
+      description: Recipe settings reusable at a modeling stage.
+      properties:
+        featureDiscoveryProjectId:
+          description: Associated feature discovery project ID.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        featureDiscoverySupervisedFeatureReduction:
+          default: null
+          description: Run supervised feature reduction for Feature Discovery.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.34
+        predictionPoint:
+          description: The date column to be used as the prediction point for time-based feature engineering.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        relationshipsConfigurationId:
+          description: Associated relationships configuration ID.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        sparkInstanceSize:
+          default: small
+          description: The Spark instance size to use, if applicable.
+          enum:
+          - small
+          - medium
+          - large
+          type: string
+          x-versionadded: v2.38
+        target:
+          description: The feature to use as the target at the modeling stage.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        weightsFeature:
+          description: The weights feature.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - featureDiscoveryProjectId
+      - featureDiscoverySupervisedFeatureReduction
+      - predictionPoint
+      - relationshipsConfigurationId
+      - sparkInstanceSize
+      type: object
+    InputParametersResponse:
+      description: The input parameters corresponding to the suggested operations.
+      properties:
+        baselinePeriods:
+          default:
+          - 1
+          description: A list of periodicities used to calculate naive target features.
+          items:
+            exclusiveMinimum: 0
+            type: integer
+          maxItems: 10
+          minItems: 1
+          type: array
+        datetimePartitionColumn:
+          description: The column that is used to order the data.
+          type: string
+        doNotDeriveColumns:
+          default: []
+          description: Columns to exclude from derivation; for them only the first lag is suggested.
+          items:
+            type: string
+          maxItems: 200
+          type: array
+        excludeLowInfoColumns:
+          default: true
+          description: Whether to ignore columns with low signal (only include features that pass a "reasonableness" check that determines whether they contain information useful for building a generalizable model).
+          type: boolean
+        featureDerivationWindows:
+          description: A list of rolling windows of past values, defined in terms of rows, that are used to derive features for the modeling dataset.
+          items:
+            exclusiveMinimum: 0
+            maximum: 300
+            type: integer
+          maxItems: 5
+          minItems: 1
+          type: array
+        featureReductionThreshold:
+          default: 0.9
+          description: Threshold for feature reduction. For example, 0.9 means that features which cumulatively reach 90 % of importance are returned. Additionally, no more than 200 features are returned.
+          exclusiveMinimum: 0
+          maximum: 1
+          type:
+          - number
+          - 'null'
+        forecastDistances:
+          description: A list of forecast distances, which defines the number of rows into the future to predict.
+          items:
+            exclusiveMinimum: 0
+            type: integer
+          maxItems: 20
+          minItems: 1
+          type: array
+        knownInAdvanceColumns:
+          default: []
+          description: Columns that are known in advance (future values are known). Values for these known columns must be specified at prediction time.
+          items:
+            type: string
+          maxItems: 200
+          type: array
+        maxLagOrder:
+          description: The maximum lag order. This value cannot be greater than the largest feature derivation window.
+          exclusiveMinimum: 0
+          maximum: 100
+          type:
+          - integer
+          - 'null'
+        multiseriesIdColumn:
+          description: The series ID column, if present. This column partitions data to create a multiseries modeling project.
+          type:
+          - string
+          - 'null'
+        numberOfOperationsToUse:
+          description: If set, a transformation plan is suggested after the specified number of operations.
+          type: integer
+        targetColumn:
+          description: The column intended to be used as the target for modeling. This parameter is required for generating naive features.
+          type: string
+      required:
+      - datetimePartitionColumn
+      - featureDerivationWindows
+      - forecastDistances
+      - targetColumn
+      type: object
+      x-versionadded: v2.35
+    DownsamplingRandomDirectiveArguments:
+      description: The downsampling configuration.
+      properties:
+        rows:
+          description: The number of sampled rows.
+          type: integer
+          x-versionadded: v2.33
+        seed:
+          default: null
+          description: The start number of the random number generator
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - rows
+      - skip
+      type: object
+    WranglingFeatureResponse:
+      properties:
+        datasetId:
+          description: The ID of the dataset the feature belongs to
+          type: string
+          x-versionadded: v2.33
+        datasetVersionId:
+          description: The ID of the dataset version the feature belongs to.
+          type: string
+          x-versionadded: v2.33
+        dateFormat:
+          description: The date format string for how this feature was interpreted (or null if not a date feature). If not null, it will be compatible with https://docs.python.org/2/library/time.html#time.strftime .
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        featureType:
+          description: Feature type.
+          enum:
+          - Boolean
+          - Categorical
+          - Currency
+          - Date
+          - Date Duration
+          - Document
+          - Image
+          - Interaction
+          - Length
+          - Location
+          - Multicategorical
+          - Numeric
+          - Percentage
+          - Summarized Categorical
+          - Text
+          - Time
+          type: string
+          x-versionadded: v2.33
+        id:
+          description: The number of the column in the dataset.
+          type: integer
+          x-versionadded: v2.33
+        isZeroInflated:
+          description: whether feature has an excessive number of zeros
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.25
+        keySummary:
+          description: Per key summaries for Summarized Categorical or Multicategorical columns
+          oneOf:
+          - $ref: '#/components/schemas/FeatureKeySummaryResponseValidatorSummarizedCategorical'
+            x-versionadded: v2.18
+          - description: For a Multicategorical columns, this will contain statistics for the top classes
+            items:
+              $ref: '#/components/schemas/FeatureKeySummaryResponseValidatorMultilabel'
+            type: array
+            x-versionadded: v2.24
+          x-versionadded: v2.33
+        language:
+          description: Detected language of the feature.
+          type: string
+          x-versionadded: v2.32
+        lowInformation:
+          description: Whether feature has too few values to be informative.
+          type: boolean
+          x-versionadded: v2.33
+        lowerQuartile:
+          description: Lower quartile point of EDA sample of the feature.
+          oneOf:
+          - description: Lower quartile point of EDA sample of the feature.
+            type: string
+          - description: Lower quartile point of EDA sample of the feature.
+            type: number
+          - type: 'null'
+          x-versionadded: v2.35
+        majorityClassCount:
+          description: The number of rows with a majority class value if smart downsampling is applicable to this feature.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        max:
+          description: Maximum value of the EDA sample of the feature.
+          oneOf:
+          - description: Maximum value of the EDA sample of the feature.
+            type: string
+          - description: Maximum value of the EDA sample of the feature.
+            type: number
+          - type: 'null'
+          x-versionadded: v2.33
+        mean:
+          description: Arithmetic mean of the EDA sample of the feature.
+          oneOf:
+          - description: Arithmetic mean of the EDA sample of the feature.
+            type: string
+          - description: Arithmetic mean of the EDA sample of the feature.
+            type: number
+          - type: 'null'
+          x-versionadded: v2.33
+        median:
+          description: Median of the EDA sample of the feature.
+          oneOf:
+          - description: Median of the EDA sample of the feature.
+            type: string
+          - description: Median of the EDA sample of the feature.
+            type: number
+          - type: 'null'
+          x-versionadded: v2.33
+        min:
+          description: Minimum value of the EDA sample of the feature.
+          oneOf:
+          - description: Minimum value of the EDA sample of the feature.
+            type: string
+          - description: Minimum value of the EDA sample of the feature.
+            type: number
+          - type: 'null'
+          x-versionadded: v2.33
+        minorityClassCount:
+          description: The number of rows with neither null nor majority class value if smart downsampling is applicable to this feature.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        naCount:
+          description: Number of missing values.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        name:
+          description: Feature name
+          type: string
+          x-versionadded: v2.33
+        plot:
+          description: Plot data based on feature values.
+          items:
+            $ref: '#/components/schemas/DatasetFeaturePlotDataResponse'
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.30
+        sampleRows:
+          description: The number of rows in the sample used to calculate the statistics.
+          type: integer
+          x-versionadded: v2.35
+          x-versiondeprecated: v2.36
+        stdDev:
+          description: Standard deviation of EDA sample of the feature.
+          oneOf:
+          - description: Standard deviation of EDA sample of the feature.
+            type: string
+          - description: Standard deviation of EDA sample of the feature.
+            type: number
+          - type: 'null'
+          x-versionadded: v2.33
+        timeSeriesEligibilityReason:
+          description: why the feature is ineligible for time series projects, or 'suitable' if it is eligible.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        timeSeriesEligibilityReasonAggregation:
+          description: why the feature is ineligible for aggregation, or 'suitable' if it is eligible.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.24
+        timeSeriesEligible:
+          description: whether this feature can be used as a datetime partitioning feature for time series projects.  Only sufficiently regular date features can be selected as the datetime feature for time series projects.  Always false for non-date features. Date features that cannot be used in datetime partitioning for a time series project may be eligible for an OTV project, which has less stringent requirements.
+          type: boolean
+          x-versionadded: v2.33
+        timeSeriesEligibleAggregation:
+          description: whether this feature can be used as a datetime feature for aggregationfor time series data prep.  Always false for non-date features.
+          type: boolean
+          x-versionadded: v2.24
+        timeStep:
+          description: The minimum time step that can be used to specify time series windows.  The units for this value are the ``timeUnit``.  When specifying windows for time series projects, all windows must have durations that are integer multiples of this number. Only present for date features that are eligible for time series projects and null otherwise.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        timeStepAggregation:
+          description: The minimum time step that can be used to aggregate using this feature for time series data prep. The units for this value are the ``timeUnit``.  Only present for date features that are eligible for aggregation in time series data prep and null otherwise.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.24
+        timeUnit:
+          description: The unit for the interval between values of this feature, e.g. DAY, MONTH, HOUR.  When specifying windows for time series projects, the windows are expressed in terms of this unit.  Only present for date features eligible for time series projects, and null otherwise.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        timeUnitAggregation:
+          description: The unit for the interval between values of this feature, e.g. DAY, MONTH, HOUR.  Only present for date features eligible for aggregation, and null otherwise.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.24
+        uniqueCount:
+          description: Number of unique values.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.33
+        upperQuartile:
+          description: Upper quartile point of EDA sample of the feature.
+          oneOf:
+          - description: Upper quartile point of EDA sample of the feature.
+            type: string
+          - description: Upper quartile point of EDA sample of the feature.
+            type: number
+          - type: 'null'
+          x-versionadded: v2.35
+      required:
+      - datasetId
+      - datasetVersionId
+      - dateFormat
+      - featureType
+      - id
+      - majorityClassCount
+      - minorityClassCount
+      - name
+      - sampleRows
+      type: object
+    RelationshipsConfigPayload:
+      description: Object describing how secondary datasets are related to the primary dataset
+      properties:
+        datasetDefinitions:
+          description: The list of datasets.
+          items:
+            $ref: '#/components/schemas/DatasetDefinition'
+          maxItems: 30
+          minItems: 1
+          type: array
+        featureDiscoveryMode:
+          description: Mode of feature discovery. Supported values are 'default' and 'manual'.
+          enum:
+          - default
+          - manual
+          type:
+          - string
+          - 'null'
+        featureDiscoverySettings:
+          description: The list of feature discovery settings used to customize the feature discovery process.
+          items:
+            $ref: '#/components/schemas/FeatureDiscoverySettingResponse'
+          maxItems: 100
+          type:
+          - array
+          - 'null'
+        id:
+          description: Id of the relationship configuration
+          type: string
+        relationships:
+          description: The list of relationships.
+          items:
+            $ref: '#/components/schemas/Relationship'
+          maxItems: 70
+          minItems: 1
+          type: array
+        snowflakePushDownCompatible:
+          description: Flag indicating if the relationships configuration is compatible with Snowflake push down processing.
+          type:
+          - boolean
+          - 'null'
+      required:
+      - datasetDefinitions
+      - id
+      - relationships
+      type: object
+    RelationshipQualityAssessmentsCreate:
+      properties:
+        credentials:
+          description: Credentials for dynamic policy secondary datasets.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/StoredCredentials'
+            - $ref: '#/components/schemas/CatalogPasswordCredentials'
+          maxItems: 30
+          type:
+          - array
+          - 'null'
+        datetimePartitionColumn:
+          description: If a datetime partition column was used, the name of the column.
+          type:
+          - string
+          - 'null'
+        featureEngineeringPredictionPoint:
+          description: The date column to be used as the prediction point for time-based feature engineering.
+          type:
+          - string
+          - 'null'
+        relationshipsConfiguration:
+          $ref: '#/components/schemas/RelationshipsConfigPayload'
+        userId:
+          description: Mongo Id of the User who created the request
+          type: string
+      required:
+      - relationshipsConfiguration
+      type: object
+    Aggregation:
+      properties:
+        feature:
+          default: null
+          description: The feature.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        functions:
+          description: The functions.
+          items:
+            enum:
+            - sum
+            - min
+            - max
+            - count
+            - count-distinct
+            - stddev
+            - avg
+            - most-frequent
+            - median
+            type: string
+          minItems: 1
+          type: array
+          x-versionadded: v2.33
+      required:
+      - functions
+      type: object
+    RenameColumn:
+      properties:
+        newName:
+          description: The new column name.
+          type: string
+          x-versionadded: v2.33
+        originalName:
+          description: The original column name.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - newName
+      - originalName
+      type: object
+    JobExecutionState:
+      description: Possible job states. Values match the DataRobot Status API.
+      enum:
+      - INITIALIZED
+      - RUNNING
+      - COMPLETED
+      - ERROR
+      - ABORTED
+      - EXPIRED
+      title: JobExecutionState
+      type: string
+    GenericRecipeFromDataset:
+      discriminator:
+        propertyName: status
+      oneOf:
+      - properties:
+          datasetId:
+            description: Dataset ID to create a Recipe from.
+            type: string
+          dialect:
+            description: Source type data was retrieved from. Should be omitted for dataset rewrangling.
+            enum:
+            - snowflake
+            - bigquery
+            - databricks
+            - spark
+            - postgres
+            type: string
+          status:
+            description: Preview recipe
+            enum:
+            - preview
+            type: string
+        required:
+        - datasetId
+        - dialect
+        - status
+        type: object
+      - properties:
+          datasetId:
+            description: Dataset ID to create a Recipe from.
+            type: string
+          datasetVersionId:
+            default: null
+            description: Dataset version ID to create a Recipe from.
+            type:
+            - string
+            - 'null'
+          dialect:
+            description: Source type data was retrieved from. Should be omitted for dataset rewrangling and feature discovery recipes.
+            enum:
+            - snowflake
+            - bigquery
+            - databricks
+            - spark
+            - postgres
+            type: string
+          experimentContainerId:
+            description: '[DEPRECATED - replaced with use_case_id] ID assigned to the Use Case, which is an experimental container for the recipe.'
+            type: string
+          inputs:
+            description: List of recipe inputs. Should be omitted on dataset wrangling when dataset is created from recipe.
+            items:
+              $ref: '#/components/schemas/DatasetInputCreate'
+            maxItems: 1
+            minItems: 1
+            type: array
+          recipeType:
+            default: WRANGLING
+            description: Type of the recipe workflow.
+            enum:
+            - sql
+            - Sql
+            - SQL
+            - wrangling
+            - Wrangling
+            - WRANGLING
+            - featureDiscovery
+            - FeatureDiscovery
+            - FEATURE_DISCOVERY
+            - featureDiscoveryPrivatePreview
+            - FeatureDiscoveryPrivatePreview
+            - FEATURE_DISCOVERY_PRIVATE_PREVIEW
+            type: string
+          snapshotPolicy:
+            description: Snapshot policy to use the created recipe.
+            enum:
+            - fixed
+            - latest
+            type: string
+          status:
+            default: draft
+            description: Wrangling recipe
+            enum:
+            - draft
+            type: string
+          useCaseId:
+            description: ID of the Use Case associated with the recipe.
+            type: string
+            x-versionadded: v2.33
+        required:
+        - datasetId
+        - recipeType
+        type: object
+    RefinexInsightsResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: The list of features related to the requested dataset.
+          items:
+            $ref: '#/components/schemas/WranglingFeatureResponse'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.33
+        message:
+          description: The status message.
+          type: string
+          x-versionadded: v2.33
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        status:
+          description: The job status.
+          enum:
+          - ABORTED
+          - COMPLETED
+          - ERROR
+          - EXPIRED
+          - INITIALIZED
+          - RUNNING
+          type: string
+          x-versionadded: v2.33
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    AggregateDirectiveArguments:
+      description: The aggregation description.
+      properties:
+        aggregations:
+          description: The aggregations.
+          items:
+            $ref: '#/components/schemas/Aggregation'
+          minItems: 1
+          type: array
+          x-versionadded: v2.33
+        groupBy:
+          description: The column(s) to group by.
+          items:
+            type: string
+          minItems: 1
+          type: array
+          x-versionadded: v2.33
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - aggregations
+      - groupBy
+      - skip
+      type: object
+    RecipeResponse:
+      properties:
+        createdAt:
+          description: ISO 8601-formatted date/time when the recipe was created.
+          format: date-time
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        createdBy:
+          $ref: '#/components/schemas/ExperimentContainerUserResponse'
+          x-versionadded: v2.33
+        description:
+          description: The recipe description.
+          maxLength: 1000
+          type: string
+          x-versionadded: v2.33
+        dialect:
+          description: Source type data was retrieved from.
+          enum:
+          - snowflake
+          - bigquery
+          - spark-feature-discovery
+          - databricks
+          - spark
+          - postgres
+          type: string
+          x-versionadded: v2.33
+        downsampling:
+          $ref: '#/components/schemas/OneOfDownsamplingDirective'
+          x-versionadded: v2.33
+        errorMessage:
+          default: null
+          description: Error message related to the specific operation
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.34
+        failedOperationsIndex:
+          default: null
+          description: Index of the first operation where error appears.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.34
+        inputs:
+          description: List of data sources.
+          items:
+            $ref: '#/components/schemas/RecipeInputResponse'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        name:
+          description: The recipe name.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        operations:
+          description: List of transformations
+          items:
+            $ref: '#/components/schemas/OneOfDirective'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        originalDatasetId:
+          description: The ID of the dataset used to create the recipe.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+        recipeId:
+          description: The ID of the recipe.
+          type: string
+          x-versionadded: v2.33
+        recipeType:
+          description: Type of the recipe workflow.
+          enum:
+          - sql
+          - Sql
+          - SQL
+          - wrangling
+          - Wrangling
+          - WRANGLING
+          - featureDiscovery
+          - FeatureDiscovery
+          - FEATURE_DISCOVERY
+          - featureDiscoveryPrivatePreview
+          - FeatureDiscoveryPrivatePreview
+          - FEATURE_DISCOVERY_PRIVATE_PREVIEW
+          type: string
+          x-versionadded: v2.33
+        settings:
+          $ref: '#/components/schemas/RecipeSettingsResponse'
+          x-versionadded: v2.33
+        sql:
+          description: Recipe SQL query.
+          maxLength: 320000
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.36
+        status:
+          description: Recipe publication status.
+          enum:
+          - draft
+          - preview
+          - published
+          type: string
+          x-versionadded: v2.33
+        updatedAt:
+          description: ISO 8601-formatted date/time when the recipe was last updated.
+          format: date-time
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        updatedBy:
+          $ref: '#/components/schemas/ExperimentContainerUserResponse'
+          x-versionadded: v2.33
+      required:
+      - createdAt
+      - createdBy
+      - description
+      - dialect
+      - downsampling
+      - errorMessage
+      - failedOperationsIndex
+      - inputs
+      - name
+      - operations
+      - originalDatasetId
+      - recipeId
+      - recipeType
+      - settings
+      - sql
+      - status
+      - updatedAt
+      - updatedBy
+      type: object
+    OneOfDownsamplingDirective:
+      description: Data transformation step.
+      discriminator:
+        propertyName: directive
+      oneOf:
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/DownsamplingRandomDirectiveArguments'
+          directive:
+            description: The downsampling method.
+            enum:
+            - random-sample
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+      - properties:
+          arguments:
+            $ref: '#/components/schemas/SmartDownsamplingArguments'
+          directive:
+            description: The downsampling method.
+            enum:
+            - smart-downsampling
+            type: string
+        required:
+        - arguments
+        - directive
+        type: object
+    TableSampleArgumentsCreate:
+      description: The sampling config.
+      properties:
+        percent:
+          description: The percent of the table to be sampled.
+          maximum: 100
+          minimum: 0
+          type: number
+        seed:
+          default: 0
+          description: The starting number of the random number generator.
+          minimum: 0
+          type: integer
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+      required:
+      - percent
+      - skip
+      type: object
+      x-versionadded: v2.35
+    FeatureKeySummaryResponseValidatorSummarizedCategorical:
+      description: For a Summarized Categorical columns, this will contain statistics for the top 50 keys (truncated to 103 characters)
+      properties:
+        key:
+          description: Name of the key.
+          type: string
+        summary:
+          $ref: '#/components/schemas/FeatureKeySummaryDetailsResponseValidatorSummarizedCategorical'
+      required:
+      - key
+      - summary
+      type: object
+    BuildRecipeSqlResponse:
+      properties:
+        sql:
+          description: Generated sql.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - sql
+      type: object
+    BuildRecipeSql:
+      properties:
+        inputsAsAliases:
+          default: false
+          description: Produce the SQL that uses the input aliases instead of the real table names.
+          type: boolean
+          x-versionadded: v2.36
+        operations:
+          description: 'List of operations to override the recipe operations when building SQL with default *null*. It doesn''t modify the recipe itself. Missing *operations* field or *null* give original recipe SQL. Empty *operations* list produces basic query of a format: `SELECT <list of columns> FROM <table name>`'
+          items:
+            $ref: '#/components/schemas/OneOfDirective'
+          maxItems: 1000
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.33
+      type: object
+    BaseCategoricalStatsArguments:
+      description: Task arguments.
+      properties:
+        methods:
+          description: 'Window method: most-frequent'
+          items:
+            enum:
+            - most-frequent
+            type: string
+          maxItems: 10
+          minItems: 1
+          type: array
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+        windowSize:
+          description: Rolling window size, defined in terms of rows. Left end is exclusive, right end is inclusive.
+          exclusiveMinimum: 0
+          maximum: 300
+          type: integer
+      required:
+      - methods
+      - skip
+      - windowSize
+      type: object
+      x-versionadded: v2.35
+    JoinArguments:
+      description: The transformation description.
+      discriminator:
+        propertyName: source
+      oneOf:
+      - properties:
+          joinType:
+            description: The join type between primary and secondary data sources.
+            enum:
+            - inner
+            - left
+            - cartesian
+            type: string
+          leftKeys:
+            description: The list of columns to be used in the "ON" clause from the primary data source. Required for inner, left joins, not used for cartesian joins.
+            items:
+              type: string
+            maxItems: 10000
+            minItems: 1
+            type:
+            - array
+            - 'null'
+          rightDataSourceId:
+            description: The ID of the input data source.
+            type: string
+          rightKeys:
+            description: The list of columns to be used in the "ON" clause from a secondary data source. Required for inner, left joins, not used for cartesian joins.
+            items:
+              type: string
+            maxItems: 10000
+            minItems: 1
+            type:
+            - array
+            - 'null'
+          rightPrefix:
+            description: Optional prefix to be added to all column names from the right table in the join result.
+            type:
+            - string
+            - 'null'
+          skip:
+            default: false
+            description: If True, this directive will be skipped during processing.
+            type: boolean
+          source:
+            description: The source type.
+            enum:
+            - table
+            type: string
+        required:
+        - joinType
+        - rightDataSourceId
+        - skip
+        - source
+        type: object
+      x-versionadded: v2.34
+    TimeSeriesDirectiveArguments:
+      description: Time series directive arguments.
+      properties:
+        baselinePeriods:
+          default:
+          - 1
+          description: A list of periodicities used to calculate naive target features.
+          items:
+            exclusiveMinimum: 0
+            type: integer
+          maxItems: 10
+          minItems: 1
+          type: array
+        datetimePartitionColumn:
+          description: The column that is used to order the data.
+          type: string
+        forecastDistances:
+          description: A list of forecast distances, which defines the number of rows into the future to predict.
+          items:
+            exclusiveMinimum: 0
+            type: integer
+          maxItems: 20
+          minItems: 1
+          type: array
+        forecastPoint:
+          description: Filter output by given forecast point. Can be applied only at the prediction time.
+          format: date-time
+          type: string
+        knownInAdvanceColumns:
+          default: []
+          description: Columns that are known in advance (future values are known). Values for these known columns must be specified at prediction time.
+          items:
+            type: string
+          maxItems: 200
+          type: array
+        multiseriesIdColumn:
+          default: null
+          description: The series ID column, if present. This column partitions data to create a multiseries modeling project.
+          type:
+          - string
+          - 'null'
+        rollingMedianUserDefinedFunction:
+          default: null
+          description: "To optimize rolling median calculation with relational database sources,\n         pass qualified path to the UDF, as follows: \"DB_NAME.SCHEMA_NAME.FUNCTION_NAME\".\n         Contact DataRobot Support to fetch a suggested SQL function.\n         "
+          type:
+          - string
+          - 'null'
+        rollingMostFrequentUserDefinedFunction:
+          default: null
+          description: "To optimize rolling most frequent calculation with relational database sources,\n         pass qualified path to the UDF, as follows: \"DB_NAME.SCHEMA_NAME.FUNCTION_NAME\".\n         Contact DataRobot Support to fetch a suggested SQL function.\n         "
+          type:
+          - string
+          - 'null'
+        skip:
+          default: false
+          description: If True, this directive will be skipped during processing.
+          type: boolean
+          x-versionadded: v2.37
+        targetColumn:
+          description: The column intended to be used as the target for modeling. This parameter is required for generating naive features.
+          type: string
+        taskPlan:
+          description: Task plan to describe time series specific transformations.
+          items:
+            $ref: '#/components/schemas/TaskPlanItem'
+          maxItems: 200
+          minItems: 1
+          type: array
+      required:
+      - datetimePartitionColumn
+      - forecastDistances
+      - skip
+      - targetColumn
+      - taskPlan
+      type: object
+      x-versionadded: v2.35
+    GenerateTransformationPlan:
+      properties:
+        baselinePeriods:
+          default:
+          - 1
+          description: A list of periodicities used to calculate naive target features.
+          items:
+            exclusiveMinimum: 0
+            type: integer
+          maxItems: 10
+          minItems: 1
+          type: array
+        datetimePartitionColumn:
+          description: The column that is used to order the data.
+          type: string
+        doNotDeriveColumns:
+          default: []
+          description: Columns to exclude from derivation; for them only the first lag is suggested.
+          items:
+            type: string
+          maxItems: 200
+          type: array
+        excludeLowInfoColumns:
+          default: true
+          description: Whether to ignore columns with low signal (only include features that pass a "reasonableness" check that determines whether they contain information useful for building a generalizable model).
+          type: boolean
+        featureDerivationWindows:
+          description: A list of rolling windows of past values, defined in terms of rows, that are used to derive features for the modeling dataset.
+          items:
+            exclusiveMinimum: 0
+            maximum: 300
+            type: integer
+          maxItems: 5
+          minItems: 1
+          type: array
+        featureReductionThreshold:
+          default: 0.9
+          description: Threshold for feature reduction. For example, 0.9 means that features which cumulatively reach 90 % of importance are returned. Additionally, no more than 200 features are returned.
+          exclusiveMinimum: 0
+          maximum: 1
+          type:
+          - number
+          - 'null'
+        forecastDistances:
+          description: A list of forecast distances, which defines the number of rows into the future to predict.
+          items:
+            exclusiveMinimum: 0
+            type: integer
+          maxItems: 20
+          minItems: 1
+          type: array
+        knownInAdvanceColumns:
+          default: []
+          description: Columns that are known in advance (future values are known). Values for these known columns must be specified at prediction time.
+          items:
+            type: string
+          maxItems: 200
+          type: array
+        maxLagOrder:
+          description: The maximum lag order. This value cannot be greater than the largest feature derivation window.
+          exclusiveMinimum: 0
+          maximum: 100
+          type:
+          - integer
+          - 'null'
+        multiseriesIdColumn:
+          description: The series ID column, if present. This column partitions data to create a multiseries modeling project.
+          type:
+          - string
+          - 'null'
+        numberOfOperationsToUse:
+          description: If set, a transformation plan is suggested after the specified number of operations.
+          type: integer
+        targetColumn:
+          description: The column intended to be used as the target for modeling. This parameter is required for generating naive features.
+          type: string
+      required:
+      - datetimePartitionColumn
+      - featureDerivationWindows
+      - forecastDistances
+      - targetColumn
+      type: object
+      x-versionadded: v2.35
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

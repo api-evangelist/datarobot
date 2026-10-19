@@ -1,0 +1,1588 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Custom Jobs API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage custom jobs. Use custom jobs to implement automation (for example, custom tests) for your models and deployments. Each job serves as an automated workload, and the exit code determines if it passed or failed. You can run the custom jobs you create for one or more models or deployments. The automated workloads you define through custom jobs can make prediction requests, fetch inputs, and store outputs using DataRobot's Public API.
+  name: custom_jobs
+paths:
+  /api/v2/customJobLimits/:
+    get:
+      description: Retrieve custom job limits.
+      operationId: customJobLimits_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobLimitsResponse'
+          description: Custom job limits
+        '403':
+          description: Custom jobs are not enabled.
+      summary: Retrieve custom job limits
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/:
+    get:
+      description: List custom jobs.
+      operationId: customJobs_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 1000
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Whether only custom jobs that are currently being run should be returned.
+        in: query
+        name: onlyRunning
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: If supplied, only include custom jobs whose name or description contain this string.
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 100
+          type: string
+      - description: The type of the custom job to filter by.
+        in: query
+        name: jobType
+        required: false
+        schema:
+          items:
+            enum:
+            - default
+            - hostedCustomMetric
+            - notification
+            - retraining
+            type: string
+          maxItems: 4
+          type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobListResponse'
+          description: List of custom jobs.
+        '403':
+          description: Custom jobs are not enabled.
+      summary: List custom jobs
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    post:
+      description: Create a custom job.
+      operationId: customJobs_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomJob'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobResponse'
+          description: Created.
+        '403':
+          description: Custom jobs are not enabled.
+        '422':
+          description: Input parameters are invalid.
+      summary: Create a custom job
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/fromGalleryTemplate/:
+    post:
+      description: Create a custom job.
+      feature_flags:
+      - description: Enables template gallery for generic and notification Custom Jobs and updates Custom Hosted Metrics gallery UI
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: CUSTOM_JOBS_TEMPLATE_GALLERY
+      maturity: GA_ALL
+      operationId: customJobsFromGalleryTemplate_create
+      public_preview: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomJobFromTemplateGallery'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobResponse'
+          description: Created.
+        '403':
+          description: Custom jobs are not enabled.
+        '422':
+          description: Input parameters are invalid.
+      summary: Create a custom jobs from a gallery template
+      tags:
+      - custom_jobs
+      x-datarobot-public-preview: true
+      x-datarobot-required-feature-flags:
+      - description: Enables Custom Templates.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TEMPLATES
+      - description: Enables template gallery for generic and notification Custom Jobs and updates Custom Hosted Metrics gallery UI
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: CUSTOM_JOBS_TEMPLATE_GALLERY
+  /api/v2/customJobs/{customJobId}/:
+    delete:
+      description: Delete custom job.
+      operationId: customJobs_delete
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Custom job deleted.
+        '403':
+          description: Custom jobs are not enabled.
+      summary: Delete custom job by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    get:
+      description: Retrieve custom job.
+      operationId: customJobs_retrieve
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobResponse'
+          description: Custom job
+        '403':
+          description: Custom jobs are not enabled.
+      summary: Retrieve custom job by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    patch:
+      description: Update custom job.
+      operationId: customJobs_patch
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomJob'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobResponse'
+          description: Updated custom job
+        '403':
+          description: Custom jobs are not enabled.
+        '422':
+          description: Input parameters are invalid.
+      summary: Update custom job by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/{customJobId}/items/{itemId}/:
+    get:
+      description: Retrieve custom job file content.
+      operationId: customJobsItems_retrieve
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      - description: ID of the file item.
+        in: path
+        name: itemId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobFileResponse'
+          description: Custom job file content
+        '403':
+          description: Custom jobs are not enabled.
+        '404':
+          description: No file found.
+        '422':
+          description: File is not utf-8 encoded.
+      summary: Retrieve custom job file content by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/{customJobId}/runs/:
+    get:
+      description: List custom job runs.
+      operationId: customJobsRuns_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: If supplied, only include custom job runs that are scheduled with this scheduled job id.
+        in: query
+        name: scheduledJobId
+        required: false
+        schema:
+          type: string
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobRunListResponse'
+          description: List of custom job runs.
+        '403':
+          description: Custom jobs are not enabled.
+      summary: List custom job runs by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    post:
+      description: Create a custom job run.
+      operationId: customJobsRuns_create
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomJobRun'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobRunResponse'
+          description: Created.
+        '403':
+          description: Custom jobs are not enabled.
+        '422':
+          description: Input parameters are invalid.
+      summary: Create a custom job run by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/{customJobId}/runs/{customJobRunId}/:
+    delete:
+      description: Cancel custom job run.
+      operationId: customJobsRuns_delete
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom job run.
+        in: path
+        name: customJobRunId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Custom job run canceled
+        '403':
+          description: Custom jobs are not enabled.
+        '422':
+          description: Input parameters are invalid.
+      summary: Cancel custom job run by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    get:
+      description: Retrieve custom job run.
+      operationId: customJobsRuns_retrieve
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom job run.
+        in: path
+        name: customJobRunId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobRunResponse'
+          description: Custom job run
+        '403':
+          description: Custom jobs are not enabled.
+      summary: Retrieve custom job run by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    patch:
+      description: Update custom job run.
+      operationId: customJobsRuns_patch
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom job run.
+        in: path
+        name: customJobRunId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomJobRun'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobRunResponse'
+          description: Updated custom job run
+        '403':
+          description: Custom jobs are not enabled.
+        '422':
+          description: Input parameters are invalid.
+      summary: Update custom job run by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/{customJobId}/runs/{customJobRunId}/items/{itemId}/:
+    get:
+      description: Retrieve custom job run file content.
+      operationId: customJobsRunsItems_retrieve
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom job run.
+        in: path
+        name: customJobRunId
+        required: true
+        schema:
+          type: string
+      - description: ID of the file item.
+        in: path
+        name: itemId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobFileResponse'
+          description: Custom job run file content
+        '403':
+          description: Custom jobs are not enabled.
+        '404':
+          description: No file found.
+        '422':
+          description: File is not utf-8 encoded.
+      summary: Retrieve custom job run file content by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/{customJobId}/runs/{customJobRunId}/logs/:
+    delete:
+      description: Delete custom job run logs.
+      operationId: customJobsRunsLogs_deleteMany
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom job run.
+        in: path
+        name: customJobRunId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Custom job run logs deleted.
+        '404':
+          description: No log found.
+      summary: De,ete custom job run logs by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    get:
+      description: Retrieve custom job run logs.
+      operationId: customJobsRunsLogs_list
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      - description: ID of the custom job run.
+        in: path
+        name: customJobRunId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The log file download.
+          headers:
+            Content-Disposition:
+              description: Contains an auto generated filename for this download ("attachment;filename=custom-job-run-<custom_job_id>-<custom_job_run_id>.log").
+              schema:
+                type: string
+        '404':
+          description: No log found.
+      summary: Retrieve custom job run logs by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobs/{customJobId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups and organizations who have access to this custom job and their roles on the custom job.
+      operationId: customJobsSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListV2Response'
+          description: The Custom Job's access control list.
+        '404':
+          description: Either the Custom Job does not exist or the user does not have permissions to view the Custom Job.
+        '422':
+          description: Both username and userId were specified
+      summary: Get Custom Job's access control list by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+    patch:
+      description: Set roles for users on this custom job.
+      operationId: customJobsSharedRoles_patchMany
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedRolesUpdate'
+      responses:
+        '204':
+          description: Roles updated successfully.
+        '409':
+          description: The request would leave the custom job without an owner.
+        '422':
+          description: One of the users in the request does not exist, or the request is otherwise invalid
+      summary: Update Custom Job's controls by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/customJobsCleanup/{customJobId}/:
+    post:
+      description: Permanently delete custom job.
+      operationId: customJobsCleanup_createOne
+      parameters:
+      - description: ID of the custom job.
+        in: path
+        name: customJobId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Custom job permanently deleted.
+        '401':
+          description: Permadelete not enabled or user not permitted to permadelete.
+        '403':
+          description: Custom jobs are not enabled.
+        '409':
+          description: At least one of the custom job componenets are not soft-deleted, therefore can not permanently delete.
+      summary: Permanently delete custom job by custom job ID
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+  /api/v2/deletedCustomJobs/:
+    get:
+      description: List deleted custom jobs.
+      operationId: deletedCustomJobs_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJobListResponse'
+          description: List of deleted custom jobs.
+        '403':
+          description: Custom jobs are not enabled.
+      summary: List deleted custom jobs
+      tags:
+      - custom_jobs
+      x-versionadded: v2.33
+components:
+  schemas:
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    CustomJobResponse:
+      properties:
+        created:
+          description: ISO-8601 timestamp of when the custom job was created.
+          type: string
+          x-versionadded: v2.33
+        description:
+          description: The description of the custom job.
+          maxLength: 10000
+          type: string
+          x-versionadded: v2.33
+        entryPoint:
+          description: The ID of the entry point file to use.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        environmentId:
+          description: The ID of the execution environment used for this custom job.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        environmentVersionId:
+          description: The ID of the execution environment version used for this custom job.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        id:
+          description: The ID of the custom job.
+          type: string
+          x-versionadded: v2.33
+        items:
+          description: List of file items.
+          items:
+            $ref: '#/components/schemas/WorkspaceItemResponse'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        jobType:
+          description: Type of the custom job.
+          enum:
+          - default
+          - hostedCustomMetric
+          - notification
+          - retraining
+          type: string
+          x-versionadded: v2.33
+        lastRun:
+          description: The last custom job run.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        name:
+          description: The name of the custom job.
+          type: string
+          x-versionadded: v2.33
+        resources:
+          $ref: '#/components/schemas/CustomJobResources'
+          x-versionadded: v2.33
+        runtimeParameters:
+          description: Unified view of the defined runtime parameters for this custom job along with any values that are currently set that override the default value from their definition.
+          items:
+            $ref: '#/components/schemas/RuntimeParameterUnified'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.33
+        updated:
+          description: ISO-8601 timestamp of when custom job was last updated.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - created
+      - environmentId
+      - environmentVersionId
+      - id
+      - items
+      - jobType
+      - lastRun
+      - name
+      - resources
+      - updated
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    RuntimeParameterValue:
+      properties:
+        fieldName:
+          description: The required field name. This value will be added as an environment variable when running custom models.
+          type: string
+          x-versionadded: v2.33
+        type:
+          description: The type of this value.
+          enum:
+          - boolean
+          - credential
+          - customMetric
+          - deployment
+          - modelPackage
+          - numeric
+          - string
+          type: string
+          x-versionadded: v2.33
+        value:
+          anyOf:
+          - description: The value for the given field.
+            maxLength: 4096
+            type:
+            - string
+            - 'null'
+          - default: false
+            description: The boolean value for the field (default False)
+            type: boolean
+          - default: null
+            description: The numeric value for the field
+            type:
+            - number
+            - 'null'
+          description: The string, boolean or numeric value for the given field.
+          x-versionadded: v2.33
+      required:
+      - fieldName
+      - type
+      - value
+      type: object
+    CreateCustomJobFromTemplateGallery:
+      properties:
+        description:
+          description: The description of the custom job.
+          maxLength: 10000
+          type: string
+        environmentId:
+          description: The ID of the execution environment to use for this custom job.
+          type: string
+        environmentVersionId:
+          description: The ID of the execution environment version to use for this custom job. If not provided, the latest execution environment version will be used.
+          type: string
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        jobType:
+          default: default
+          description: Type of the custom job.
+          enum:
+          - default
+          - hostedCustomMetric
+          - notification
+          - retraining
+          type: string
+        resources:
+          $ref: '#/components/schemas/CustomJobResources'
+        runtimeParameterValues:
+          description: Ability to inject values into a custom job at runtime. The fieldName must match a fieldName that is listed in the runtimeParameterDefinitions section of the metadata.yaml file. This list will be merged with any existing runtime values set from the prior version when issuing a PATCH request so it is possible to specify a `null` value to unset specific parameters and fall back to the defaultValue from the definition.
+          type: string
+        runtimeParameters:
+          description: Full snapshot of runtime parameters. Parameters not in this list will be removed. Supports create, update, and delete operations.
+          type: string
+          x-datarobot-public-preview: false
+          x-datarobot-required-feature-flags:
+          - description: Enables the addition of key-value pairs as Runtime-Parameters for Custom Inference Models.
+            enabled_by_default: true
+            maturity: GA_ALL
+            name: CUSTOM_MODEL_RUNTIME_PARAMETERS
+        templateId:
+          description: Custom Job Template ID.
+          type: string
+      required:
+      - templateId
+      type: object
+      x-versionadded: v2.35
+    AccessControlV2:
+      properties:
+        id:
+          description: The identifier of the recipient.
+          type: string
+        name:
+          description: The name of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The type of the recipient.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    RuntimeParameterUnified:
+      properties:
+        allowEmpty:
+          default: true
+          description: Indicates whether the param must be set before registration
+          type: boolean
+          x-versionadded: v2.33
+        credentialType:
+          description: The type of credential, required only for credentials parameters.
+          enum:
+          - adls_gen2_oauth
+          - api_token
+          - azure
+          - azure_oauth
+          - azure_sas
+          - azure_service_principal
+          - basic
+          - bearer
+          - box_jwt
+          - client_id_and_secret
+          - databricks_access_token_account
+          - databricks_service_principal_account
+          - external_oauth_provider
+          - gcp
+          - oauth
+          - opaque
+          - rsa
+          - s3
+          - sap_oauth
+          - snowflake_key_pair_user_account
+          - snowflake_oauth_user_account
+          - tableau_access_token
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        currentValue:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: 'null'
+          description: Given the default and the override, this is the actual current value of the parameter.
+          x-versionadded: v2.33
+        defaultValue:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: 'null'
+          description: The default value for the given field.
+          x-versionadded: v2.33
+        description:
+          description: Description how this parameter impacts the running model.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        fieldName:
+          description: The parameter name. This value will be added as an environment variable when running custom models.
+          type: string
+          x-versionadded: v2.33
+        keyValueId:
+          description: The ID of the key-value entry storing this parameter value.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.41
+        locked:
+          default: false
+          description: Indicates whether the parameter is platform-owned and carried over to new versions even when a later update omits it.
+          type: boolean
+          x-versionadded: v2.48
+        maxValue:
+          description: The maximum value for a numeric field.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        minValue:
+          description: The minimum value for a numeric field.
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.33
+        overrideValue:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: 'null'
+          description: Value set by the user that overrides the default set in the definition.
+          x-versionadded: v2.33
+        type:
+          description: The type of this value.
+          enum:
+          - boolean
+          - credential
+          - customMetric
+          - deployment
+          - modelPackage
+          - numeric
+          - string
+          type: string
+          x-versionadded: v2.33
+      required:
+      - fieldName
+      - type
+      type: object
+    CustomJobRunResponse:
+      properties:
+        buildId:
+          description: ID of the image build for this custom job run. Null when the run has no image build to point at, for example when it reused an already built image.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.48
+        created:
+          description: ISO-8601 timestamp of when the model was created.
+          type: string
+          x-versionadded: v2.33
+        customJobId:
+          description: The ID of the custom job.
+          type: string
+          x-versionadded: v2.33
+        description:
+          description: The description of the custom job run.
+          maxLength: 10000
+          type: string
+          x-versionadded: v2.33
+        duration:
+          description: Duration of the custom test run is seconds.
+          type: number
+          x-versionadded: v2.33
+        entryPoint:
+          description: The entry point file item ID in the custom job's workspace.
+          type: string
+          x-versionadded: v2.33
+        id:
+          description: The ID of the custom job.
+          type: string
+          x-versionadded: v2.33
+        items:
+          description: List of file items.
+          items:
+            $ref: '#/components/schemas/WorkspaceItemResponse'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        jobStatusId:
+          description: ID to track the custom job run execution status.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        resources:
+          $ref: '#/components/schemas/CustomJobResources'
+          x-versionadded: v2.33
+        runtimeParameters:
+          description: Unified view of the defined runtime parameters for this custom job along with any values that are currently set that override the default value from their definition.
+          items:
+            $ref: '#/components/schemas/RuntimeParameterUnified'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.33
+        status:
+          description: The status of the custom job run.
+          enum:
+          - succeeded
+          - failed
+          - running
+          - interrupted
+          - canceling
+          - canceled
+          type: string
+          x-versionadded: v2.33
+      required:
+      - created
+      - customJobId
+      - duration
+      - id
+      - items
+      - jobStatusId
+      - resources
+      - status
+      type: object
+    SharedRolesUpdate:
+      properties:
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects., up to maximum 100 objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - operation
+      - roles
+      type: object
+    CustomJobListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: List of custom jobs.
+          items:
+            $ref: '#/components/schemas/CustomJobResponse'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    CustomJobLimitsResponse:
+      properties:
+        maxCustomJobRuns:
+          description: Number of custom jobs allowed to run in parallel.
+          type: integer
+          x-versionadded: v2.33
+        maxCustomJobTimeout:
+          description: Execution time limit for the custom job in seconds.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - maxCustomJobRuns
+      - maxCustomJobTimeout
+      type: object
+    UpdateCustomJob:
+      properties:
+        description:
+          description: The description of the custom job.
+          maxLength: 10000
+          type: string
+          x-versionadded: v2.33
+        entryPoint:
+          description: The ID of the entry point file to use.
+          type: string
+          x-versionadded: v2.33
+        environmentId:
+          description: The ID of the execution environment to use for this custom job.
+          type: string
+          x-versionadded: v2.33
+        environmentVersionId:
+          description: The ID of the execution environment version to use for this custom job. If not provided, the latest execution environment version will be used.
+          type: string
+          x-versionadded: v2.33
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+          x-versionadded: v2.33
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          x-versionadded: v2.33
+        filesToDelete:
+          description: The IDs of the files to be deleted.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 100
+            type: array
+          x-versionadded: v2.33
+        name:
+          description: Name of the custom job.
+          maxLength: 255
+          type: string
+          x-versionadded: v2.33
+        resources:
+          $ref: '#/components/schemas/CustomJobResources'
+          x-versionadded: v2.33
+        runtimeParameterValues:
+          description: Ability to inject values into a custom job at runtime. The fieldName must match a fieldName that is listed in the runtimeParameterDefinitions section of the metadata.yaml file. This list will be merged with any existing runtime values set from the prior version when issuing a PATCH request so it is possible to specify a `null` value to unset specific parameters and fall back to the defaultValue from the definition.
+          type: string
+          x-versionadded: v2.33
+        runtimeParameters:
+          description: Full snapshot of runtime parameters. Parameters not in this list will be removed. Supports create, update, and delete operations.
+          type: string
+          x-datarobot-public-preview: false
+          x-datarobot-required-feature-flags:
+          - description: Enables the addition of key-value pairs as Runtime-Parameters for Custom Inference Models.
+            enabled_by_default: true
+            maturity: GA_ALL
+            name: CUSTOM_MODEL_RUNTIME_PARAMETERS
+      type: object
+    SharingListV2Response:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControlV2'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items matching the condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    CreateCustomJob:
+      properties:
+        description:
+          description: The description of the custom job.
+          maxLength: 10000
+          type: string
+          x-versionadded: v2.33
+        environmentId:
+          description: The ID of the execution environment to use for this custom job.
+          type: string
+          x-versionadded: v2.33
+        environmentVersionId:
+          description: The ID of the execution environment version to use for this custom job. If not provided, the latest execution environment version will be used.
+          type: string
+          x-versionadded: v2.33
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+          x-versionadded: v2.33
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          x-versionadded: v2.33
+        jobType:
+          default: default
+          description: Type of the custom job.
+          enum:
+          - default
+          - hostedCustomMetric
+          - notification
+          - retraining
+          type: string
+          x-versionadded: v2.33
+        name:
+          description: Name of the custom job.
+          maxLength: 255
+          type: string
+          x-versionadded: v2.33
+        resources:
+          $ref: '#/components/schemas/CustomJobResources'
+          x-versionadded: v2.33
+        runtimeParameterValues:
+          description: Ability to inject values into a custom job at runtime. The fieldName must match a fieldName that is listed in the runtimeParameterDefinitions section of the metadata.yaml file. This list will be merged with any existing runtime values set from the prior version when issuing a PATCH request so it is possible to specify a `null` value to unset specific parameters and fall back to the defaultValue from the definition.
+          type: string
+          x-versionadded: v2.33
+        runtimeParameters:
+          description: Full snapshot of runtime parameters. Parameters not in this list will be removed. Supports create, update, and delete operations.
+          type: string
+          x-datarobot-public-preview: false
+          x-datarobot-required-feature-flags:
+          - description: Enables the addition of key-value pairs as Runtime-Parameters for Custom Inference Models.
+            enabled_by_default: true
+            maturity: GA_ALL
+            name: CUSTOM_MODEL_RUNTIME_PARAMETERS
+      required:
+      - name
+      type: object
+    CreateCustomJobRun:
+      properties:
+        description:
+          description: The description of the custom job run.
+          maxLength: 10000
+          type: string
+          x-versionadded: v2.33
+        runtimeParameterValues:
+          description: Ability to inject values at runtime. The fieldName must match a fieldName that is listed in the runtimeParameterDefinitions section of the custom job metadata.yaml file. It has a priority over an existing runtime parameter overrides defined at the custom job level.
+          items:
+            $ref: '#/components/schemas/RuntimeParameterValue'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.33
+      type: object
+    CustomJobFileResponse:
+      properties:
+        content:
+          description: Content of the chosen file.
+          type: string
+          x-versionadded: v2.33
+        fileName:
+          description: Name of the chosen file.
+          type: string
+          x-versionadded: v2.33
+        filePath:
+          description: Path of the chosen file.
+          type: string
+          x-versionadded: v2.33
+        id:
+          description: The ID of the custom job.
+          type: string
+          x-versionadded: v2.33
+      required:
+      - content
+      - fileName
+      - filePath
+      - id
+      type: object
+    WorkspaceItemResponse:
+      properties:
+        commitSha:
+          description: SHA1 hash pointing to the original file revision (set only for files pulled from Git-like repositories).
+          type:
+          - string
+          - 'null'
+        created:
+          description: ISO-8601 timestamp of when the file item was created.
+          type: string
+        fileName:
+          description: The name of the file item.
+          type: string
+        filePath:
+          description: The path of the file item.
+          type: string
+        fileSource:
+          description: The source of the file item.
+          type: string
+        id:
+          description: ID of the file item.
+          type: string
+        ref:
+          description: Remote reference (branch, commit, tag). Branch "master", if not specified.
+          type:
+          - string
+          - 'null'
+        repositoryFilePath:
+          description: Full path to the file in the remote repository.
+          type:
+          - string
+          - 'null'
+        repositoryLocation:
+          description: URL to remote repository from which the file was pulled (e.g. Git server or S3 Bucket name).
+          type:
+          - string
+          - 'null'
+        repositoryName:
+          description: Name of the repository from which the file was pulled.
+          type:
+          - string
+          - 'null'
+      required:
+      - created
+      - fileName
+      - filePath
+      - fileSource
+      - id
+      type: object
+    CustomJobResources:
+      description: The custom job resources that will be applied in the k8s cluster.
+      properties:
+        egressNetworkPolicy:
+          description: Egress network policy.
+          enum:
+          - none
+          - public
+          type: string
+          x-versionadded: v2.33
+        resourceBundleId:
+          description: 'A single identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+      required:
+      - egressNetworkPolicy
+      type: object
+    CustomJobRunListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+          x-versionadded: v2.33
+        data:
+          description: List of custom job runs.
+          items:
+            $ref: '#/components/schemas/CustomJobRunResponse'
+          maxItems: 1000
+          type: array
+          x-versionadded: v2.33
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.33
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+          x-versionadded: v2.33
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

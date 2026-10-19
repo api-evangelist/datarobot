@@ -1,0 +1,1207 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public SSO Configuration API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to configure single sign-on for your organization.
+  name: sso_configuration
+paths:
+  /api/v2/externalApplicationConfigurations/:
+    get:
+      description: Retrieve Inbound OAuth configuration for the global config.
+      operationId: externalApplicationConfigurations_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalInboundOauthConfigResponse'
+          description: Inbound OAuth configuration.
+      summary: Retrieve global Inbound OAuth configuration
+      tags:
+      - sso_configuration
+      x-versionadded: v2.47
+    patch:
+      description: Partially update Inbound OAuth configuration for the global config.
+      operationId: externalApplicationConfigurations_patchMany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchGlobalInboundOauthConfig'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalInboundOauthConfigResponse'
+          description: Updated Inbound OAuth configuration.
+      summary: Update global Inbound OAuth configuration
+      tags:
+      - sso_configuration
+      x-versionadded: v2.47
+    post:
+      description: Create Inbound OAuth configuration for the global config.
+      operationId: externalApplicationConfigurations_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGlobalInboundOauthConfig'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalInboundOauthConfigResponse'
+          description: Created Inbound OAuth configuration.
+      summary: Create global Inbound OAuth configuration
+      tags:
+      - sso_configuration
+      x-versionadded: v2.47
+  /api/v2/externalApplicationConfigurations/{organizationId}/:
+    get:
+      description: Retrieve Inbound OAuth configuration for a specific organization.
+      operationId: externalApplicationConfigurations_retrieve
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundOauthConfigResponse'
+          description: Inbound OAuth configuration.
+      summary: Retrieve Inbound OAuth configuration by organization ID
+      tags:
+      - sso_configuration
+      x-versionadded: v2.47
+    patch:
+      description: Partially update Inbound OAuth configuration for a specific organization.
+      operationId: externalApplicationConfigurations_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchInboundOauthConfig'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundOauthConfigResponse'
+          description: Updated Inbound OAuth configuration.
+      summary: Update Inbound OAuth configuration by organization ID
+      tags:
+      - sso_configuration
+      x-versionadded: v2.47
+    post:
+      description: Create Inbound OAuth configuration for a specific organization.
+      operationId: externalApplicationConfigurations_createOne
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboundOauthConfig'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundOauthConfigResponse'
+          description: Created Inbound OAuth configuration.
+      summary: Create Inbound OAuth configuration by organization ID
+      tags:
+      - sso_configuration
+      x-versionadded: v2.47
+  /api/v2/ssoConfigurations/:
+    get:
+      description: List the sso configurations that correspond to provided conditions.
+      operationId: ssoConfigurations_list
+      parameters:
+      - description: The number of records to skip over.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of records to return.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The ID of the organization.
+        in: query
+        name: orgId
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSsoConfigurationResponse'
+          description: List of sso configurations.
+      summary: List sso configurations
+      tags:
+      - sso_configuration
+      x-versionadded: v2.21
+    post:
+      description: Create an SSO configuration for a specific organization
+      operationId: ssoConfigurations_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSsoConfiguration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnhancedSsoConfigurationResponse'
+          description: Configuration created successfully
+      summary: Create an SSO configuration
+      tags:
+      - sso_configuration
+      x-versionadded: v2.21
+  /api/v2/ssoConfigurations/{configurationId}/:
+    get:
+      description: Retrieve SSO configuration of a specific organization.
+      operationId: ssoConfigurations_retrieve
+      parameters:
+      - description: The ID of the organization to retrieve SSO config for.
+        in: path
+        name: configurationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnhancedSsoConfigurationResponse'
+          description: SSO configuration.
+      summary: Retrieve SSO configuration of a specific organization by configuration ID
+      tags:
+      - sso_configuration
+      x-versionadded: v2.21
+    patch:
+      description: Update an SSO configuration for a specific organization.
+      operationId: ssoConfigurations_patch
+      parameters:
+      - description: The ID of the organization to retrieve SSO config for.
+        in: path
+        name: configurationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSsoConfiguration'
+      responses:
+        '204':
+          description: ''
+      summary: Update an SSO configuration by configuration ID
+      tags:
+      - sso_configuration
+      x-versionadded: v2.21
+components:
+  schemas:
+    SamlOrganizationMappingResponse:
+      properties:
+        datarobotOrganizationId:
+          description: DataRobot organization ID.
+          type: string
+        datarobotOrganizationName:
+          description: DataRobot organization name.
+          type: string
+        idpOrganizationId:
+          description: A name of the identity provider organization.
+          type: string
+      required:
+      - datarobotOrganizationId
+      - idpOrganizationId
+      type: object
+      x-versionadded: v2.37
+    ListSsoConfigurationResponse:
+      properties:
+        count:
+          description: Number of SSO configurations returned.
+          minimum: 0
+          type: integer
+        data:
+          description: SSO configuration.
+          items:
+            $ref: '#/components/schemas/EnhancedSsoConfigurationResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: Link to the next page of the SSO configurations.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: Link to the previous page of the SSO configurations.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: Total number of SSO configurations.
+          minimum: 0
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    EnhancedSamlOrganizationMapping:
+      properties:
+        datarobotOrganizationId:
+          description: DataRobot organization ID.
+          type: string
+        idpOrganizationId:
+          description: Name of the identity provider organization.
+          type: string
+      required:
+      - datarobotOrganizationId
+      - idpOrganizationId
+      type: object
+      x-versionadded: v2.37
+    GlobalInboundOauthGroupMapping:
+      properties:
+        datarobotGroupId:
+          description: DataRobot group ID.
+          type: string
+        datarobotOrganizationId:
+          description: DataRobot organization ID.
+          type: string
+        idpGroupId:
+          description: Name of the identity provider group
+          type: string
+      required:
+      - datarobotGroupId
+      - idpGroupId
+      type: object
+      x-versionadded: v2.47
+    PatchInboundOauthConfig:
+      properties:
+        advancedConfiguration:
+          $ref: '#/components/schemas/InboundOauthAdvancedConfiguration'
+        attributesMapping:
+          $ref: '#/components/schemas/OrgInboundOauthAttributesMapping'
+        autoGenerateUsers:
+          description: If true, automatically provision users on first login via IDP.
+          type: boolean
+        groupDelimiter:
+          description: Delimiter used to split group claims.
+          maxLength: 4
+          type: string
+        groupMapping:
+          description: Mapping of IDP group names to DataRobot group IDs.
+          items:
+            $ref: '#/components/schemas/InboundOauthGroupMapping'
+          maxItems: 100
+          type: array
+        isEnabled:
+          description: Whether Inbound OAuth is enabled for this org.
+          type: boolean
+        issuer:
+          description: The issuer URL of the Identity Provider.
+          maxLength: 256
+          type: string
+        jwksUri:
+          description: The JWKS URI of the Identity Provider.
+          maxLength: 256
+          type: string
+      type: object
+      x-versionadded: v2.47
+    EnhancedSamlAttributeMapping:
+      description: Attribute mapping between DataRobot and IdP.
+      properties:
+        displayName:
+          description: Display name.
+          type: string
+        email:
+          description: Email.
+          type: string
+        firstName:
+          description: First name.
+          type: string
+        group:
+          description: Group.
+          type: string
+        impersonationUser:
+          description: Impersonation user.
+          type: string
+        lastName:
+          description: Last name.
+          type: string
+        organization:
+          description: Organization.
+          type: string
+          x-versionadded: v2.37
+        role:
+          description: Role.
+          type: string
+        username:
+          description: Username.
+          type: string
+      type: object
+    UpdateSsoConfiguration:
+      properties:
+        advancedConfiguration:
+          $ref: '#/components/schemas/SamlAdvancedConfiguration'
+        attributeMapping:
+          $ref: '#/components/schemas/EnhancedSamlAttributeMapping'
+        autoGenerateUsers:
+          description: determines if DataRobot automatically creates an account on first successful login via IdP if the user doesn't exist in the DataRobot application.
+          type: boolean
+        certificate:
+          $ref: '#/components/schemas/SamlCertificate'
+        configurationType:
+          description: 'The type of the SSO configuration, defines the source of SSO metadata. It can be one of the following: `METADATA` - when IDP metadata is provided in the config, `METADATA_URL` - when an URL for metadata retrieval is provided in the config and `MANUAL` - when IDP sign-on/sign-out URLs and certificate are provided.'
+          enum:
+          - MANUAL
+          - METADATA
+          - METADATA_URL
+          type: string
+        enableSso:
+          description: Defines if SSO is enabled.
+          type: boolean
+        enforceSso:
+          description: Defines if SSO is enforced.
+          type: boolean
+        entityId:
+          description: The globally unique identifier of the entity. Provided by IdP service.
+          type: string
+        groupMapping:
+          description: The list of DataRobot group to identity provider group maps.
+          items:
+            $ref: '#/components/schemas/EnhancedSamlGroupMapping'
+          maxItems: 100
+          type: array
+        idpMetadata:
+          $ref: '#/components/schemas/SamlMetadataFile'
+        idpMetadataHttpsVerify:
+          description: When idp_metadata_url uses HTTPS, require the server to have a trusted certificate. To avoid security vulnerabilities, only set to False when a trusted server has a self-signed certificate.
+          type: boolean
+        idpMetadataUrl:
+          description: URL to the IdP SSO descriptor. Provided by IdP service.
+          format: uri
+          type: string
+        idpResponseMethod:
+          description: Identity provider response method, used to move user from IdP's authentication form back to the DataRobot side.
+          enum:
+          - POST
+          - REDIRECT
+          type: string
+        issuer:
+          description: Optional Issuer field that may be required by IdP.
+          type: string
+        name:
+          description: The name of the SSO configuration.
+          type: string
+        organizationId:
+          description: The organization ID to which the SSO config belongs.
+          type: string
+        organizationMapping:
+          description: The list of DataRobot organization to identity provider organization maps.
+          items:
+            $ref: '#/components/schemas/EnhancedSamlOrganizationMapping'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.37
+        roleMapping:
+          description: The list of DataRobot access role to identity provider role maps.
+          items:
+            $ref: '#/components/schemas/EnhancedSamlRoleMapping'
+          maxItems: 100
+          type: array
+        securityParameters:
+          $ref: '#/components/schemas/SamlSecurityParameters'
+        sessionLengthSeconds:
+          description: Time window for the authentication session via IdP.
+          type: integer
+        signOnUrl:
+          description: URL to sign on via SSO.
+          format: uri
+          type: string
+        signOutUrl:
+          description: URL to sign out via SSO.
+          format: uri
+          type: string
+        spRequestMethod:
+          description: Service provider (DataRobot application) request method, is used to move user to the IdP's authentication form.
+          enum:
+          - POST
+          - REDIRECT
+          type: string
+      type: object
+    EnhancedSamlRoleMapping:
+      properties:
+        datarobotRoleId:
+          description: DataRobot access role ID.
+          type: string
+        idpRoleId:
+          description: Name of the identity provider role.
+          type: string
+      required:
+      - datarobotRoleId
+      - idpRoleId
+      type: object
+    SamlGroupMappingResponse:
+      properties:
+        datarobotGroupId:
+          description: DataRobot group ID.
+          type: string
+        datarobotGroupName:
+          description: DataRobot group name.
+          type: string
+        idpGroupId:
+          description: A name of the identity provider group.
+          type: string
+      required:
+      - datarobotGroupId
+      - idpGroupId
+      type: object
+    CreateInboundOauthConfig:
+      properties:
+        advancedConfiguration:
+          $ref: '#/components/schemas/InboundOauthAdvancedConfiguration'
+        attributesMapping:
+          $ref: '#/components/schemas/OrgInboundOauthAttributesMapping'
+        autoGenerateUsers:
+          description: If true, automatically provision users on first login via IDP.
+          type: boolean
+        groupDelimiter:
+          description: Delimiter used to split group claims.
+          maxLength: 4
+          type: string
+        groupMapping:
+          description: Mapping of IDP group names to DataRobot group IDs.
+          items:
+            $ref: '#/components/schemas/InboundOauthGroupMapping'
+          maxItems: 100
+          type: array
+        isEnabled:
+          description: Whether Inbound OAuth is enabled for this org.
+          type: boolean
+        issuer:
+          description: The issuer URL of the Identity Provider.
+          maxLength: 256
+          type: string
+        jwksUri:
+          description: The JWKS URI of the Identity Provider.
+          maxLength: 256
+          type: string
+      required:
+      - attributesMapping
+      - isEnabled
+      - issuer
+      - jwksUri
+      type: object
+      x-versionadded: v2.47
+    InboundOauthConfigResponse:
+      properties:
+        advancedConfiguration:
+          $ref: '#/components/schemas/InboundOauthAdvancedConfiguration'
+        attributesMapping:
+          $ref: '#/components/schemas/OrgInboundOauthAttributesMapping'
+        autoGenerateUsers:
+          description: If true, automatically provision users on first login via IDP.
+          type: boolean
+        clientId:
+          description: Auto-generated unique client identifier.
+          type: string
+        groupDelimiter:
+          description: Delimiter used to split group claims.
+          type: string
+        groupMapping:
+          description: Mapping of IDP group names to DataRobot group IDs.
+          items:
+            $ref: '#/components/schemas/InboundOauthGroupMappingResponse'
+          maxItems: 100
+          type: array
+        isEnabled:
+          description: Whether Inbound OAuth is enabled.
+          type: boolean
+        issuer:
+          description: The issuer URL of the Identity Provider.
+          type: string
+        jwksUri:
+          description: The JWKS URI of the Identity Provider.
+          type: string
+        organizationId:
+          description: The organization ID, or null for global config.
+          type:
+          - string
+          - 'null'
+        provisioningStatus:
+          description: 'Per-org Hydra client provisioning status: "notProvisioned" (no client), "ready" (client is in place), "failed" (provisioning failed; retry by re-saving), or "deprovisioning" (teardown started and did not confirm).'
+          enum:
+          - notProvisioned
+          - ready
+          - failed
+          - deprovisioning
+          type: string
+          x-versionadded: v2.47
+        serviceUserClientId:
+          description: The per-org service-user client id the token bridge presents. Null unless a per-org Hydra client is provisioned ("ready") and per-org client provisioning is enabled on this cluster.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.47
+      required:
+      - autoGenerateUsers
+      - clientId
+      - isEnabled
+      - issuer
+      - jwksUri
+      - provisioningStatus
+      - serviceUserClientId
+      type: object
+      x-versionadded: v2.47
+    InboundOauthGroupMappingResponse:
+      properties:
+        datarobotGroupId:
+          description: DataRobot group ID.
+          type: string
+        datarobotGroupName:
+          description: Name of the DataRobot group.
+          type: string
+        idpGroupId:
+          description: Name of the identity provider group
+          type: string
+      required:
+      - datarobotGroupId
+      - idpGroupId
+      type: object
+      x-versionadded: v2.47
+    PatchGlobalInboundOauthConfig:
+      properties:
+        advancedConfiguration:
+          $ref: '#/components/schemas/InboundOauthAdvancedConfiguration'
+        attributesMapping:
+          $ref: '#/components/schemas/InboundOauthAttributesMapping'
+        autoGenerateUsers:
+          description: If true, automatically provision users on first login via IDP.
+          type: boolean
+        groupDelimiter:
+          description: Delimiter used to split group claims.
+          maxLength: 4
+          type: string
+        groupMapping:
+          description: Mapping of IDP group names to DataRobot group IDs.
+          items:
+            $ref: '#/components/schemas/GlobalInboundOauthGroupMapping'
+          maxItems: 100
+          type: array
+        isEnabled:
+          description: Whether Inbound OAuth is enabled for this org.
+          type: boolean
+        issuer:
+          description: The issuer URL of the Identity Provider.
+          maxLength: 256
+          type: string
+        jwksUri:
+          description: The JWKS URI of the Identity Provider.
+          maxLength: 256
+          type: string
+        organizationMapping:
+          description: Mapping of IDP organization names to DataRobot organization IDs.
+          items:
+            $ref: '#/components/schemas/InboundOauthOrganizationMapping'
+          maxItems: 1000
+          type: array
+      type: object
+      x-versionadded: v2.47
+    GlobalInboundOauthConfigResponse:
+      properties:
+        advancedConfiguration:
+          $ref: '#/components/schemas/InboundOauthAdvancedConfiguration'
+        attributesMapping:
+          $ref: '#/components/schemas/OrgInboundOauthAttributesMapping'
+        autoGenerateUsers:
+          description: If true, automatically provision users on first login via IDP.
+          type: boolean
+        clientId:
+          description: Auto-generated unique client identifier.
+          type: string
+        groupDelimiter:
+          description: Delimiter used to split group claims.
+          type: string
+        groupMapping:
+          description: Mapping of IDP group names to DataRobot group IDs.
+          items:
+            $ref: '#/components/schemas/GlobalInboundOauthGroupMappingResponse'
+          maxItems: 100
+          type: array
+        isEnabled:
+          description: Whether Inbound OAuth is enabled.
+          type: boolean
+        issuer:
+          description: The issuer URL of the Identity Provider.
+          type: string
+        jwksUri:
+          description: The JWKS URI of the Identity Provider.
+          type: string
+        organizationId:
+          description: The organization ID, or null for global config.
+          type:
+          - string
+          - 'null'
+        organizationMapping:
+          description: Mapping of IDP organization names to DataRobot organization IDs.
+          items:
+            $ref: '#/components/schemas/InboundOauthOrganizationMappingResponse'
+          maxItems: 1000
+          type: array
+      required:
+      - autoGenerateUsers
+      - clientId
+      - isEnabled
+      - issuer
+      - jwksUri
+      type: object
+      x-versionadded: v2.47
+    EnhancedSamlGroupMapping:
+      properties:
+        datarobotGroupId:
+          description: DataRobot group ID.
+          type: string
+        idpGroupId:
+          description: Name of the identity provider group
+          type: string
+      required:
+      - datarobotGroupId
+      - idpGroupId
+      type: object
+    EnhancedSsoConfigurationResponse:
+      properties:
+        attributeMapping:
+          $ref: '#/components/schemas/EnhancedSamlAttributeMapping'
+        autoGenerateUsers:
+          description: Determines if DataRobot automatically creates an account on first successful login via IdP if the user doesn't exist in the DataRobot application.
+          type: boolean
+        certificate:
+          $ref: '#/components/schemas/SamlCertificate'
+        configurationType:
+          description: "The type of the SSO configuration, defines the source of SSO metadata.\n            It can be one of the following: `METADATA` - when IDP metadata is provided in the\n            config, `METADATA_URL` - when an URL for metadata retrieval is provided in the config and\n            `MANUAL` - when IDP sign-on/sign-out URLs and certificate are provided."
+          enum:
+          - MANUAL
+          - METADATA
+          - METADATA_URL
+          type: string
+        enableSso:
+          description: Defines if SSO is enabled.
+          type: boolean
+        enforceSso:
+          description: Defines if SSO is enforced.
+          type: boolean
+        entityId:
+          description: The globally unique identifier of the entity. Provided by IdP service.
+          type: string
+        groupDelimiter:
+          description: A delimiter used to split IdP provided Group assertions if provided as a singledelimiter-separated list.
+          type: string
+        groupMapping:
+          description: The list of DataRobot group to identity provider group maps.
+          items:
+            $ref: '#/components/schemas/SamlGroupMappingResponse'
+          maxItems: 100
+          type: array
+        id:
+          description: SSO configuration ID.
+          type: string
+        idpMetadata:
+          $ref: '#/components/schemas/SamlMetadataFile'
+        idpMetadataHttpsVerify:
+          description: "When idp_metadata_url uses HTTPS, require the server to have a trusted certificate.\n            To avoid security vulnerabilities, only set to False when a trusted server has a\n            self-signed certificate."
+          type: boolean
+        idpMetadataUrl:
+          description: URL to the IdP SSO descriptor. Provided by IdP service.
+          format: uri
+          type: string
+        idpResponseMethod:
+          default: POST
+          description: Identity provider response method, used to move user from IdP's authentication form back to the DataRobot side.
+          enum:
+          - POST
+          - REDIRECT
+          type: string
+        issuer:
+          description: Optional Issuer field that may be required by IdP.
+          type:
+          - string
+          - 'null'
+        name:
+          description: The name of the SSO configuration.
+          type: string
+        organizationId:
+          description: The organization ID to which the SSO config belongs.
+          type: string
+        organizationMapping:
+          description: The list of DataRobot organization to identity provider organization maps.
+          items:
+            $ref: '#/components/schemas/SamlOrganizationMappingResponse'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.37
+        roleDelimiter:
+          description: A delimiter used to split IdP provided Role assertions if provided as a singledelimiter-separated list.
+          type: string
+        roleMapping:
+          description: The list of DataRobot access role to identity provider role maps.
+          items:
+            $ref: '#/components/schemas/EnhancedSamlRoleMapping'
+          maxItems: 100
+          type: array
+        securityParameters:
+          $ref: '#/components/schemas/SamlSecurityParameters'
+        sessionLengthSeconds:
+          default: 604800
+          description: Time window for the authentication session via IDP
+          exclusiveMinimum: 0
+          type: integer
+        signOnUrl:
+          description: URL to sign on via SSO.
+          format: uri
+          type: string
+        signOutUrl:
+          description: URL to sign out via SSO.
+          format: uri
+          type: string
+        spRequestMethod:
+          default: REDIRECT
+          description: Service provider (DataRobot application) request method, is used to move user to the IdP's authentication form.
+          enum:
+          - POST
+          - REDIRECT
+          type: string
+      required:
+      - configurationType
+      - enableSso
+      - enforceSso
+      - entityId
+      - id
+      - idpResponseMethod
+      - name
+      - sessionLengthSeconds
+      - spRequestMethod
+      type: object
+    InboundOauthGroupMapping:
+      properties:
+        datarobotGroupId:
+          description: DataRobot group ID.
+          type: string
+        idpGroupId:
+          description: Name of the identity provider group
+          type: string
+      required:
+      - datarobotGroupId
+      - idpGroupId
+      type: object
+      x-versionadded: v2.47
+    EnhancedSamlClientConfig:
+      description: Encryption related parameters.
+      properties:
+        cert_file:
+          description: Path to the pem file with a single certificate.
+          type: string
+        cert_file_value:
+          description: A single certificate pem file content as a single string. Has priority over cert_file.
+          type: string
+        encryption_keypairs:
+          description: Indicates which certificates will be used for encryption capabilities.
+          items:
+            $ref: '#/components/schemas/EnhancedEncryptionKeypairs'
+          maxItems: 100
+          type: array
+        id_attr_name:
+          description: Attribute is required to be set to 'Id' value when Okta encrypted assertions are used
+          type: string
+        id_attr_name_crypto:
+          description: Attribute is required to be set to 'Id' value when Okta encrypted assertions are used
+          type: string
+        key_file:
+          description: Path to the private key pem file.
+          type: string
+        key_file_value:
+          description: The private key pem file content as a single string. Has priority over key_file.
+          type: string
+      type: object
+    SamlSecurityParameters:
+      description: The object that contains SAML specific directives.
+      properties:
+        allowUnsolicited:
+          description: Allow unsolicited.
+          type: boolean
+        authnRequestsSigned:
+          description: Sign auth requests.
+          type: boolean
+        logoutRequestsSigned:
+          description: Sign logout requests.
+          type: boolean
+        wantAssertionsSigned:
+          description: Sign assertions.
+          type: boolean
+        wantResponseSigned:
+          description: Sign response.
+          type: boolean
+      type: object
+    SamlMetadataFile:
+      description: XML document, IdP SSO descriptor. Provided by IdP service.
+      properties:
+        fileName:
+          description: Path to IdP metadata file.
+          type: string
+        value:
+          description: IdP metadata.
+          type: string
+      required:
+      - fileName
+      - value
+      type: object
+    GlobalInboundOauthGroupMappingResponse:
+      properties:
+        datarobotGroupId:
+          description: DataRobot group ID.
+          type: string
+        datarobotGroupName:
+          description: Name of the DataRobot group.
+          type: string
+        datarobotOrganizationId:
+          description: DataRobot organization ID.
+          type: string
+        idpGroupId:
+          description: Name of the identity provider group
+          type: string
+      required:
+      - datarobotGroupId
+      - idpGroupId
+      type: object
+      x-versionadded: v2.47
+    EnhancedEncryptionKeypairs:
+      properties:
+        cert_file:
+          description: Path to the pem file with a single certificate.
+          type: string
+        cert_file_value:
+          description: A single certificate pem file content as a single string. Has priority over cert_file.
+          type: string
+        key_file:
+          description: Path to the private key pem file.
+          type: string
+        key_file_value:
+          description: The private key pem file content as a single string. Has priority over key_file.
+          type: string
+      type: object
+    InboundOauthAttributesMapping:
+      description: Mapping of IDP token claims to DataRobot user fields.
+      properties:
+        displayName:
+          description: Claim name for display name.
+          type: string
+        email:
+          description: Claim name for email.
+          type: string
+        firstName:
+          description: Claim name for first name.
+          type: string
+        groups:
+          description: Claim name for groups.
+          type: string
+        lastName:
+          description: Claim name for last name.
+          type: string
+        organization:
+          description: Claim name for organization.
+          type: string
+        username:
+          description: Claim name for username.
+          type: string
+      required:
+      - username
+      type: object
+      x-versionadded: v2.47
+    SamlCertificate:
+      description: Certificate to be used by IdP.
+      properties:
+        fileName:
+          description: Path to certificate file.
+          type: string
+        value:
+          description: Certificate content.
+          type: string
+      required:
+      - value
+      type: object
+    InboundOauthOrganizationMapping:
+      properties:
+        datarobotOrganizationId:
+          description: DataRobot organization ID.
+          type: string
+        idpOrganizationId:
+          description: Name of the identity provider organization
+          type: string
+      required:
+      - datarobotOrganizationId
+      - idpOrganizationId
+      type: object
+      x-versionadded: v2.47
+    CreateGlobalInboundOauthConfig:
+      properties:
+        advancedConfiguration:
+          $ref: '#/components/schemas/InboundOauthAdvancedConfiguration'
+        attributesMapping:
+          $ref: '#/components/schemas/InboundOauthAttributesMapping'
+        autoGenerateUsers:
+          description: If true, automatically provision users on first login via IDP.
+          type: boolean
+        groupDelimiter:
+          description: Delimiter used to split group claims.
+          maxLength: 4
+          type: string
+        groupMapping:
+          description: Mapping of IDP group names to DataRobot group IDs.
+          items:
+            $ref: '#/components/schemas/GlobalInboundOauthGroupMapping'
+          maxItems: 100
+          type: array
+        isEnabled:
+          description: Whether Inbound OAuth is enabled for this org.
+          type: boolean
+        issuer:
+          description: The issuer URL of the Identity Provider.
+          maxLength: 256
+          type: string
+        jwksUri:
+          description: The JWKS URI of the Identity Provider.
+          maxLength: 256
+          type: string
+        organizationMapping:
+          description: Mapping of IDP organization names to DataRobot organization IDs.
+          items:
+            $ref: '#/components/schemas/InboundOauthOrganizationMapping'
+          maxItems: 1000
+          type: array
+      required:
+      - attributesMapping
+      - isEnabled
+      - issuer
+      - jwksUri
+      type: object
+      x-versionadded: v2.47
+    OrgInboundOauthAttributesMapping:
+      description: Mapping of IDP token claims to DataRobot user fields.
+      properties:
+        displayName:
+          description: Claim name for display name.
+          type: string
+        email:
+          description: Claim name for email.
+          type: string
+        firstName:
+          description: Claim name for first name.
+          type: string
+        groups:
+          description: Claim name for groups.
+          type: string
+        lastName:
+          description: Claim name for last name.
+          type: string
+        organization:
+          description: Claim name for organization.
+          type: string
+        username:
+          description: Claim name for username.
+          type: string
+      required:
+      - username
+      type: object
+      x-versionadded: v2.47
+    InboundOauthOrganizationMappingResponse:
+      properties:
+        datarobotOrganizationId:
+          description: DataRobot organization ID.
+          type: string
+        datarobotOrganizationName:
+          description: Name of the DataRobot organization.
+          type: string
+        idpOrganizationId:
+          description: Name of the identity provider organization
+          type: string
+      required:
+      - idpOrganizationId
+      type: object
+      x-versionadded: v2.47
+    SamlAdvancedConfiguration:
+      description: An object containing SSO client advanced parameters.
+      properties:
+        digestAlgorithm:
+          description: Algorithm for calculating digest.
+          enum:
+          - DIGEST_RIPEMD160
+          - DIGEST_SHA1
+          - DIGEST_SHA224
+          - DIGEST_SHA256
+          - DIGEST_SHA384
+          - DIGEST_SHA512
+          type: string
+        samlAttributesMapping:
+          $ref: '#/components/schemas/EnhancedSamlAttributeMapping'
+        samlClientConfiguration:
+          $ref: '#/components/schemas/EnhancedSamlClientConfig'
+        signatureAlgorithm:
+          description: Algorithm for calculating signature.
+          enum:
+          - SIG_RSA_SHA1
+          - SIG_RSA_SHA224
+          - SIG_RSA_SHA256
+          - SIG_RSA_SHA384
+          - SIG_RSA_SHA512
+          type: string
+      required:
+      - samlAttributesMapping
+      - samlClientConfiguration
+      type: object
+    CreateSsoConfiguration:
+      properties:
+        attributeMapping:
+          $ref: '#/components/schemas/EnhancedSamlAttributeMapping'
+        autoGenerateUsers:
+          description: Determines if DataRobot automatically creates an account on first successful login via IdP if the user doesn't exist in the DataRobot application.
+          type: boolean
+        certificate:
+          $ref: '#/components/schemas/SamlCertificate'
+        configurationType:
+          description: "The type of the SSO configuration, defines the source of SSO metadata.\n            It can be one of the following: `METADATA` - when IDP metadata is provided in the\n            config, `METADATA_URL` - when an URL for metadata retrieval is provided in the config and\n            `MANUAL` - when IDP sign-on/sign-out URLs and certificate are provided."
+          enum:
+          - MANUAL
+          - METADATA
+          - METADATA_URL
+          type: string
+        enableSso:
+          description: Defines if SSO is enabled.
+          type: boolean
+        enforceSso:
+          description: Defines if SSO is enforced.
+          type: boolean
+        entityId:
+          description: The globally unique identifier of the entity. Provided by IdP service.
+          type: string
+        groupMapping:
+          description: The list of DataRobot group to identity provider group maps.
+          items:
+            $ref: '#/components/schemas/EnhancedSamlGroupMapping'
+          maxItems: 100
+          type: array
+        idpMetadata:
+          $ref: '#/components/schemas/SamlMetadataFile'
+        idpMetadataHttpsVerify:
+          description: "When idp_metadata_url uses HTTPS, require the server to have a trusted certificate.\n            To avoid security vulnerabilities, only set to False when a trusted server has a\n            self-signed certificate."
+          type: boolean
+        idpMetadataUrl:
+          description: URL to the IdP SSO descriptor. Provided by IdP service.
+          format: uri
+          type: string
+        idpResponseMethod:
+          default: POST
+          description: Identity provider response method, used to move user from IdP's authentication form back to the DataRobot side.
+          enum:
+          - POST
+          - REDIRECT
+          type: string
+        issuer:
+          description: Optional Issuer field that may be required by IdP.
+          type: string
+        name:
+          description: The name of the SSO configuration.
+          type: string
+        organizationId:
+          description: The organization ID to which the SSO config belongs.
+          type: string
+        organizationMapping:
+          description: The list of DataRobot organization to identity provider organization maps.
+          items:
+            $ref: '#/components/schemas/EnhancedSamlOrganizationMapping'
+          maxItems: 100
+          type: array
+          x-versionadded: v2.37
+        roleMapping:
+          description: The list of DataRobot access role to identity provider role maps.
+          items:
+            $ref: '#/components/schemas/EnhancedSamlRoleMapping'
+          maxItems: 100
+          type: array
+        securityParameters:
+          $ref: '#/components/schemas/SamlSecurityParameters'
+        sessionLengthSeconds:
+          default: 604800
+          description: Time window for the authentication session via IDP
+          exclusiveMinimum: 0
+          type: integer
+        signOnUrl:
+          description: URL to sign on via SSO.
+          format: uri
+          type: string
+        signOutUrl:
+          description: URL to sign out via SSO.
+          format: uri
+          type: string
+        spRequestMethod:
+          default: REDIRECT
+          description: Service provider (DataRobot application) request method, is used to move user to the IdP's authentication form.
+          enum:
+          - POST
+          - REDIRECT
+          type: string
+      required:
+      - configurationType
+      - enableSso
+      - enforceSso
+      - entityId
+      - idpResponseMethod
+      - name
+      - sessionLengthSeconds
+      - spRequestMethod
+      type: object
+    InboundOauthAdvancedConfiguration:
+      description: Advanced options for JWKS cache and token validation.
+      properties:
+        jwksRefreshIntervalSeconds:
+          description: JWKS keys refresh interval in seconds.
+          maximum: 604800
+          minimum: 0
+          type: integer
+      type: object
+      x-versionadded: v2.47
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

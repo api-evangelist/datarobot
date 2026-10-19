@@ -1,0 +1,341 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Pipeline Task Execution Internal API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- name: pipeline-task-execution-internal
+paths:
+  /api/v2/internal/pipelines/dispatches/{dispatch_id}/graph-ready:
+    put:
+      description: 'Receive the completion callback from a dispatch prep pod.
+
+
+        Delegates the decision tree (idempotency guard, success vs
+
+        failure branch) to ``DispatchPrepService.handle_graph_ready``.
+
+        This controller only translates typed service errors into
+
+        HTTP status codes.
+
+
+        The path''s ``dispatch_id`` has already been validated to match
+
+        the token''s embedded claim upstream by
+
+        ``verify_graph_ready_token``; this handler + the service trust
+
+        it as an authenticated identity.'
+      operationId: graph_ready_callback_api_v2_internal_pipelines_dispatches__dispatch_id__graph_ready_put
+      parameters:
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      - in: header
+        name: X-Pipelines-Callback-Token
+        required: true
+        schema:
+          title: X-Pipelines-Callback-Token
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispatchGraphReadyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Graph Ready Callback
+      tags:
+      - pipeline-task-execution-internal
+  /api/v2/internal/pipelines/dispatches/{dispatch_id}/tasks/{node_id}:
+    put:
+      description: 'Receive the completion callback from a standalone-dispatch task pod.
+
+
+        Delegates the §4b decision tree (idempotency, pod-uid dedup,
+
+        success / retry / terminal-failure branches) to
+
+        ``CallbackService``. This controller layer only translates
+
+        typed service errors into HTTP status codes.
+
+
+        Path params are validated to match the token''s embedded claims
+
+        upstream by ``verify_callback_token``; this handler + the
+
+        service trust them.'
+      operationId: task_callback_api_v2_internal_pipelines_dispatches__dispatch_id__tasks__node_id__put
+      parameters:
+      - in: path
+        name: dispatch_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Dispatch Id
+          type: string
+      - in: path
+        name: node_id
+        required: true
+        schema:
+          title: Node Id
+          type: integer
+      - in: header
+        name: X-Pipelines-Callback-Token
+        required: true
+        schema:
+          title: X-Pipelines-Callback-Token
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCallbackRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Task Callback
+      tags:
+      - pipeline-task-execution-internal
+components:
+  schemas:
+    DispatchGraphReadyRequest:
+      description: "Body of the prep-Pod's graph-ready callback.\n\nThe prep Pod PUTs this to\n``/api/v2/internal/pipelines/dispatches/{dispatch_id}/graph-ready``\nonce it has finished tracing the user's pipeline (success or\nfailure). Wire schema mirrors ``TaskCallbackRequest`` in\nintent — one endpoint, ``exit_code`` discriminates the two\noutcomes — but with prep-specific payload.\n\nSuccess body (``exit_code == 0``):\n    ``transport_graph_s3_uri`` is the S3 URI the prep Pod\n    uploaded the cloudpickled ``nx.DiGraph`` to; ``nodes``\n    carries per-task metadata for every non-parameter\n    graph node; ``initial_ready_node_ids`` carries the node\n    ids whose only predecessors are parameter nodes (or none)\n    — pipelines-api enqueues these onto the executor\n    directly. ``error_detail`` is ``None``.\n\nFailure body (``exit_code != 0``):\n    ``error_detail`` carries the truncated traceback from the\n    prep Pod (``≤ 4096`` chars — same width as\n    ``PipelineDispatch.error_detail``). ``nodes`` /\n    ``initial_ready_node_ids`` are empty; ``transport_graph_s3_uri``\n    is ``None``. The graph-ready handler transitions the\n    dispatch to ``FAILED`` without materialising any\n    task rows.\n\n``pod_uid`` is the prep Pod's ``metadata.uid`` from the K8s\ndownward API — mirrors ``TaskCallbackRequest.pod_uid``.\nUsed by the handler to dedupe repeat callbacks (network\npartition + prep-Pod retry landing after the reconciler\nalready advanced the dispatch), same invariant as the\ntask flow.\n\nSee ``specs/dispatch_prep_pod_implementation_plan.md`` A.2-A.4\nand ``covalent-runtime-image/pipeline_api_dispatch_prep.py``\nfor the producer side.\n\nAttributes:\n    pod_uid: Prep Pod's ``metadata.uid`` — for dedup.\n    exit_code: 0 on success; any non-zero is a prep failure.\n    transport_graph_s3_uri: Destination S3 URI of the\n        cloudpickled traced graph. Populated on success;\n        ``None`` on failure.\n    nodes: Per-task metadata list (success only —\n        empty on failure).\n    initial_ready_node_ids: Nodes whose only predecessors\n        are ``:parameter:`` nodes; pipelines-api enqueues\n        these directly. Empty on failure.\n    error_detail: Truncated prep-Pod traceback on failure;\n        ``None`` on success. Capped at 4096 chars.\n    duration_ms: Prep Pod's wall-clock runtime; observability\n        only. Optional."
+      properties:
+        durationMs:
+          anyOf:
+          - minimum: 0.0
+            type: integer
+          - type: 'null'
+          title: Durationms
+        errorDetail:
+          anyOf:
+          - maxLength: 4096
+            type: string
+          - type: 'null'
+          title: Errordetail
+        exitCode:
+          title: Exitcode
+          type: integer
+        initialReadyNodeIds:
+          items:
+            type: integer
+          title: Initialreadynodeids
+          type: array
+        nodes:
+          items:
+            $ref: '#/components/schemas/GraphReadyNode'
+          title: Nodes
+          type: array
+        pipelineEnvironmentVars:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/EnvVar'
+            type: array
+          - type: 'null'
+          title: Pipelineenvironmentvars
+        podUid:
+          minLength: 1
+          title: Poduid
+          type: string
+        transportGraphS3Uri:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Transportgraphs3Uri
+      required:
+      - podUid
+      - exitCode
+      title: DispatchGraphReadyRequest
+      type: object
+    TaskCallbackRequest:
+      description: "Body of the standalone-dispatch task completion callback.\n\nThe in-pod runner PUTs this to\n``/api/v2/internal/pipelines/dispatches/{dispatch_id}/tasks/{node_id}``\nonce the ``@task`` finishes (or the runner catches a terminal\nerror). See ``specs/pipeline_api_standalone_execution.md`` §4b.\n\n``pod_uid`` is the K8s ``metadata.uid`` of the pod that made\nthe callback (from the downward API — spec §11 invariant #6);\nthe callback service uses it to dedupe repeat callbacks from\nthe same pod and to count distinct failed attempts across K8s\nJob retry pods.\n\nAttributes:\n    pod_uid: The pod's ``metadata.uid``.\n    exit_code: 0 on success; any non-zero value is treated as\n        a failed attempt.\n    result_s3_uri: S3 URI where the pod wrote the task's\n        result (``result.tobj`` blob). Present when the task\n        completed successfully; ``None`` on failure.\n    error_detail: Human-readable failure message, capped at\n        4096 chars to match the ``pipelinetaskexecution.error_detail``\n        column width.\n    duration_ms: Wall-clock runtime the pod measured for the\n        user's ``@task`` body. Optional; used for observability\n        only."
+      properties:
+        durationMs:
+          anyOf:
+          - minimum: 0.0
+            type: integer
+          - type: 'null'
+          title: Durationms
+        errorDetail:
+          anyOf:
+          - maxLength: 4096
+            type: string
+          - type: 'null'
+          title: Errordetail
+        exitCode:
+          title: Exitcode
+          type: integer
+        podUid:
+          minLength: 1
+          title: Poduid
+          type: string
+        resultS3Uri:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Results3Uri
+      required:
+      - podUid
+      - exitCode
+      title: TaskCallbackRequest
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    GraphReadyNode:
+      description: "Per-task metadata one entry in ``DispatchGraphReadyRequest.nodes``.\n\nPopulated by the prep Pod\n(``covalent-runtime-image/pipeline_api_dispatch_prep.py``) as\nit walks the traced transport graph. Every non-parameter node\nbecomes one entry — parameter nodes (name-prefixed\n``:parameter:``) are skipped because they have no user\ncallable and no ``PipelineTaskExecution`` row.\n\n``resource_bundle_id`` / ``timeout_seconds`` / ``max_retries``\nare optional on the wire so the prep Pod can forward a\n``None`` when the covalent graph metadata dict omits the key.\nThe graph-ready handler (A.4) applies pipelines-api's\nservice-level defaults (see\n``StandaloneDispatchService._resolve_task_meta``) when\nmaterialising the task row.\n\nAttributes:\n    node_id: Transport-graph node id (nonnegative int).\n    node_name: ``@task``-decorated function name; must not be\n        empty. Never a ``:parameter:`` name — the prep Pod\n        filters those out before PUTting.\n    resource_bundle_id: MMS bundle id / alias for this\n        task; ``None`` falls back to service default.\n    timeout_seconds: Per-task wall-clock ceiling; ``None``\n        falls back to service default. Positive int when set.\n    max_retries: Max retry attempts; ``None`` falls back to\n        service default. Nonnegative int when set."
+      properties:
+        environmentVars:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/EnvVar'
+            type: array
+          - type: 'null'
+          title: Environmentvars
+        maxRetries:
+          anyOf:
+          - minimum: 0.0
+            type: integer
+          - type: 'null'
+          title: Maxretries
+        nodeId:
+          minimum: 0.0
+          title: Nodeid
+          type: integer
+        nodeName:
+          minLength: 1
+          title: Nodename
+          type: string
+        resourceBundleId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resourcebundleid
+        timeoutSeconds:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          title: Timeoutseconds
+      required:
+      - nodeId
+      - nodeName
+      title: GraphReadyNode
+      type: object
+    EnvVar:
+      description: "One entry in an ``environment_vars=[…]`` decorator list.\n\nWire shape mirrors what the SDK stores on the electron /\nlattice metadata (``{\"key\": …, \"value\": …}``). Semantic\nvalidation (POSIX key regex, key length cap, value byte cap,\nreserved ``DATAROBOT_PIPELINE_`` namespace, no duplicate keys\nper list) is applied at the enclosing container level via\n:func:`pipelines_api.utils.env_vars.validate_env_vars` — one\nsource of truth shared with the upload-time and merge-time\nvalidators.\n\nAttributes:\n    key: POSIX env-var identifier\n        (``^[A-Z_][A-Z0-9_]*$``, ≤ 128 chars, not in the\n        ``DATAROBOT_PIPELINE_`` namespace).\n    value: UTF-8 string; ≤ 32 KiB."
+      properties:
+        key:
+          title: Key
+          type: string
+        value:
+          title: Value
+          type: string
+      required:
+      - key
+      - value
+      title: EnvVar
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

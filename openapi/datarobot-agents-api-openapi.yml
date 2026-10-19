@@ -1,0 +1,1009 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Agents API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: The following endpoints outline how to manage agents.
+  name: Agents
+paths:
+  /api/v2/genai/agents/fromCustomModel/{customModelId}/chat/:
+    post:
+      description: Create a chat completion request for an agent using a custom model.
+      operationId: from_custom_model_chat_agents_fromCustomModel__customModelId__chat__post
+      parameters:
+      - description: The ID of a custom model to use for the chat completion.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          description: The ID of a custom model to use for the chat completion.
+          title: customModelId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentChatCompletionRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Request chat completion by custom model ID
+      tags:
+      - Agents
+  /api/v2/genai/agents/fromCustomModel/{customModelId}/chat/{chatCompletionId}/:
+    get:
+      description: Obtain chat completion response for a given chat completion ID.
+      operationId: get_chat_response_agents_fromCustomModel__customModelId__chat__chatCompletionId___get
+      parameters:
+      - description: The ID of a custom model to use for the chat completion.
+        in: path
+        name: customModelId
+        required: true
+        schema:
+          description: The ID of a custom model to use for the chat completion.
+          title: customModelId
+          type: string
+      - description: The ID of a chat completion object.
+        in: path
+        name: chatCompletionId
+        required: true
+        schema:
+          description: The ID of a chat completion object.
+          title: chatCompletionId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentChatCompletionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Obtain chat completion response by custom model ID
+      tags:
+      - Agents
+  /api/v2/genai/syftrSearch/:
+    get:
+      description: Return all search studies for the specified use case .
+      operationId: list_search_study_syftrSearch__get
+      parameters:
+      - description: Use case ID to retrieve search studies from.
+        in: query
+        name: useCaseId
+        required: true
+        schema:
+          description: Use case ID to retrieve search studies from.
+          title: useCaseId
+          type: string
+      - description: Skip the specified number of search studies.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of search studies.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of search studies.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 200
+          description: Retrieve only the specified number of search studies.
+          exclusiveMinimum: 0
+          maximum: 200
+          title: limit
+          type: integer
+      - description: Playground ID associated with a search study.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Playground ID associated with a search study.
+          title: playgroundId
+      - description: Only retrieve the search studies with names matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the search studies with names matching the search query.
+          title: search
+      - description: Apply this sort order to the results.Valid options are 'name'.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListSearchStudySortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results.Valid options are 'name'.
+          title: sort
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSearchStudyResponse'
+          description: Search studies has been successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List search studies by use case ID
+      tags:
+      - Agents
+    post:
+      description: Run agentic search.
+      operationId: run_agentic_search_syftrSearch__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunAgenticSearchRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunSearchApiResponse'
+          description: Agentic search job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Run agentic search
+      tags:
+      - Agents
+  /api/v2/genai/syftrSearch/{searchStudyId}/:
+    delete:
+      description: Delete existing search study object from the database.
+      operationId: delete_search_study_syftrSearch__searchStudyId___delete
+      parameters:
+      - description: The ID of the search study to be retrieved.
+        in: path
+        name: searchStudyId
+        required: true
+        schema:
+          description: The ID of the search study to be retrieved.
+          title: searchStudyId
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSearchApiResponse'
+          description: Search study has been successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete existing search study by ID by search study ID
+      tags:
+      - Agents
+    get:
+      description: Return existing search study object from the database.
+      operationId: get_search_study_syftrSearch__searchStudyId___get
+      parameters:
+      - description: The ID of the search study to be retrieved.
+        in: path
+        name: searchStudyId
+        required: true
+        schema:
+          description: The ID of the search study to be retrieved.
+          title: searchStudyId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchStudyResponse'
+          description: Search study has been successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Get existing search study by ID by search study ID
+      tags:
+      - Agents
+    patch:
+      description: Edit an existing search study object.
+      operationId: edit_search_study_syftrSearch__searchStudyId___patch
+      parameters:
+      - description: The ID of the search study to be edited.
+        in: path
+        name: searchStudyId
+        required: true
+        schema:
+          description: The ID of the search study to be edited.
+          title: searchStudyId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditSearchStudyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit search study by search study ID
+      tags:
+      - Agents
+components:
+  schemas:
+    AgentTracingContext:
+      description: Represents a custom tracing context for a chat completion request.
+      properties:
+        attributes:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          description: The attributes of the tracing context.
+          title: attributes
+        entityId:
+          description: The ID of the entity in context of which the agent request is performed. Should be an entity which user has access to.
+          title: entityId
+          type: string
+        entityType:
+          $ref: '#/components/schemas/TracingContextEntityType'
+          description: The type of an entity in context of which the agent request is performed. Should be an entity which user has access to.
+      required:
+      - entityId
+      - entityType
+      - attributes
+      title: AgentTracingContext
+      type: object
+    SearchSpace:
+      description: Represents full search space.
+      properties:
+        chunkingParameters:
+          $ref: '#/components/schemas/ChunkingParametersConfig'
+          description: Chunking parameters for RAG.
+        llmConfig:
+          $ref: '#/components/schemas/LLMConfig'
+          description: LLM configuration.
+        vectorDatabaseSettings:
+          $ref: '#/components/schemas/VectorDatabaseConfig'
+          description: Vector database settings.
+      title: SearchSpace
+      type: object
+    JobStatus:
+      description: Represents a search study execution state.
+      enum:
+      - RUNNING
+      - COMPLETED
+      - STOPPED
+      - FAILED
+      title: JobStatus
+      type: string
+    ChunkingParametersConfig:
+      description: Parameters of the text chunkers.
+      properties:
+        chunkOverlapPercentageMax:
+          default: 50
+          description: Maximum value of chunk overlap.
+          title: chunkOverlapPercentageMax
+          type: number
+        chunkOverlapPercentageMin:
+          default: 0
+          description: Minimum value of chunk overlap.
+          title: chunkOverlapPercentageMin
+          type: number
+        chunkOverlapPercentageStep:
+          default: 10
+          description: Step value of chunk overlap.
+          title: chunkOverlapPercentageStep
+          type: number
+        chunkSizeMaxExp:
+          default: 8
+          description: Maximum exponent for chunk size (2^8 = 256).
+          title: chunkSizeMaxExp
+          type: integer
+        chunkSizeMinExp:
+          default: 7
+          description: Minimum exponent for chunk size (2^7 = 128).
+          title: chunkSizeMinExp
+          type: integer
+        chunkingMethods:
+          description: List of chunking methods to use.
+          items:
+            type: string
+          title: chunkingMethods
+          type: array
+        embeddingModelNames:
+          description: List of embedding models to use.
+          items:
+            type: string
+          title: embeddingModelNames
+          type: array
+      required:
+      - embeddingModelNames
+      title: ChunkingParametersConfig
+      type: object
+    ListSearchStudySortQueryParam:
+      description: API object for Sort order values for listiing search studies.
+      enum:
+      - name
+      - -name
+      title: ListSearchStudySortQueryParam
+      type: string
+    AgentChatCompletionRequest:
+      additionalProperties: true
+      description: Represents a chat completion request for an agent.
+      properties:
+        customModelVersionId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The version ID of the custom model to use for the chat completion.
+          title: customModelVersionId
+        messages:
+          description: A list of messages comprising the conversation so far.
+          items:
+            $ref: '#/components/schemas/AgentMessage'
+          title: messages
+          type: array
+        model:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The model identifier to use for completion following OpenAI API notation.
+          title: model
+        tracingContext:
+          anyOf:
+          - $ref: '#/components/schemas/AgentTracingContext'
+          - type: 'null'
+          description: Optional tracing context for the chat completion request.
+      required:
+      - messages
+      title: AgentChatCompletionRequest
+      type: object
+    HTTPValidationErrorResponse:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: detail
+          type: array
+      title: HTTPValidationErrorResponse
+      type: object
+    SearchStudyResponse:
+      description: API response object for search study retrieval.
+      properties:
+        allTrials:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/HistoryPoint'
+            type: array
+          - type: 'null'
+          description: Trials history.
+          title: allTrials
+        datetimeEnd:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Study end time.
+          title: datetimeEnd
+        datetimeStart:
+          description: Study start time.
+          format: date-time
+          title: datetimeStart
+          type: string
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Error message if search study fails.
+          title: errorMessage
+        evalDatasetId:
+          description: The ID of the evaluation dataset.
+          title: evalDatasetId
+          type: string
+        evalDatasetName:
+          description: The name of evaluation dataset.
+          title: evalDatasetName
+          type: string
+        evalResults:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: The results of the comparative evaluation of LLM blueprints.
+          title: evalResults
+        existingBlueprintIds:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The IDs of existing LLM blueprints for comparative evaluation.
+          title: existingBlueprintIds
+        groundingDatasetId:
+          description: The ID of the dataset the vector databases will be built from.
+          title: groundingDatasetId
+          type: string
+        groundingDatasetName:
+          description: The name of the grouding dataset.
+          title: groundingDatasetName
+          type: string
+        jobId:
+          anyOf:
+          - format: uuid4
+            type: string
+          - type: 'null'
+          description: The ID of the worker job.
+          title: jobId
+        name:
+          description: Name of the search study.
+          title: name
+          type: string
+        numConcurrentTrials:
+          description: The number of simultaneously running trials.
+          title: numConcurrentTrials
+          type: integer
+        numTrials:
+          description: The number of search trials to sample.
+          title: numTrials
+          type: integer
+        optimizationObjectives:
+          description: Optimization objectives of a study.
+          items:
+            maxItems: 2
+            minItems: 2
+            prefixItems:
+            - $ref: '#/components/schemas/SearchObjective'
+            - $ref: '#/components/schemas/SearchDirection'
+            type: array
+          title: optimizationObjectives
+          type: array
+        paretoFront:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Pareto frontier of a study.
+          title: paretoFront
+        playgroundId:
+          description: The ID of the existing playground that will be associated with the search.
+          title: playgroundId
+          type: string
+        searchSpace:
+          anyOf:
+          - $ref: '#/components/schemas/SearchSpace'
+          - type: 'null'
+          description: Search space for the search.
+        searchStudyId:
+          description: The ID of the search study.
+          title: searchStudyId
+          type: string
+        studyStatus:
+          $ref: '#/components/schemas/JobStatus'
+          description: Status of a study (RUNNING, COMPLETED or FAILED).
+        tempPlaygroundId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the temp playground.
+          title: tempPlaygroundId
+        trialsFailed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The number of failed trials.
+          title: trialsFailed
+        trialsRunning:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The number of currently running trials.
+          title: trialsRunning
+        trialsSuccess:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The number of completed trials.
+          title: trialsSuccess
+        useCaseId:
+          description: The ID of the use case the search study is linked to.
+          title: useCaseId
+          type: string
+        userId:
+          description: The ID of the user.
+          title: userId
+          type: string
+        userName:
+          description: The user name of the user who ran the study.
+          title: userName
+          type: string
+      required:
+      - searchSpace
+      - useCaseId
+      - groundingDatasetId
+      - evalDatasetId
+      - groundingDatasetName
+      - evalDatasetName
+      - userId
+      - userName
+      - numTrials
+      - numConcurrentTrials
+      - optimizationObjectives
+      - playgroundId
+      - tempPlaygroundId
+      - paretoFront
+      - datetimeStart
+      - datetimeEnd
+      - studyStatus
+      - searchStudyId
+      - name
+      - jobId
+      - trialsRunning
+      - trialsFailed
+      - trialsSuccess
+      - allTrials
+      - existingBlueprintIds
+      - evalResults
+      - errorMessage
+      title: SearchStudyResponse
+      type: object
+    RunSearchApiResponse:
+      description: API response object for run agentic search request.
+      properties:
+        jobId:
+          description: The ID of the worker job.
+          format: uuid4
+          title: jobId
+          type: string
+        searchStudyId:
+          description: The ID of the search study.
+          title: searchStudyId
+          type: string
+      required:
+      - searchStudyId
+      - jobId
+      title: RunSearchApiResponse
+      type: object
+    EditSearchStudyRequest:
+      description: The body of the "Edit search study" request.
+      properties:
+        name:
+          description: The new name of the search study.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+      required:
+      - name
+      title: EditSearchStudyRequest
+      type: object
+    AgentChoice:
+      additionalProperties: true
+      description: Represents a single choice in the chat completion response.
+      properties:
+        message:
+          $ref: '#/components/schemas/AgentMessage'
+          description: The message content of the choice.
+      required:
+      - message
+      title: AgentChoice
+      type: object
+    TracingContextEntityType:
+      description: Type of an entity in context of which the agent request is performed.
+      enum:
+      - deployment
+      - use_case
+      title: TracingContextEntityType
+      type: string
+    SearchObjective:
+      description: List of supported search objectives.
+      enum:
+      - correctness
+      - all_tokens
+      title: SearchObjective
+      type: string
+    SearchDirection:
+      description: Whether to minimize or maximize search objective.
+      enum:
+      - maximize
+      - minimize
+      title: SearchDirection
+      type: string
+    ListSearchStudyResponse:
+      description: Paginated list of search studies.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/SearchStudyResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListSearchStudyResponse
+      type: object
+    AgentChatCompletionResponse:
+      additionalProperties: true
+      description: Chat completion response from an agent.
+      properties:
+        choices:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AgentChoice'
+            type: array
+          - type: 'null'
+          description: A list of agent choices. Can be more than one. None when failed.
+          title: choices
+        errorDetails:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Detailed error information if the chat completion failed.
+          title: errorDetails
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Error message if the chat completion failed.
+          title: errorMessage
+      title: AgentChatCompletionResponse
+      type: object
+    HistoryPoint:
+      description: Represents a search trial from history.
+      properties:
+        llmBlueprintId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The correspondent blueprint ID.
+          title: llmBlueprintId
+        searchParameters:
+          additionalProperties: true
+          description: Search parameters of the point.
+          title: searchParameters
+          type: object
+        values:
+          description: The resulting values of optimization objectives.
+          items:
+            type: number
+          title: values
+          type: array
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The correspondent vector database ID.
+          title: vectorDatabaseId
+      required:
+      - llmBlueprintId
+      - vectorDatabaseId
+      - values
+      - searchParameters
+      title: HistoryPoint
+      type: object
+    LLMConfig:
+      description: Configuration of LLMs in the search space.
+      properties:
+        llmNames:
+          description: List of LLM names to use.
+          items:
+            type: string
+          title: llmNames
+          type: array
+        temperatureMax:
+          default: 1.0
+          description: Maximum temperature of an LLM.
+          title: temperatureMax
+          type: number
+        temperatureMin:
+          default: 0.0
+          description: Minimum temperature of an LLM.
+          title: temperatureMin
+          type: number
+        temperatureStep:
+          default: 0.05
+          description: Step size for LLM temperature.
+          title: temperatureStep
+          type: number
+        topPMax:
+          default: 1.0
+          description: Maximum top_p of an LLM.
+          title: topPMax
+          type: number
+        topPMin:
+          default: 0.0
+          description: Minimum top_p of an LLM.
+          title: topPMin
+          type: number
+        topPStep:
+          default: 0.05
+          description: Step size for LLM top_p.
+          title: topPStep
+          type: number
+      required:
+      - llmNames
+      title: LLMConfig
+      type: object
+    VectorDatabaseConfig:
+      description: Settings of the vector database.
+      properties:
+        addNeighborChunks:
+          description: Add neighboring chunks to those that the similarity search retrieves.
+          items:
+            type: boolean
+          title: addNeighborChunks
+          type: array
+        maxDocumentRetrievedPerPromptMax:
+          default: 10
+          description: Max value for the max number of chunks to retrieve from the vector database.
+          title: maxDocumentRetrievedPerPromptMax
+          type: integer
+        maxDocumentRetrievedPerPromptMin:
+          default: 1
+          description: Min value for the max number of chunks to retrieve from the vector database.
+          title: maxDocumentRetrievedPerPromptMin
+          type: integer
+        maxDocumentRetrievedPerPromptStep:
+          default: 1
+          description: Step for the max number of chunks to retrieve from the vector database.
+          title: maxDocumentRetrievedPerPromptStep
+          type: integer
+        maxMmrLambdaMax:
+          default: 1.0
+          description: Maximum value of MMR lambda.
+          title: maxMmrLambdaMax
+          type: number
+        maxMmrLambdaMin:
+          default: 0.0
+          description: Minimum value of MMR lambda.
+          title: maxMmrLambdaMin
+          type: number
+        maxMmrLambdaStep:
+          default: 0.1
+          description: Step value of MMR lambda.
+          title: maxMmrLambdaStep
+          type: number
+        retrievalModes:
+          description: List of retriever modes to use.
+          items:
+            type: string
+          title: retrievalModes
+          type: array
+        retrievers:
+          description: List of retriever types to use.
+          items:
+            type: string
+          title: retrievers
+          type: array
+      required:
+      - retrievers
+      - retrievalModes
+      title: VectorDatabaseConfig
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    DeleteSearchApiResponse:
+      description: API response for the deletion of a search study.
+      properties:
+        jobId:
+          description: The ID of the worker job.
+          format: uuid4
+          title: jobId
+          type: string
+        searchStudyId:
+          description: The ID of the search study.
+          title: searchStudyId
+          type: string
+      required:
+      - searchStudyId
+      - jobId
+      title: DeleteSearchApiResponse
+      type: object
+    RunAgenticSearchRequest:
+      description: API request for run agentic search request.
+      properties:
+        evalDatasetId:
+          description: The ID of the evaluation dataset.
+          title: evalDatasetId
+          type: string
+        groundingDatasetId:
+          description: The ID of the dataset the vector databases will be built from.
+          title: groundingDatasetId
+          type: string
+        name:
+          description: Name of the search study.
+          title: name
+          type: string
+        numConcurrentTrials:
+          description: The number of simultaneously running trials.
+          title: numConcurrentTrials
+          type: integer
+        numTrials:
+          description: The number of search trials to sample.
+          title: numTrials
+          type: integer
+        optimizationObjectives:
+          description: Optimization objectives of a study.
+          items:
+            maxItems: 2
+            minItems: 2
+            prefixItems:
+            - $ref: '#/components/schemas/SearchObjective'
+            - $ref: '#/components/schemas/SearchDirection'
+            type: array
+          title: optimizationObjectives
+          type: array
+        playgroundId:
+          description: The ID of the existing playground that will be associated with the search.
+          title: playgroundId
+          type: string
+        searchSpace:
+          $ref: '#/components/schemas/SearchSpace'
+          description: Search space for the search.
+        useCaseId:
+          description: The ID of the use case the search study is linked to.
+          title: useCaseId
+          type: string
+      required:
+      - useCaseId
+      - playgroundId
+      - groundingDatasetId
+      - evalDatasetId
+      - numTrials
+      - numConcurrentTrials
+      - optimizationObjectives
+      - searchSpace
+      - name
+      title: RunAgenticSearchRequest
+      type: object
+    AgentMessage:
+      additionalProperties: true
+      description: Represents a message in a chat conversation.
+      properties:
+        content:
+          anyOf:
+          - maxLength: 50000
+            type: string
+          - type: 'null'
+          description: The contents of the message.
+          title: content
+        role:
+          description: The role of the author of this message.
+          title: role
+          type: string
+      required:
+      - role
+      title: AgentMessage
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

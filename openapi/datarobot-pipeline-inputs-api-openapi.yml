@@ -1,0 +1,577 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Pipeline Inputs API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- name: pipeline-inputs
+paths:
+  /api/v2/pipelines/{pipeline_id}/inputs:
+    get:
+      description: List draft inputs for a pipeline.
+      operationId: list_draft_inputs_api_v2_pipelines__pipeline_id__inputs_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineInputResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Draft Inputs
+      tags:
+      - pipeline-inputs
+    post:
+      description: Create a mutable input set for a draft pipeline.
+      operationId: create_draft_input_api_v2_pipelines__pipeline_id__inputs_post
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineInputCreateRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/PipelineInputCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineInputResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Draft Input
+      tags:
+      - pipeline-inputs
+  /api/v2/pipelines/{pipeline_id}/inputs/{input_id}:
+    delete:
+      description: Delete a draft input set.
+      operationId: delete_draft_input_api_v2_pipelines__pipeline_id__inputs__input_id__delete
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: input_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Input Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Draft Input
+      tags:
+      - pipeline-inputs
+    get:
+      description: Get a specific draft input.
+      operationId: get_draft_input_api_v2_pipelines__pipeline_id__inputs__input_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: input_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Input Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineInputResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Draft Input
+      tags:
+      - pipeline-inputs
+    patch:
+      description: Update a mutable draft input set.
+      operationId: update_draft_input_api_v2_pipelines__pipeline_id__inputs__input_id__patch
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: input_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Input Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineInputUpdateRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/PipelineInputUpdateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineInputResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Draft Input
+      tags:
+      - pipeline-inputs
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/inputs:
+    get:
+      description: List locked inputs for a pipeline version.
+      operationId: list_locked_inputs_api_v2_pipelines__pipeline_id__versions__version_id__inputs_get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPage_PipelineInputResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Locked Inputs
+      tags:
+      - pipeline-inputs
+    post:
+      description: Create an immutable input set for a locked pipeline version.
+      operationId: create_locked_input_api_v2_pipelines__pipeline_id__versions__version_id__inputs_post
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineInputCreateRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/PipelineInputCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineInputResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Locked Input
+      tags:
+      - pipeline-inputs
+  /api/v2/pipelines/{pipeline_id}/versions/{version_id}/inputs/{input_id}:
+    delete:
+      description: Delete a locked input set.
+      operationId: delete_locked_input_api_v2_pipelines__pipeline_id__versions__version_id__inputs__input_id__delete
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: path
+        name: input_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Input Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Locked Input
+      tags:
+      - pipeline-inputs
+    get:
+      description: Get a specific locked input.
+      operationId: get_locked_input_api_v2_pipelines__pipeline_id__versions__version_id__inputs__input_id__get
+      parameters:
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipeline Id
+          type: string
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: integer
+      - in: path
+        name: input_id
+        required: true
+        schema:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Input Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineInputResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Locked Input
+      tags:
+      - pipeline-inputs
+components:
+  schemas:
+    PipelineInputCreateRequest:
+      description: Request body for creating a pipeline input set.
+      properties:
+        payload:
+          additionalProperties: true
+          title: Payload
+          type: object
+      required:
+      - payload
+      title: PipelineInputCreateRequest
+      type: object
+    PipelineInputState:
+      description: Validation state of a pipeline input set.
+      enum:
+      - VALID
+      - INVALID
+      title: PipelineInputState
+      type: string
+    PipelineInputUpdateRequest:
+      description: Request body for updating a draft pipeline input set.
+      properties:
+        payload:
+          additionalProperties: true
+          title: Payload
+          type: object
+      required:
+      - payload
+      title: PipelineInputUpdateRequest
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PipelineInputResponse:
+      description: Response schema for a pipeline input set.
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        id:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Id
+          type: string
+        isDraft:
+          title: Isdraft
+          type: boolean
+        payload:
+          additionalProperties: true
+          title: Payload
+          type: object
+        pipelineId:
+          maxLength: 24
+          minLength: 24
+          pattern: ^[0-9a-fA-F]{24}$
+          title: Pipelineid
+          type: string
+        state:
+          $ref: '#/components/schemas/PipelineInputState'
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        versionId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Versionid
+      required:
+      - id
+      - pipelineId
+      - isDraft
+      - payload
+      - state
+      - createdAt
+      - updatedAt
+      title: PipelineInputResponse
+      type: object
+    DataPage_PipelineInputResponse_:
+      properties:
+        count:
+          readOnly: true
+          title: Count
+          type: integer
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineInputResponse'
+          title: Data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous
+        totalCount:
+          title: Totalcount
+          type: integer
+      required:
+      - data
+      - totalCount
+      - count
+      title: DataPage[PipelineInputResponse]
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          description: List of validation errors.
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          maxItems: 100
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

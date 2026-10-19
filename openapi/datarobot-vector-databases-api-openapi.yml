@@ -1,0 +1,3395 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Vector Databases API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: The following endpoints outline how to manage vector databases.
+  name: Vector Databases
+paths:
+  /api/v2/genai/customModelEmbeddingValidations/:
+    get:
+      description: List custom model embedding validations.
+      operationId: list_custom_model_embeddings_customModelEmbeddingValidations__get
+      parameters:
+      - description: Only retrieve the custom model embedding validations associated with these use case IDs.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the custom model embedding validations associated with these use case IDs.
+          title: useCaseId
+      - description: Only retrieve the custom model embedding validations associated with this playground ID.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model embedding validations associated with this playground ID.
+          title: playgroundId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the custom model embedding validations matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model embedding validations matching the search query.
+          title: search
+      - description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListCustomModelValidationSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: If `true`, only retrieve the completed custom model embedding validations. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the completed custom model embedding validations. The default is `false`.
+          title: completedOnly
+          type: boolean
+      - description: Only retrieve the custom model embedding validations associated with this deployment ID.
+        in: query
+        name: deploymentId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model embedding validations associated with this deployment ID.
+          title: deploymentId
+      - description: Only retrieve the custom model embedding validations associated with this model ID.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model embedding validations associated with this model ID.
+          title: modelId
+      - description: Only retrieve the custom model embedding validations where the custom model uses this column name for prompt input.
+        in: query
+        name: promptColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model embedding validations where the custom model uses this column name for prompt input.
+          title: promptColumnName
+      - description: Only retrieve the custom model embedding validations where the custom model uses this column name for prediction output.
+        in: query
+        name: targetColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model embedding validations where the custom model uses this column name for prediction output.
+          title: targetColumnName
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCustomModelEmbeddingValidationResponse'
+          description: Custom model embedding validations successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List custom model embedding validations
+      tags:
+      - Vector Databases
+    post:
+      description: Validate an embedding model hosted in a custom model deployment for use in the playground.
+      operationId: create_custom_model_embedding_validation_customModelEmbeddingValidations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomModelEmbeddingValidationRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelEmbeddingValidationResponse'
+          description: Custom model embedding validation job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Validate custom model embedding
+      tags:
+      - Vector Databases
+  /api/v2/genai/customModelEmbeddingValidations/{validationId}/:
+    delete:
+      description: Delete an existing custom model embedding validation.
+      operationId: delete_custom_model_embedding_validation_customModelEmbeddingValidations__validationId___delete
+      parameters:
+      - description: The ID of the custom model embedding validation to delete.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model embedding validation to delete.
+          title: validationId
+          type: string
+      responses:
+        '204':
+          description: Custom model embedding validation successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete custom model embedding validation by validation ID
+      tags:
+      - Vector Databases
+    get:
+      description: Retrieve the status of validating a custom model embedding.
+      operationId: get_custom_model_embedding_validation_customModelEmbeddingValidations__validationId___get
+      parameters:
+      - description: The ID of the custom model embedding validation to retrieve.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model embedding validation to retrieve.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelEmbeddingValidationResponse'
+          description: Custom model embedding validation status successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve custom model embedding validation status by validation ID
+      tags:
+      - Vector Databases
+    patch:
+      description: Edit an existing custom model embedding validation.
+      operationId: update_custom_model_validation_customModelEmbeddingValidations__validationId___patch
+      parameters:
+      - description: The ID of the custom model embedding validation to edit.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model embedding validation to edit.
+          title: validationId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCustomModelValidationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelEmbeddingValidationResponse'
+          description: Custom model embedding validation successfully updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit custom model embedding validation by validation ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/customModelEmbeddingValidations/{validationId}/revalidate/:
+    post:
+      description: Revalidate an existing custom model embedding validation.
+      operationId: revalidate_custom_model_embedding_validation_customModelEmbeddingValidations__validationId__revalidate__post
+      parameters:
+      - description: The ID of the custom model embedding validation to revalidate.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model embedding validation to revalidate.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelEmbeddingValidationResponse'
+          description: Custom model embedding successfully revalidated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Revalidate custom model embedding by validation ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/customModelVectorDatabaseValidations/:
+    get:
+      description: List custom model vector database validations.
+      operationId: list_custom_model_vector_database_validations_customModelVectorDatabaseValidations__get
+      parameters:
+      - description: Only retrieve the custom model vector database validations associated with these use case IDs.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the custom model vector database validations associated with these use case IDs.
+          title: useCaseId
+      - description: Only retrieve the custom model vector database validations associated with this playground ID.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model vector database validations associated with this playground ID.
+          title: playgroundId
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the custom model vector database validations matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model vector database validations matching the search query.
+          title: search
+      - description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListCustomModelValidationSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "deploymentName", "userName", "creationDate". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: If `true`, only retrieve the completed custom model vector database validations. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the completed custom model vector database validations. The default is `false`.
+          title: completedOnly
+          type: boolean
+      - description: Only retrieve the custom model vector database validations associated with this deployment ID.
+        in: query
+        name: deploymentId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model vector database validations associated with this deployment ID.
+          title: deploymentId
+      - description: Only retrieve the custom model vector database validations associated with this model ID.
+        in: query
+        name: modelId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the custom model vector database validations associated with this model ID.
+          title: modelId
+      - description: Only retrieve the custom model vector database validations where the custom model uses this column name for prompt input.
+        in: query
+        name: promptColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model vector database validations where the custom model uses this column name for prompt input.
+          title: promptColumnName
+      - description: Only retrieve the custom model vector database validations where the custom model uses this column name for prediction output.
+        in: query
+        name: targetColumnName
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the custom model vector database validations where the custom model uses this column name for prediction output.
+          title: targetColumnName
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCustomModelVectorDatabaseValidationsResponse'
+          description: Custom model vector database validations successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List custom model vector database validations
+      tags:
+      - Vector Databases
+    post:
+      description: Validate a vector database hosted in a custom model deployment for use in the playground.
+      operationId: create_custom_model_vector_database_validation_customModelVectorDatabaseValidations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomModelVectorDatabaseValidationRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVectorDatabaseValidationResponse'
+          description: Custom model vector database validation job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Validate custom model vector database
+      tags:
+      - Vector Databases
+  /api/v2/genai/customModelVectorDatabaseValidations/{validationId}/:
+    delete:
+      description: Delete an existing custom model vector database validation.
+      operationId: delete_custom_model_vector_database_validation_customModelVectorDatabaseValidations__validationId___delete
+      parameters:
+      - description: The ID of the custom model vector database validation to delete.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model vector database validation to delete.
+          title: validationId
+          type: string
+      responses:
+        '204':
+          description: Successfully deleted custom model vector database validation
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete custom model vector database validation by validation ID
+      tags:
+      - Vector Databases
+    get:
+      description: Retrieve the status of validating a custom model vector database.
+      operationId: get_custom_model_vector_database_validation_customModelVectorDatabaseValidations__validationId___get
+      parameters:
+      - description: The ID of the custom model vector database validation to retrieve.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model vector database validation to retrieve.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVectorDatabaseValidationResponse'
+          description: Custom model vector database validation status successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve custom model vector database validation status by validation ID
+      tags:
+      - Vector Databases
+    patch:
+      description: Edit an existing custom model vector database validation.
+      operationId: update_custom_model_vector_database_validation_customModelVectorDatabaseValidations__validationId___patch
+      parameters:
+      - description: The ID of the custom model vector database validation to edit.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model vector database validation to edit.
+          title: validationId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCustomModelValidationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVectorDatabaseValidationResponse'
+          description: Custom model vector database validation successfully updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit custom model vector database validation by validation ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/customModelVectorDatabaseValidations/{validationId}/revalidate/:
+    post:
+      description: Revalidate an existing custom model vector database.
+      operationId: revalidate_custom_model_vector_database_validation_customModelVectorDatabaseValidations__validationId__revalidate__post
+      parameters:
+      - description: The ID of the custom model vector database validation to revalidate.
+        in: path
+        name: validationId
+        required: true
+        schema:
+          description: The ID of the custom model vector database validation to revalidate.
+          title: validationId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomModelVectorDatabaseValidationResponse'
+          description: Custom model vector database successfully revalidated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Revalidate custom model vector database by validation ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/:
+    get:
+      description: List vector databases.
+      operationId: list_vector_databases_vectorDatabases__get
+      parameters:
+      - description: Only retrieve the vector databases linked to these use case IDs.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+          - type: 'null'
+          description: Only retrieve the vector databases linked to these use case IDs.
+          title: useCaseId
+      - description: Only retrieve the vector databases linked to this playground ID.
+        in: query
+        name: playgroundId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the vector databases linked to this playground ID.
+          title: playgroundId
+      - description: Only retrieve the vector databases linked to this family ID.
+        in: query
+        name: familyId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the vector databases linked to this family ID.
+          title: familyId
+      - description: If `true`, only retrieve (root) parent vector databases. The default is `false`.
+        in: query
+        name: parentsOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve (root) parent vector databases. The default is `false`.
+          title: parentsOnly
+          type: boolean
+      - description: Skip the specified number of values.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Skip the specified number of values.
+          minimum: 0
+          title: offset
+          type: integer
+      - description: Retrieve only the specified number of values.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          description: Retrieve only the specified number of values.
+          exclusiveMinimum: 0
+          maximum: 100
+          title: limit
+          type: integer
+      - description: Only retrieve the vector databases with names matching the search query.
+        in: query
+        name: search
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: Only retrieve the vector databases with names matching the search query.
+          title: search
+      - description: Apply this sort order to the results. Valid options are "name", "creationDate", "creationUserId", "embeddingModel", "datasetId", "chunkingMethod", "chunksCount", "size", "userName", "datasetName", "playgroundsCount", "source". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ListVectorDatabaseSortQueryParam'
+          - type: 'null'
+          description: Apply this sort order to the results. Valid options are "name", "creationDate", "creationUserId", "embeddingModel", "datasetId", "chunkingMethod", "chunksCount", "size", "userName", "datasetName", "playgroundsCount", "source". Prefix the attribute name with a dash to sort in descending order, e.g., sort=-creationDate.
+          title: sort
+      - description: If `true`, only retrieve the vector databases that have finished building. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the vector databases that have finished building. The default is `false`.
+          title: completedOnly
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVectorDatabasesResponse'
+          description: Vector databases successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List vector databases
+      tags:
+      - Vector Databases
+    post:
+      description: Create a new vector database.
+      operationId: create_vector_database_vectorDatabases__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVectorDatabaseRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorDatabaseResponse'
+          description: Vector database creation job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create vector database
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/fromCustomModelDeployment/:
+    post:
+      description: Create a new vector database from a custom model deployment.
+      operationId: create_custom_model_vector_database_vectorDatabases_fromCustomModelDeployment__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/CreateCustomModelVectorDatabaseFromValidationIdPayload'
+              - $ref: '#/components/schemas/CreateCustomModelVectorDatabaseFromDeploymentRequest'
+              title: Payload
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorDatabaseResponse'
+          description: Custom model hosted vector database successfully added. Full representation is available in the response body.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create a vector databases from a custom model deployment
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/supportedEmbeddings/:
+    get:
+      description: List the supported embedding models for building vector databases.
+      operationId: get_supported_embeddings_vectorDatabases_supportedEmbeddings__get
+      parameters:
+      - description: Only retrieve the embedding models compatible with this dataset ID.
+        in: query
+        name: datasetId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Only retrieve the embedding models compatible with this dataset ID.
+          title: datasetId
+      - description: If specified, include the custom model embeddings available for this use case ID.
+        in: query
+        name: useCaseId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, include the custom model embeddings available for this use case ID.
+          title: useCaseId
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedEmbeddingsResponse'
+          description: Supported embeddings successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List supported embedding models
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/supportedRetrievalSettings/:
+    get:
+      description: List all vector database retrieval settings that are supported by LLM blueprints.
+      operationId: get_supported_retrieval_settings_vectorDatabases_supportedRetrievalSettings__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedRetrievalSettingsResponse'
+          description: Supported vector database retrieval settings successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List supported vector database retrieval settings
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/supportedTextChunkings/:
+    get:
+      description: List the supported text chunking methods for building vector databases.
+      operationId: get_supported_text_chunking_configs_vectorDatabases_supportedTextChunkings__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedTextChunkingResponse'
+          description: Supported text chunking methods successfully retrieved.
+      summary: List supported text chunking methods
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/:
+    delete:
+      description: Delete an existing vector database.
+      operationId: delete_vector_database_vectorDatabases__vectorDatabaseId___delete
+      parameters:
+      - description: The ID of the vector database to delete.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to delete.
+          title: vectorDatabaseId
+          type: string
+      responses:
+        '204':
+          description: Vector database successfully deleted.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Delete vector database by vector database ID
+      tags:
+      - Vector Databases
+    get:
+      description: Retrieve an existing vector database.
+      operationId: get_vector_database_vectorDatabases__vectorDatabaseId___get
+      parameters:
+      - description: The ID of the vector database to retrieve.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to retrieve.
+          title: vectorDatabaseId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorDatabaseResponse'
+          description: Vector database successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve vector database by vector database ID
+      tags:
+      - Vector Databases
+    patch:
+      description: Edit an existing vector database.
+      operationId: update_vector_database_vectorDatabases__vectorDatabaseId___patch
+      parameters:
+      - description: The ID of the vector database to edit.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to edit.
+          title: vectorDatabaseId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditVectorDatabaseRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorDatabaseResponse'
+          description: Vector database successfully updated.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Edit vector database by vector database ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/customModelVersions/:
+    post:
+      description: Export the specified Vector Database as a custom model version in Model Registry.
+      operationId: create_vector_database_custom_model_version_vectorDatabases__vectorDatabaseId__customModelVersions__post
+      parameters:
+      - description: The ID of the vector database to create a custom model version for.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to create a custom model version for.
+          title: vectorDatabaseId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVectorDatabaseCustomModelVersionRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomModelVersionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create custom model version by vector database ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/datasetExportJobs/:
+    post:
+      description: Export an existing vector database as dataset to Data Registry.
+      operationId: export_vector_database_dataset_vectorDatabases__vectorDatabaseId__datasetExportJobs__post
+      parameters:
+      - description: The ID of the vector database to retrieve.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to retrieve.
+          title: vectorDatabaseId
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorDatabaseExportResponse'
+          description: Vector database export job successfully accepted.Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Export vector database dataset by vector database ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/deployments/:
+    post:
+      description: Export the specified vector database as a custom model version, register it, and deploy it on a new deployment.
+      operationId: create_vector_database_deployment_vectorDatabases__vectorDatabaseId__deployments__post
+      parameters:
+      - description: The ID of the vector database to create a custom model version for.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to create a custom model version for.
+          title: vectorDatabaseId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVectorDatabaseDeploymentRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateVectorDatabaseDeploymentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Create new custom model version by vector database ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/externalVectorDatabaseDocuments/:
+    patch:
+      description: Add documents to a connected vector database.
+      operationId: update_connected_vector_database_vectorDatabases__vectorDatabaseId__externalVectorDatabaseDocuments__patch
+      parameters:
+      - description: The ID of the vector database to edit.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to edit.
+          title: vectorDatabaseId
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConnectedVectorDatabaseRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorDatabaseResponse'
+          description: Connected vector database update job successfully accepted. Follow the `Location` header to poll for job execution status.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Add documents by vector database ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/latestVersion/:
+    get:
+      description: Retrieve the latest vector database within the family associated with this vector database.
+      operationId: get_vector_database_latest_version_vectorDatabases__vectorDatabaseId__latestVersion__get
+      parameters:
+      - description: The ID of the vector database to retrieve the latest version.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to retrieve the latest version.
+          title: vectorDatabaseId
+          type: string
+      - description: If `true`, only retrieve the vector databases that have finished building. The default is `false`.
+        in: query
+        name: completedOnly
+        required: false
+        schema:
+          default: false
+          description: If `true`, only retrieve the vector databases that have finished building. The default is `false`.
+          title: completedOnly
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VectorDatabaseResponse'
+          description: Latest vector database version successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve vector database latest version by vector database ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/supportedSyntheticDatasetGenerationLanguages/:
+    get:
+      description: List the languages for synthetic dataset generation that are supported by this vector database.
+      operationId: get_supported_languages_vectorDatabases__vectorDatabaseId__supportedSyntheticDatasetGenerationLanguages__get
+      parameters:
+      - description: The ID of the vector database to retrieve supported languages.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to retrieve supported languages.
+          title: vectorDatabaseId
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedLanguagesResponse'
+          description: Supported languages successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: List supported languages by vector database ID
+      tags:
+      - Vector Databases
+  /api/v2/genai/vectorDatabases/{vectorDatabaseId}/textAndEmbeddings/:
+    get:
+      description: Retrieve the text chunk and embeddings asset for an existing vector database.
+      operationId: download_text_and_embeddings_asset_vectorDatabases__vectorDatabaseId__textAndEmbeddings__get
+      parameters:
+      - description: The ID of the vector database to retrieve the assets for.
+        in: path
+        name: vectorDatabaseId
+        required: true
+        schema:
+          description: The ID of the vector database to retrieve the assets for.
+          title: vectorDatabaseId
+          type: string
+      - description: Retrieve the additional file for this addition number.
+        in: query
+        name: part
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Retrieve the additional file for this addition number.
+          title: part
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Text and embeddings asset successfully retrieved.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationErrorResponse'
+          description: Validation Error
+      summary: Retrieve text chunks and embeddings by vector database ID
+      tags:
+      - Vector Databases
+components:
+  schemas:
+    RetrievalMode:
+      description: Retrieval modes for vector databases.
+      enum:
+      - similarity
+      - maximal_marginal_relevance
+      title: RetrievalMode
+      type: string
+    VectorDatabaseSettingParameter:
+      description: API response object for a single vector database setting parameter.
+      properties:
+        default:
+          description: The default value of the parameter.
+          title: default
+        description:
+          description: The description of the parameter.
+          title: description
+          type: string
+        enum:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The list of possible values for the parameter.
+          title: enum
+        groupId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The identifier of the group the parameter belongs to.
+          title: groupId
+        maximum:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The maximum value of the parameter.
+          title: maximum
+        minimum:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The minimum value of the parameter.
+          title: minimum
+        name:
+          description: The name of the parameter.
+          title: name
+          type: string
+        settings:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/VectorDatabaseSettingParameter'
+            type: array
+          - type: 'null'
+          description: The list of available settings for the parameter.
+          title: settings
+        title:
+          description: The title of the parameter.
+          title: title
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettingTypes'
+          - items:
+              $ref: '#/components/schemas/VectorDatabaseSettingTypes'
+            type: array
+          description: The type of the parameter.
+          title: type
+      required:
+      - name
+      - type
+      - description
+      - title
+      title: VectorDatabaseSettingParameter
+      type: object
+    MilvusConnectionRequest:
+      description: Milvus vector database connection.
+      properties:
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        type:
+          const: milvus
+          default: milvus
+          description: The type of the external vector database.
+          title: type
+          type: string
+        uri:
+          description: The URI of the Milvus connection.
+          maxLength: 5000
+          minLength: 1
+          title: uri
+          type: string
+      required:
+      - credentialId
+      - uri
+      title: MilvusConnectionRequest
+      type: object
+    PineconeConnection:
+      description: Pinecone vector database connection.
+      properties:
+        cloud:
+          $ref: '#/components/schemas/PineconeCloud'
+          description: The cloud provider to create the index.
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        region:
+          description: The region to create the index.
+          maxLength: 5000
+          minLength: 1
+          title: region
+          type: string
+        type:
+          const: pinecone
+          default: pinecone
+          description: The type of the external vector database.
+          title: type
+          type: string
+      required:
+      - credentialId
+      - cloud
+      - region
+      title: PineconeConnection
+      type: object
+    ListCustomModelVectorDatabaseValidationsResponse:
+      description: Paginated list of custom model vector database validations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/CustomModelVectorDatabaseValidationResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListCustomModelVectorDatabaseValidationsResponse
+      type: object
+    VectorDatabaseDeploymentStatuses:
+      description: Sort order values for listing vector databases.
+      enum:
+      - Created
+      - Assembling
+      - Registered
+      - Deployed
+      title: VectorDatabaseDeploymentStatuses
+      type: string
+    SupportedEmbeddingsResponse:
+      description: API response object for "List supported embeddings".
+      properties:
+        customModelEmbeddingValidations:
+          description: The list of validated custom embedding models.
+          items:
+            $ref: '#/components/schemas/SupportedCustomModelEmbeddings'
+          title: customModelEmbeddingValidations
+          type: array
+        defaultEmbeddingModel:
+          description: The name of the default embedding model.
+          title: defaultEmbeddingModel
+          type: string
+        embeddingModels:
+          description: The list of embeddings models.
+          items:
+            $ref: '#/components/schemas/EmbeddingModel'
+          title: embeddingModels
+          type: array
+        nimEmbeddingModels:
+          description: The list of NIM registered models.
+          items:
+            $ref: '#/components/schemas/SupportedNIMModelEmbeddings'
+          title: nimEmbeddingModels
+          type: array
+      required:
+      - embeddingModels
+      - defaultEmbeddingModel
+      title: SupportedEmbeddingsResponse
+      type: object
+    CustomModelVectorDatabaseValidationResponse:
+      description: API response object for a single custom model vector database validation.
+      properties:
+        creationDate:
+          description: The creation date of the custom model validation (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        deploymentAccessData:
+          anyOf:
+          - $ref: '#/components/schemas/DeploymentAccessData'
+          - type: 'null'
+          description: The parameters used for accessing the deployment.
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        deploymentName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the custom model deployment.
+          title: deploymentName
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the validation error (if the validation failed).
+          title: errorMessage
+        id:
+          description: The ID of the custom model validation.
+          title: id
+          type: string
+        modelId:
+          description: The ID of the model used in the deployment.
+          title: modelId
+          type: string
+        name:
+          description: The name of the validated custom model.
+          title: name
+          type: string
+        predictionTimeout:
+          description: The timeout in seconds for the prediction API used in this custom model validation.
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          description: The name of the column the custom model uses for prompt text input.
+          title: promptColumnName
+          type: string
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          title: targetColumnName
+          type: string
+        tenantId:
+          description: The ID of the tenant the custom model validation belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the use case associated with the validated custom model.
+          title: useCaseId
+        userId:
+          description: The ID of the user that created this custom model validation.
+          title: userId
+          type: string
+        userName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the user that created this custom model validation.
+          title: userName
+        validationStatus:
+          $ref: '#/components/schemas/CustomModelValidationStatus'
+          description: The status of the custom model validation.
+      required:
+      - id
+      - deploymentId
+      - targetColumnName
+      - validationStatus
+      - modelId
+      - deploymentAccessData
+      - tenantId
+      - name
+      - useCaseId
+      - creationDate
+      - userId
+      - predictionTimeout
+      - promptColumnName
+      title: CustomModelVectorDatabaseValidationResponse
+      type: object
+    SupportedCustomModelEmbeddings:
+      description: API response object for a single custom embedding model.
+      properties:
+        id:
+          description: The validation ID of the custom embedding model.
+          title: id
+          type: string
+        name:
+          description: The name of the custom embedding model.
+          title: name
+          type: string
+      required:
+      - id
+      - name
+      title: SupportedCustomModelEmbeddings
+      type: object
+    TextChunkingConfig:
+      description: API response object for a single text chunking configuration.
+      properties:
+        defaultMethod:
+          description: The name of the default text chunking method.
+          title: defaultMethod
+          type: string
+        embeddingModel:
+          anyOf:
+          - $ref: '#/components/schemas/EmbeddingModelNames'
+          - $ref: '#/components/schemas/CustomEmbeddingModelNames'
+          description: The name of the embedding model.
+          title: embeddingModel
+        methods:
+          description: The list of text chunking methods.
+          items:
+            $ref: '#/components/schemas/TextChunkingMethod'
+          title: methods
+          type: array
+      required:
+      - embeddingModel
+      - methods
+      - defaultMethod
+      title: TextChunkingConfig
+      type: object
+    VectorDatabaseResponse:
+      description: API response object for a single vector database.
+      properties:
+        addedDatasetIds:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The list of dataset IDs that were added to the vector database in addition to the initial creation dataset.
+          title: addedDatasetIds
+        addedDatasetNames:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The list of dataset names that were added to the vector database in addition to the initial creation dataset.
+          title: addedDatasetNames
+        addedMetadataDatasetPairs:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MetadataDatasetPairApiFormatted'
+            type: array
+          - type: 'null'
+          description: Pairs of metadata dataset and dataset added to the vector database.
+          title: addedMetadataDatasetPairs
+        chunkOverlapPercentage:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The chunk overlap percentage that the vector database uses.
+          title: chunkOverlapPercentage
+        chunkSize:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The size of the text chunk (measured in tokens) that the vector database uses.
+          title: chunkSize
+        chunkingLengthFunction:
+          anyOf:
+          - $ref: '#/components/schemas/ChunkingLengthFunctionNames'
+          - type: 'null'
+          default: approximate_token_count
+          description: The length function to use for the text splitter.
+        chunkingMethod:
+          anyOf:
+          - $ref: '#/components/schemas/ChunkingMethodNames'
+          - type: 'null'
+          description: The text chunking method the vector database uses.
+        chunksCount:
+          description: The number of text chunks in the vector database.
+          title: chunksCount
+          type: integer
+        creationDate:
+          description: The creation date of the vector database (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        creationDuration:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The duration of the vector database creation.
+          title: creationDuration
+        creationUserId:
+          description: The ID of the user that created this vector database.
+          title: creationUserId
+          type: string
+        customChunking:
+          description: Whether the vector database uses custom chunking.
+          title: customChunking
+          type: boolean
+        datasetId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the dataset the vector database was built from.
+          title: datasetId
+        datasetName:
+          description: The name of the dataset this vector database was built from.
+          title: datasetName
+          type: string
+        deploymentStatus:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseDeploymentStatuses'
+          - type: 'null'
+          description: How far along in the deployment process this vector database is.
+        embeddingModel:
+          anyOf:
+          - $ref: '#/components/schemas/EmbeddingModelNames'
+          - type: string
+          - type: 'null'
+          description: The name of the embedding model the vector database uses.
+          title: embeddingModel
+        embeddingRegisteredModelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of registered model (in case of using NIM registered model for embeddings).
+          title: embeddingRegisteredModelId
+        embeddingValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the custom model embedding (in case of using a custom model for embeddings).
+          title: embeddingValidationId
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the vector database creation error (in case of a creation error).
+          title: errorMessage
+        errorResolution:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The suggested error resolution for the vector database creation error (in case of a creation error).
+          title: errorResolution
+        executionStatus:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: The creation status of the vector database.
+        externalVectorDatabaseConnection:
+          anyOf:
+          - discriminator:
+              mapping:
+                elasticsearch: '#/components/schemas/ElasticsearchConnection'
+                milvus: '#/components/schemas/MilvusConnection'
+                pinecone: '#/components/schemas/PineconeConnection'
+                postgres: '#/components/schemas/PostgresConnection'
+              propertyName: type
+            oneOf:
+            - $ref: '#/components/schemas/PineconeConnection'
+            - $ref: '#/components/schemas/ElasticsearchConnection'
+            - $ref: '#/components/schemas/MilvusConnection'
+            - $ref: '#/components/schemas/PostgresConnection'
+          - type: 'null'
+          description: The external vector database connection to use.
+          title: externalVectorDatabaseConnection
+        familyId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: An ID associated with a family of vector databases, that is, a parent and all descendant vector databases. All vector databases that are descendants of the same root parent share a family ID.The family ID is equal to the vector database ID of the root parent.Like this each vector database knows it's direct parent and the root parent.
+          title: familyId
+        id:
+          description: The ID of the vector database.
+          title: id
+          type: string
+        isSeparatorRegex:
+          description: Whether the text chunking separator uses a regular expression.
+          title: isSeparatorRegex
+          type: boolean
+        lastUpdateDate:
+          description: The date of the most recent update of this playground (ISO 8601 formatted).
+          format: date-time
+          title: lastUpdateDate
+          type: string
+        metadataColumns:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The list of metadata columns in the vector database.
+          title: metadataColumns
+        metadataDatasetId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the dataset used to add metadata to the vector database.
+          title: metadataDatasetId
+        metadataDatasetName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the dataset used to add metadata to the vector database.
+          title: metadataDatasetName
+        name:
+          description: The name of the vector database.
+          title: name
+          type: string
+        organizationId:
+          description: The ID of the DataRobot organization this vector database belongs to.
+          title: organizationId
+          type: string
+        parentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the direct parent vector database.It is generated when a vector database is created from another vector database.For the root (parent), ID is 'None'.
+          title: parentId
+        percentage:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Vector database progress percentage.
+          title: percentage
+        playgroundsCount:
+          description: The number of playgrounds that use this vector database.
+          title: playgroundsCount
+          type: integer
+        separators:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: The text chunking separators that the vector database uses.
+          title: separators
+        size:
+          description: The size of the vector database (in bytes).
+          title: size
+          type: integer
+        skippedChunksCount:
+          description: The number of text chunks skipped during vector database creation.
+          title: skippedChunksCount
+          type: integer
+        source:
+          $ref: '#/components/schemas/VectorDatabaseSource'
+        tenantId:
+          description: The ID of the DataRobot tenant this vector database belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+        useCaseId:
+          description: The ID of the use case the vector database is linked to.
+          title: useCaseId
+          type: string
+        userName:
+          description: The name of the user that created this vector database.
+          title: userName
+          type: string
+        validationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the custom model vector database (in case of using a custom model vector database).
+          title: validationId
+        version:
+          description: The version of the vector database linked to a certain family ID.
+          title: version
+          type: integer
+      required:
+      - id
+      - name
+      - size
+      - useCaseId
+      - datasetId
+      - embeddingModel
+      - embeddingValidationId
+      - embeddingRegisteredModelId
+      - chunkSize
+      - chunkingMethod
+      - chunkOverlapPercentage
+      - chunksCount
+      - skippedChunksCount
+      - customChunking
+      - separators
+      - isSeparatorRegex
+      - creationDate
+      - creationUserId
+      - organizationId
+      - tenantId
+      - lastUpdateDate
+      - executionStatus
+      - errorMessage
+      - errorResolution
+      - source
+      - validationId
+      - parentId
+      - familyId
+      - addedDatasetIds
+      - version
+      - playgroundsCount
+      - datasetName
+      - userName
+      - addedDatasetNames
+      title: VectorDatabaseResponse
+      type: object
+    EmbeddingModel:
+      description: API response object for a single embedding model.
+      properties:
+        description:
+          description: The description of the embedding model.
+          title: description
+          type: string
+        embeddingModel:
+          $ref: '#/components/schemas/EmbeddingModelNames'
+          description: The name of the embedding model.
+        languages:
+          description: The list of languages the embedding models supports.
+          items:
+            $ref: '#/components/schemas/DatasetLanguages'
+          title: languages
+          type: array
+        maxSequenceLength:
+          description: The maximum input token sequence length that the embedding model can accept.
+          title: maxSequenceLength
+          type: integer
+      required:
+      - embeddingModel
+      - description
+      - maxSequenceLength
+      - languages
+      title: EmbeddingModel
+      type: object
+    VectorDatabaseSettingsRequest:
+      description: Specifies the vector database retrieval settings in LLM blueprint API requests.
+      properties:
+        addNeighborChunks:
+          default: false
+          description: Add neighboring chunks to those that the similarity search retrieves, such that when selected, search returns i, i-1, and i+1.
+          title: addNeighborChunks
+          type: boolean
+        maxDocumentsRetrievedPerPrompt:
+          anyOf:
+          - maximum: 10.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of chunks to retrieve from the vector database.
+          title: maxDocumentsRetrievedPerPrompt
+        maxTokens:
+          anyOf:
+          - maximum: 51200.0
+            minimum: 128.0
+            type: integer
+          - type: 'null'
+          description: The maximum number of tokens to retrieve from the vector database.
+          title: maxTokens
+        maximalMarginalRelevanceLambda:
+          default: 0.5
+          description: Adjust the retrieval of chunks when using maximal marginal relevance to favor diversity (0.0) or similarity (1.0).
+          maximum: 1.0
+          minimum: 0.0
+          title: maximalMarginalRelevanceLambda
+          type: number
+        retrievalMode:
+          $ref: '#/components/schemas/RetrievalMode'
+          default: similarity
+          description: The retrieval mode to use. Similarity search or maximal marginal relevance.
+          title: retrievalMode
+        retriever:
+          $ref: '#/components/schemas/VectorDatabaseRetrievers'
+          default: SINGLE_LOOKUP_RETRIEVER
+          title: retriever
+      title: VectorDatabaseSettingsRequest
+      type: object
+    TextChunkingMethod:
+      description: API response object for a single text chunking method.
+      properties:
+        chunkingMethod:
+          $ref: '#/components/schemas/ChunkingMethodNames'
+          description: The name of the text chunking method.
+        chunkingParameters:
+          description: The list of text chunking parameters.
+          items:
+            $ref: '#/components/schemas/TextChunkingParameterFields'
+          title: chunkingParameters
+          type: array
+        description:
+          description: The description of the text chunking method.
+          title: description
+          type: string
+        title:
+          $ref: '#/components/schemas/ChunkingMethodNamesTitle'
+          description: User-friendly label for the text chunking method.
+      required:
+      - chunkingMethod
+      - title
+      - chunkingParameters
+      - description
+      title: TextChunkingMethod
+      type: object
+    ExecutionStatus:
+      description: Job and entity execution status.
+      enum:
+      - NEW
+      - RUNNING
+      - COMPLETED
+      - REQUIRES_USER_INPUT
+      - SKIPPED
+      - ERROR
+      title: ExecutionStatus
+      type: string
+    CreateVectorDatabaseDeploymentResponse:
+      description: The response to the "Create vector database deployment" request.
+      properties:
+        jobId:
+          description: The ID of the job that will create the new vector database deployment.
+          format: uuid4
+          title: jobId
+          type: string
+      required:
+      - jobId
+      title: CreateVectorDatabaseDeploymentResponse
+      type: object
+    CreateCustomModelEmbeddingValidationRequest:
+      description: The body of the "Validate custom model" request.
+      properties:
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the model used in the deployment.
+          title: modelId
+        name:
+          default: Untitled
+          description: The name to use for the validated custom model.
+          maxLength: 5000
+          title: name
+          type: string
+        predictionTimeout:
+          default: 300
+          description: The timeout in seconds for the prediction when validating a custom model. Defaults to 300.
+          maximum: 600.0
+          minimum: 1.0
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          description: The name of the column the custom model uses for prompt text input.
+          maxLength: 5000
+          title: promptColumnName
+          type: string
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          maxLength: 5000
+          title: targetColumnName
+          type: string
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the use case to associate with the validated custom model.
+          title: useCaseId
+      required:
+      - deploymentId
+      - promptColumnName
+      - targetColumnName
+      title: CreateCustomModelEmbeddingValidationRequest
+      type: object
+    PostgresConnectionRequest:
+      description: Postgres vector database connection.
+      properties:
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        database:
+          description: The name of the database.
+          maxLength: 5000
+          minLength: 1
+          title: database
+          type: string
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        host:
+          description: The host for the Postgres connection.
+          maxLength: 5000
+          minLength: 1
+          title: host
+          type: string
+        port:
+          default: 5432
+          description: The port for the Postgres connection.
+          maximum: 65535.0
+          minimum: 0.0
+          title: port
+          type: integer
+        schema:
+          default: public
+          description: The name of the schema.
+          maxLength: 5000
+          minLength: 1
+          title: schema
+          type: string
+        sslmode:
+          $ref: '#/components/schemas/PostgresSSLMode'
+          default: require
+          description: The SSL mode for the Postgres connection.
+        type:
+          const: postgres
+          default: postgres
+          description: The type of the external vector database.
+          title: type
+          type: string
+      required:
+      - credentialId
+      - host
+      - database
+      title: PostgresConnectionRequest
+      type: object
+    SupportedTextChunkingResponse:
+      description: API response for "List text chunking methods".
+      properties:
+        textChunkingConfigs:
+          description: The list of text chunking configurations.
+          items:
+            $ref: '#/components/schemas/TextChunkingConfig'
+          title: textChunkingConfigs
+          type: array
+      required:
+      - textChunkingConfigs
+      title: SupportedTextChunkingResponse
+      type: object
+    ListCustomModelEmbeddingValidationResponse:
+      description: Paginated list of custom model embedding validations.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/CustomModelEmbeddingValidationResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListCustomModelEmbeddingValidationResponse
+      type: object
+    PineconeConnectionRequest:
+      description: Pinecone vector database connection.
+      properties:
+        cloud:
+          $ref: '#/components/schemas/PineconeCloud'
+          description: The cloud provider to create the index.
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        region:
+          description: The region to create the index.
+          maxLength: 5000
+          minLength: 1
+          title: region
+          type: string
+        type:
+          const: pinecone
+          default: pinecone
+          description: The type of the external vector database.
+          title: type
+          type: string
+      required:
+      - credentialId
+      - cloud
+      - region
+      title: PineconeConnectionRequest
+      type: object
+    CreateCustomModelVersionResponse:
+      description: API response object for the "Create custom model version" request.
+      properties:
+        customModelId:
+          description: The ID of the created custom model.
+          title: customModelId
+          type: string
+      required:
+      - customModelId
+      title: CreateCustomModelVersionResponse
+      type: object
+    HTTPValidationErrorResponse:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: detail
+          type: array
+      title: HTTPValidationErrorResponse
+      type: object
+    ChunkingMethodNames:
+      description: Supported names of text chunking methods.
+      enum:
+      - recursive
+      - semantic
+      title: ChunkingMethodNames
+      type: string
+    ElasticsearchConnection:
+      description: Elasticsearch vector database connection.
+      properties:
+        cloudId:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The cloud ID of the elastic search connection.
+          title: cloudId
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        type:
+          const: elasticsearch
+          default: elasticsearch
+          description: The type of the external vector database.
+          title: type
+          type: string
+        url:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The URL of the elastic search connection.
+          title: url
+      required:
+      - credentialId
+      title: ElasticsearchConnection
+      type: object
+    CreateVectorDatabaseDeploymentRequest:
+      description: The body of the "Create vector database deployment" request.
+      properties:
+        credentialId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the credential to access the connected vector database.
+          title: credentialId
+        defaultPredictionServerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of a prediction server for the new deployment to use. Cannot be used with predictionEnvironmentId.
+          title: defaultPredictionServerId
+        modelName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the custom model that this job will create.
+          title: modelName
+        predictionEnvironmentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the prediction environment for the new deployment to use. Cannot be used with defaultPredictionServerId.
+          title: predictionEnvironmentId
+        promptColumnName:
+          default: promptText
+          description: The name of the column to use for prompt text input in the custom model.
+          maxLength: 5000
+          title: promptColumnName
+          type: string
+        resources:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelResourcesRequest'
+          - type: 'null'
+          description: The resources that the custom model will be provisioned with.
+        targetColumnName:
+          default: relevant
+          description: The name of the column to use for prediction output in the custom model.
+          maxLength: 5000
+          title: targetColumnName
+          type: string
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database linked to this LLM blueprint.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettingsRequest'
+          - type: 'null'
+          description: A key/value dictionary of vector database settings.
+      title: CreateVectorDatabaseDeploymentRequest
+      type: object
+    UpdateConnectedVectorDatabaseRequest:
+      description: The body of the "Update connected vector database" request.
+      properties:
+        datasetId:
+          description: The ID of the dataset to use for building the vector database.
+          title: datasetId
+          type: string
+        metadataCombinationStrategy:
+          $ref: '#/components/schemas/MetadataCombinationStrategy'
+          default: replace
+          description: The strategy to use when the dataset and the metadata file have duplicate columns.
+        metadataDatasetId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the dataset to add metadata for building the vector database.
+          title: metadataDatasetId
+      required:
+      - datasetId
+      title: UpdateConnectedVectorDatabaseRequest
+      type: object
+    EditVectorDatabaseRequest:
+      description: The body of the "Edit vector database" request.
+      properties:
+        credentialId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The new ID of the credential to access a connected vector database.
+          title: credentialId
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The new name of the vector database.
+          title: name
+      title: EditVectorDatabaseRequest
+      type: object
+    ListVectorDatabaseSortQueryParam:
+      description: Sort order values for listing vector databases.
+      enum:
+      - name
+      - -name
+      - creationUserId
+      - -creationUserId
+      - creationDate
+      - -creationDate
+      - embeddingModel
+      - -embeddingModel
+      - datasetId
+      - -datasetId
+      - chunkingMethod
+      - -chunkingMethod
+      - chunksCount
+      - -chunksCount
+      - size
+      - -size
+      - userName
+      - -userName
+      - datasetName
+      - -datasetName
+      - playgroundsCount
+      - -playgroundsCount
+      - source
+      - -source
+      title: ListVectorDatabaseSortQueryParam
+      type: string
+    MetadataCombinationStrategy:
+      description: Strategy to use when the dataset and the metadata file have duplicate columns.
+      enum:
+      - replace
+      - merge
+      title: MetadataCombinationStrategy
+      type: string
+    MilvusConnection:
+      description: Milvus vector database connection.
+      properties:
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        type:
+          const: milvus
+          default: milvus
+          description: The type of the external vector database.
+          title: type
+          type: string
+        uri:
+          description: The URI of the Milvus connection.
+          maxLength: 5000
+          minLength: 1
+          title: uri
+          type: string
+      required:
+      - credentialId
+      - uri
+      title: MilvusConnection
+      type: object
+    MetadataDatasetPairApiFormatted:
+      description: Pair of metadata dataset and dataset added to the vector database.
+      properties:
+        datasetId:
+          description: The ID of the dataset added to the vector database.
+          title: datasetId
+          type: string
+        datasetName:
+          description: The name of the dataset added to the vector database.
+          title: datasetName
+          type: string
+        metadataDatasetId:
+          description: The ID of the dataset used to add metadata to the vector database.
+          title: metadataDatasetId
+          type: string
+        metadataDatasetName:
+          description: The name of the dataset used to add metadata to the vector database.
+          title: metadataDatasetName
+          type: string
+      required:
+      - metadataDatasetId
+      - datasetId
+      - metadataDatasetName
+      - datasetName
+      title: MetadataDatasetPairApiFormatted
+      type: object
+    ElasticsearchConnectionRequest:
+      description: Elasticsearch vector database connection.
+      properties:
+        cloudId:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The cloud ID of the elastic search connection.
+          title: cloudId
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        type:
+          const: elasticsearch
+          default: elasticsearch
+          description: The type of the external vector database.
+          title: type
+          type: string
+        url:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The URL of the elastic search connection.
+          title: url
+      required:
+      - credentialId
+      title: ElasticsearchConnectionRequest
+      type: object
+    VectorDatabaseSettingTypes:
+      description: The types of vector database setting parameters.
+      enum:
+      - string
+      - integer
+      - boolean
+      - 'null'
+      - number
+      - array
+      title: VectorDatabaseSettingTypes
+      type: string
+    VectorDatabaseRetrievers:
+      description: The method used to retrieve relevant chunks from the vector database.
+      enum:
+      - SINGLE_LOOKUP_RETRIEVER
+      - CONVERSATIONAL_RETRIEVER
+      - MULTI_STEP_RETRIEVER
+      title: VectorDatabaseRetrievers
+      type: string
+    EditCustomModelValidationRequest:
+      description: The body of the "Edit custom model validation" request.
+      properties:
+        chatModelId:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The model ID to specify when calling the OpenAI chat completion API of the deployment. If this parameter is specified, the deployment must support the OpenAI chat completion API.
+          title: chatModelId
+        deploymentId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the ID of the deployment associated with this custom model validation.
+          title: deploymentId
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: If specified, changes the ID of the model associated with this custom model validation.
+          title: modelId
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: If specified, renames the custom model validation to this value.
+          title: name
+        predictionTimeout:
+          anyOf:
+          - maximum: 600.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: If specified, sets the timeout in seconds for the prediction when validating a custom model.
+          title: predictionTimeout
+        promptColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to format the prompt text input for the custom model deployment.
+          title: promptColumnName
+        targetColumnName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: If specified, changes the name of the column that will be used to extract the prediction response from the custom model deployment.
+          title: targetColumnName
+      title: EditCustomModelValidationRequest
+      type: object
+    DatasetLanguages:
+      description: The names of dataset languages.
+      enum:
+      - Afrikaans
+      - Amharic
+      - Arabic
+      - Assamese
+      - Azerbaijani
+      - Belarusian
+      - Bulgarian
+      - Bengali
+      - Breton
+      - Bosnian
+      - Catalan
+      - Czech
+      - Welsh
+      - Danish
+      - German
+      - Greek
+      - English
+      - Esperanto
+      - Spanish
+      - Estonian
+      - Basque
+      - Persian
+      - Finnish
+      - French
+      - Western Frisian
+      - Irish
+      - Scottish Gaelic
+      - Galician
+      - Gujarati
+      - Hausa
+      - Hebrew
+      - Hindi
+      - Croatian
+      - Hungarian
+      - Armenian
+      - Indonesian
+      - Icelandic
+      - Italian
+      - Japanese
+      - Javanese
+      - Georgian
+      - Kazakh
+      - Khmer
+      - Kannada
+      - Korean
+      - Kurdish
+      - Kyrgyz
+      - Latin
+      - Lao
+      - Lithuanian
+      - Latvian
+      - Malagasy
+      - Macedonian
+      - Malayalam
+      - Mongolian
+      - Marathi
+      - Malay
+      - Burmese
+      - Nepali
+      - Dutch
+      - Norwegian
+      - Oromo
+      - Oriya
+      - Panjabi
+      - Polish
+      - Pashto
+      - Portuguese
+      - Romanian
+      - Russian
+      - Sanskrit
+      - Sindhi
+      - Sinhala
+      - Slovak
+      - Slovenian
+      - Somali
+      - Albanian
+      - Serbian
+      - Sundanese
+      - Swedish
+      - Swahili
+      - Tamil
+      - Telugu
+      - Thai
+      - Tagalog
+      - Turkish
+      - Uyghur
+      - Ukrainian
+      - Urdu
+      - Uzbek
+      - Vietnamese
+      - Xhosa
+      - Yiddish
+      - Chinese
+      title: DatasetLanguages
+      type: string
+    EmbeddingModelNames:
+      description: Embedding model names (matching the format of HuggingFace repositories).
+      enum:
+      - intfloat/e5-large-v2
+      - intfloat/e5-base-v2
+      - intfloat/multilingual-e5-base
+      - intfloat/multilingual-e5-small
+      - sentence-transformers/all-MiniLM-L6-v2
+      - jinaai/jina-embedding-t-en-v1
+      - jinaai/jina-embedding-s-en-v2
+      - cl-nagoya/sup-simcse-ja-base
+      title: EmbeddingModelNames
+      type: string
+    PineconeCloud:
+      description: Supported cloud providers for Pinecone.
+      enum:
+      - aws
+      - gcp
+      - azure
+      title: PineconeCloud
+      type: string
+    CustomModelEmbeddingValidationResponse:
+      description: API response object for a single custom model embedding validation.
+      properties:
+        creationDate:
+          description: The creation date of the custom model validation (ISO 8601 formatted).
+          format: date-time
+          title: creationDate
+          type: string
+        deploymentAccessData:
+          anyOf:
+          - $ref: '#/components/schemas/DeploymentAccessData'
+          - type: 'null'
+          description: The parameters used for accessing the deployment.
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        deploymentName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the custom model deployment.
+          title: deploymentName
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message associated with the validation error (if the validation failed).
+          title: errorMessage
+        id:
+          description: The ID of the custom model validation.
+          title: id
+          type: string
+        modelId:
+          description: The ID of the model used in the deployment.
+          title: modelId
+          type: string
+        name:
+          description: The name of the validated custom model.
+          title: name
+          type: string
+        predictionTimeout:
+          description: The timeout in seconds for the prediction API used in this custom model validation.
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          description: The name of the column the custom model uses for prompt text input.
+          title: promptColumnName
+          type: string
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          title: targetColumnName
+          type: string
+        tenantId:
+          description: The ID of the tenant the custom model validation belongs to.
+          format: uuid4
+          title: tenantId
+          type: string
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the use case associated with the validated custom model.
+          title: useCaseId
+        userId:
+          description: The ID of the user that created this custom model validation.
+          title: userId
+          type: string
+        userName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the user that created this custom model validation.
+          title: userName
+        validationStatus:
+          $ref: '#/components/schemas/CustomModelValidationStatus'
+          description: The status of the custom model validation.
+      required:
+      - id
+      - deploymentId
+      - targetColumnName
+      - validationStatus
+      - modelId
+      - deploymentAccessData
+      - tenantId
+      - name
+      - useCaseId
+      - creationDate
+      - userId
+      - predictionTimeout
+      - promptColumnName
+      title: CustomModelEmbeddingValidationResponse
+      type: object
+    SupportedDeploymentType:
+      description: The type of the target output a DataRobot deployment produces.
+      enum:
+      - TEXT_GENERATION
+      - VECTOR_DATABASE
+      - UNSTRUCTURED
+      - REGRESSION
+      - MULTICLASS
+      - BINARY
+      - NOT_SUPPORTED
+      title: SupportedDeploymentType
+      type: string
+    ListVectorDatabasesResponse:
+      description: Paginated list of vector databases.
+      properties:
+        count:
+          description: The number of records on this page.
+          title: count
+          type: integer
+        data:
+          description: The list of records.
+          items:
+            $ref: '#/components/schemas/VectorDatabaseResponse'
+          title: data
+          type: array
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the next page, or `null` if there is no such page.
+          title: next
+        previous:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL to the previous page, or `null` if there is no such page.
+          title: previous
+        totalCount:
+          description: The total number of records.
+          title: totalCount
+          type: integer
+      required:
+      - totalCount
+      - count
+      - next
+      - previous
+      - data
+      title: ListVectorDatabasesResponse
+      type: object
+    ListCustomModelValidationSortQueryParam:
+      description: Sort order values for listing custom model validations.
+      enum:
+      - name
+      - -name
+      - deploymentName
+      - -deploymentName
+      - userName
+      - -userName
+      - creationDate
+      - -creationDate
+      title: ListCustomModelValidationSortQueryParam
+      type: string
+    CreateCustomModelVectorDatabaseValidationRequest:
+      description: The body of the "Validate custom model" request.
+      properties:
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        modelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the model used in the deployment.
+          title: modelId
+        name:
+          default: Untitled
+          description: The name to use for the validated custom model.
+          maxLength: 5000
+          title: name
+          type: string
+        predictionTimeout:
+          default: 300
+          description: The timeout in seconds for the prediction when validating a custom model. Defaults to 300.
+          maximum: 600.0
+          minimum: 1.0
+          title: predictionTimeout
+          type: integer
+        promptColumnName:
+          description: The name of the column the custom model uses for prompt text input.
+          maxLength: 5000
+          title: promptColumnName
+          type: string
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          maxLength: 5000
+          title: targetColumnName
+          type: string
+        useCaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the use case to associate with the validated custom model.
+          title: useCaseId
+      required:
+      - deploymentId
+      - promptColumnName
+      - targetColumnName
+      title: CreateCustomModelVectorDatabaseValidationRequest
+      type: object
+    PostgresSSLMode:
+      description: SSL modes for Postgres vector databases.
+      enum:
+      - prefer
+      - require
+      - verify-full
+      title: PostgresSSLMode
+      type: string
+    PostgresConnection:
+      description: Postgres vector database connection.
+      properties:
+        credentialId:
+          description: The ID of the credential used to connect to the external vector database.
+          title: credentialId
+          type: string
+        credentialUserId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the user supplying the credential used to connect to the external vector database.
+          title: credentialUserId
+        database:
+          description: The name of the database.
+          maxLength: 5000
+          minLength: 1
+          title: database
+          type: string
+        distanceMetric:
+          $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+          description: The distance strategy to use for building the vector database.
+        host:
+          description: The host for the Postgres connection.
+          maxLength: 5000
+          minLength: 1
+          title: host
+          type: string
+        port:
+          default: 5432
+          description: The port for the Postgres connection.
+          maximum: 65535.0
+          minimum: 0.0
+          title: port
+          type: integer
+        schema:
+          default: public
+          description: The name of the schema.
+          maxLength: 5000
+          minLength: 1
+          title: schema
+          type: string
+        sslmode:
+          $ref: '#/components/schemas/PostgresSSLMode'
+          default: require
+          description: The SSL mode for the Postgres connection.
+        type:
+          const: postgres
+          default: postgres
+          description: The type of the external vector database.
+          title: type
+          type: string
+      required:
+      - credentialId
+      - host
+      - database
+      title: PostgresConnection
+      type: object
+    SupportedLanguagesResponse:
+      description: API response object for "List supported languages for Synthetic Dataset generation".
+      properties:
+        recommendedLanguage:
+          description: The recommended language.
+          title: recommendedLanguage
+          type: string
+        supportedLanguages:
+          description: The list of supported languages.
+          items:
+            type: string
+          title: supportedLanguages
+          type: array
+      required:
+      - recommendedLanguage
+      - supportedLanguages
+      title: SupportedLanguagesResponse
+      type: object
+    SupportedRetrievalSettingsResponse:
+      description: API response object for "Retrieve supported retrieval settings".
+      properties:
+        settings:
+          description: The list of retrieval settings.
+          items:
+            $ref: '#/components/schemas/VectorDatabaseSettingParameter'
+          title: settings
+          type: array
+      required:
+      - settings
+      title: SupportedRetrievalSettingsResponse
+      type: object
+    CustomEmbeddingModelNames:
+      description: Model names for custom embedding models.
+      enum:
+      - custom-embeddings/default
+      title: CustomEmbeddingModelNames
+      type: string
+    DistanceMetric:
+      description: Distance metrics for vector databases.
+      enum:
+      - cosine
+      - dot_product
+      - euclidean
+      - inner_product
+      - manhattan
+      title: DistanceMetric
+      type: string
+    SupportedNIMModelEmbeddings:
+      description: API response object for a single registered NIM embedding model.
+      properties:
+        description:
+          description: The description of the registered NIM model.
+          title: description
+          type: string
+        id:
+          description: The validation ID of the registered NIM model.
+          title: id
+          type: string
+        name:
+          description: The name of the registered NIM model.
+          title: name
+          type: string
+      required:
+      - id
+      - name
+      - description
+      title: SupportedNIMModelEmbeddings
+      type: object
+    CreateCustomModelVectorDatabaseFromValidationIdPayload:
+      description: The body of the "Create vector database from validation ID" request.
+      properties:
+        name:
+          description: The name of the vector database.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+        useCaseId:
+          description: The ID of the use case to link the vector database to.
+          title: useCaseId
+          type: string
+        validationId:
+          description: The validation ID of the custom model validation.
+          title: validationId
+          type: string
+      required:
+      - name
+      - useCaseId
+      - validationId
+      title: CreateCustomModelVectorDatabaseFromValidationIdPayload
+      type: object
+    CreateVectorDatabaseCustomModelVersionRequest:
+      description: The body of the "Create custom model version" request.
+      properties:
+        modelName:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: The name of the custom model that this job will create.
+          title: modelName
+        promptColumnName:
+          default: promptText
+          description: The name of the column to use for prompt text input in the custom model.
+          maxLength: 5000
+          title: promptColumnName
+          type: string
+        resources:
+          anyOf:
+          - $ref: '#/components/schemas/CustomModelResourcesRequest'
+          - type: 'null'
+          description: The resources that the custom model will be provisioned with.
+        targetColumnName:
+          default: relevant
+          description: The name of the column to use for prediction output in the custom model.
+          maxLength: 5000
+          title: targetColumnName
+          type: string
+        vectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the vector database linked to this LLM blueprint.
+          title: vectorDatabaseId
+        vectorDatabaseSettings:
+          anyOf:
+          - $ref: '#/components/schemas/VectorDatabaseSettingsRequest'
+          - type: 'null'
+          description: A key/value dictionary of vector database settings.
+      title: CreateVectorDatabaseCustomModelVersionRequest
+      type: object
+    VectorDatabaseExportResponse:
+      description: API response object for exporting a vector database.
+      properties:
+        exportDatasetId:
+          description: The Data Registry dataset ID.
+          title: exportDatasetId
+          type: string
+        jobId:
+          description: The ID of the export job.
+          format: uuid4
+          title: jobId
+          type: string
+        vectorDatabaseId:
+          description: The ID of the vector database.
+          title: vectorDatabaseId
+          type: string
+      required:
+      - jobId
+      - exportDatasetId
+      - vectorDatabaseId
+      title: VectorDatabaseExportResponse
+      type: object
+    VectorDatabaseSource:
+      description: The source of the vector database.
+      enum:
+      - DataRobot
+      - External
+      - Pinecone
+      - Elasticsearch
+      - Milvus
+      - Postgres
+      title: VectorDatabaseSource
+      type: string
+    DeploymentAccessData:
+      description: Add authorization_header to avoid breaking change to API.
+      properties:
+        authorizationHeader:
+          default: '[REDACTED]'
+          description: The `Authorization` header to use for the deployment.
+          title: authorizationHeader
+          type: string
+        chatApiUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The URL of the deployment's chat API.
+          title: chatApiUrl
+        datarobotKey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The server key associated with the prediction API.
+          title: datarobotKey
+        inputType:
+          $ref: '#/components/schemas/DeploymentInputType'
+          description: The format of the input data.
+        modelType:
+          $ref: '#/components/schemas/SupportedDeploymentType'
+          description: The type of the target output the deployment produces.
+        predictionApiUrl:
+          description: The URL of the deployment's prediction API.
+          title: predictionApiUrl
+          type: string
+      required:
+      - predictionApiUrl
+      - datarobotKey
+      - inputType
+      - modelType
+      title: DeploymentAccessData
+      type: object
+    CustomModelValidationStatus:
+      description: Status of custom model validation.
+      enum:
+      - TESTING
+      - PASSED
+      - FAILED
+      title: CustomModelValidationStatus
+      type: string
+    ChunkingParameterTypes:
+      description: Supported parameter data types for text chunking parameters.
+      enum:
+      - int
+      - list[str]
+      - bool
+      title: ChunkingParameterTypes
+      type: string
+    ChunkingLengthFunctionNames:
+      description: Supported length functions for text splitters.
+      enum:
+      - tokenizer_length_function
+      - approximate_token_count
+      title: ChunkingLengthFunctionNames
+      type: string
+    CreateCustomModelVectorDatabaseFromDeploymentRequest:
+      description: The body of the "Create vector database from custom model deployment" request.
+      properties:
+        deploymentId:
+          description: The ID of the custom model deployment.
+          title: deploymentId
+          type: string
+        modelId:
+          description: The ID of the model in the custom model deployment.
+          title: modelId
+          type: string
+        name:
+          description: The name of the vector database.
+          maxLength: 5000
+          minLength: 1
+          title: name
+          type: string
+        promptColumnName:
+          description: The name of the column the custom model uses for prompt text input.
+          maxLength: 5000
+          title: promptColumnName
+          type: string
+        targetColumnName:
+          description: The name of the column the custom model uses for prediction output.
+          maxLength: 5000
+          title: targetColumnName
+          type: string
+        useCaseId:
+          description: The ID of the use case to link the vector database to.
+          title: useCaseId
+          type: string
+      required:
+      - name
+      - useCaseId
+      - promptColumnName
+      - targetColumnName
+      - deploymentId
+      - modelId
+      title: CreateCustomModelVectorDatabaseFromDeploymentRequest
+      type: object
+    CustomModelResourcesRequest:
+      description: The structure that describes resource settings for a custom model created from buzok.
+      properties:
+        maximumMemory:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The maximum memory that can be allocated to the custom model.
+          title: maximumMemory
+        networkEgressPolicy:
+          default: Public
+          description: Network egress policy for the custom model. Can be either Public or None.
+          maxLength: 5000
+          title: networkEgressPolicy
+          type: string
+        replicas:
+          default: 1
+          description: A fixed number of replicas that will be created for the custom model.
+          title: replicas
+          type: integer
+        resourceBundleId:
+          anyOf:
+          - maxLength: 5000
+            type: string
+          - type: 'null'
+          description: 'An identifier that represents a bundle of resources: Memory, CPU, GPU, etc. A list of available bundles can be obtained via the resource bundles endpoint.'
+          title: resourceBundleId
+      title: CustomModelResourcesRequest
+      type: object
+    DeploymentInputType:
+      description: The format of the input data submitted to a DataRobot deployment.
+      enum:
+      - CSV
+      - JSON
+      title: DeploymentInputType
+      type: string
+    TextChunkingParameterFields:
+      description: API response object for a single text chunking parameter.
+      properties:
+        default:
+          anyOf:
+          - type: integer
+          - items:
+              type: string
+            type: array
+          - type: boolean
+          description: The default value of the parameter.
+          title: default
+        description:
+          description: The description of the parameter.
+          title: description
+          type: string
+        max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The maximum value of the parameter (inclusive).
+          title: max
+        min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The minimum value of the parameter (inclusive).
+          title: min
+        name:
+          description: The name of the parameter.
+          title: name
+          type: string
+        type:
+          $ref: '#/components/schemas/ChunkingParameterTypes'
+          description: The data type of the parameter.
+      required:
+      - name
+      - type
+      - min
+      - max
+      - description
+      - default
+      title: TextChunkingParameterFields
+      type: object
+    ValidationError:
+      properties:
+        code:
+          description: Machine-readable error type (e.g. 'missing', 'string_type').
+          title: Code
+          type: string
+        ctx:
+          description: Additional context about the validation error.
+          title: Context
+          type: object
+        input:
+          additionalProperties: true
+          description: The input value that caused the validation error.
+          title: Input
+          type: object
+        loc:
+          description: The location in the request where the validation error occurred.
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          maxItems: 100
+          title: loc
+          type: array
+        message:
+          description: Human-readable description of the validation failure.
+          title: Message
+          type: string
+        msg:
+          description: A human-readable description of the validation error.
+          title: msg
+          type: string
+        path:
+          description: Dotted path to the invalid field (e.g. 'runtime.containerGroups.0.autoscaling').
+          title: Path
+          type: string
+        type:
+          description: A machine-readable error type identifier.
+          title: type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    ChunkingParameters:
+      description: Chunking parameters for creating a vector database.
+      properties:
+        chunkOverlapPercentage:
+          anyOf:
+          - maximum: 50.0
+            minimum: 0.0
+            type: integer
+          - type: 'null'
+          description: The chunk overlap percentage to use for text chunking.
+          title: chunkOverlapPercentage
+        chunkSize:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The chunk size to use for text chunking (measured in tokens).
+          title: chunkSize
+        chunkingMethod:
+          anyOf:
+          - $ref: '#/components/schemas/ChunkingMethodNames'
+          - type: 'null'
+          description: The text chunking method to use.
+        embeddingModel:
+          anyOf:
+          - $ref: '#/components/schemas/EmbeddingModelNames'
+          - type: 'null'
+          description: The name of the embedding model to use. If omitted, DataRobot will choose the default embedding model automatically.
+        embeddingRegisteredModelId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of registered model (in case of using NIM registered model for embeddings).
+          title: embeddingRegisteredModelId
+        embeddingValidationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The validation ID of the custom embedding model (in case of using a custom model for embeddings).
+          title: embeddingValidationId
+        isSeparatorRegex:
+          default: false
+          description: Whether the text chunking separator uses a regular expression.
+          title: isSeparatorRegex
+          type: boolean
+        separators:
+          anyOf:
+          - items:
+              maxLength: 20
+              type: string
+            maxItems: 9
+            type: array
+          - type: 'null'
+          description: The list of separators to use for text chunking.
+          title: separators
+      title: ChunkingParameters
+      type: object
+    ChunkingMethodNamesTitle:
+      description: Supported user-facing friendly ames of text chunking methods.
+      enum:
+      - Recursive
+      - Semantic
+      title: ChunkingMethodNamesTitle
+      type: string
+    CreateVectorDatabaseRequest:
+      description: The body of the "Create vector database" request.
+      properties:
+        chunkingParameters:
+          anyOf:
+          - $ref: '#/components/schemas/ChunkingParameters'
+          - type: 'null'
+          description: The text chunking parameters to use for building the vector database.
+        datasetId:
+          description: The ID of the dataset to use for building the vector database.
+          title: datasetId
+          type: string
+        externalVectorDatabaseConnection:
+          anyOf:
+          - discriminator:
+              mapping:
+                elasticsearch: '#/components/schemas/ElasticsearchConnectionRequest'
+                milvus: '#/components/schemas/MilvusConnectionRequest'
+                pinecone: '#/components/schemas/PineconeConnectionRequest'
+                postgres: '#/components/schemas/PostgresConnectionRequest'
+              propertyName: type
+            oneOf:
+            - $ref: '#/components/schemas/PineconeConnectionRequest'
+            - $ref: '#/components/schemas/ElasticsearchConnectionRequest'
+            - $ref: '#/components/schemas/MilvusConnectionRequest'
+            - $ref: '#/components/schemas/PostgresConnectionRequest'
+          - type: 'null'
+          description: The external vector database connection to use.
+          title: externalVectorDatabaseConnection
+        metadataCombinationStrategy:
+          $ref: '#/components/schemas/MetadataCombinationStrategy'
+          default: replace
+          description: The strategy to use when the dataset and the metadata file have duplicate columns.
+        metadataDatasetId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the dataset to add metadata for building the vector database.
+          title: metadataDatasetId
+        name:
+          anyOf:
+          - maxLength: 5000
+            minLength: 1
+            type: string
+          - type: 'null'
+          description: The name of the vector database.
+          title: name
+        parentVectorDatabaseId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The ID of the parent vector database used as base for the re-building.
+          title: parentVectorDatabaseId
+        updateDeployments:
+          default: false
+          description: Whether to update the deployments that use the parent vector database.Can only be set to `true` if parent_vector_database_id is provided.
+          title: updateDeployments
+          type: boolean
+        updateLlmBlueprints:
+          default: false
+          description: Whether to update the LLM blueprints that use the parent vector database.Can only be set to `true` if parent_vector_database_id is provided.
+          title: updateLlmBlueprints
+          type: boolean
+        useCaseId:
+          description: The ID of the use case to link the vector database to.
+          title: useCaseId
+          type: string
+      required:
+      - datasetId
+      - useCaseId
+      title: CreateVectorDatabaseRequest
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

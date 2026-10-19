@@ -1,0 +1,267 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Deployment Runtime Parameters API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage deployment runtime parameters for deployed custom models.
+  name: deployment_runtime_parameters
+paths:
+  /api/v2/deployments/{deploymentId}/runtimeParameters/:
+    get:
+      description: List runtime parameters.
+      feature_flags:
+      - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+      maturity: PUBLIC_PREVIEW
+      operationId: deploymentsRuntimeParameters_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: 'The sort order to apply to the runtime parameters list. Prefix the attribute name with a dash to sort in descending order; for example: ''-created_at''.'
+        in: query
+        name: orderBy
+        required: true
+        schema:
+          default: name
+          enum:
+          - createdAt
+          - -createdAt
+          - name
+          - -name
+          type: string
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      public_preview: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeParameterListResponse'
+          description: ''
+      summary: List runtime parameters by deployment ID
+      tags:
+      - deployment_runtime_parameters
+      x-datarobot-public-preview: true
+      x-datarobot-required-feature-flags:
+      - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+    put:
+      description: Update runtime parameters by replacing existing params with the provided set. Any values not provided will revert back to the values set from the model package.
+      feature_flags:
+      - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+      maturity: PUBLIC_PREVIEW
+      operationId: deploymentsRuntimeParameters_putMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      public_preview: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuntimeParameterUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeParameterListResponse'
+          description: ''
+      summary: Update runtime parameters by deployment ID
+      tags:
+      - deployment_runtime_parameters
+      x-datarobot-public-preview: true
+      x-datarobot-required-feature-flags:
+      - description: Enables the ability to edit Custom Model Runtime-Parameters (and replica and resource bundle settings) directly from the Deployment info page. Edited values are local to a given Deployment and do not affect the runtime of any current or future Deployments of the same Model Package.
+        enabled_by_default: true
+        maturity: PUBLIC_PREVIEW
+        name: CUSTOM_MODEL_EDIT_RUNTIME_PARAMETERS_ON_DEPLOYMENT
+components:
+  schemas:
+    RuntimeParameterUpdate:
+      properties:
+        runtimeParameterValues:
+          description: Inject values into a model at runtime. The fieldName must match a fieldName defined in the deployed model package. This list is merged with any existing runtime values.
+          type: string
+      required:
+      - runtimeParameterValues
+      type: object
+      x-versionadded: v2.35
+    RuntimeParameterListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: A unified view of the defined runtime parameters for this object, including the values that are currently set.
+          items:
+            $ref: '#/components/schemas/RuntimeParameterResponse'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    RuntimeParameterResponse:
+      properties:
+        allowEmpty:
+          default: true
+          description: Indicates whether the param must be set before registration
+          type: boolean
+        credentialType:
+          description: The type of credential, required only for credentials parameters.
+          enum:
+          - adls_gen2_oauth
+          - api_token
+          - azure
+          - azure_oauth
+          - azure_sas
+          - azure_service_principal
+          - basic
+          - bearer
+          - box_jwt
+          - client_id_and_secret
+          - databricks_access_token_account
+          - databricks_service_principal_account
+          - external_oauth_provider
+          - gcp
+          - oauth
+          - opaque
+          - rsa
+          - s3
+          - sap_oauth
+          - snowflake_key_pair_user_account
+          - snowflake_oauth_user_account
+          - tableau_access_token
+          type:
+          - string
+          - 'null'
+        currentValue:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: 'null'
+          description: Given the default and the override, this is the actual current value of the parameter.
+        defaultValue:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: 'null'
+          description: The default value for the given field.
+        description:
+          description: Description how this parameter impacts the running model.
+          type:
+          - string
+          - 'null'
+        fieldName:
+          description: The parameter name. This value will be added as an environment variable when running custom models.
+          type: string
+        keyValueId:
+          description: The ID of the key value associated with a runtime parameter.
+          type:
+          - string
+          - 'null'
+        locked:
+          default: false
+          description: Indicates whether the parameter is platform-owned and carried over to new versions even when a later update omits it.
+          type: boolean
+          x-versionadded: v2.48
+        maxValue:
+          description: The maximum value for a numeric field.
+          type:
+          - number
+          - 'null'
+        minValue:
+          description: The minimum value for a numeric field.
+          type:
+          - number
+          - 'null'
+        overrideValue:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: 'null'
+          description: Value set by the user that overrides the default set in the definition.
+        type:
+          description: The value type that the parameter accepts.
+          enum:
+          - boolean
+          - credential
+          - deployment
+          - numeric
+          - string
+          type: string
+      required:
+      - fieldName
+      - type
+      type: object
+      x-versionadded: v2.35
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

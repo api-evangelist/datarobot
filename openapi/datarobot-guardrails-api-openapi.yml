@@ -1,0 +1,2354 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Guardrails API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage guardrails. Model guardrails are a set of rules or machine learning models that ensure the output of a language model is safe, accurate, and ethical.
+  name: guardrails
+paths:
+  /api/v2/guardConfigurations/:
+    get:
+      description: The list of resource tags.
+      operationId: guardConfigurations_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Filter guard configurations by the given entity ID.
+        in: query
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The entity type of the given entity ID.
+        in: query
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - customModel
+          - customModelVersion
+          - playground
+          - workload
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardConfigurationListResponse'
+          description: ''
+        '400':
+          description: Request invalid, refer to messages for detail.
+        '404':
+          description: User permissions problem.
+      summary: The list of resource tags
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+    post:
+      description: Create a guard configuration.
+      operationId: guardConfigurations_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuardConfigurationCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardConfigurationRetrieveResponse'
+          description: ''
+        '404':
+          description: Either the resource does not exist or the user does not have permission to create the configuration.
+        '409':
+          description: The proposed configuration name is already in use for the same entity.
+      summary: Create a guard configuration
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+  /api/v2/guardConfigurations/predictionEnvironmentsInUse/:
+    get:
+      description: Show the prediction environments in use for moderation.
+      operationId: guardConfigurationsPredictionEnvironmentsInUse_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Show prediction environment information for this custom model version.
+        in: query
+        name: customModelVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardConfigurationPredictionEnvironmentsInUseListResponse'
+          description: ''
+        '404':
+          description: Either the resource does not exist or the user does not have permission to view the configuration.
+      summary: Show the prediction environments in use
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+  /api/v2/guardConfigurations/toNewCustomModelVersion/:
+    post:
+      description: Apply moderation configuration to a new custom model version.
+      operationId: guardConfigurationsToNewCustomModelVersion_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuardConfigurationToCustomModelVersion'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardConfigurationToCustomModelResponse'
+          description: ''
+        '404':
+          description: Either the resource does not exist or the user does not have permission to create the configuration.
+        '409':
+          description: The destination custom model version is frozen. Create a new version to save configuration.
+      summary: Apply moderation configuration
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+  /api/v2/guardConfigurations/{configId}/:
+    delete:
+      description: Delete a guard config.
+      operationId: guardConfigurations_delete
+      parameters:
+      - description: The ID of the configuration.
+        in: path
+        name: configId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '404':
+          description: Either the config does not exist or the user does not have permission to delete it.
+      summary: Delete a guard config by config ID
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+    get:
+      description: Retrieve info about a guard configuration.
+      operationId: guardConfigurations_retrieve
+      parameters:
+      - description: The ID of the configuration.
+        in: path
+        name: configId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardConfigurationRetrieveResponse'
+          description: ''
+        '404':
+          description: Either the config does not exist or the user does not have permission to view it.
+      summary: Retrieve info about a guard configuration by config ID
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+    patch:
+      description: Update a guard config.
+      operationId: guardConfigurations_patch
+      parameters:
+      - description: The ID of the configuration.
+        in: path
+        name: configId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuardConfigurationUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardConfigurationRetrieveResponse'
+          description: ''
+        '404':
+          description: Either the resource does not exist or the user does not have permission to create the configuration.
+        '409':
+          description: The proposed configuration name is already in use for the same entity.
+      summary: Update a guard config by config ID
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+  /api/v2/guardTemplates/:
+    get:
+      description: List guard templates.
+      operationId: guardTemplates_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Include agentic and non-agentic templates in results (by default, agentic templates are not included).
+        in: query
+        name: includeAgentic
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Limit results to agentic templates. If true, this overrides either includeAgentic setting.
+        in: query
+        name: isAgentic
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Filter for templates suitable for playground (exclude production-only templates).
+        in: query
+        name: forPlayground
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Filter for templates suitable for production (exclude playground-only templates).
+        in: query
+        name: forProduction
+        required: false
+        schema:
+          default: 'false'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: Search for templates by name.
+        in: query
+        name: name
+        required: false
+        schema:
+          default: null
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardTemplateListResponse'
+          description: ''
+        '400':
+          description: Request invalid, refer to messages for detail.
+        '404':
+          description: Missing feature flag.
+      summary: List guard templates
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+  /api/v2/guardTemplates/{templateId}/:
+    get:
+      description: Retrieve information about a guard template.
+      operationId: guardTemplates_retrieve
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: templateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuardTemplateRetrieveResponse'
+          description: ''
+        '404':
+          description: Either the template does not exist or the required feature flag is missing.
+      summary: Retrieve information about a guard template by template ID
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+  /api/v2/moderationSupportedLlms/:
+    get:
+      description: The list of supported LLMs for moderation.
+      operationId: moderationSupportedLlms_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedLlmListResponse'
+          description: ''
+        '400':
+          description: Request invalid, refer to messages for detail.
+        '404':
+          description: Missing feature flag.
+      summary: The list of supported LLMs
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+  /api/v2/overallModerationConfiguration/:
+    get:
+      description: Get the overall moderation configuration for an entity.
+      operationId: overallModerationConfiguration_list
+      parameters:
+      - description: Retrieve the overall moderation configuration for the given entity ID.
+        in: query
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The entity type of the given entity ID.
+        in: query
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - customModel
+          - customModelVersion
+          - playground
+          - workload
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverallModerationConfigurationResponse'
+          description: ''
+        '404':
+          description: User permissions problem.
+      summary: Get the overall moderation configuration
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+    patch:
+      description: Update the overall moderation configuration for an entity.
+      operationId: overallModerationConfiguration_patchMany
+      parameters:
+      - description: Retrieve the overall moderation configuration for the given entity ID.
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: The entity type of the given entity ID.
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - customModel
+          - customModelVersion
+          - playground
+          - workload
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverallModerationConfigurationUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverallModerationConfigurationResponse'
+          description: ''
+        '404':
+          description: Either the resource does not exist or the user does not have permission to create the configuration.
+      summary: Update the overall moderation configuration
+      tags:
+      - guardrails
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Configure and use guardrails for LLM intervention and moderation.
+        enabled_by_default: false
+        maturity: GA_PREMIUM
+        name: MODERATION_GUARDRAILS
+      x-versionadded: v2.35
+components:
+  schemas:
+    GuardToolCallInfo:
+      description: How to calculate tool call metrics for this guard.
+      properties:
+        comparisonMetric:
+          description: How tool calls should be compared for metrics calculations.
+          enum:
+          - exactMatch
+          - doNotCompare
+          type: string
+      required:
+      - comparisonMetric
+      type: object
+      x-versionadded: v2.37
+    GuardConfigurationUpdate:
+      properties:
+        additionalGuardConfig:
+          $ref: '#/components/schemas/GuardAdditionalConfig'
+          x-versionadded: v2.37
+        allowedActions:
+          description: The actions this guard is allowed to take.
+          items:
+            enum:
+            - block
+            - report
+            - replace
+            type: string
+          maxItems: 10
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.36
+        awsAccount:
+          description: The ID of the user credential containing an AWS account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsModel:
+          description: AWS model.
+          enum:
+          - amazon-titan
+          - anthropic-claude-2
+          - anthropic-claude-3-haiku
+          - anthropic-claude-3-sonnet
+          - anthropic-claude-3-opus
+          - anthropic-claude-3.5-sonnet-v1
+          - anthropic-claude-3.5-sonnet-v2
+          - amazon-nova-lite
+          - amazon-nova-micro
+          - amazon-nova-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsRegion:
+          description: AWS model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        deploymentId:
+          description: The ID of the deployed model for model guards.
+          type:
+          - string
+          - 'null'
+        description:
+          description: Guard configuration description
+          maxLength: 4096
+          type: string
+        googleModel:
+          description: Google model.
+          enum:
+          - chat-bison
+          - google-gemini-1.5-flash
+          - google-gemini-1.5-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleRegion:
+          description: Google model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleServiceAccount:
+          description: The ID of the user credential containing a Google service account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        intervention:
+          $ref: '#/components/schemas/GuardConfigurationInterventionResponse'
+        llmGatewayModelId:
+          description: The LLM Gateway model ID to use as judge.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        llmType:
+          description: The type of LLM used by this guard.
+          enum:
+          - openAi
+          - azureOpenAi
+          - google
+          - amazon
+          - datarobot
+          - nim
+          - llmGateway
+          type:
+          - string
+          - 'null'
+        modelInfo:
+          $ref: '#/components/schemas/GuardConfigurationPayloadModelInfo'
+        name:
+          description: Guard configuration name
+          maxLength: 255
+          type: string
+        nemoInfo:
+          $ref: '#/components/schemas/GuardConfigurationNemoInfoResponse'
+        nemoLlmJudgeConfig:
+          $ref: '#/components/schemas/GuardNemoLlmJudgeConfigResponse'
+          x-versionadded: v2.42
+        nemoResponseRelevancyConfig:
+          $ref: '#/components/schemas/GuardNemoResponseRelevancyConfigResponse'
+          x-versionadded: v2.42
+        nemoTopicAdherenceConfig:
+          $ref: '#/components/schemas/GuardNemoTopicAdherenceConfigResponse'
+          x-versionadded: v2.42
+        openaiApiBase:
+          description: The Azure OpenAI API Base URL.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiApiKey:
+          description: Deprecated; use openai_credential instead.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiCredential:
+          description: The ID of the user credential containing an OpenAI token.
+          type:
+          - string
+          - 'null'
+        openaiDeploymentId:
+          description: The OpenAPI deployment ID.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+      type: object
+      x-versionadded: v2.35
+    GuardInterventionResponse:
+      description: The intervention configuration for the guard.
+      properties:
+        action:
+          description: The action to take if conditions are met.
+          enum:
+          - block
+          - report
+          - replace
+          type: string
+        allowedActions:
+          description: The actions this guard is allowed to take.
+          items:
+            enum:
+            - block
+            - report
+            - replace
+            type: string
+          maxItems: 10
+          type: array
+        conditionLogic:
+          default: any
+          description: The action to take if conditions are met.
+          enum:
+          - any
+          type: string
+        conditions:
+          description: The list of conditions to trigger intervention.
+          items:
+            $ref: '#/components/schemas/GuardConditionResponse'
+          maxItems: 1
+          type: array
+        modifyMessage:
+          description: The message to use if the prompt or response is blocked.
+          maxLength: 4096
+          type: string
+        sendNotification:
+          description: The notification event to create if intervention is triggered.
+          type: boolean
+      required:
+      - action
+      - conditions
+      - modifyMessage
+      type: object
+      x-versionadded: v2.35
+    GuardNemoInfoResponse:
+      description: The configuration info for NeMo guards.
+      properties:
+        actions:
+          default: ''
+          description: The NeMo guardrails actions.
+          maxLength: 4096
+          type: string
+        blockedTerms:
+          description: The NeMo guardrails blocked terms list.
+          maxLength: 4096
+          type: string
+        credentialId:
+          description: The NeMo guardrails credential ID.
+          type:
+          - string
+          - 'null'
+        llmPrompts:
+          default: ''
+          description: The NeMo guardrails prompts.
+          maxLength: 4096
+          type: string
+        mainConfig:
+          description: The overall NeMo configuration YAML.
+          maxLength: 4096
+          type: string
+        railsConfig:
+          description: The NeMo guardrails configuration Colang.
+          maxLength: 4096
+          type: string
+      required:
+      - blockedTerms
+      - mainConfig
+      - railsConfig
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationCreate:
+      properties:
+        additionalGuardConfig:
+          $ref: '#/components/schemas/GuardAdditionalConfig'
+          x-versionadded: v2.37
+        allowedActions:
+          description: The actions this guard is allowed to take.
+          items:
+            enum:
+            - block
+            - report
+            - replace
+            type: string
+          maxItems: 10
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.36
+        awsAccount:
+          description: The ID of the user credential containing an AWS account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsModel:
+          description: AWS model.
+          enum:
+          - amazon-titan
+          - anthropic-claude-2
+          - anthropic-claude-3-haiku
+          - anthropic-claude-3-sonnet
+          - anthropic-claude-3-opus
+          - anthropic-claude-3.5-sonnet-v1
+          - anthropic-claude-3.5-sonnet-v2
+          - amazon-nova-lite
+          - amazon-nova-micro
+          - amazon-nova-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsRegion:
+          description: AWS model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        deploymentId:
+          description: The ID of the deployed model for model guards.
+          type:
+          - string
+          - 'null'
+        description:
+          description: Guard configuration description
+          maxLength: 4096
+          type: string
+        entityId:
+          description: The ID of the custom model or playground for this guard.
+          type: string
+        entityType:
+          description: The type of the associated entity.
+          enum:
+          - customModel
+          - customModelVersion
+          - playground
+          - workload
+          type: string
+        googleModel:
+          description: Google model.
+          enum:
+          - chat-bison
+          - google-gemini-1.5-flash
+          - google-gemini-1.5-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleRegion:
+          description: Google model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleServiceAccount:
+          description: The ID of the user credential containing a Google service account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        intervention:
+          $ref: '#/components/schemas/GuardConfigurationInterventionResponse'
+        llmGatewayModelId:
+          description: The LLM Gateway model ID to use as judge.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        llmType:
+          description: The type of LLM used by this guard.
+          enum:
+          - openAi
+          - azureOpenAi
+          - google
+          - amazon
+          - datarobot
+          - nim
+          - llmGateway
+          type:
+          - string
+          - 'null'
+        modelInfo:
+          $ref: '#/components/schemas/GuardConfigurationPayloadModelInfo'
+        name:
+          description: Guard configuration name
+          maxLength: 255
+          type: string
+        nemoInfo:
+          $ref: '#/components/schemas/GuardConfigurationNemoInfoResponse'
+        nemoLlmJudgeConfig:
+          $ref: '#/components/schemas/GuardNemoLlmJudgeConfigResponse'
+          x-versionadded: v2.42
+        nemoResponseRelevancyConfig:
+          $ref: '#/components/schemas/GuardNemoResponseRelevancyConfigResponse'
+          x-versionadded: v2.42
+        nemoTopicAdherenceConfig:
+          $ref: '#/components/schemas/GuardNemoTopicAdherenceConfigResponse'
+          x-versionadded: v2.42
+        openaiApiBase:
+          description: The Azure OpenAI API Base URL.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiApiKey:
+          description: Deprecated; use openai_credential instead.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiCredential:
+          description: The ID of the user credential containing an OpenAI token.
+          type:
+          - string
+          - 'null'
+        openaiDeploymentId:
+          description: The OpenAPI deployment ID.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        stages:
+          description: The stages where the guard can run.
+          items:
+            enum:
+            - prompt
+            - response
+            type: string
+          maxItems: 16
+          type: array
+        templateId:
+          description: The ID of the template this guard is based on.
+          type: string
+      required:
+      - entityId
+      - entityType
+      - name
+      - stages
+      - templateId
+      type: object
+      x-versionadded: v2.35
+    GuardNemoResponseRelevancyConfigResponse:
+      description: The configuration for the Response Relevancy metric.
+      properties:
+        embeddingDeploymentId:
+          description: The ID of the embedding model deployment.
+          type: string
+      required:
+      - embeddingDeploymentId
+      type: object
+      x-versionadded: v2.42
+    GuardConfigurationToCustomModelVersion:
+      properties:
+        customModelId:
+          description: The ID of the custom model the user is working with.
+          type: string
+        data:
+          description: The list of complete guard configurations to push.
+          items:
+            $ref: '#/components/schemas/GuardConfigurationFullPost'
+          maxItems: 200
+          type: array
+        overallConfig:
+          $ref: '#/components/schemas/OverallConfigUpdate'
+      required:
+      - customModelId
+      - data
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationInterventionResponse:
+      description: Intervention configuration for the guard.
+      properties:
+        action:
+          description: The action to take if conditions are met.
+          enum:
+          - block
+          - report
+          - replace
+          type: string
+        allowedActions:
+          description: The actions this guard is allowed to take.
+          items:
+            enum:
+            - block
+            - report
+            - replace
+            type: string
+          maxItems: 10
+          type: array
+        conditionLogic:
+          default: any
+          description: The action to take if conditions are met.
+          enum:
+          - any
+          type: string
+        conditions:
+          description: The list of conditions to trigger intervention.
+          items:
+            $ref: '#/components/schemas/GuardConfigurationConditionResponse'
+          maxItems: 1
+          type: array
+        message:
+          description: The message to use if the prompt or response is blocked.
+          maxLength: 4096
+          type: string
+        sendNotification:
+          default: false
+          description: The notification event to create if intervention is triggered.
+          type: boolean
+      required:
+      - action
+      - conditions
+      - message
+      type: object
+      x-versionadded: v2.35
+    OverallModerationConfigurationUpdate:
+      properties:
+        entityId:
+          description: The ID of the custom model or playground for this configuration.
+          type: string
+        entityType:
+          description: The type of the associated entity.
+          enum:
+          - customModel
+          - customModelVersion
+          - playground
+          - workload
+          type: string
+        nemoEvaluatorDeploymentId:
+          description: The ID of the NeMo Evaluator deployment to use for all NeMo Evaluator guards.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        timeoutAction:
+          description: The action to take if timeout occurs.
+          enum:
+          - block
+          - score
+          type: string
+        timeoutSec:
+          description: The timeout value in seconds for any guard.
+          minimum: 0
+          type: integer
+      required:
+      - entityId
+      - entityType
+      - timeoutAction
+      - timeoutSec
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationPredictionEnvironmentsInUseListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: list of prediction environments in use for this custom model version.
+          items:
+            $ref: '#/components/schemas/PredictionEnvironmentInUseResponse'
+          maxItems: 32
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    SupportedLlmListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of supported LLMs for moderation.
+          items:
+            $ref: '#/components/schemas/SupportedLlmResponse'
+          maxItems: 200
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    GuardNemoTopicAdherenceConfigResponse:
+      description: The configuration for the Topic Adherence metric.
+      properties:
+        metricMode:
+          default: f1
+          description: The metric calculation mode.
+          enum:
+          - f1
+          - recall
+          - precision
+          type: string
+        referenceTopics:
+          description: The list of reference topics.
+          items:
+            description: The reference topic.
+            maxLength: 512
+            type: string
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+      - referenceTopics
+      type: object
+      x-versionadded: v2.42
+    DeploymentAndGuardResponse:
+      properties:
+        configurationId:
+          description: ID of guard configuration.
+          type: string
+        deploymentId:
+          description: ID of guard model deployment.
+          type: string
+        name:
+          description: Name of guard configuration.
+          type: string
+      required:
+      - configurationId
+      - deploymentId
+      - name
+      type: object
+      x-versionadded: v2.35
+    GuardNemoLlmJudgeConfigResponse:
+      description: The configuration for the LLM Judge metric.
+      properties:
+        customMetricDirectionality:
+          description: The custom metric directionality for the LLM judge.
+          enum:
+          - higherIsBetter
+          - lowerIsBetter
+          type: string
+          x-versionadded: v2.42
+        scoreParsingRegex:
+          description: The regex to parse the score from the LLM judge response.
+          maxLength: 1024
+          type: string
+        systemPrompt:
+          description: The system prompt for the LLM judge.
+          maxLength: 8192
+          type: string
+        userPrompt:
+          description: The user prompt template for the LLM judge.
+          maxLength: 8192
+          type: string
+      required:
+      - customMetricDirectionality
+      - scoreParsingRegex
+      - systemPrompt
+      - userPrompt
+      type: object
+      x-versionadded: v2.42
+    GuardConfigurationPayloadModelInfo:
+      description: The configuration info for guards using deployed models.
+      properties:
+        classNames:
+          description: The list of class names for multiclass models.
+          items:
+            description: The class name.
+            maxLength: 128
+            type: string
+          maxItems: 100
+          type: array
+        inputColumnName:
+          description: The input column name.
+          maxLength: 255
+          type: string
+        modelId:
+          description: The ID of the registered model for model guards.
+          type:
+          - string
+          - 'null'
+        modelName:
+          default: ''
+          description: The ID of the registered model for .model guards.
+          maxLength: 255
+          type: string
+        outputColumnName:
+          description: The output column name.
+          maxLength: 255
+          type: string
+        replacementTextColumnName:
+          default: ''
+          description: The name of the output column with replacement text. Required only if intervention.action is `replace`.
+          maxLength: 255
+          type: string
+        targetType:
+          description: The target type.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - TextGeneration
+          type:
+          - string
+          - 'null'
+      required:
+      - inputColumnName
+      - outputColumnName
+      type: object
+      x-versionadded: v2.35
+    SupportedLlmResponse:
+      properties:
+        description:
+          description: The description of this LLM.
+          maxLength: 1024
+          type: string
+        id:
+          description: The ID for this LLM.
+          maxLength: 1024
+          type: string
+        llmType:
+          description: The general category of this LLM.
+          maxLength: 1024
+          type: string
+        model:
+          description: The specific model of this LLM.
+          maxLength: 1024
+          type: string
+        name:
+          description: The display name of this LLM.
+          maxLength: 1024
+          type: string
+        provider:
+          description: The provider of access to this LLM.
+          maxLength: 1024
+          type: string
+        vendor:
+          description: The vendor of this LLM.
+          maxLength: 1024
+          type: string
+      required:
+      - description
+      - id
+      - llmType
+      - model
+      - name
+      - provider
+      - vendor
+      type: object
+      x-versionadded: v2.35
+    GuardModelInfoResponse:
+      description: The configuration info for guards using deployed models.
+      properties:
+        classNames:
+          description: The list of class names for multiclass models.
+          items:
+            description: The class name.
+            maxLength: 128
+            type: string
+          maxItems: 100
+          type: array
+        inputColumnName:
+          description: The input column name.
+          maxLength: 255
+          type: string
+        modelId:
+          description: The ID of the registered model for model guards.
+          type:
+          - string
+          - 'null'
+        modelName:
+          default: ''
+          description: The ID of the registered model for .model guards.
+          maxLength: 255
+          type: string
+        outputColumnName:
+          description: The output column name.
+          maxLength: 255
+          type: string
+        replacementTextColumnName:
+          default: ''
+          description: The name of the output column with replacement text. Required only if intervention.action is `replace`.
+          maxLength: 255
+          type: string
+        targetType:
+          description: The target type.
+          enum:
+          - Binary
+          - Regression
+          - Multiclass
+          - TextGeneration
+          type: string
+      required:
+      - inputColumnName
+      - outputColumnName
+      - targetType
+      type: object
+      x-versionadded: v2.35
+    GuardTemplateListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of guard templates.
+          items:
+            $ref: '#/components/schemas/GuardTemplateRetrieveResponse'
+          maxItems: 200
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    OverallConfigUpdate:
+      description: Overall moderation configuration to push (not specific to one guard)
+      properties:
+        nemoEvaluatorDeploymentId:
+          description: ID of NeMo Evaluator deployment to use for all NeMo Evaluator guards.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        timeoutAction:
+          description: Action to take if timeout occurs
+          enum:
+          - block
+          - score
+          type: string
+        timeoutSec:
+          description: Timeout value in seconds for any guard
+          minimum: 2
+          type: integer
+      required:
+      - timeoutAction
+      - timeoutSec
+      type: object
+      x-versionadded: v2.35
+    GuardAdditionalConfig:
+      description: Additional configuration for the guard.
+      properties:
+        agentGuideline:
+          description: How to calculate agent guideline adherence for this guard.
+          maxLength: 4096
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        cost:
+          $ref: '#/components/schemas/GuardConfigurationCostInfo'
+        toolCall:
+          $ref: '#/components/schemas/GuardToolCallInfo'
+      type: object
+      x-versionadded: v2.37
+    GuardConfigurationNemoInfoResponse:
+      description: The configuration info for NeMo guards.
+      properties:
+        actions:
+          description: The NeMo guardrails actions file.
+          maxLength: 4096
+          type: string
+        blockedTerms:
+          description: The NeMo guardrails blocked terms list.
+          maxLength: 4096
+          type: string
+        credentialId:
+          description: The NeMo guardrails credential ID (deprecated; use "openai_credential").
+          type:
+          - string
+          - 'null'
+        llmPrompts:
+          description: The NeMo guardrails prompts.
+          maxLength: 4096
+          type: string
+        mainConfig:
+          description: The overall NeMo configuration YAML.
+          maxLength: 4096
+          type: string
+        railsConfig:
+          description: The NeMo guardrails configuration Colang.
+          maxLength: 4096
+          type: string
+      required:
+      - blockedTerms
+      - mainConfig
+      - railsConfig
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationToCustomModelResponse:
+      properties:
+        customModelVersionId:
+          description: The ID of the new custom model version created.
+          type: string
+      required:
+      - customModelVersionId
+      type: object
+      x-versionadded: v2.35
+    OverallModerationConfigurationResponse:
+      properties:
+        entityId:
+          description: The ID of the custom model or playground for this configuration.
+          type: string
+        entityType:
+          description: The type of the associated entity.
+          enum:
+          - customModel
+          - customModelVersion
+          - playground
+          - workload
+          type: string
+        nemoEvaluatorDeploymentId:
+          description: The ID of the NeMo Evaluator deployment to use for all NeMo Evaluator guards.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        timeoutAction:
+          description: The action to take if timeout occurs.
+          enum:
+          - block
+          - score
+          type: string
+        timeoutSec:
+          description: The timeout value in seconds for any guard.
+          minimum: 2
+          type: integer
+        updatedAt:
+          description: When the configuration was updated.
+          format: date-time
+          type: string
+        updaterId:
+          description: The ID of the user who updated the configuration.
+          type:
+          - string
+          - 'null'
+      required:
+      - entityId
+      - entityType
+      - timeoutAction
+      - timeoutSec
+      - updaterId
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of guard configurations.
+          items:
+            $ref: '#/components/schemas/GuardConfigurationRetrieveResponse'
+          maxItems: 200
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationCostInfo:
+      description: How to calculate cost information for this guard.
+      properties:
+        currency:
+          description: ISO 4217 Currency code for display.
+          maxLength: 255
+          type: string
+        inputPrice:
+          description: Cost per unit measure of tokens for input.
+          minimum: 0.0
+          type: number
+        inputUnit:
+          description: Number of tokens related to input price.
+          minimum: 0
+          type: integer
+        outputPrice:
+          description: Cost per unit measure of tokens for output.
+          minimum: 0.0
+          type: number
+        outputUnit:
+          description: Number of tokens related to output price.
+          minimum: 0
+          type: integer
+      required:
+      - currency
+      - inputPrice
+      - inputUnit
+      - outputPrice
+      - outputUnit
+      type: object
+      x-versionadded: v2.37
+    GuardTemplateRetrieveResponse:
+      properties:
+        allowedActions:
+          description: The actions this guard is allowed to take.
+          items:
+            enum:
+            - block
+            - report
+            - replace
+            type: string
+          maxItems: 10
+          type: array
+          x-versionadded: v2.36
+        allowedStages:
+          description: The stages where the guard can run.
+          items:
+            enum:
+            - prompt
+            - response
+            type: string
+          maxItems: 16
+          type: array
+        awsModel:
+          description: AWS model.
+          enum:
+          - amazon-titan
+          - anthropic-claude-2
+          - anthropic-claude-3-haiku
+          - anthropic-claude-3-sonnet
+          - anthropic-claude-3-opus
+          - anthropic-claude-3.5-sonnet-v1
+          - anthropic-claude-3.5-sonnet-v2
+          - amazon-nova-lite
+          - amazon-nova-micro
+          - amazon-nova-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsRegion:
+          description: AWS model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        createdAt:
+          description: When the template was created.
+          format: date-time
+          type: string
+        creatorId:
+          description: The ID of the user who created the guard template.
+          type:
+          - string
+          - 'null'
+        creatorName:
+          description: The name of the user who created the guard template.
+          maxLength: 1000
+          type: string
+        description:
+          description: The guard template description.
+          maxLength: 4096
+          type: string
+        errorMessage:
+          description: Error message if the guard configuration is invalid.
+          type:
+          - string
+          - 'null'
+        googleModel:
+          description: Google model.
+          enum:
+          - chat-bison
+          - google-gemini-1.5-flash
+          - google-gemini-1.5-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleRegion:
+          description: Google model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        id:
+          description: The guard template object ID.
+          type: string
+        intervention:
+          $ref: '#/components/schemas/GuardInterventionResponse'
+        isAgentic:
+          default: true
+          description: True if the guard is suitable for agentic workflows only.
+          type: boolean
+          x-versionadded: v2.37
+        isValid:
+          default: true
+          description: True if the guard is fully configured and valid.
+          type: boolean
+        labels:
+          description: The list of short strings to associate with the template.
+          items:
+            description: A short string to associate with the template.
+            maxLength: 255
+            type: string
+          maxItems: 16
+          type: array
+          x-versionadded: v2.37
+        llmGatewayModelId:
+          description: The LLM Gateway model ID to use as judge.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        llmType:
+          description: The type of LLM used by this guard.
+          enum:
+          - openAi
+          - azureOpenAi
+          - google
+          - amazon
+          - datarobot
+          - nim
+          - llmGateway
+          type:
+          - string
+          - 'null'
+        modelInfo:
+          $ref: '#/components/schemas/GuardModelInfoResponse'
+        name:
+          description: The guard template name.
+          maxLength: 255
+          type: string
+        nemoEvaluatorType:
+          description: The guard template "NeMo Evaluator" metric type.
+          enum:
+          - llm_judge
+          - context_relevance
+          - response_groundedness
+          - topic_adherence
+          - agent_goal_accuracy
+          - response_relevancy
+          - faithfulness
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.41
+        nemoInfo:
+          $ref: '#/components/schemas/GuardNemoInfoResponse'
+        nemoLlmJudgeConfig:
+          $ref: '#/components/schemas/GuardNemoLlmJudgeConfigResponse'
+          x-versionadded: v2.42
+        nemoResponseRelevancyConfig:
+          $ref: '#/components/schemas/GuardNemoResponseRelevancyConfigResponse'
+          x-versionadded: v2.42
+        nemoTopicAdherenceConfig:
+          $ref: '#/components/schemas/GuardNemoTopicAdherenceConfigResponse'
+          x-versionadded: v2.42
+        ootbType:
+          description: The guard template "Out of the Box" metric type.
+          enum:
+          - token_count
+          - faithfulness
+          - rouge_1
+          - agent_goal_accuracy
+          - agent_goal_accuracy_with_reference
+          - cost
+          - task_adherence
+          - tool_call_accuracy
+          - agent_guideline_adherence
+          - agent_latency
+          - agent_tokens
+          - agent_cost
+          - agentGoalAccuracy
+          - agentGoalAccuracyWithReference
+          - taskAdherence
+          - toolCallAccuracy
+          type:
+          - string
+          - 'null'
+        openaiApiBase:
+          description: The Azure OpenAI API Base URL.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiApiKey:
+          description: Deprecated; use openai_credential instead.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiDeploymentId:
+          description: The OpenAPI deployment ID.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        orgId:
+          description: Organization ID of the user who created the Guard template.
+          type:
+          - string
+          - 'null'
+        playgroundOnly:
+          description: Whether the guard is for playground only, or if it can be used in production and playground.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.37
+        productionOnly:
+          description: Whether the guard is for production only, or if it can be used in production and playground.
+          type:
+          - boolean
+          - 'null'
+        type:
+          description: The guard template type.
+          enum:
+          - guardModel
+          - nemo
+          - nemoEvaluator
+          - ootb
+          - pii
+          - userModel
+          type: string
+      required:
+      - allowedStages
+      - createdAt
+      - description
+      - id
+      - name
+      - type
+      type: object
+      x-versionadded: v2.35
+    PredictionEnvironmentInUseResponse:
+      properties:
+        id:
+          description: ID of prediction environment.
+          type: string
+        name:
+          description: Name of prediction environment.
+          type: string
+        usedBy:
+          description: Guards using this prediction environment.
+          items:
+            $ref: '#/components/schemas/DeploymentAndGuardResponse'
+          maxItems: 32
+          type: array
+      required:
+      - id
+      - name
+      - usedBy
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationFullPost:
+      description: Complete guard configuration to push
+      properties:
+        additionalGuardConfig:
+          $ref: '#/components/schemas/GuardAdditionalConfig'
+          x-versionadded: v2.37
+        allowedActions:
+          description: The actions this guard is allowed to take.
+          items:
+            enum:
+            - block
+            - report
+            - replace
+            type: string
+          maxItems: 10
+          type: array
+          x-versionadded: v2.36
+        awsAccount:
+          description: The ID of the user credential containing an AWS account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsModel:
+          description: AWS model.
+          enum:
+          - amazon-titan
+          - anthropic-claude-2
+          - anthropic-claude-3-haiku
+          - anthropic-claude-3-sonnet
+          - anthropic-claude-3-opus
+          - anthropic-claude-3.5-sonnet-v1
+          - anthropic-claude-3.5-sonnet-v2
+          - amazon-nova-lite
+          - amazon-nova-micro
+          - amazon-nova-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsRegion:
+          description: AWS model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        deploymentId:
+          description: The ID of the deployed model for model guards.
+          type:
+          - string
+          - 'null'
+        description:
+          description: Guard configuration description
+          maxLength: 4096
+          type: string
+        errorMessage:
+          description: Error message if the guard configuration is invalid.
+          type:
+          - string
+          - 'null'
+        googleModel:
+          description: Google model.
+          enum:
+          - chat-bison
+          - google-gemini-1.5-flash
+          - google-gemini-1.5-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleRegion:
+          description: Google model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleServiceAccount:
+          description: The ID of the user credential containing a Google service account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        intervention:
+          $ref: '#/components/schemas/GuardConfigurationInterventionResponse'
+        isAgentic:
+          default: false
+          description: True if the guard is suitable for agentic workflows only.
+          type: boolean
+          x-versionadded: v2.37
+        isValid:
+          description: Whether the guard is valid or not.
+          type: boolean
+        llmGatewayModelId:
+          description: The LLM Gateway model ID to use as judge.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        llmType:
+          description: The type of LLM used by this guard.
+          enum:
+          - openAi
+          - azureOpenAi
+          - google
+          - amazon
+          - datarobot
+          - nim
+          - llmGateway
+          type:
+          - string
+          - 'null'
+        modelInfo:
+          $ref: '#/components/schemas/GuardModelInfoResponse'
+        name:
+          description: Guard configuration name
+          maxLength: 255
+          type: string
+        nemoEvaluatorType:
+          description: Guard configuration "NeMo Evaluator" metric type
+          enum:
+          - llm_judge
+          - context_relevance
+          - response_groundedness
+          - topic_adherence
+          - agent_goal_accuracy
+          - response_relevancy
+          - faithfulness
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        nemoInfo:
+          $ref: '#/components/schemas/GuardConfigurationNemoInfoResponse'
+        nemoLlmJudgeConfig:
+          $ref: '#/components/schemas/GuardNemoLlmJudgeConfigResponse'
+          x-versionadded: v2.42
+        nemoResponseRelevancyConfig:
+          $ref: '#/components/schemas/GuardNemoResponseRelevancyConfigResponse'
+          x-versionadded: v2.42
+        nemoTopicAdherenceConfig:
+          $ref: '#/components/schemas/GuardNemoTopicAdherenceConfigResponse'
+          x-versionadded: v2.42
+        ootbType:
+          description: Guard template "Out of the Box" metric type
+          enum:
+          - token_count
+          - faithfulness
+          - rouge_1
+          - agent_goal_accuracy
+          - agent_goal_accuracy_with_reference
+          - cost
+          - task_adherence
+          - tool_call_accuracy
+          - agent_guideline_adherence
+          - agent_latency
+          - agent_tokens
+          - agent_cost
+          - agentGoalAccuracy
+          - agentGoalAccuracyWithReference
+          - taskAdherence
+          - toolCallAccuracy
+          type:
+          - string
+          - 'null'
+        openaiApiBase:
+          description: The Azure OpenAI API Base URL.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiApiKey:
+          description: Deprecated; use openai_credential instead.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiCredential:
+          description: The ID of the user credential containing an OpenAI token.
+          type:
+          - string
+          - 'null'
+        openaiDeploymentId:
+          description: The OpenAI deployment ID.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        parameters:
+          description: Parameter list, not used, deprecated.
+          items:
+            maxLength: 1
+            type: string
+          maxItems: 1
+          type: array
+        stages:
+          description: The stages where the guard is configured to run.
+          items:
+            enum:
+            - prompt
+            - response
+            type: string
+          maxItems: 16
+          type: array
+        type:
+          description: The guard configuration type.
+          enum:
+          - guardModel
+          - nemo
+          - nemoEvaluator
+          - ootb
+          - pii
+          - userModel
+          type: string
+      required:
+      - description
+      - name
+      - stages
+      - type
+      type: object
+      x-versionadded: v2.35
+    GuardConditionResponse:
+      description: The condition to trigger intervention.
+      properties:
+        comparand:
+          anyOf:
+          - type: boolean
+          - type: number
+          - type: string
+          - items:
+              description: The class name to match.
+              maxLength: 128
+              type: string
+            maxItems: 10
+            type: array
+          description: The condition comparand (basis of comparison).
+        comparator:
+          description: The condition comparator (operator).
+          enum:
+          - greaterThan
+          - lessThan
+          - equals
+          - notEquals
+          - is
+          - isNot
+          - matches
+          - doesNotMatch
+          - contains
+          - doesNotContain
+          type: string
+      required:
+      - comparand
+      - comparator
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationConditionResponse:
+      description: The condition to trigger intervention.
+      properties:
+        comparand:
+          anyOf:
+          - type: boolean
+          - type: number
+          - type: string
+          - items:
+              type: string
+            maxItems: 10
+            type: array
+          description: The condition comparand (basis of comparison).
+        comparator:
+          description: The condition comparator (operator).
+          enum:
+          - greaterThan
+          - lessThan
+          - equals
+          - notEquals
+          - is
+          - isNot
+          - matches
+          - doesNotMatch
+          - contains
+          - doesNotContain
+          type: string
+      required:
+      - comparand
+      - comparator
+      type: object
+      x-versionadded: v2.35
+    GuardConfigurationRetrieveResponse:
+      properties:
+        additionalGuardConfig:
+          $ref: '#/components/schemas/GuardAdditionalConfig'
+          x-versionadded: v2.37
+        allowedActions:
+          description: The actions this guard is allowed to take.
+          items:
+            enum:
+            - block
+            - report
+            - replace
+            type: string
+          maxItems: 10
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.36
+        awsAccount:
+          description: The ID of the user credential containing an AWS account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsModel:
+          description: AWS model.
+          enum:
+          - amazon-titan
+          - anthropic-claude-2
+          - anthropic-claude-3-haiku
+          - anthropic-claude-3-sonnet
+          - anthropic-claude-3-opus
+          - anthropic-claude-3.5-sonnet-v1
+          - anthropic-claude-3.5-sonnet-v2
+          - amazon-nova-lite
+          - amazon-nova-micro
+          - amazon-nova-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        awsRegion:
+          description: AWS model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        createdAt:
+          description: When the configuration was created.
+          format: date-time
+          type: string
+        creatorId:
+          description: The ID of the user who created the guard configuration.
+          type:
+          - string
+          - 'null'
+        creatorName:
+          description: The name of the user who created the guard configuration.
+          maxLength: 1000
+          type: string
+        deploymentId:
+          description: The ID of the deployed model for model guards.
+          type:
+          - string
+          - 'null'
+        description:
+          description: The guard configuration description.
+          maxLength: 4096
+          type: string
+        entityId:
+          description: The ID of the custom model or playground for this guard.
+          type:
+          - string
+          - 'null'
+        entityType:
+          description: The type of the associated entity.
+          enum:
+          - customModel
+          - customModelVersion
+          - playground
+          - workload
+          type: string
+        errorMessage:
+          description: Error message if the guard configuration is invalid.
+          type:
+          - string
+          - 'null'
+        googleModel:
+          description: Google model.
+          enum:
+          - chat-bison
+          - google-gemini-1.5-flash
+          - google-gemini-1.5-pro
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleRegion:
+          description: Google model region.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        googleServiceAccount:
+          description: The ID of the user credential containing a Google service account.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.35
+        id:
+          description: The guard configuration object ID.
+          type: string
+        intervention:
+          $ref: '#/components/schemas/GuardConfigurationInterventionResponse'
+        isAgentic:
+          default: false
+          description: True if the guard is suitable for agentic workflows only.
+          type: boolean
+          x-versionadded: v2.37
+        isValid:
+          description: Whether the guard is valid or not.
+          type: boolean
+        llmGatewayModelId:
+          description: The LLM Gateway model ID to use as judge.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        llmType:
+          description: The type of LLM used by this guard.
+          enum:
+          - openAi
+          - azureOpenAi
+          - google
+          - amazon
+          - datarobot
+          - nim
+          - llmGateway
+          type:
+          - string
+          - 'null'
+        modelInfo:
+          $ref: '#/components/schemas/GuardModelInfoResponse'
+        name:
+          description: The guard configuration name.
+          maxLength: 255
+          type: string
+        nemoEvaluatorType:
+          description: Guard configuration "NeMo Evaluator" metric type
+          enum:
+          - llm_judge
+          - context_relevance
+          - response_groundedness
+          - topic_adherence
+          - agent_goal_accuracy
+          - response_relevancy
+          - faithfulness
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.42
+        nemoInfo:
+          $ref: '#/components/schemas/GuardConfigurationNemoInfoResponse'
+        nemoLlmJudgeConfig:
+          $ref: '#/components/schemas/GuardNemoLlmJudgeConfigResponse'
+          x-versionadded: v2.42
+        nemoResponseRelevancyConfig:
+          $ref: '#/components/schemas/GuardNemoResponseRelevancyConfigResponse'
+          x-versionadded: v2.42
+        nemoTopicAdherenceConfig:
+          $ref: '#/components/schemas/GuardNemoTopicAdherenceConfigResponse'
+          x-versionadded: v2.42
+        ootbType:
+          description: Guard template "Out of the Box" metric type
+          enum:
+          - token_count
+          - faithfulness
+          - rouge_1
+          - agent_goal_accuracy
+          - agent_goal_accuracy_with_reference
+          - cost
+          - task_adherence
+          - tool_call_accuracy
+          - agent_guideline_adherence
+          - agent_latency
+          - agent_tokens
+          - agent_cost
+          - agentGoalAccuracy
+          - agentGoalAccuracyWithReference
+          - taskAdherence
+          - toolCallAccuracy
+          type:
+          - string
+          - 'null'
+        openaiApiBase:
+          description: The Azure OpenAI API Base URL.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiApiKey:
+          description: Deprecated; use openai_credential instead.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        openaiCredential:
+          description: The ID of the user credential containing an OpenAI token.
+          type:
+          - string
+          - 'null'
+        openaiDeploymentId:
+          description: The OpenAPI deployment ID.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        stages:
+          description: The stages where the guard is configured to run.
+          items:
+            enum:
+            - prompt
+            - response
+            type: string
+          maxItems: 16
+          type: array
+        type:
+          description: The guard configuration type.
+          enum:
+          - guardModel
+          - nemo
+          - nemoEvaluator
+          - ootb
+          - pii
+          - userModel
+          type: string
+      required:
+      - createdAt
+      - description
+      - entityId
+      - entityType
+      - id
+      - name
+      - stages
+      - type
+      type: object
+      x-versionadded: v2.35
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

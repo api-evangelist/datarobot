@@ -1,0 +1,2936 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Custom Applications API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage custom applications.
+  name: custom_applications
+paths:
+  /api/v2/customApplicationSources/:
+    get:
+      description: The list of custom application sources.
+      operationId: customApplicationSources_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The sort order applied to the list of custom application sources. Prefix the attribute name with a dash to sort in descending order, e.g. "-createdAt".
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - name
+          - -name
+          - createdAt
+          - -createdAt
+          - updatedAt
+          - -updatedAt
+          type: string
+      - description: Allows for searching custom application sources by name.
+        in: query
+        name: name
+        required: false
+        schema:
+          maxLength: 255
+          minLength: 1
+          type: string
+      - description: Filter custom application sources to return only those created by the specified user.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          type: string
+      - description: Filter application sources modified on or after this timestamp.
+        in: query
+        name: updatedAtStartTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter application sources modified before this timestamp.
+        in: query
+        name: updatedAtEndTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter application sources created on or after this timestamp.
+        in: query
+        name: createdAtStartTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter application sources created before this timestamp.
+        in: query
+        name: createdAtEndTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSourceListResponse'
+          description: ''
+      summary: The list of custom application sources created
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    post:
+      description: Create a custom application source.
+      operationId: customApplicationSources_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationSourceCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSource'
+          description: ''
+        '202':
+          description: Creation has successfully started.
+        '403':
+          description: User does not have permission to create a source.
+        '422':
+          description: Custom application source could not be created with the given input.
+      summary: Create a custom application source
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplicationSources/fromCustomTemplate/:
+    post:
+      description: Create a custom application source from a template.
+      operationId: customApplicationSourcesFromCustomTemplate_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationSourceFromGalleryTemplateCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSource'
+          description: ''
+        '202':
+          description: The custom application source creation process has successfully started. See the location header.
+        '403':
+          description: The current user does not have permission to create a custom application source.
+        '422':
+          description: A custom application source could not be created with the selected custom template.
+      summary: Create a custom application source
+      tags:
+      - custom_applications
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables Custom Templates.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TEMPLATES
+      x-versionadded: v2.35
+  /api/v2/customApplicationSources/{appSourceId}/:
+    delete:
+      description: Delete a custom application source.
+      operationId: customApplicationSources_delete
+      parameters:
+      - description: Marks that this application source should be hard deleted instead of soft deleted.
+        in: query
+        name: hardDelete
+        required: false
+        schema:
+          default: 'true'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The source has been deleted.
+      summary: Delete a custom application source by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    get:
+      description: Retrieve a source.
+      operationId: customApplicationSources_retrieve
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSource'
+          description: ''
+      summary: Retrieve a custom application source by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    patch:
+      description: Update a source's name.
+      operationId: customApplicationSources_patch
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationSourceUpdate'
+      responses:
+        '204':
+          description: The source has been updated.
+      summary: Update a custom application source's name by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplicationSources/{appSourceId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups, and organizations with access to this application source.
+      operationId: customApplicationSourcesSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListV2Response'
+          description: ''
+      summary: Get a list of users, groups, and organizations with access by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    patch:
+      description: Share an application source with a user, group, or organization.
+      operationId: customApplicationSourcesSharedRoles_patchMany
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSharingUpdateOrRemove'
+      responses:
+        '204':
+          description: The roles were updated successfully.
+        '422':
+          description: The request was formatted improperly.
+      summary: Share an application source by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplicationSources/{appSourceId}/versions/:
+    get:
+      description: List of custom application source versions.
+      operationId: customApplicationSourcesVersions_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSourceVersionListResponse'
+          description: ''
+      summary: Paginated list of custom application source versions of the specified by app…
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    post:
+      description: Create a custom application source.
+      operationId: customApplicationSourcesVersions_create
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationSourceVersionCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSourceVersion'
+          description: ''
+        '201':
+          description: Source version was successfully created.
+        '403':
+          description: User does not have permission to create a new source version.
+        '422':
+          description: Custom application source version could not be created with the given input.
+      summary: Create a custom application source version by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplicationSources/{appSourceId}/versions/{appSourceVersionId}/:
+    delete:
+      description: Delete a custom application source version.
+      operationId: customApplicationSourcesVersions_delete
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the application source version.
+        in: path
+        name: appSourceVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The source version has been deleted.
+      summary: Delete a custom application source version if it is still mutable by app source…
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    get:
+      description: Retrieve a source version.
+      operationId: customApplicationSourcesVersions_retrieve
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the application source version.
+        in: path
+        name: appSourceVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSourceVersion'
+          description: ''
+      summary: Retrieve a custom application source version by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    patch:
+      description: Update the source version
+      operationId: customApplicationSourcesVersions_patch
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the application source version.
+        in: path
+        name: appSourceVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationSourceVersionUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSourceVersion'
+          description: ''
+      summary: Update a custom application source version by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplicationSources/{appSourceId}/versions/{appSourceVersionId}/archive/:
+    get:
+      description: Download all files from a Custom Application Source version as a zip archive.
+      operationId: customApplicationSourcesVersionsArchive_list
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the application source version.
+        in: path
+        name: appSourceVersionId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/zip:
+              schema:
+                format: binary
+                type: string
+          description: A zip archive containing all files in the source version.
+          headers:
+            Content-Disposition:
+              description: Specifies the zip filename derived from the version label (e.g. "attachment; filename=v1.0.zip").
+              schema:
+                type: string
+      summary: Download Custom Application Source version files as a zip archive by app source…
+      tags:
+      - custom_applications
+      x-versionadded: v2.43
+  /api/v2/customApplicationSources/{appSourceId}/versions/{appSourceVersionId}/fromCodespace/:
+    post:
+      description: Update files in the source version from Codespace.
+      operationId: customApplicationSourcesVersionsFromCodespace_create
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the application source version.
+        in: path
+        name: appSourceVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationSourceVersionFromCodespace'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSourceVersionFromCodespaceResponse'
+          description: ''
+        '202':
+          description: Task for updating source applied.
+      summary: Update the custom application source version by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplicationSources/{appSourceId}/versions/{appSourceVersionId}/items/{itemId}/:
+    get:
+      description: Retrieve a file stored inside a custom application source version.
+      operationId: customApplicationSourcesVersionsItems_retrieve
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the application source version.
+        in: path
+        name: appSourceVersionId
+        required: true
+        schema:
+          type: string
+      - description: The ID of file item inside of the application source version.
+        in: path
+        name: itemId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationItemRetrieve'
+          description: ''
+      summary: Retrieve a file by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplicationSources/{appSourceId}/versions/{appSourceVersionId}/toCodespace/:
+    post:
+      description: Update a codespace with files from the source version.
+      operationId: customApplicationSourcesVersionsToCodespace_create
+      parameters:
+      - description: The ID of the application source.
+        in: path
+        name: appSourceId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the application source version.
+        in: path
+        name: appSourceVersionId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationSourceVersionToCodespace'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationSourceVersionFromCodespaceResponse'
+          description: ''
+        '202':
+          description: Task for uploading files to codespace applied.
+      summary: Update a codespace by app source ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplications/:
+    get:
+      description: The list of applications created by the currently authenticated user.
+      operationId: customApplications_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The sort order applied to the list of custom applications. Prefix the attribute name with a dash to sort in descending order, e.g. "-createdAt". Additional sorting options include "bundleSize" and "replicas".
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - name
+          - -name
+          - createdAt
+          - -createdAt
+          - updatedAt
+          - -updatedAt
+          - bundleSize
+          - -bundleSize
+          - replicas
+          - -replicas
+          type: string
+      - description: Allows for searching custom applications by name.
+        in: query
+        name: name
+        required: false
+        schema:
+          maxLength: 512
+          minLength: 1
+          type: string
+      - description: Allows you to get custom applications created only from specific sources. To find apps not linked to a custom application source, use the value "null".
+        in: query
+        name: customApplicationSourceId
+        required: false
+        schema:
+          oneOf:
+          - anyOf:
+            - type: string
+            - enum:
+              - 'null'
+              type: string
+          - items:
+              anyOf:
+              - type: string
+              - enum:
+                - 'null'
+                type: string
+            maxItems: 100
+            type: array
+      - description: Whether or not you want to include the name of the application source andthe label of the source version.
+        in: query
+        name: includeSourceLabels
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: Whether we should only fetch apps created from a custom application source.
+        in: query
+        name: requireSource
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: Filter custom applications to return only those created by the specified user.
+        in: query
+        name: createdBy
+        required: false
+        schema:
+          type: string
+      - description: Filter applications by status.
+        in: query
+        name: status
+        required: false
+        schema:
+          oneOf:
+          - enum:
+            - created
+            - failed
+            - initializing
+            - paused
+            - publishing
+            - running
+            type: string
+          - items:
+              enum:
+              - created
+              - failed
+              - initializing
+              - paused
+              - publishing
+              - running
+              type: string
+            maxItems: 10
+            type: array
+      - description: Filter applications modified on or after this timestamp.
+        in: query
+        name: updatedAtStartTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter applications modified before this timestamp.
+        in: query
+        name: updatedAtEndTs
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter applications by external access enablement status.
+        in: query
+        name: externalAccessEnabled
+        required: false
+        schema:
+          type: boolean
+      - description: Filter applications by resource bundle label.
+        in: query
+        name: resourceLabel
+        required: false
+        schema:
+          maxLength: 256
+          type: string
+      - description: Filter applications with replica count greater than or equal to this value.
+        in: query
+        name: replicasMin
+        required: false
+        schema:
+          type: integer
+      - description: Filter applications with replica count less than or equal to this value.
+        in: query
+        name: replicasMax
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationListResponse'
+          description: ''
+      summary: The list of applications created by the currently authenticated user
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    post:
+      operationId: customApplications_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplication'
+          description: ''
+        '202':
+          description: Creation has successfully started. See the Location header.
+        '403':
+          description: User does not have permission to launch application of provided type.
+        '422':
+          description: Application could not be created with the given input.
+      summary: Create a custom application
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplications/{applicationId}/:
+    delete:
+      description: Delete an application
+      operationId: customApplications_delete
+      parameters:
+      - description: Marks that this application should be hard deleted instead of soft deleted.
+        in: query
+        name: hardDelete
+        required: false
+        schema:
+          default: 'true'
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The application has been deleted.
+      summary: Delete an application by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    get:
+      description: Retrieve an application
+      operationId: customApplications_retrieve
+      parameters:
+      - description: Whether or not you want to include the name of the application source andthe label of the source version.
+        in: query
+        name: includeSourceLabels
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplication'
+          description: ''
+      summary: Retrieve an application by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    patch:
+      description: Update an application's name
+      operationId: customApplications_patch
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomApplicationUpdate'
+      responses:
+        '204':
+          description: The application has been updated.
+      summary: Update an application's name by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplications/{applicationId}/history/:
+    get:
+      description: Retrieve an application's publication history.
+      operationId: customApplicationsHistory_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationsHistoryListResponse'
+          description: ''
+      summary: Retrieve an application's publication history by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplications/{applicationId}/logs/:
+    get:
+      description: Retrieve an application's logs
+      operationId: customApplicationsLogs_list
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationLogs'
+          description: ''
+      summary: Retrieve an application's logs by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplications/{applicationId}/migrateToWorkload/:
+    post:
+      operationId: customApplicationsMigrateToWorkload_create
+      responses:
+        '202':
+          description: Creation has successfully started. See the Location header.
+          headers:
+            Location:
+              description: A url that can be polled to check the status.
+              schema:
+                type: string
+      summary: Create Migrate To Workload by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.48
+  /api/v2/customApplications/{applicationId}/revertToLrs/:
+    post:
+      operationId: customApplicationsRevertToLrs_create
+      responses:
+        '200':
+          description: ''
+      summary: Create Revert To Lrs by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.48
+  /api/v2/customApplications/{applicationId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups and organizations that have an access to this application
+      operationId: customApplicationsSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharingListV2Response'
+          description: ''
+      summary: Get a list of users, groups and organizations that have an access by…
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+    patch:
+      description: Share an application with a user, group, or organization
+      operationId: customApplicationsSharedRoles_patchMany
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSharingUpdateOrRemove'
+      responses:
+        '204':
+          description: The roles were updated successfully.
+        '422':
+          description: The request was formatted improperly.
+      summary: Share an application by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplications/{applicationId}/usages/:
+    get:
+      description: Retrieve an application's usages
+      operationId: customApplicationsUsages_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      - description: Filter visits on or after this UTC timestamp (inclusive). ISO 8601 format.
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: Filter visits on or before this UTC timestamp (inclusive). ISO 8601 format.
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type: string
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomApplicationsUsagesListResponse'
+          description: ''
+      summary: Retrieve an application's usages by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.37
+  /api/v2/customApplications/{applicationId}/usages/download/:
+    get:
+      description: Download an application's access logs
+      operationId: customApplicationsUsagesDownload_list
+      parameters:
+      - description: Filter visits on or after this UTC timestamp (inclusive). ISO 8601 format. Required.
+        in: query
+        name: start
+        required: true
+        schema:
+          format: date-time
+          type: string
+      - description: Filter visits on or before this UTC timestamp (inclusive). ISO 8601 format. Required.
+        in: query
+        name: end
+        required: true
+        schema:
+          format: date-time
+          type: string
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+      summary: Download an application's access logs by application ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.44
+  /api/v2/customTemplates/:
+    get:
+      description: Retrieve a list of custom templates.
+      operationId: customTemplates_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: The order to sort the custom templates.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - name
+          - -name
+          - createdAt
+          - -createdAt
+          - templateType
+          - -templateType
+          - templateSubType
+          - -templateSubType
+          type: string
+      - description: Only return custom templates whose name or description contain this text.
+        in: query
+        name: search
+        required: false
+        schema:
+          maxLength: 512
+          type: string
+      - description: Only return custom templates with a matching tag.
+        in: query
+        name: tag
+        required: false
+        schema:
+          type: string
+      - description: Only return custom templates of this sub-type.
+        in: query
+        name: templateSubType
+        required: false
+        schema:
+          type: string
+      - description: Only return custom templates of this type.
+        in: query
+        name: templateType
+        required: false
+        schema:
+          maxLength: 255
+          type: string
+      - description: Only return custom templates with this publisher.
+        in: query
+        name: publisher
+        required: false
+        schema:
+          maxLength: 255
+          type: string
+      - description: Only return custom templates with this category (use case).
+        in: query
+        name: category
+        required: false
+        schema:
+          maxLength: 255
+          type: string
+      - description: Hidden templates are not visible in the UI.
+        in: query
+        name: showHidden
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTemplateListResponse'
+          description: The paginated list of custom templates.
+        '403':
+          description: User does not have permission to access custom templates.
+      summary: Retrieve a list of custom templates
+      tags:
+      - custom_applications
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables Custom Templates.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TEMPLATES
+      x-versionadded: v2.36
+    post:
+      description: Create a custom template.
+      operationId: customTemplates_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTemplateCreatePayload'
+      responses:
+        '201':
+          description: The custom template was successfully created.
+        '403':
+          description: User does not have permission to create a custom template.
+      summary: Create a custom template
+      tags:
+      - custom_applications
+      x-versionadded: v2.36
+  /api/v2/customTemplates/{customTemplateId}/:
+    delete:
+      description: Delete a custom template.
+      operationId: customTemplates_delete
+      parameters:
+      - description: The ID of the custom template.
+        in: path
+        name: customTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: The requested custom template was successfully deleted.
+        '403':
+          description: User does not have permission to delete a custom template.
+        '404':
+          description: Custom template was not found.
+      summary: Delete a custom template by custom template ID
+      tags:
+      - custom_applications
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables Custom Templates.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TEMPLATES
+      x-versionadded: v2.36
+    get:
+      description: Retrieve a single custom template.
+      operationId: customTemplates_retrieve
+      parameters:
+      - description: The ID of the custom template.
+        in: path
+        name: customTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTemplateEntity'
+          description: A given custom template.
+        '403':
+          description: User does not have permission to access a particular custom template.
+      summary: Retrieve a single custom template by custom template ID
+      tags:
+      - custom_applications
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables Custom Templates.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TEMPLATES
+      x-versionadded: v2.36
+    patch:
+      description: Update the given custom template.
+      operationId: customTemplates_patch
+      parameters:
+      - description: The ID of the custom template.
+        in: path
+        name: customTemplateId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTemplateUpdatePayload'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTemplateEntity'
+          description: The custom template was successfully updated.
+        '403':
+          description: User does not have permission to update a custom template.
+      summary: Update the given custom template by custom template ID
+      tags:
+      - custom_applications
+      x-versionadded: v2.36
+  /api/v2/customTemplates/{customTemplateId}/files/{fileId}/:
+    get:
+      description: Retrieve a single custom template file.
+      operationId: customTemplatesFiles_retrieve
+      parameters:
+      - description: The ID of the custom template.
+        in: path
+        name: customTemplateId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the file.
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTemplateFileResponse'
+          description: A given custom template file.
+        '403':
+          description: User does not have permission to access a particular custom template file.
+        '404':
+          description: File not found.
+      summary: Retrieve a single custom template file by custom template ID
+      tags:
+      - custom_applications
+      x-datarobot-public-preview: false
+      x-datarobot-required-feature-flags:
+      - description: Enables Custom Templates.
+        enabled_by_default: true
+        maturity: GA_ALL
+        name: CUSTOM_TEMPLATES
+      x-versionadded: v2.38
+components:
+  schemas:
+    CustomTemplateListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: A list of custom templates.
+          items:
+            $ref: '#/components/schemas/CustomTemplateEntity'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.36
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    DefaultEnvironment:
+      description: Specifies the default environment for the custom template.
+      properties:
+        environmentId:
+          description: The ID the environment to use for the public custom metric image.
+          type: string
+        environmentVersionId:
+          description: The ID of the specific environment version to use with the public custom metric image.
+          type: string
+      required:
+      - environmentId
+      - environmentVersionId
+      type: object
+      x-versionadded: v2.36
+    CustomApplicationsHistoryListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of custom application soure versions published to this custom application.
+          items:
+            $ref: '#/components/schemas/CustomAppHistory'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceVersionFromCodespaceResponse:
+      properties:
+        id:
+          description: The custom application source version ID.
+          type: string
+      required:
+      - id
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceVersionCreate:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this source version.
+          type: string
+        baseEnvironmentVersionId:
+          description: The base environment version ID to use with this source version.
+          type: string
+        baseVersion:
+          description: The ID of the version used as the source for parameter duplication.
+          type: string
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        filesToDelete:
+          description: The IDs of the files to be deleted.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        label:
+          description: The label for new Custom App Source Version.
+          maxLength: 255
+          minLength: 1
+          type: string
+        runtimeParameters:
+          description: Full snapshot of runtime parameters to create or update. Send the complete desired state of all runtime parameters. Parameters present in payload but missing in version will be created. Parameters missing in payload but present in version will be deleted. Parameters present in both will be updated.
+          type: string
+          x-datarobot-public-preview: false
+          x-datarobot-required-feature-flags:
+          - description: Enables the addition of key-value pairs as Runtime-Parameters for Custom Inference Models.
+            enabled_by_default: true
+            maturity: GA_ALL
+            name: CUSTOM_MODEL_RUNTIME_PARAMETERS
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceVersionToCodespace:
+      properties:
+        codespaceId:
+          description: The ID of the Codespace that should be used as source for files.
+          type: string
+      required:
+      - codespaceId
+      type: object
+      x-versionadded: v2.37
+    TemplateMetadata:
+      description: Specifies permanent metadata for the custom template.
+      properties:
+        classLabels:
+          description: List of class names in case of creating a Binary or a multiclass custom model.
+          items:
+            type: string
+          maxItems: 1000
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.36
+        environmentVariables:
+          additionalProperties:
+            type: string
+          default: null
+          description: Map of environment variable names to their default values for the custom template.
+          type: object
+          x-versionadded: v2.47
+        livenessProbe:
+          $ref: '#/components/schemas/Probe'
+          x-versionadded: v2.47
+        readinessProbe:
+          $ref: '#/components/schemas/Probe'
+          x-versionadded: v2.47
+        readme:
+          description: Content of README.md file of the template.
+          maxLength: 1048576
+          type:
+          - string
+          - 'null'
+        resourceBundleIds:
+          description: Custom template resource bundle IDs list.
+          items:
+            type: string
+          maxItems: 1000
+          type:
+          - array
+          - 'null'
+          x-versionadded: v2.36
+        source:
+          $ref: '#/components/schemas/TemplateSource'
+        startupProbe:
+          $ref: '#/components/schemas/Probe'
+          x-versionadded: v2.47
+        tags:
+          description: Custom template tags list.
+          items:
+            type: string
+          maxItems: 1000
+          type:
+          - array
+          - 'null'
+        templateTypeSpecificResources:
+          $ref: '#/components/schemas/TemplateTypeSpecificResources'
+          x-versionadded: v2.36
+      type: object
+      x-versionadded: v2.36
+    CustomTemplateEntity:
+      properties:
+        defaultEnvironment:
+          $ref: '#/components/schemas/DefaultEnvironment'
+        defaultResourceBundleId:
+          description: Specifies the default resource bundle for the custom metric template.
+          enum:
+          - cpu.nano
+          - cpu.micro
+          - cpu.small
+          - cpu.medium
+          - cpu.large
+          - cpu.xlarge
+          - cpu.2xlarge
+          - cpu.3xlarge
+          - cpu.4xlarge
+          - cpu.5xlarge
+          - cpu.6xlarge
+          - cpu.7xlarge
+          - cpu.8xlarge
+          - cpu.16xlarge
+          - DRAWSR6i.4xlargeFrac8Regular
+          - DRAWSR6i.4xlargeFrac4Regular
+          - DRAWSG4dn.xlargeFrac1Regular
+          - DRAWSG4dn.2xlargeFrac1Regular
+          - DRAWSG5.2xlargeFrac1Regular
+          - DRAWSG5.12xlargeFrac1Regular
+          - DRAWSG5.48xlargeFrac1Regular
+          - DRAWSG6e.xlargeFrac1Regular
+          - DRAWSG6e.12xlargeFrac1Regular
+          - DRAWSG6e.48xlargeFrac1Regular
+          - gpu.small
+          - gpu.medium
+          - gpu.large
+          - gpu.xlarge
+          - gpu.2xlarge
+          - gpu.3xlarge
+          - gpu.5xlarge
+          - gpu.7xlarge
+          - starter
+          - basic
+          - basic.8x
+          - train.l
+          - infer.s
+          - infer.m
+          - infer.l
+          type:
+          - string
+          - 'null'
+        description:
+          description: A description of the custom template.
+          maxLength: 10000
+          type: string
+        enabled:
+          description: Determines whether the template is enabled.
+          type: boolean
+        id:
+          description: The ID of the custom template.
+          type: string
+        isHidden:
+          description: Determines whether the template is hidden.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.47
+        items:
+          description: A list of custom files.
+          items:
+            $ref: '#/components/schemas/CustomTemplateFile'
+          maxItems: 1000
+          type: array
+        name:
+          description: The name of the custom template.
+          maxLength: 255
+          type: string
+        templateMetadata:
+          $ref: '#/components/schemas/TemplateMetadata'
+        templateSubType:
+          description: Defines the type of the custom template.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+        templateType:
+          description: Defines the type of the custom template.
+          maxLength: 255
+          type: string
+      required:
+      - defaultEnvironment
+      - defaultResourceBundleId
+      - description
+      - enabled
+      - id
+      - items
+      - name
+      - templateMetadata
+      - templateSubType
+      - templateType
+      type: object
+      x-versionadded: v2.36
+    CustomAppHistory:
+      properties:
+        createdAt:
+          description: The date and time that the user published a new version of the app.
+          format: date-time
+          type: string
+        createdBy:
+          description: The username of the user who published the application.
+          type:
+          - string
+          - 'null'
+        creatorFirstName:
+          description: The first name of the user who published the application.
+          type:
+          - string
+          - 'null'
+        creatorLastName:
+          description: The last name of the user who published the application.
+          type:
+          - string
+          - 'null'
+        creatorUserhash:
+          description: The Gravatar hash of the user who published the application.
+          type:
+          - string
+          - 'null'
+        sourceId:
+          description: The custom application source ID of the record.
+          type: string
+        sourceName:
+          description: The name of the custom app source.
+          type: string
+        sourceVersionId:
+          description: The custom application source version ID of the record.
+          type: string
+        sourceVersionLabel:
+          description: The label of the source version.
+          type: string
+      required:
+      - createdAt
+      - sourceId
+      - sourceVersionId
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceUpdate:
+      properties:
+        name:
+          description: The name of the custom application source.
+          maxLength: 255
+          minLength: 1
+          type: string
+      required:
+      - name
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceVersionFromCodespace:
+      properties:
+        codespaceId:
+          description: The ID of the Codespace that should be used as source for files.
+          type: string
+        label:
+          description: The label for new Custom App Source Version in case current version is frozen and new should be created.
+          maxLength: 255
+          minLength: 1
+          type: string
+      required:
+      - codespaceId
+      type: object
+      x-versionadded: v2.37
+    AccessControlV2:
+      properties:
+        id:
+          description: The identifier of the recipient.
+          type: string
+        name:
+          description: The name of the recipient.
+          type: string
+        role:
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The type of the recipient.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    ApplicationSharingUpdateOrRemove:
+      properties:
+        note:
+          default: ''
+          description: A note to go with the project share
+          type: string
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects., up to maximum 100 objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          type: array
+        sendNotification:
+          default: false
+          description: Send a notification?
+          type: boolean
+      required:
+      - operation
+      - roles
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    CustomTemplateCreatePayload:
+      properties:
+        defaultEnvironment:
+          description: Specifies the default environment for the custom metric template.
+          type: string
+        defaultResourceBundleId:
+          description: Specifies the default resource bundle for the custom metric template.
+          enum:
+          - cpu.nano
+          - cpu.micro
+          - cpu.small
+          - cpu.medium
+          - cpu.large
+          - cpu.xlarge
+          - cpu.2xlarge
+          - cpu.3xlarge
+          - cpu.4xlarge
+          - cpu.5xlarge
+          - cpu.6xlarge
+          - cpu.7xlarge
+          - cpu.8xlarge
+          - cpu.16xlarge
+          - DRAWSR6i.4xlargeFrac8Regular
+          - DRAWSR6i.4xlargeFrac4Regular
+          - DRAWSG4dn.xlargeFrac1Regular
+          - DRAWSG4dn.2xlargeFrac1Regular
+          - DRAWSG5.2xlargeFrac1Regular
+          - DRAWSG5.12xlargeFrac1Regular
+          - DRAWSG5.48xlargeFrac1Regular
+          - DRAWSG6e.xlargeFrac1Regular
+          - DRAWSG6e.12xlargeFrac1Regular
+          - DRAWSG6e.48xlargeFrac1Regular
+          - gpu.small
+          - gpu.medium
+          - gpu.large
+          - gpu.xlarge
+          - gpu.2xlarge
+          - gpu.3xlarge
+          - gpu.5xlarge
+          - gpu.7xlarge
+          - starter
+          - basic
+          - basic.8x
+          - train.l
+          - infer.s
+          - infer.m
+          - infer.l
+          type: string
+        description:
+          description: A description of the custom template.
+          maxLength: 10000
+          type: string
+        enabled:
+          default: true
+          description: Disabled templates remain visible in the UI but cannot be used.
+          type: boolean
+          x-versionadded: v2.36
+        file:
+          description: The file to be used to create the custom metric template.
+          format: binary
+          type: string
+        isHidden:
+          default: false
+          description: Hidden templates are not visible in the UI.
+          type: boolean
+          x-versionadded: v2.37
+        name:
+          description: The name of the custom template.
+          maxLength: 255
+          type: string
+        templateMetadata:
+          description: Specifies permanent metadata for the custom template.
+          type:
+          - string
+          - 'null'
+        templateSubType:
+          description: Defines sub-type of the custom template.
+          maxLength: 255
+          type: string
+        templateType:
+          description: Defines type of the custom template.
+          maxLength: 255
+          type: string
+      required:
+      - defaultEnvironment
+      - description
+      - file
+      - name
+      - templateSubType
+      - templateType
+      type: object
+      x-versionadded: v2.36
+    CustomApplicationUpdate:
+      properties:
+        allowAutoStopping:
+          description: Determines if the custom app should be stopped automatically.
+          type: boolean
+        customApplicationSourceVersionId:
+          description: The ID of the custom application source version to set this app to.
+          type: string
+        externalAccessEnabled:
+          description: Determines if the custom app can be shared with guest users.
+          type: boolean
+        externalAccessRecipients:
+          description: Who should be able to access the custom app
+          items:
+            description: The email address, or email domain of who can use an app
+            maxLength: 512
+            minLength: 0
+            type: string
+          maxItems: 2048
+          type: array
+        name:
+          description: The name of the custom application.
+          maxLength: 512
+          minLength: 1
+          type: string
+      type: object
+      x-versionadded: v2.37
+    CustomApplication:
+      properties:
+        allowAutoStopping:
+          description: Determines if apps are auto-paused to save resources.
+          type:
+          - boolean
+          - 'null'
+        applicationUrl:
+          description: The URL for accessing application endpoints
+          format: uri
+          type:
+          - string
+          - 'null'
+        createdAt:
+          description: The timestamp when the application was created.
+          type: string
+        createdBy:
+          description: The username of who created the application
+          type:
+          - string
+          - 'null'
+        creatorFirstName:
+          description: The first name of who created the application
+          type:
+          - string
+          - 'null'
+        creatorLastName:
+          description: The last name of who created the application
+          type:
+          - string
+          - 'null'
+        creatorUserhash:
+          description: The Gravatar hash of user who created the application
+          type:
+          - string
+          - 'null'
+        customApplicationSourceId:
+          description: The custom application source used in app.
+          type:
+          - string
+          - 'null'
+        customApplicationSourceVersionId:
+          description: The custom application source version used in app.
+          type:
+          - string
+          - 'null'
+        envVersionId:
+          description: The execution environment version used in app
+          type:
+          - string
+          - 'null'
+        expiresAt:
+          description: ISO-8601 formatted date of the custom application removing date
+          format: date-time
+          type:
+          - string
+          - 'null'
+        externalAccessEnabled:
+          description: Determines if sharing with guest users is allowed.
+          type:
+          - boolean
+          - 'null'
+        externalAccessRecipients:
+          description: The external users and domains allowed to view this app.
+          items:
+            type: string
+          maxItems: 100
+          type: array
+        id:
+          description: The custom application ID.
+          type: string
+        lrsId:
+          description: The Long Running Service ID associated with app.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.38
+        name:
+          description: The name of the custom application.
+          maxLength: 512
+          minLength: 1
+          type: string
+        orgId:
+          description: The ID of the creator's organization.
+          type:
+          - string
+          - 'null'
+        permissions:
+          description: The list of permitted actions, which the authenticated user can perform on this application.
+          items:
+            enum:
+            - CAN_CHANGE_EXTERNAL_ACCESS
+            - CAN_DELETE
+            - CAN_PUBLISH_NEW_IMAGE
+            - CAN_SEE_SOURCE
+            - CAN_SHARE
+            - CAN_UPDATE
+            - CAN_VIEW
+            type: string
+          maxItems: 100
+          type: array
+        resources:
+          $ref: '#/components/schemas/CustomApplicationResourcesResponse'
+          x-versionadded: v2.37
+        sourceName:
+          description: The name of the custom app source.
+          type: string
+        sourceVersionLabel:
+          description: The label of the source version.
+          type: string
+        status:
+          description: The state of application in LRS
+          enum:
+          - created
+          - failed
+          - initializing
+          - paused
+          - publishing
+          - running
+          type: string
+        updatedAt:
+          description: The timestamp when the application was updated.
+          type: string
+        userId:
+          description: Creator's ID
+          type: string
+      required:
+      - allowAutoStopping
+      - applicationUrl
+      - createdAt
+      - customApplicationSourceId
+      - customApplicationSourceVersionId
+      - envVersionId
+      - expiresAt
+      - externalAccessEnabled
+      - externalAccessRecipients
+      - id
+      - lrsId
+      - name
+      - orgId
+      - permissions
+      - status
+      - updatedAt
+      - userId
+      type: object
+      x-versionadded: v2.37
+    CustomTemplateUpdatePayload:
+      properties:
+        defaultEnvironment:
+          description: Specifies the default environment for the custom template.
+          type: string
+        defaultResourceBundleId:
+          description: Specifies the default resource bundle for the custom metric template.
+          enum:
+          - cpu.nano
+          - cpu.micro
+          - cpu.small
+          - cpu.medium
+          - cpu.large
+          - cpu.xlarge
+          - cpu.2xlarge
+          - cpu.3xlarge
+          - cpu.4xlarge
+          - cpu.5xlarge
+          - cpu.6xlarge
+          - cpu.7xlarge
+          - cpu.8xlarge
+          - cpu.16xlarge
+          - DRAWSR6i.4xlargeFrac8Regular
+          - DRAWSR6i.4xlargeFrac4Regular
+          - DRAWSG4dn.xlargeFrac1Regular
+          - DRAWSG4dn.2xlargeFrac1Regular
+          - DRAWSG5.2xlargeFrac1Regular
+          - DRAWSG5.12xlargeFrac1Regular
+          - DRAWSG5.48xlargeFrac1Regular
+          - DRAWSG6e.xlargeFrac1Regular
+          - DRAWSG6e.12xlargeFrac1Regular
+          - DRAWSG6e.48xlargeFrac1Regular
+          - gpu.small
+          - gpu.medium
+          - gpu.large
+          - gpu.xlarge
+          - gpu.2xlarge
+          - gpu.3xlarge
+          - gpu.5xlarge
+          - gpu.7xlarge
+          - starter
+          - basic
+          - basic.8x
+          - train.l
+          - infer.s
+          - infer.m
+          - infer.l
+          type: string
+        description:
+          description: A description of the custom template.
+          maxLength: 10000
+          type: string
+        enabled:
+          description: Disabled templates remain visible in the UI but cannot be used.
+          type: boolean
+          x-versionadded: v2.36
+        file:
+          description: The file to be used to create the custom template.
+          format: binary
+          type: string
+        isHidden:
+          description: Hidden templates are not visible in the UI.
+          type: boolean
+          x-versionadded: v2.37
+        name:
+          description: The name of the custom template.
+          maxLength: 255
+          type: string
+        templateMetadata:
+          description: Specifies permanent metadata for the custom template.
+          type:
+          - string
+          - 'null'
+        templateSubType:
+          description: Defines the sub-type of the custom template.
+          maxLength: 255
+          type: string
+        templateType:
+          description: Defines the type of the custom template.
+          maxLength: 255
+          type: string
+      type: object
+      x-versionadded: v2.36
+    CustomApplicationLogs:
+      properties:
+        buildError:
+          description: The build error of the custom application.
+          type: string
+        buildLog:
+          description: The build log of the custom application.
+          type: string
+        buildStatus:
+          description: The build status of the custom application.
+          type: string
+        logs:
+          description: The logs of the custom application.
+          items:
+            type: string
+          maxItems: 1000
+          type: array
+      required:
+      - logs
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationResourcesResponse:
+      description: The resource configuration for the application, including CPU, memory, replicas, etc.
+      properties:
+        cpuLimit:
+          description: The CPU core limit for a container.
+          type: number
+        cpuRequest:
+          description: The requested CPU cores for a container.
+          type: number
+        healthEndpointPath:
+          description: The path used by the Kubernetes health probe for liveness and readiness checks. When set, this takes precedence over the path derived from `serviceWebRequestsOnRootPath`. Use this to expose a dedicated health endpoint (e.g., `/healthz`) instead of probing the root path.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.43
+        memoryLimit:
+          description: The memory limit for a container in bytes.
+          type: integer
+        memoryRequest:
+          description: The requested memory for a container in bytes.
+          type: integer
+        replicas:
+          description: The number of running application replicas.
+          type: integer
+        resourceLabel:
+          description: The ID of the resource request bundle used for custom application.
+          type: string
+        serviceWebRequestsOnRootPath:
+          description: Sets whether applications made from this source version expect to receive requests on `/` or on `/apps/{ID}` by default.
+          type: boolean
+        sessionAffinity:
+          description: The session affinity for an application.
+          type: boolean
+        storageLimit:
+          description: The ephemeral storage limit for a container in bytes.
+          type: integer
+          x-versionadded: v2.42
+        storageRequest:
+          description: The requested ephemeral storage for a container in bytes.
+          type: integer
+          x-versionadded: v2.42
+      required:
+      - cpuLimit
+      - cpuRequest
+      - healthEndpointPath
+      - memoryLimit
+      - memoryRequest
+      - replicas
+      - resourceLabel
+      - serviceWebRequestsOnRootPath
+      - sessionAffinity
+      - storageLimit
+      - storageRequest
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceVersion:
+      description: The latest version of the source.
+      properties:
+        baseEnvironmentId:
+          description: The ID of the environment used for this source.
+          type:
+          - string
+          - 'null'
+        baseEnvironmentVersionId:
+          description: The ID of the environment version used for this source.
+          type:
+          - string
+          - 'null'
+        createdAt:
+          description: The timestamp of when the application source version was created.
+          type: string
+        createdBy:
+          description: The username of who created the application source version.
+          type:
+          - string
+          - 'null'
+        creatorFirstName:
+          description: The first name of who created the application source version.
+          type:
+          - string
+          - 'null'
+        creatorLastName:
+          description: The last name of who created the application source version.
+          type:
+          - string
+          - 'null'
+        creatorUserhash:
+          description: The Gravatar hash of user who created the application source version.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The custom application source version ID.
+          type: string
+        isFrozen:
+          description: Marks that this version has become immutable.
+          type: boolean
+        items:
+          description: The list of file items.
+          items:
+            $ref: '#/components/schemas/WorkspaceItemResponse'
+          maxItems: 1000
+          type: array
+        label:
+          description: The label of the custom application source version.
+          maxLength: 255
+          minLength: 1
+          type:
+          - string
+          - 'null'
+        updatedAt:
+          description: The timestamp when the application source version was modified.
+          type: string
+        userId:
+          description: Creator's ID.
+          type: string
+      required:
+      - baseEnvironmentId
+      - baseEnvironmentVersionId
+      - createdAt
+      - id
+      - isFrozen
+      - items
+      - label
+      - updatedAt
+      - userId
+      type: object
+      x-versionadded: v2.35
+    CustomApplicationItemRetrieve:
+      properties:
+        content:
+          description: The textual content of the file item.
+          type: string
+        fileName:
+          description: The name of the file item.
+          type: string
+        filePath:
+          description: The full internal path of the file item.
+          type: string
+        id:
+          description: The ID of the file item.
+          type: string
+      required:
+      - content
+      - fileName
+      - filePath
+      - id
+      type: object
+      x-versionadded: v2.37
+    TemplateTypeSpecificResources:
+      description: Specifies resources for the custom template.
+      properties:
+        serviceWebRequestsOnRootPath:
+          default: false
+          description: Whether the 'service_web_requests_on_root_path' resource should be enabled on the custom app.
+          type:
+          - boolean
+          - 'null'
+      type: object
+      x-versionadded: v2.36
+    CustomApplicationCreate:
+      properties:
+        applicationSourceId:
+          description: The ID of the custom application source to be used for the new application. The latest version version will be chosen.
+          type: string
+        applicationSourceVersionId:
+          description: The ID of the custom application source version to be used for the new application.
+          type: string
+        environmentId:
+          description: The execution environment ID for the application.
+          type: string
+        name:
+          description: The name of the custom application.
+          maxLength: 512
+          type:
+          - string
+          - 'null'
+        resources:
+          $ref: '#/components/schemas/CustomApplicationResources'
+      type: object
+      x-versionadded: v2.37
+    SharingListV2Response:
+      properties:
+        count:
+          description: The number of items returned.
+          type: integer
+        data:
+          description: The access control list.
+          items:
+            $ref: '#/components/schemas/AccessControlV2'
+          maxItems: 1000
+          type: array
+        next:
+          description: The URL pointing to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL pointing to the previous page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items matching the condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    CustomApplicationSourceVersionListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of custom application source version objects.
+          items:
+            $ref: '#/components/schemas/CustomApplicationSourceVersion'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceFromGalleryTemplateCreate:
+      properties:
+        customTemplateId:
+          description: The custom template ID for the custom application.
+          type: string
+      required:
+      - customTemplateId
+      type: object
+      x-versionadded: v2.35
+    Probe:
+      description: Readiness probe definition.
+      type: object
+      x-versionadded: v2.47
+    CustomTemplateFile:
+      properties:
+        id:
+          description: The ID of the custom template file.
+          type: string
+        name:
+          description: Name of the custom template file.
+          maxLength: 255
+          type: string
+      required:
+      - id
+      - name
+      type: object
+      x-versionadded: v2.36
+    CustomApplicationListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The array of custom application objects.
+          items:
+            $ref: '#/components/schemas/CustomApplication'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceVersionUpdate:
+      properties:
+        baseEnvironmentId:
+          description: The base environment to use with this source version.
+          type: string
+        baseEnvironmentVersionId:
+          description: The base environment version ID to use with this source version.
+          type: string
+        file:
+          description: 'A file with code for a custom task or a custom model. For each file supplied as form data, you must have a corresponding `filePath` supplied that shows the relative location of the file. For example, you have two files: `/home/username/custom-task/main.py` and `/home/username/custom-task/helpers/helper.py`. When uploading these files, you would _also_ need to include two `filePath` fields of, `"main.py"` and `"helpers/helper.py"`. If the supplied `file` already exists at the supplied `filePath`, the old file is replaced by the new file.'
+          format: binary
+          type: string
+        filePath:
+          description: The local path of the file being uploaded. See the `file` field explanation for more details.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        filesToDelete:
+          description: The IDs of the files to be deleted.
+          oneOf:
+          - type: string
+          - items:
+              type: string
+            maxItems: 1000
+            type: array
+        label:
+          description: The label for new Custom App Source Version.
+          maxLength: 255
+          minLength: 1
+          type: string
+        runtimeParameters:
+          description: Full snapshot of runtime parameters to create or update. Send the complete desired state of all runtime parameters. Parameters present in payload but missing in version will be created. Parameters missing in payload but present in version will be deleted. Parameters present in both will be updated.
+          type: string
+          x-datarobot-public-preview: false
+          x-datarobot-required-feature-flags:
+          - description: Enables the addition of key-value pairs as Runtime-Parameters for Custom Inference Models.
+            enabled_by_default: true
+            maturity: GA_ALL
+            name: CUSTOM_MODEL_RUNTIME_PARAMETERS
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The array of custom application source objects.
+          items:
+            $ref: '#/components/schemas/CustomApplicationSource'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+    CustomTemplateFileResponse:
+      properties:
+        content:
+          description: The content of the chosen file.
+          type: string
+        contentEncoding:
+          description: The encoding of the content field. Either "utf-8" for text files or "base64" for binary files such as images.
+          type: string
+          x-versionadded: v2.43
+        fileName:
+          description: The name of the chosen file.
+          type: string
+        id:
+          description: The ID of the file.
+          type: string
+      required:
+      - content
+      - contentEncoding
+      - fileName
+      - id
+      type: object
+      x-versionadded: v2.38
+    CustomAppUsage:
+      properties:
+        userId:
+          description: The ID of the user (or null for a guest).
+          type:
+          - string
+          - 'null'
+        userType:
+          description: Determines whether the user was a creator, viewer, or guest at the time of visit.
+          enum:
+          - guest
+          - viewer
+          - creator
+          type:
+          - string
+          - 'null'
+        username:
+          description: The name of the user.
+          maxLength: 512
+          minLength: 1
+          type: string
+        visitTimestamp:
+          description: The date and time that user last visited the app.
+          format: date-time
+          type: string
+      required:
+      - userId
+      - userType
+      - username
+      - visitTimestamp
+      type: object
+      x-versionadded: v2.37
+    TemplateSource:
+      description: Custom template source repo.
+      type: object
+      x-versionadded: v2.36
+    CustomApplicationSource:
+      properties:
+        createdAt:
+          description: The timestamp when the application source was created.
+          type: string
+        createdBy:
+          description: The username of who created the application source.
+          type:
+          - string
+          - 'null'
+        creatorFirstName:
+          description: The first name of who created the application source.
+          type:
+          - string
+          - 'null'
+        creatorLastName:
+          description: The last name of who created the application source.
+          type:
+          - string
+          - 'null'
+        creatorUserhash:
+          description: The Gravatar hash of user who created the application source.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The custom application source ID.
+          type: string
+        latestVersion:
+          $ref: '#/components/schemas/CustomApplicationSourceVersion'
+        name:
+          description: The name of the custom application source.
+          maxLength: 255
+          minLength: 1
+          type: string
+        orgId:
+          description: The ID of the creator's organization.
+          type:
+          - string
+          - 'null'
+        permissions:
+          description: The list of permitted actions, which the authenticated user can perform on this application source.
+          items:
+            enum:
+            - CAN_PUBLISH_NEW_IMAGE
+            - CAN_CHANGE_EXTERNAL_ACCESS
+            - CAN_VIEW
+            - CAN_UPDATE
+            - CAN_DELETE
+            - CAN_SHARE
+            type: string
+          maxItems: 100
+          type: array
+        updatedAt:
+          description: The timestamp when the application source was modified.
+          type: string
+        userId:
+          description: Creator's ID.
+          type: string
+      required:
+      - createdAt
+      - id
+      - latestVersion
+      - name
+      - orgId
+      - permissions
+      - updatedAt
+      - userId
+      type: object
+      x-versionadded: v2.35
+    WorkspaceItemResponse:
+      properties:
+        commitSha:
+          description: SHA1 hash pointing to the original file revision (set only for files pulled from Git-like repositories).
+          type:
+          - string
+          - 'null'
+        created:
+          description: ISO-8601 timestamp of when the file item was created.
+          type: string
+        fileName:
+          description: The name of the file item.
+          type: string
+        filePath:
+          description: The path of the file item.
+          type: string
+        fileSource:
+          description: The source of the file item.
+          type: string
+        id:
+          description: ID of the file item.
+          type: string
+        ref:
+          description: Remote reference (branch, commit, tag). Branch "master", if not specified.
+          type:
+          - string
+          - 'null'
+        repositoryFilePath:
+          description: Full path to the file in the remote repository.
+          type:
+          - string
+          - 'null'
+        repositoryLocation:
+          description: URL to remote repository from which the file was pulled (e.g. Git server or S3 Bucket name).
+          type:
+          - string
+          - 'null'
+        repositoryName:
+          description: Name of the repository from which the file was pulled.
+          type:
+          - string
+          - 'null'
+      required:
+      - created
+      - fileName
+      - filePath
+      - fileSource
+      - id
+      type: object
+    CustomApplicationResources:
+      description: Resources required for running custom application.
+      properties:
+        healthEndpointPath:
+          description: The path used by the Kubernetes health probe for liveness and readiness checks. When set, this takes precedence over the path derived from `serviceWebRequestsOnRootPath`. Use this to expose a dedicated health endpoint (e.g., `/healthz`) instead of probing the root path.
+          maxLength: 255
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.43
+        replicas:
+          description: The number of running application replicas.
+          minimum: 0
+          type: integer
+        resourceLabel:
+          description: The ID of the resource request bundle used for custom application.
+          type: string
+        serviceWebRequestsOnRootPath:
+          description: Sets whether applications made from this source version expect to receive requests on `/` or on `/apps/{ID}` by default.
+          type:
+          - boolean
+          - 'null'
+        sessionAffinity:
+          description: The Session affinity of an application source version.
+          type:
+          - boolean
+          - 'null'
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationSourceCreate:
+      properties:
+        name:
+          description: The name of the custom application source.
+          maxLength: 255
+          minLength: 1
+          type: string
+      type: object
+      x-versionadded: v2.37
+    CustomApplicationsUsagesListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of visits to the custom application.
+          items:
+            $ref: '#/components/schemas/CustomAppUsage'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.37
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

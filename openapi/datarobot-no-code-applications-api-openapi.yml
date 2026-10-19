@@ -1,0 +1,1590 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public No Code Applications API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Read below to learn about DataRobot's endpoints for no-code applications. Reference the AI App Builder documentation for more information.
+  name: no_code_applications
+paths:
+  /api/v2/applications/:
+    get:
+      description: Paginated list of applications created by the currently authenticated user.
+      operationId: applications_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. If 0, all results.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The ID of the application
+        in: query
+        name: lid
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationList'
+          description: ''
+      summary: Paginated list of applications created by the currently authenticated user
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+    post:
+      description: Create an application. Note that the number of active applications users can have at the same time is limited.
+      operationId: applications_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+          description: ''
+        '202':
+          description: Creation has successfully started. See the Location header.
+        '403':
+          description: User does not have permission to launch application of provided type.
+        '404':
+          description: No app type matching the specified identifier found or user does not have permissions to access to this app type.
+        '422':
+          description: Application could not be created with the given input.
+      summary: Create an application
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+  /api/v2/applications/verify/:
+    post:
+      description: Verifies a user can create an app
+      operationId: applicationsVerify_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCanCreate'
+      responses:
+        '200':
+          description: App may be created
+        '403':
+          description: User does not have permission to launch application of provided type.
+        '404':
+          description: No app type matching the specified identifier found or user does not have permissions to access to this app type.
+        '422':
+          description: Application can not be created with the given input.
+      summary: Verify ability
+      tags:
+      - no_code_applications
+      x-versionadded: v2.32
+  /api/v2/applications/{applicationId}/:
+    delete:
+      description: Delete an application
+      operationId: applications_delete
+      parameters:
+      - description: Determines whether or not DataRobot deletes the underlying entity, or just marks it as deleted.
+        in: query
+        name: hard
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationParam'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The application has been deleted.
+      summary: Delete an application by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+    get:
+      description: Retrieve an application
+      operationId: applications_retrieve
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationRetrieve'
+          description: ''
+      summary: Retrieve an application by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+    patch:
+      description: Update an application's name and/or description
+      operationId: applications_patch
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationNameAndDescription'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The application has been updated.
+      summary: Update an application's name and/ by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+  /api/v2/applications/{applicationId}/accessControl/:
+    get:
+      description: A list of users who have access to this application and their roles
+      operationId: applicationsAccessControl_list
+      parameters:
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Optional, only return the access control information for a user with this username.
+        in: query
+        name: username
+        required: false
+        schema:
+          type: string
+      - description: Optional, only return the access control information for a user with this user ID.
+        in: query
+        name: userId
+        required: false
+        schema:
+          type: string
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationAccessControlList'
+          description: ''
+        '400':
+          description: Bad Request, both username and userId were specified
+        '404':
+          description: Entity not found. Either the application does not exist or the user does not have permissions to view the application.
+      summary: A list of users with access by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+    patch:
+      description: Update access control for this application. Request is processed only if updates can be performed on all entries.
+      operationId: applicationsAccessControl_patchMany
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationAccessControlUpdateRequest'
+      responses:
+        '200':
+          description: ''
+        '403':
+          description: User does not have appropriate privileges
+        '404':
+          description: Invalid applicationId provided or invalid username provided to modify access for
+      summary: Update access control by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+  /api/v2/applications/{applicationId}/deployments/:
+    post:
+      description: If application creates deployment during its lifetime, we want to have an API to link deployment with application.
+      operationId: applicationsDeployments_create
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddDeploymentToApplication'
+      responses:
+        '200':
+          description: ''
+      summary: Links a deployment by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+  /api/v2/applications/{applicationId}/deployments/{modelDeploymentId}/:
+    delete:
+      description: Delete link between application and deployment.
+      operationId: applicationsDeployments_delete
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the model deployment
+        in: path
+        name: modelDeploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationModelDeploymentParam'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The link has been deleted.
+      summary: Delete link between application by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.21
+  /api/v2/applications/{applicationId}/duplicate/:
+    post:
+      description: Create a copy of App Builder application. Note that the number of active applications users can have at the same time is limited.
+      operationId: applicationsDuplicate_create
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationDuplicate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+          description: ''
+        '202':
+          description: Dulication has successfully started. See the Location header.
+        '403':
+          description: User does not have permission to launch application of provided type.
+        '404':
+          description: App for duplication was not found
+        '422':
+          description: Application could not be created with the given input.
+      summary: Create a duplicate of the application by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.27.0
+  /api/v2/applications/{applicationId}/sharedRoles/:
+    get:
+      description: Get a list of users, groups and organizations that have an access to this application
+      operationId: applicationsSharedRoles_list
+      parameters:
+      - description: The number of records to return in the range of 1 to 100
+        in: query
+        name: limit
+        required: false
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: The number of records to skip over. Default 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+      - description: Only return roles for a user, group or organization with this name
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: Only return roles for a user, group or organization with this id
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: Specify the recipient type, one of 'user', 'group', 'organization'
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          type: string
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationSharedRolesList'
+          description: ''
+      summary: Get a list of users, groups and organizations that have an access by…
+      tags:
+      - no_code_applications
+      x-versionadded: v2.22
+    patch:
+      description: Share an application with a user, group, or organization
+      operationId: applicationsSharedRoles_patchMany
+      parameters:
+      - description: Send a notification
+        in: query
+        name: sendNotification
+        required: true
+        schema:
+          default: false
+          type: boolean
+      - description: A note to go with the project share
+        in: query
+        name: note
+        required: true
+        schema:
+          type: string
+      - description: Name of the action being taken, only 'updateRoles' is supported
+        in: query
+        name: operation
+        required: true
+        schema:
+          type: string
+      - description: Role objects, may contain up to 100 per request
+        in: query
+        name: roles
+        required: true
+        schema:
+          items:
+            $ref: '#/components/schemas/ApplicationSharedRolesEntryUpdate'
+          maxItems: 100
+          type: array
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSharingUpdateOrRemove'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The roles updated successfully
+        '422':
+          description: The request was formatted improperly.
+      summary: Share an application by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.22
+  /api/v2/applications/{applicationId}/userRole/:
+    get:
+      description: Get application user role
+      operationId: applicationUserRole_retrieve
+      parameters:
+      - description: The ID of the application
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationUserRoleResponse'
+          description: user's role on application entity, taking into account RBAC, groups and organization.
+      summary: Get application user role by application ID
+      tags:
+      - no_code_applications
+      x-versionadded: v2.24
+  /api/v2/codeSnippets/:
+    get:
+      description: Retrieve a list of available code snippets for the given parameters.
+      operationId: codeSnippets_list
+      parameters:
+      - description: The selected template type the generated snippet or notebook should be for (i.e. dataset, model, etc.).
+        in: query
+        name: templateType
+        required: true
+        schema:
+          enum:
+          - model
+          - prediction
+          - workload
+          type: string
+      - description: The selected language the generated snippet or notebook should be written in.
+        in: query
+        name: language
+        required: true
+        schema:
+          enum:
+          - curl
+          - powershell
+          - python
+          - qlik
+          type: string
+      - description: Optional comma separated list of sub filters to limit the returned notebooks.
+        in: query
+        name: filters
+        required: false
+        schema:
+          maxLength: 255
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeSnippetListResponse'
+          description: The list of snippets with descriptions and ID tags.
+      summary: Retrieve available code snippets
+      tags:
+      - no_code_applications
+      x-versionadded: v2.35
+    post:
+      description: Retrieve a code snippet to be displayed in the UI.
+      operationId: codeSnippets_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeSnippetCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeSnippetResponse'
+          description: The generated code snippet.
+      summary: Retrieve a code snippet
+      tags:
+      - no_code_applications
+      x-versionadded: v2.35
+  /api/v2/codeSnippets/download/:
+    post:
+      description: Retrieve a code snippet to be displayed in the UI.
+      operationId: codeSnippetsDownload_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeSnippetCreate'
+      responses:
+        '200':
+          description: The code snippet file of the selected code snippet.
+      summary: Create download (no_code_applications)
+      tags:
+      - no_code_applications
+      x-versionadded: v2.35
+components:
+  schemas:
+    WorkloadSnippet:
+      properties:
+        showSecrets:
+          default: 'False'
+          description: If true, the DATAROBOT_KEY and DATAROBOT_API_KEY will be available in the context.
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+        workloadId:
+          description: The selected workload ID.
+          type: string
+      required:
+      - workloadId
+      type: object
+      x-versionadded: v2.41
+    ApplicationRetrieve:
+      properties:
+        applicationTemplateType:
+          description: Application template type, purpose
+          type:
+          - string
+          - 'null'
+        applicationTypeId:
+          description: The ID of the type of the application
+          type: string
+        cloudProvider:
+          description: The host of this application
+          type: string
+        createdAt:
+          description: The timestamp when the application was created
+          type: string
+        createdBy:
+          description: The username of who created the application.
+          type:
+          - string
+          - 'null'
+        creatorFirstName:
+          description: Application creator first name
+          type:
+          - string
+          - 'null'
+        creatorLastName:
+          description: Application creator last name
+          type:
+          - string
+          - 'null'
+        creatorUserhash:
+          description: Application creator userhash
+          type:
+          - string
+          - 'null'
+        datasets:
+          description: The list of datasets IDs associated with the application
+          items:
+            type: string
+          type: array
+        deactivationStatusId:
+          description: The ID of the status object to track the asynchronous app deactivation process status. Will be null if the app was never deactivated.
+          type:
+          - string
+          - 'null'
+        deploymentIds:
+          description: A list of deployment IDs for this app
+          items:
+            description: The ID of one deployment
+            type: string
+          type: array
+        deploymentName:
+          description: Name of the deployment
+          type:
+          - string
+          - 'null'
+        deploymentStatusId:
+          description: ' The ID of the status object to track the asynchronous deployment process status'
+          type: string
+        deployments:
+          description: A list of deployment details
+          items:
+            $ref: '#/components/schemas/ApplicationDeployment'
+          type:
+          - array
+          - 'null'
+        description:
+          description: A description of the application.
+          type: string
+        hasCustomLogo:
+          description: Whether the app has a custom logo
+          type: boolean
+        id:
+          description: The ID of the created application
+          type: string
+        modelDeploymentId:
+          description: The ID of the model deployment. The deployed application will use this deployment to make predictions.
+          type:
+          - string
+          - 'null'
+        name:
+          description: The name of the application
+          type: string
+        orgId:
+          description: ID of the app's organization
+          type: string
+        orgName:
+          description: Name of the app's organization
+          type:
+          - string
+          - 'null'
+        permissions:
+          description: The list of permitted actions, which the authenticated user can perform on this application.
+          items:
+            enum:
+            - CAN_DELETE
+            - CAN_SHARE
+            - CAN_UPDATE
+            - CAN_VIEW
+            type: string
+          type: array
+        poolUsed:
+          description: Whether the pool where used for last app deployment
+          type: boolean
+        realtimePredictionsSupport:
+          description: Sets whether you can do realtime predictions in the app.
+          type: boolean
+          x-versionadded: v2.34
+        relatedEntities:
+          $ref: '#/components/schemas/ApplicationRelatedEntities'
+        updatedAt:
+          description: The timestamp when the application was updated
+          type: string
+        userId:
+          description: The ID of the user which created the application
+          type: string
+      required:
+      - applicationTemplateType
+      - applicationTypeId
+      - cloudProvider
+      - createdAt
+      - createdBy
+      - creatorFirstName
+      - creatorLastName
+      - creatorUserhash
+      - datasets
+      - deactivationStatusId
+      - deploymentIds
+      - deploymentName
+      - deploymentStatusId
+      - deployments
+      - hasCustomLogo
+      - id
+      - name
+      - orgId
+      - permissions
+      - poolUsed
+      - realtimePredictionsSupport
+      - updatedAt
+      - userId
+      type: object
+    ApplicationSharedRolesEntry:
+      properties:
+        id:
+          description: The id of the recipient
+          type: string
+        name:
+          description: The name of the user, group, or organization.
+          type: string
+        role:
+          description: The assigned role
+          enum:
+          - OWNER
+          - USER
+          - CONSUMER
+          - EDITOR
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The recipient type
+          enum:
+          - user
+          - group
+          - organization
+          type: string
+      required:
+      - id
+      - name
+      - role
+      - shareRecipientType
+      type: object
+    SharingRole:
+      description: 'External sharing roles representing the permission level a user, group or
+
+        organization holds on an entity.
+
+
+        These roles map to internal permissions and are used in sharing APIs.'
+      enum:
+      - NO_ROLE
+      - OWNER
+      - READ_WRITE
+      - EDITOR
+      - USER
+      - DATA_SCIENTIST
+      - ADMIN
+      - READ_ONLY
+      - CONSUMER
+      - OBSERVER
+      title: SharingRole
+      type: string
+    ApplicationAccessControlData:
+      properties:
+        canShare:
+          description: Whether this user can share with other users
+          type: boolean
+        role:
+          description: The role of the user on this application
+          type: string
+        userId:
+          description: The ID of the user
+          type: string
+        username:
+          description: Username of a user with access to this application
+          type: string
+      required:
+      - canShare
+      - role
+      - userId
+      - username
+      type: object
+    GrantAccessControlWithUsername:
+      description: Grant access control request using username for user identification.
+      properties:
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+        username:
+          description: Username of the user to update the access role for.
+          title: Username
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      - username
+      title: GrantAccessControlWithUsername
+      type: object
+    ApplicationCreate:
+      properties:
+        applicationTypeId:
+          description: The ID of the of application to be created.
+          type: string
+        authenticationType:
+          default: invitedUsersOnly
+          description: Authentication type
+          enum:
+          - invitedUsersOnly
+          - token
+          type:
+          - string
+          - 'null'
+        cloudProvider:
+          default: drcloud
+          description: The optional cloud provider
+          enum:
+          - drcloud
+          - heroku
+          type: string
+        description:
+          description: The description of the application
+          maxLength: 512
+          type:
+          - string
+          - 'null'
+        experimentContainerId:
+          description: '[DEPRECATED - replaced with use_case_id] The ID of the experiment container associated with the application.'
+          type: string
+        modelDeploymentId:
+          description: The ID of the model deployment. The deployed application will use this deployment to make predictions.
+          type: string
+        name:
+          description: The name of the app
+          maxLength: 512
+          minLength: 1
+          type: string
+        purpose:
+          description: An optional field to describe the purpose of the application.
+          type:
+          - string
+          - 'null'
+        sources:
+          description: The sources for this application
+          items:
+            $ref: '#/components/schemas/ApplicationCreateSources'
+          type: array
+        useCaseId:
+          description: The ID of the Use Case associated with the application.
+          type: string
+      type: object
+    ApplicationList:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of Application objects
+          items:
+            $ref: '#/components/schemas/Application'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+    ApplicationParam:
+      properties:
+        applicationId:
+          description: The ID of the application
+          type: string
+      required:
+      - applicationId
+      type: object
+    SubjectType:
+      description: Enum of possible subject types.
+      enum:
+      - user
+      - group
+      - organization
+      - role
+      - externalApplication
+      title: SubjectType
+      type: string
+    CodeSnippetItem:
+      properties:
+        description:
+          description: The descriptive text to be displayed in the UI.
+          maxLength: 255
+          minLength: 1
+          type: string
+        snippetId:
+          description: The ID of this snippet.
+          maxLength: 255
+          minLength: 1
+          type: string
+        templating:
+          description: A list of templating variables that will be used in the snippet.
+          items:
+            type: string
+          maxItems: 255
+          type: array
+        title:
+          description: The title of the snippet.
+          maxLength: 255
+          minLength: 1
+          type: string
+      required:
+      - description
+      - snippetId
+      - templating
+      - title
+      type: object
+      x-versionadded: v2.35
+    ApplicationUserRoleResponse:
+      properties:
+        role:
+          description: The role of the user on this entity.
+          type: string
+      required:
+      - role
+      type: object
+    ApplicationSharedRolesEntryUpdate:
+      properties:
+        id:
+          description: The id of the recipient
+          type: string
+        role:
+          description: The assigned role
+          enum:
+          - OWNER
+          - USER
+          - CONSUMER
+          - NO_ROLE
+          type: string
+        shareRecipientType:
+          description: The recipient type
+          enum:
+          - user
+          - group
+          - organization
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      type: object
+    CodeSnippetResponse:
+      properties:
+        codeSnippet:
+          description: A UTF-8 encoded code snippet generated for the user.
+          type: string
+        snippetId:
+          description: The selected snippet to be returned to the user.
+          type: string
+      required:
+      - codeSnippet
+      - snippetId
+      type: object
+      x-versionadded: v2.35
+    ApplicationRelatedEntities:
+      description: IDs of entities, related to app for easy search
+      properties:
+        isFromExperimentContainer:
+          description: '[DEPRECATED - replaced with is_from_use_case] Whether the app was created from an experiment container'
+          type: boolean
+        isFromUseCase:
+          description: Whether the app was created from an Use Case
+          type: boolean
+        isTrialOrganization:
+          description: Whether the app was created from by trial customer
+          type: boolean
+        modelId:
+          description: The ID of the associated model
+          type: string
+        projectId:
+          description: The ID of the associated project
+          type: string
+      type: object
+    ApplicationSharingUpdateOrRemove:
+      properties:
+        note:
+          default: ''
+          description: A note to go with the project share
+          type: string
+        operation:
+          description: Name of the action being taken. The only operation is 'updateRoles'.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: Array of GrantAccessControl objects., up to maximum 100 objects.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/GrantAccessControlWithUsername'
+            - $ref: '#/components/schemas/GrantAccessControlWithId'
+          maxItems: 100
+          minItems: 1
+          type: array
+        sendNotification:
+          default: false
+          description: Send a notification?
+          type: boolean
+      required:
+      - operation
+      - roles
+      type: object
+    GrantAccessControlWithId:
+      description: 'Grant access control request using ID for recipient identification.
+
+
+        Can be used for users, groups, organizations, or external applications.'
+      properties:
+        id:
+          description: The ID of the recipient.
+          title: Id
+          type: string
+        role:
+          $ref: '#/components/schemas/SharingRole'
+          description: The role of the recipient on this entity.
+          enum:
+          - ADMIN
+          - CONSUMER
+          - DATA_SCIENTIST
+          - EDITOR
+          - NO_ROLE
+          - OBSERVER
+          - OWNER
+          - READ_ONLY
+          - READ_WRITE
+          - USER
+          type: string
+        shareRecipientType:
+          $ref: '#/components/schemas/SubjectType'
+          description: Describes the recipient type — one of user, group, organization, or externalApplication.
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      title: GrantAccessControlWithId
+      type: object
+    PredictionSnippetModel:
+      properties:
+        cliScript:
+          default: true
+          description: When combined with is_standalone, a true value returns an example CLI run script for a snippet, while a false value returns an example executable script.
+          type: boolean
+          x-versionadded: v2.35
+        deploymentId:
+          description: The selected deployment ID.
+          type: string
+        isBatchPrediction:
+          default: true
+          description: If true, returns snippet that can be used to make batch predictions. Not valid with time series projects.
+          type: boolean
+        isLowLatencyPrediction:
+          default: false
+          description: If true, returns snippet that can be used to make low latency predictions.Valid for Feature Discovery projects.
+          type: boolean
+        isStandalone:
+          default: false
+          description: If true, returns an example script for a snippet.
+          type: boolean
+        showSecrets:
+          default: false
+          description: If true, the DATAROBOT_KEY AND DATROBOT_API_KEY will be available in the context.
+          type: boolean
+        testMode:
+          default: false
+          description: Generate a snippet with mocked information.
+          type: boolean
+        withApiClient:
+          default: true
+          description: Instead of raw Python code in the example, show a snippet using the DataRobot Python API client.
+          type: boolean
+      required:
+      - deploymentId
+      type: object
+      x-versionadded: v2.35
+    ApplicationDeployment:
+      properties:
+        deploymentId:
+          description: The ID of the deployment
+          type: string
+        referenceName:
+          description: The reference name of the deployment
+          type: string
+      required:
+      - deploymentId
+      - referenceName
+      type: object
+    Application:
+      properties:
+        applicationTemplateType:
+          description: Application template type, purpose
+          type:
+          - string
+          - 'null'
+        applicationTypeId:
+          description: The ID of the type of the application
+          type: string
+        cloudProvider:
+          description: The host of this application
+          type: string
+        createdAt:
+          description: The timestamp when the application was created
+          type: string
+        createdBy:
+          description: The username of who created the application.
+          type:
+          - string
+          - 'null'
+        creatorFirstName:
+          description: Application creator first name
+          type:
+          - string
+          - 'null'
+        creatorLastName:
+          description: Application creator last name
+          type:
+          - string
+          - 'null'
+        creatorUserhash:
+          description: Application creator userhash
+          type:
+          - string
+          - 'null'
+        datasets:
+          description: The list of datasets IDs associated with the application
+          items:
+            type: string
+          type: array
+        deactivationStatusId:
+          description: The ID of the status object to track the asynchronous app deactivation process status. Will be null if the app was never deactivated.
+          type:
+          - string
+          - 'null'
+        deploymentIds:
+          description: A list of deployment IDs for this app
+          items:
+            description: The ID of one deployment
+            type: string
+          type: array
+        deploymentName:
+          description: Name of the deployment
+          type:
+          - string
+          - 'null'
+        deploymentStatusId:
+          description: ' The ID of the status object to track the asynchronous deployment process status'
+          type: string
+        deployments:
+          description: A list of deployment details
+          items:
+            $ref: '#/components/schemas/ApplicationDeployment'
+          type:
+          - array
+          - 'null'
+        description:
+          description: A description of the application.
+          type: string
+        hasCustomLogo:
+          description: Whether the app has a custom logo
+          type: boolean
+        id:
+          description: The ID of the created application
+          type: string
+        modelDeploymentId:
+          description: The ID of the associated model deployment
+          type: string
+        name:
+          description: The name of the application
+          type: string
+        orgId:
+          description: ID of the app's organization
+          type: string
+        orgName:
+          description: Name of the app's organization
+          type:
+          - string
+          - 'null'
+        permissions:
+          description: The list of permitted actions, which the authenticated user can perform on this application.
+          items:
+            enum:
+            - CAN_DELETE
+            - CAN_SHARE
+            - CAN_UPDATE
+            - CAN_VIEW
+            type: string
+          type: array
+        poolUsed:
+          description: Whether the pool where used for last app deployment
+          type: boolean
+        realtimePredictionsSupport:
+          description: Sets whether you can do realtime predictions in the app.
+          type: boolean
+          x-versionadded: v2.34
+        relatedEntities:
+          $ref: '#/components/schemas/ApplicationRelatedEntities'
+        updatedAt:
+          description: The timestamp when the application was updated
+          type: string
+        userId:
+          description: The ID of the user which created the application
+          type: string
+      required:
+      - applicationTemplateType
+      - applicationTypeId
+      - cloudProvider
+      - createdAt
+      - createdBy
+      - creatorFirstName
+      - creatorLastName
+      - creatorUserhash
+      - datasets
+      - deactivationStatusId
+      - deploymentIds
+      - deploymentName
+      - deploymentStatusId
+      - deployments
+      - hasCustomLogo
+      - id
+      - modelDeploymentId
+      - name
+      - orgId
+      - permissions
+      - poolUsed
+      - realtimePredictionsSupport
+      - updatedAt
+      - userId
+      type: object
+    ApplicationAccessControlUpdateRequest:
+      properties:
+        data:
+          description: An array of AccessControlPermissionValidator objects
+          items:
+            $ref: '#/components/schemas/ApplicationAccessPermission'
+          type: array
+        permissions:
+          description: The list of permission objects describing which users to modify access for.
+          items:
+            $ref: '#/components/schemas/ApplicationAccessPermission'
+          type: array
+      required:
+      - data
+      type: object
+    CodeSnippetCreate:
+      properties:
+        config:
+          description: Template type specific configuration used to generate a snippet or notebook.
+          oneOf:
+          - $ref: '#/components/schemas/ModelSnippetModel'
+          - $ref: '#/components/schemas/PredictionSnippetModel'
+          - $ref: '#/components/schemas/WorkloadSnippet'
+        language:
+          description: The selected language the generated snippet or notebook should be written in.
+          enum:
+          - curl
+          - powershell
+          - python
+          - qlik
+          type: string
+        snippetId:
+          description: The selected snippet to be returned to the user. This field is optional for Prediction snippets.
+          maxLength: 255
+          minLength: 1
+          type: string
+        templateType:
+          description: The selected template type the generated snippet or notebook should be for (i.e. dataset, model, etc.).
+          enum:
+          - model
+          - prediction
+          - workload
+          type: string
+      required:
+      - config
+      - language
+      - templateType
+      type: object
+      x-versionadded: v2.35
+    ApplicationNameAndDescription:
+      properties:
+        description:
+          description: The description of the application
+          maxLength: 512
+          type:
+          - string
+          - 'null'
+        name:
+          description: The name of the app
+          maxLength: 512
+          minLength: 1
+          type: string
+      type: object
+    ApplicationAccessControlList:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: An array of AccessControlData objects
+          items:
+            $ref: '#/components/schemas/ApplicationAccessControlData'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+      required:
+      - data
+      - next
+      - previous
+      type: object
+    ApplicationDuplicate:
+      properties:
+        authenticationType:
+          default: invitedUsersOnly
+          description: Authentication type
+          enum:
+          - invitedUsersOnly
+          - token
+          type:
+          - string
+          - 'null'
+        description:
+          description: The description of the application
+          maxLength: 512
+          type:
+          - string
+          - 'null'
+        duplicatePredictions:
+          default: false
+          description: Import all predictions from the source application
+          type: boolean
+        name:
+          description: The name of the app
+          maxLength: 512
+          minLength: 1
+          type: string
+      type: object
+    AddDeploymentToApplication:
+      properties:
+        linkName:
+          description: Internal name of deployment to match in the application
+          type: string
+        modelDeploymentId:
+          description: The ID of the model deployment to link to the application.
+          type: string
+      required:
+      - modelDeploymentId
+      type: object
+    ApplicationDeploymentSource:
+      properties:
+        modelDeploymentId:
+          description: The ID of the model deployment
+          type: string
+      required:
+      - modelDeploymentId
+      type: object
+    ApplicationCreateSources:
+      properties:
+        info:
+          description: Information about the Deployment or the Model
+          oneOf:
+          - $ref: '#/components/schemas/ApplicationDeploymentSource'
+          - $ref: '#/components/schemas/ApplicationModelSource'
+        name:
+          description: The name of this source.
+          type: string
+        source:
+          description: Information about the source for this application.
+          enum:
+          - deployment
+          - model
+          type: string
+      required:
+      - info
+      - source
+      type: object
+    ModelSnippetModel:
+      properties:
+        modelId:
+          description: The selected model ID.
+          type: string
+        projectId:
+          description: The selected project ID.
+          type: string
+        showSecrets:
+          default: 'False'
+          description: If true, the DATAROBOT_KEY and DATAROBOT_API_KEY will be available in the context.
+          enum:
+          - 'false'
+          - 'False'
+          - 'true'
+          - 'True'
+          type: string
+      required:
+      - modelId
+      - projectId
+      type: object
+      x-versionadded: v2.35
+    ApplicationModelDeploymentParam:
+      properties:
+        applicationId:
+          description: The ID of the application
+          type: string
+        modelDeploymentId:
+          description: The ID of the model deployment
+          type: string
+      required:
+      - applicationId
+      - modelDeploymentId
+      type: object
+    ApplicationAccessPermission:
+      properties:
+        role:
+          description: The role to grant to the user, or "" (empty string) to remove the users access
+          enum:
+          - CONSUMER
+          - EDITOR
+          - OWNER
+          - ''
+          type: string
+        username:
+          description: The username of the user to modify access for
+          type: string
+      required:
+      - role
+      - username
+      type: object
+    ApplicationModelSource:
+      properties:
+        modelId:
+          description: The ID of the model
+          type: string
+        predictionThreshold:
+          description: Threshold used for binary classification in predictions
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        projectId:
+          description: The ID of the project
+          type: string
+      required:
+      - modelId
+      - projectId
+      type: object
+    ApplicationSharedRolesList:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: Details about the Shared Role entries
+          items:
+            $ref: '#/components/schemas/ApplicationSharedRolesEntry'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: Number of items matching to the query condition
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ApplicationCanCreate:
+      properties:
+        experimentContainerId:
+          description: The ID of the experiment container (for apps from an experiment container
+          type: string
+        projectId:
+          description: The ID of the project (for apps from leaderboard)
+          type: string
+        sourceId:
+          description: The ID of the source
+          type: string
+        sourceType:
+          description: Whether the app is from a deployment or a project
+          enum:
+          - deployment
+          - model
+          type: string
+      required:
+      - sourceId
+      - sourceType
+      type: object
+    CodeSnippetListResponse:
+      properties:
+        codeSnippets:
+          description: A list of the available snippets for a given language and template type.
+          items:
+            $ref: '#/components/schemas/CodeSnippetItem'
+          maxItems: 22
+          type: array
+      required:
+      - codeSnippets
+      type: object
+      x-versionadded: v2.35
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

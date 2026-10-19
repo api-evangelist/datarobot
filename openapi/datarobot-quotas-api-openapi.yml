@@ -1,0 +1,493 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Quotas API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage resource quotas. Quotas provide limits on resource consumption for deployments, models, and other DataRobot resources to ensure fair usage and prevent resource exhaustion.
+  name: Quotas
+paths:
+  /api/v2/quotaTemplates/:
+    get:
+      operationId: quotaTemplates_list
+      parameters:
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          maximum: 10000
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaTemplateListResponse'
+          description: ''
+      summary: Retrieve Quota Templates
+      tags:
+      - Quotas
+      x-versionadded: v2.39
+  /api/v2/quotaTemplates/{quotaTemplateId}/:
+    get:
+      operationId: quotaTemplates_retrieve
+      parameters:
+      - description: Specific quota template ID
+        in: path
+        name: quotaTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaTemplateResponse'
+          description: ''
+      summary: Retrieve Quota Templates by quota template ID
+      tags:
+      - Quotas
+      x-versionadded: v2.39
+  /api/v2/quotas/:
+    get:
+      operationId: quotas_list
+      parameters:
+      - description: Resource ID for which quota is configured
+        in: query
+        name: resourceId
+        required: false
+        schema:
+          type: string
+      - description: Resource Type for which quota is configured
+        in: query
+        name: resourceType
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          maximum: 10000
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaListResponse'
+          description: ''
+      summary: Retrieve Quotas
+      tags:
+      - Quotas
+      x-versionadded: v2.39
+    post:
+      operationId: quotas_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaResponse'
+          description: ''
+      summary: Create Quotas
+      tags:
+      - Quotas
+      x-versionadded: v2.43
+  /api/v2/quotas/{quotaId}/:
+    delete:
+      operationId: quotas_delete
+      parameters:
+      - description: Specific quota ID
+        in: path
+        name: quotaId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The quota has been deleted.
+      summary: Delete Quotas by quota ID
+      tags:
+      - Quotas
+      x-versionadded: v2.39
+    get:
+      operationId: quotas_retrieve
+      parameters:
+      - description: Specific quota ID
+        in: path
+        name: quotaId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaResponse'
+          description: ''
+      summary: Retrieve Quotas by quota ID
+      tags:
+      - Quotas
+      x-versionadded: v2.39
+    patch:
+      operationId: quotas_patch
+      parameters:
+      - description: Specific quota ID
+        in: path
+        name: quotaId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaResponse'
+          description: ''
+      summary: Modify Quotas by quota ID
+      tags:
+      - Quotas
+      x-versionadded: v2.39
+components:
+  schemas:
+    QuotaTemplateResponse:
+      properties:
+        id:
+          description: Unique identifier for the quota template
+          type: string
+        name:
+          description: Name of the quota template
+          type: string
+        rules:
+          description: List of quota rules in this template
+          items:
+            $ref: '#/components/schemas/QuotaRule'
+          maxItems: 100
+          type: array
+      required:
+      - id
+      - name
+      - rules
+      type: object
+      x-versionadded: v2.39
+    QuotaCapacity:
+      description: Resource capacity
+      properties:
+        capacity:
+          description: Capacity value
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+        units:
+          description: Capacity type
+          enum:
+          - requests
+          - token
+          type: string
+      required:
+      - capacity
+      - units
+      type: object
+      x-versionadded: v2.42
+    QuotaResponse:
+      properties:
+        capacity:
+          $ref: '#/components/schemas/QuotaCapacity'
+          default: null
+          x-versionadded: v2.42
+        defaultRules:
+          description: List of default quota rules
+          items:
+            $ref: '#/components/schemas/QuotaRule'
+          maxItems: 100
+          type: array
+        id:
+          description: Unique identifier for the quota
+          type: string
+        policies:
+          description: List of quota policies to overwrite quota per specific consumer
+          items:
+            $ref: '#/components/schemas/QuotaPolicy'
+          maxItems: 10000
+          type: array
+        resourceId:
+          description: ID of the specific resource
+          type: string
+        resourceType:
+          description: Type of resource the quota applies to
+          enum:
+          - deployment
+          - workload
+          type: string
+        saturationThreshold:
+          description: Saturation threshold to enable guaranteed quotas
+          maximum: 1.0
+          minimum: 0.0
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.42
+        userId:
+          description: ID of the user associated with the quota
+          type: string
+      required:
+      - defaultRules
+      - id
+      - policies
+      - resourceId
+      - resourceType
+      - userId
+      type: object
+      x-versionadded: v2.39
+    QuotaUpdate:
+      properties:
+        capacity:
+          $ref: '#/components/schemas/QuotaCapacity'
+          x-versionadded: v2.42
+        defaultRules:
+          description: List of default quota rules
+          items:
+            $ref: '#/components/schemas/QuotaRule'
+          maxItems: 100
+          type: array
+        policies:
+          description: List of quota policies to overwrite quota per specific consumer
+          items:
+            $ref: '#/components/schemas/QuotaPolicy'
+          maxItems: 10000
+          type: array
+        saturationThreshold:
+          description: Saturation threshold
+          maximum: 1.0
+          minimum: 0.0
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.42
+      type: object
+      x-versionadded: v2.39
+    QuotaCreate:
+      properties:
+        capacity:
+          $ref: '#/components/schemas/QuotaCapacity'
+        defaultRules:
+          description: List of default quota rules.
+          items:
+            $ref: '#/components/schemas/QuotaRule'
+          maxItems: 100
+          type: array
+        policies:
+          description: List of quota policies to overwrite quota, per specific consumer.
+          items:
+            $ref: '#/components/schemas/QuotaPolicy'
+          maxItems: 10000
+          type: array
+        resourceId:
+          description: The ID of the resource.
+          type: string
+        resourceType:
+          description: Type of resource the quota applies to.
+          enum:
+          - deployment
+          - workload
+          type: string
+        saturationThreshold:
+          description: Saturation threshold.
+          maximum: 1.0
+          minimum: 0.0
+          type:
+          - number
+          - 'null'
+      required:
+      - defaultRules
+      - resourceId
+      - resourceType
+      type: object
+      x-versionadded: v2.43
+    QuotaPolicy:
+      properties:
+        consumerId:
+          description: ID of the consumer
+          type: string
+        consumerName:
+          description: Consumer name
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.39
+        consumerType:
+          description: Type of consumer
+          enum:
+          - deployment
+          - user
+          - usergroup
+          type: string
+        reserved:
+          description: Reserved resource percentage
+          maximum: 1.0
+          minimum: 0.0
+          type:
+          - number
+          - 'null'
+          x-versionadded: v2.42
+        rules:
+          description: List of quota rules for this policy
+          items:
+            $ref: '#/components/schemas/QuotaRule'
+          maxItems: 100
+          type: array
+      required:
+      - consumerId
+      - consumerType
+      - rules
+      type: object
+      x-versionadded: v2.39
+    QuotaTemplateListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of quota templates
+          items:
+            $ref: '#/components/schemas/QuotaTemplateResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.39
+    QuotaRule:
+      properties:
+        limit:
+          description: Maximum limit for the quota rule
+          exclusiveMaximum: 9223372036854775808
+          exclusiveMinimum: 0
+          type: integer
+        rule:
+          description: Type of quota rule
+          enum:
+          - concurrentRequests
+          - inputSequenceLength
+          - requests
+          - token
+          type: string
+        window:
+          default: min
+          description: Time window for the quota
+          enum:
+          - day
+          - hour
+          - min
+          type: string
+      required:
+      - limit
+      - rule
+      type: object
+      x-versionadded: v2.39
+    QuotaListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of quotas
+          items:
+            $ref: '#/components/schemas/QuotaResponse'
+          maxItems: 10000
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.39
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

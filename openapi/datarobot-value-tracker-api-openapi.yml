@@ -1,0 +1,2292 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Value Tracker API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage Value Trackers, as well as add comments and host discussions.
+  name: value_tracker
+paths:
+  /api/v2/comments/:
+    post:
+      operationId: comments_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRetrieve'
+          description: ''
+        '201':
+          description: The comment was successfully created
+        '422':
+          description: The request was formatted improperly
+      summary: Post a comment
+      tags:
+      - value_tracker
+      x-versionadded: v2.21
+  /api/v2/comments/{commentId}/:
+    delete:
+      description: Delete a comment
+      operationId: comments_delete
+      parameters:
+      - description: The ID of the comment
+        in: path
+        name: commentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The use case comment was deleted
+      summary: Delete a comment by comment ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.21
+    get:
+      description: Retrieve a comment
+      operationId: comments_retrieve
+      parameters:
+      - description: The ID of the comment
+        in: path
+        name: commentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRetrieve'
+          description: ''
+      summary: Retrieve a comment by comment ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.21
+    patch:
+      description: Update a comment
+      operationId: comments_patch
+      parameters:
+      - description: The ID of the comment
+        in: path
+        name: commentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdate'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The comment was successfully updated
+        '422':
+          description: The request was formatted improperly
+      summary: Update a comment by comment ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.21
+  /api/v2/comments/{entityType}/{entityId}/:
+    get:
+      description: List comments
+      operationId: comments_list
+      parameters:
+      - description: The number of records to skip over. Default 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of records to return in the range from 1 to 100. Default 100.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: Sort comments by a field of the comment.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - createdAt
+          - -createdAt
+          - updatedAt
+          - -updatedAt
+          type: string
+      - description: ID of the entity to retrieve comments of
+        in: path
+        name: entityId
+        required: true
+        schema:
+          type: string
+      - description: Type of the entity to retrieve a comments of, currently only useCase is supported
+        in: path
+        name: entityType
+        required: true
+        schema:
+          enum:
+          - useCase
+          - model
+          - catalog
+          - experimentContainer
+          - deployment
+          - workload
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentList'
+          description: ''
+      summary: List comments by entitytype
+      tags:
+      - value_tracker
+      x-versionadded: v2.24
+  /api/v2/valueTrackerValueTemplates/:
+    get:
+      description: List available value tracker templates.
+      operationId: valueTrackerValueTemplates_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ValueTrackerValueTemplateResponse'
+                type: array
+          description: ''
+      summary: List available value tracker templates
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackerValueTemplates/{templateType}/:
+    get:
+      description: Get an individual value tracker value template by its name.
+      operationId: valueTrackerValueTemplates_retrieve
+      parameters:
+      - description: The name of the class ValueTracker value template to be retrieved
+        in: path
+        name: templateType
+        required: true
+        schema:
+          enum:
+          - classification
+          - regression
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerValueTemplateResponse'
+          description: ''
+        '400':
+          description: Bad request
+      summary: Get an individual value tracker value template by its name by templatetype
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackerValueTemplates/{templateType}/calculation/:
+    get:
+      description: Calculate the value of the template with the given template parameters.
+      operationId: valueTrackerValueTemplatesCalculation_list
+      parameters:
+      - description: Accuracy improvement
+        in: query
+        name: accuracyImprovement
+        required: true
+        schema:
+          type: number
+      - description: Estimated number of decisions per year
+        in: query
+        name: decisionsCount
+        required: true
+        schema:
+          type: integer
+      - description: Estimated number of incorrect decisions per year. Required for templateType CLASSIFICATION
+        in: query
+        name: incorrectDecisionsCount
+        required: false
+        schema:
+          type: integer
+      - description: Estimated cost of an individual incorrect decision. Required for templateType CLASSIFICATION
+        in: query
+        name: incorrectDecisionCost
+        required: false
+        schema:
+          type: number
+      - description: Target value. Required for templateType REGRESSION
+        in: query
+        name: targetValue
+        required: false
+        schema:
+          type: number
+      - description: The name of the class ValueTracker value template to be retrieved
+        in: path
+        name: templateType
+        required: true
+        schema:
+          enum:
+          - classification
+          - regression
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerValueTemplateCalculateResponse'
+          description: ''
+        '400':
+          description: Bad request
+      summary: Calculate the value of the template by templatetype
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackers/:
+    get:
+      description: List value trackers the requesting user has access to.
+      operationId: valueTrackers_list
+      parameters:
+      - description: The number of records to skip over. Default 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of records to return in the range from 1 to 100. Default 100.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: Sort the value trackers by a field of the value tracker.
+        in: query
+        name: orderBy
+        required: false
+        schema:
+          enum:
+          - businessImpact
+          - -businessImpact
+          - potentialValue
+          - -potentialValue
+          - realizedValue
+          - -realizedValue
+          - feasibility
+          - -feasibility
+          - stage
+          - -stage
+          type: string
+      - description: Only return value trackers with names that match the given string.
+        in: query
+        name: namePart
+        required: false
+        schema:
+          type: string
+      - description: Filter results by the current stage of the value trackers.
+        in: query
+        name: stage
+        required: false
+        schema:
+          enum:
+          - ideation
+          - queued
+          - dataPrepAndModeling
+          - validatingAndDeploying
+          - inProduction
+          - retired
+          - onHold
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerListResponse'
+          description: ''
+      summary: List value trackers the requesting user has access to
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+    post:
+      description: Create a new value tracker.
+      operationId: valueTrackers_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValueTracker'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerCreateResponse'
+          description: ''
+      summary: Create a new value tracker
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackers/{valueTrackerId}/:
+    delete:
+      description: Delete a value tracker.
+      operationId: valueTrackers_delete
+      parameters:
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The value tracker was deleted.
+      summary: Delete a value tracker by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+    get:
+      description: Retrieve a value tracker.
+      operationId: valueTrackers_retrieve
+      parameters:
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerResponse'
+          description: ''
+      summary: Retrieve a value tracker by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+    patch:
+      description: Update a value tracker.
+      operationId: valueTrackers_patch
+      parameters:
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValueTrackerUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerResponse'
+          description: ''
+      summary: Update a value tracker by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackers/{valueTrackerId}/activities/:
+    get:
+      description: Retrieve the activities of a value tracker.
+      operationId: valueTrackersActivities_list
+      parameters:
+      - description: The number of records to skip over. Default 0.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: The number of records to return in the range from 1 to 100. Default 100.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerActivityListResponse'
+          description: ''
+      summary: Retrieve the activities of a value tracker by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackers/{valueTrackerId}/attachments/:
+    get:
+      description: Get the list of resources attached to this value tracker.
+      operationId: valueTrackersAttachments_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: This many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 100
+          type: integer
+      - description: The value tracker attachment type.
+        in: query
+        name: type
+        required: false
+        schema:
+          enum:
+          - dataset
+          - modelingProject
+          - deployment
+          - customModel
+          - modelPackage
+          - application
+          type: string
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerAttachmentListResponse'
+          description: ''
+        '404':
+          description: Either the value tracker does not exist or the user does not have permissions to view this value tracker.
+      summary: Get the list of resources attached by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+    post:
+      description: Attach the list of resources to this value tracker.
+      operationId: valueTrackersAttachments_create
+      parameters:
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateValueTrackerAttachment'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ValueTrackerAttachment'
+                type: array
+          description: ''
+        '404':
+          description: Use case or object not found or value tracker not writable or object not readable.
+        '422':
+          description: The request was formatted improperly.
+      summary: Attach the list of resources by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackers/{valueTrackerId}/attachments/{attachmentId}/:
+    delete:
+      description: Removes a resource from a value tracker.
+      operationId: valueTrackersAttachments_delete
+      parameters:
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the attachment.
+        in: path
+        name: attachmentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: The user does not have permission to remove objects from this value tracker
+        '404':
+          description: Either the value tracker does not exist or the user does not have permissions to view this value tracker.
+        '422':
+          description: The request was formatted improperly, or the requested object to delete was not found
+      summary: Removes a resource by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+    get:
+      description: Get a resource that is attached to a value tracker.
+      operationId: valueTrackersAttachments_retrieve
+      parameters:
+      - description: The ID of the ValueTracker.
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      - description: The ID of the attachment.
+        in: path
+        name: attachmentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerAttachmentResponse'
+          description: ''
+        '403':
+          description: The user does not have permission to attach objects to this value tracker
+        '404':
+          description: Either the value tracker does not exist or the user does not have permissions to view this value tracker.
+        '422':
+          description: The request was formatted improperly, or the requested object to attach was not found
+      summary: Get a resource that is attached by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackers/{valueTrackerId}/realizedValueOverTime/:
+    get:
+      description: Retrieve realized value information for a given value tracker over a period of time.
+      operationId: valueTrackersRealizedValueOverTime_list
+      parameters:
+      - description: 'Start of the period to retrieve monitoring data, defaults to 7 days ago from the end of the period. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: start
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: 'End of the period to retrieve monitoring data, defaults to the next top of the hour. Note: this field only accepts top of the hour RFC3339 datetime strings, for example: ``2019-08-01T00:00:00Z``.'
+        in: query
+        name: end
+        required: false
+        schema:
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: The time duration of a bucket. Needs to be multiple of one hour. Can not be longer than the total length of the period. If not set, a default value will be calculated based on the start and end time.
+        in: query
+        name: bucketSize
+        required: false
+        schema:
+          format: duration
+          type: string
+      - description: The ID of the class ValueTracker
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerRealizedValuesOverTimeResponse'
+          description: ''
+      summary: Retrieve realized value information by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+  /api/v2/valueTrackers/{valueTrackerId}/sharedRoles/:
+    get:
+      description: Get the list of users, groups and organizations that have access to this value tracker.
+      operationId: valueTrackersSharedRoles_list
+      parameters:
+      - description: Only return roles for a user, group or organization with this identifier.
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: This many results will be skipped
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Only return roles for a user, group or organization with this name.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: The list of access controls for recipients with this type.
+        in: query
+        name: shareRecipientType
+        required: false
+        schema:
+          enum:
+          - user
+          - group
+          - organization
+          - externalApplication
+          type: string
+      - description: The ID of the class ValueTracker
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueTrackerSharingListResponse'
+          description: ''
+      summary: Get the list of users, groups and organizations that have access by value…
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+    patch:
+      description: Share a value tracker with a user, group or organization.
+      operationId: valueTrackersSharedRoles_patchMany
+      parameters:
+      - description: The ID of the class ValueTracker
+        in: path
+        name: valueTrackerId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValueTrackerSharingUpdate'
+      responses:
+        '200':
+          description: ''
+        '204':
+          description: The roles were updated successfully.
+        '422':
+          description: The request was formatted improperly.
+      summary: Share a value tracker by value tracker ID
+      tags:
+      - value_tracker
+      x-versionadded: v2.31
+components:
+  schemas:
+    ValueTrackerSharingRoleUpdateData:
+      properties:
+        id:
+          description: The ID of the recipient
+          type: string
+        role:
+          description: The assigned role
+          enum:
+          - OWNER
+          - USER
+          - CONSUMER
+          - NO_ROLE
+          type: string
+        shareRecipientType:
+          description: The recipient type
+          enum:
+          - user
+          - group
+          - organization
+          type: string
+        username:
+          description: The name of the user, group, or organization
+          type: string
+      required:
+      - role
+      - shareRecipientType
+      type: object
+    ValueTrackerValueTemplateClassificationData:
+      description: The value tracker value data.
+      properties:
+        accuracyImprovement:
+          description: Accuracy improvement.
+          type: number
+        decisionsCount:
+          description: The estimated number of decisions per year.
+          type: integer
+        incorrectDecisionCost:
+          description: The estimated cost of an individual incorrect decision.
+          type: number
+        incorrectDecisionsCount:
+          description: The estimated number of incorrect decisions per year.
+          type: integer
+      required:
+      - accuracyImprovement
+      - decisionsCount
+      - incorrectDecisionCost
+      - incorrectDecisionsCount
+      type: object
+    ValueTrackerValueTemplateRegression:
+      properties:
+        data:
+          $ref: '#/components/schemas/ValueTrackerValueTemplateRegressionData'
+        templateType:
+          description: The value tracker value template type.
+          enum:
+          - regression
+          type: string
+      required:
+      - data
+      - templateType
+      type: object
+    ValueTrackerAttachmentApplicationOverview:
+      properties:
+        appType:
+          description: The type of the application.
+          type: string
+        createdAt:
+          description: The time when the application was created.
+          format: date-time
+          type: string
+        lastModifiedAt:
+          description: The time of the last modification.
+          format: date-time
+          type: string
+        name:
+          description: The name of the application.
+          type: string
+        version:
+          description: The version string of the app.
+          type: string
+      required:
+      - appType
+      - createdAt
+      - lastModifiedAt
+      - name
+      - version
+      type: object
+    Comment:
+      properties:
+        content:
+          description: Content of the comment, 10000 symbols max
+          maxLength: 10000
+          type: string
+        entityId:
+          description: ID of the entity to post the comment to
+          type: string
+        entityType:
+          description: Type of the entity to post the comment to, currently only useCase is supported
+          enum:
+          - useCase
+          - model
+          - catalog
+          - experimentContainer
+          - deployment
+          - workload
+          type: string
+        mentions:
+          description: A list of users IDs mentioned in the content
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      required:
+      - content
+      - entityId
+      - entityType
+      type: object
+    ValueTrackerActivity:
+      description: DataRobot user information.
+      properties:
+        eventDescription:
+          $ref: '#/components/schemas/ValueTrackerEventDescriptions'
+        eventType:
+          description: The type of activity.
+          type:
+          - string
+          - 'null'
+        firstName:
+          description: The first name of the ValueTracker owner.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the ValueTracker activity.
+          type: string
+        lastName:
+          description: The last name of the ValueTracker owner.
+          type:
+          - string
+          - 'null'
+        timestamp:
+          description: The timestamp of the activity.
+          format: date-time
+          type: string
+        user:
+          $ref: '#/components/schemas/ValueTrackerDrUserId'
+        username:
+          description: The username of the ValueTracker owner.
+          type: string
+      required:
+      - eventDescription
+      - eventType
+      - timestamp
+      - user
+      type: object
+    ValueTrackerValueTemplateSchema:
+      description: Schema entry defining the type and limits of a template parameter
+      properties:
+        elementType:
+          description: Possible types used for template variables
+          enum:
+          - integer
+          - float
+          - number
+          type: string
+        label:
+          description: Label describing the represented value
+          type: string
+        maximum:
+          description: Sets Maximum value if given
+          type:
+          - integer
+          - 'null'
+        minimum:
+          description: Sets Minimum value if given
+          type:
+          - integer
+          - 'null'
+        placeholder:
+          description: Text that can be used to prefill an input filed for the value
+          type: string
+        unit:
+          description: The unit type (e.g., %).
+          type:
+          - string
+          - 'null'
+      required:
+      - elementType
+      - label
+      - maximum
+      - minimum
+      - placeholder
+      - unit
+      type: object
+    ValueTrackerActivityListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The activities of the value tracker.
+          items:
+            $ref: '#/components/schemas/ValueTrackerActivity'
+          type: array
+        next:
+          description: URL pointing to the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: URL pointing to the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The number of items matching the query condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ValueTrackerHealthInformation:
+      properties:
+        endDate:
+          description: The end date for this health status.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        message:
+          description: Information about the health status.
+          type:
+          - string
+          - 'null'
+        startDate:
+          description: The start date for this health status.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        status:
+          description: The status of the value tracker.
+          type:
+          - string
+          - 'null'
+      required:
+      - endDate
+      - message
+      - startDate
+      - status
+      type: object
+    ValueTrackerAttachmentListResponse:
+      properties:
+        count:
+          description: The number of results returned.
+          type: integer
+        data:
+          description: The array of attachment objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerAttachmentResponse'
+          type: array
+        next:
+          description: The link to the next page.
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The link to the previous page.
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of results available.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ValueTrackerListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of value trackers that match the query.
+          items:
+            $ref: '#/components/schemas/ValueTrackerResponse'
+          type: array
+        next:
+          description: URL pointing to the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: URL pointing to the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The number of items matching the query condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ValueTracker:
+      properties:
+        businessImpact:
+          description: The expected effects on overall business operations.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        commentId:
+          description: The ID for this comment.
+          type: string
+        content:
+          description: A string
+          type: string
+        description:
+          description: The value tracker description.
+          maxLength: 1024
+          type: string
+        feasibility:
+          description: Assessment of how the value tracker can be accomplished across multiple dimensions.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        id:
+          description: The ID of this description item.
+          type:
+          - string
+          - 'null'
+        mentions:
+          description: The list of user objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerDrUserId'
+          type: array
+        name:
+          description: The name of the value tracker.
+          maxLength: 512
+          type: string
+        notes:
+          description: The user notes.
+          type:
+          - string
+          - 'null'
+        owner:
+          $ref: '#/components/schemas/ValueTrackerDrUserId'
+        permissions:
+          description: The permissions of the current user.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        potentialValue:
+          $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+        potentialValueTemplate:
+          anyOf:
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateClassification'
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateRegression'
+          - type: 'null'
+          description: Optional. Contains the template type and parameter information.
+        predictionTargets:
+          description: An array of prediction target name strings.
+          items:
+            description: The name of the prediction target
+            type: string
+          type: array
+        realizedValue:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+          - type: 'null'
+          description: Optional. Contains MonetaryValue objects.
+        stage:
+          description: The current stage of the value tracker.
+          enum:
+          - ideation
+          - queued
+          - dataPrepAndModeling
+          - validatingAndDeploying
+          - inProduction
+          - retired
+          - onHold
+          type: string
+        targetDates:
+          description: The array of TargetDate objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerTargetDate'
+          type: array
+      required:
+      - name
+      type: object
+    ValueTrackerUpdate:
+      properties:
+        businessImpact:
+          description: The expected effects on overall business operations.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        description:
+          description: The value tracker description.
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        feasibility:
+          description: Assessment of how the value tracker can be accomplished across multiple dimensions.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        name:
+          description: The name of the value tracker.
+          maxLength: 512
+          type: string
+        notes:
+          description: The user notes.
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        owner:
+          $ref: '#/components/schemas/ValueTrackerDrUserId'
+        potentialValue:
+          $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+        potentialValueTemplate:
+          anyOf:
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateClassification'
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateRegression'
+          - type: 'null'
+          description: Contains the template type and parameter information defined in the response of :http:get:`/api/v2/valueTrackerValueTemplates/(templateType)/calculation/`.
+        predictionTargets:
+          description: An array of prediction target name strings.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        realizedValue:
+          $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+        stage:
+          description: The current stage of the value tracker.
+          enum:
+          - ideation
+          - queued
+          - dataPrepAndModeling
+          - validatingAndDeploying
+          - inProduction
+          - retired
+          - onHold
+          type: string
+        targetDates:
+          description: The array of TargetDate objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerTargetDate'
+          type:
+          - array
+          - 'null'
+      type: object
+    ValueTrackerEventDescriptions:
+      description: Details of the activity. Content depends on activity type.
+      properties:
+        businessImpact:
+          description: The expected effects on overall business operations.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        commentId:
+          description: The ID for this comment.
+          type: string
+        content:
+          description: A string
+          type: string
+        description:
+          description: The value tracker description.
+          type:
+          - string
+          - 'null'
+        feasibility:
+          description: Assessment of how the value tracker can be accomplished across multiple dimensions.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        id:
+          description: The ID of this description item.
+          type:
+          - string
+          - 'null'
+        mentions:
+          description: The list of user objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerDrUserId'
+          type: array
+        name:
+          description: The name of this event item.
+          type:
+          - string
+          - 'null'
+        notes:
+          description: The user notes.
+          type:
+          - string
+          - 'null'
+        owner:
+          $ref: '#/components/schemas/ValueTrackerDrUserId'
+        permissions:
+          description: The permissions of the current user.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        potentialValue:
+          $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+        potentialValueTemplate:
+          anyOf:
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateClassification'
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateRegression'
+          - type: 'null'
+          description: Optional. Contains the template type and parameter information.
+        predictionTargets:
+          description: An array of prediction target name strings.
+          items:
+            description: The name of the prediction target
+            type: string
+          type: array
+        realizedValue:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+          - type: 'null'
+          description: Optional. Contains MonetaryValue objects.
+        stage:
+          description: The current stage of the value tracker.
+          enum:
+          - ideation
+          - queued
+          - dataPrepAndModeling
+          - validatingAndDeploying
+          - inProduction
+          - retired
+          - onHold
+          type: string
+        targetDates:
+          description: The array of TargetDate objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerTargetDate'
+          type:
+          - array
+          - 'null'
+      type: object
+    ValueTrackerAttachment:
+      properties:
+        attachedObjectId:
+          description: The ID of the attached object.
+          type: string
+        type:
+          description: The value tracker attachment type.
+          enum:
+          - dataset
+          - modelingProject
+          - deployment
+          - customModel
+          - modelPackage
+          - application
+          type: string
+      required:
+      - attachedObjectId
+      - type
+      type: object
+    ValueTrackerAttachmentResponse:
+      properties:
+        attachedObjectId:
+          description: The ID of the attached object.
+          type: string
+        canView:
+          description: Indicates if the user has view access to the attached object.
+          type: boolean
+        id:
+          description: The ID of the ValueTracker.
+          type: string
+        isAccessRequested:
+          description: Indicates if the user has requested access to the attached object.
+          type: boolean
+        overview:
+          description: Detailed information depending on the type of the attachment
+          oneOf:
+          - $ref: '#/components/schemas/ValueTrackerAttachmentDeploymentOverview'
+          - $ref: '#/components/schemas/ValueTrackerAttachmentDatasetOverview'
+          - $ref: '#/components/schemas/ValueTrackerAttachmentModelingProjectOverview'
+          - $ref: '#/components/schemas/ValueTrackerAttachmentCustomModelOverview'
+          - $ref: '#/components/schemas/ValueTrackerAttachmentModelPackageOverview'
+          - $ref: '#/components/schemas/ValueTrackerAttachmentApplicationOverview'
+          - type: 'null'
+        type:
+          description: The value tracker attachment type.
+          enum:
+          - dataset
+          - modelingProject
+          - deployment
+          - customModel
+          - modelPackage
+          - application
+          type: string
+        useCaseId:
+          description: The ID of the ValueTracker.
+          type: string
+      required:
+      - attachedObjectId
+      - canView
+      - id
+      - isAccessRequested
+      - overview
+      - type
+      - useCaseId
+      type: object
+    ValueTrackerSummary:
+      description: A `summary` object covering the time range before the given one with the same duration
+      properties:
+        averagePredictionsCount:
+          description: Average number of predictions per bucket during this time period
+          type: integer
+        averageRealizedValue:
+          description: Average amount of value per bucket realised during this time period
+          type: integer
+        period:
+          $ref: '#/components/schemas/ValueTrackerBucketPeriod'
+        totalPredictionsCount:
+          description: Total number of predictions that happened during this time period
+          type: integer
+        totalRealizedValue:
+          description: Total amount of value realised during this time period
+          type: integer
+      required:
+      - averagePredictionsCount
+      - period
+      - totalRealizedValue
+      type: object
+    ValueTrackerValueTemplateResponse:
+      properties:
+        description:
+          description: The description of the value template.
+          type: string
+        schema:
+          description: Schema definition of all template parameters
+          items:
+            $ref: '#/components/schemas/ValueTrackerValueTemplateParameterWithSchema'
+          type: array
+        templateType:
+          description: The name of the class ValueTracker value template to be retrieved
+          enum:
+          - classification
+          - regression
+          type: string
+        title:
+          description: The title of the value template.
+          type: string
+      required:
+      - description
+      - schema
+      - templateType
+      - title
+      type: object
+    ValueTrackerValueTemplateCalculateResponse:
+      properties:
+        averageValuePerDecision:
+          description: Estimated average value per decision
+          type: number
+        savedAnnually:
+          description: Estimated amount saved annually
+          type: number
+        template:
+          $ref: '#/components/schemas/ValueTrackerValueCalculateTemplate'
+      required:
+      - averageValuePerDecision
+      - savedAnnually
+      - template
+      type: object
+    ValueTrackerCreateResponse:
+      description: The value tracker information.
+      properties:
+        accuracyHealth:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerHealthInformation'
+          - type: 'null'
+          description: The health of the accuracy.
+        businessImpact:
+          description: The expected effects on overall business operations.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        commentId:
+          description: The ID for this comment.
+          type: string
+        content:
+          description: A string
+          type: string
+        description:
+          description: The value tracker description.
+          type: string
+        feasibility:
+          description: Assessment of how the value tracker can be accomplished across multiple dimensions.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        id:
+          description: The ID of the ValueTracker.
+          type: string
+        inProductionWarning:
+          description: An optional warning to indicate that deployments are attached to this value tracker.
+          type:
+          - string
+          - 'null'
+        mentions:
+          description: The list of user objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerDrUserId'
+          type: array
+        modelHealth:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerHealthInformation'
+          - type: 'null'
+          description: The health of the model.
+        name:
+          description: The name of the value tracker.
+          type: string
+        notes:
+          description: The user notes.
+          type:
+          - string
+          - 'null'
+        owner:
+          $ref: '#/components/schemas/ValueTrackerDrUserId'
+        permissions:
+          description: The permissions of the current user.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        potentialValue:
+          $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+        potentialValueTemplate:
+          anyOf:
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateClassification'
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateRegression'
+          - type: 'null'
+          description: Optional. Contains the template type and parameter information.
+        predictionTargets:
+          description: An array of prediction target name strings.
+          items:
+            description: The name of the prediction target
+            type: string
+          type: array
+        predictionsCount:
+          anyOf:
+          - type: string
+          - type: integer
+          - description: The list of prediction counts.
+            items:
+              type: integer
+            type:
+            - array
+            - 'null'
+          description: The count of the number of predictions made.
+        realizedValue:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+          - type: 'null'
+          description: Optional. Contains MonetaryValue objects.
+        serviceHealth:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerHealthInformation'
+          - type: 'null'
+          description: The health of the service.
+        stage:
+          description: The current stage of the value tracker.
+          enum:
+          - ideation
+          - queued
+          - dataPrepAndModeling
+          - validatingAndDeploying
+          - inProduction
+          - retired
+          - onHold
+          type: string
+        targetDates:
+          description: The array of TargetDate objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerTargetDate'
+          type:
+          - array
+          - 'null'
+      type: object
+    ValueTrackerValueTemplateClassification:
+      properties:
+        data:
+          $ref: '#/components/schemas/ValueTrackerValueTemplateClassificationData'
+        templateType:
+          description: The value tracker value template type.
+          enum:
+          - classification
+          type: string
+      required:
+      - data
+      - templateType
+      type: object
+    ValueTrackerAttachmentModelPackageOverview:
+      properties:
+        createdAt:
+          description: The time when the model package was created.
+          format: date-time
+          type: string
+        deploymentCount:
+          description: The number of deployments.
+          type: integer
+        executionType:
+          description: The type of execution.
+          type: string
+        name:
+          description: The name of the model package.
+          type: string
+        targetName:
+          description: The name of the modeling target.
+          type: string
+        targetType:
+          description: Type of modeling target
+          type: string
+      required:
+      - createdAt
+      - deploymentCount
+      - executionType
+      - name
+      - targetName
+      - targetType
+      type: object
+    CommentUser:
+      description: User object with information about the commenter
+      properties:
+        firstName:
+          description: First name of the commenter
+          type: string
+        id:
+          description: User ID of the commenter
+          type: string
+        lastName:
+          description: Last name of the commenter
+          type: string
+        username:
+          description: Username of the commenter
+          type: string
+      required:
+      - firstName
+      - id
+      - lastName
+      - username
+      type: object
+    ValueTrackerAttachmentDeploymentOverview:
+      properties:
+        accuracyHealth:
+          $ref: '#/components/schemas/ValueTrackerAttachmentDeploymentHealth'
+        modelHealth:
+          $ref: '#/components/schemas/ValueTrackerAttachmentDeploymentHealth'
+        name:
+          description: The name of the deployment.
+          type: string
+        predictionServer:
+          description: The name of the prediction server.
+          type: string
+        predictionUsage:
+          $ref: '#/components/schemas/ValueTrackerAttachmentDeploymentPredictionUsage'
+        serviceHealth:
+          $ref: '#/components/schemas/ValueTrackerAttachmentDeploymentHealth'
+      required:
+      - accuracyHealth
+      - modelHealth
+      - name
+      - predictionServer
+      - predictionUsage
+      - serviceHealth
+      type: object
+    CommentRetrieve:
+      properties:
+        content:
+          description: Content of the comment
+          type: string
+        createdAt:
+          description: Timestamp when the comment was created
+          type: string
+        createdBy:
+          $ref: '#/components/schemas/CommentUser'
+        entityId:
+          description: ID of the entity the comment posted to
+          type: string
+        entityType:
+          description: Type of the entity to post the comment to, currently only useCase is supported
+          enum:
+          - useCase
+          - model
+          - catalog
+          - experimentContainer
+          - deployment
+          - workload
+          type: string
+        id:
+          description: ID of the comment
+          type: string
+        mentions:
+          description: A list of users objects (see below) mentioned in the content
+          items:
+            $ref: '#/components/schemas/CommentUser'
+          type: array
+        readonly:
+          description: If True, the comment cannot be updated or deleted, False otherwise
+          type: boolean
+          x-versionadded: v2.38
+        updatedAt:
+          description: Timestamp when the comment was updated
+          type: string
+      required:
+      - content
+      - createdAt
+      - createdBy
+      - entityId
+      - entityType
+      - id
+      - mentions
+      - readonly
+      - updatedAt
+      type: object
+    ValueTrackerAttachmentDeploymentHealth:
+      description: Accuracy related health status.
+      properties:
+        endDate:
+          description: The end date of the health status.
+          format: date-time
+          type: string
+        message:
+          description: Health status related information.
+          type: string
+        startDate:
+          description: The start date of the health status.
+          format: date-time
+          type: string
+        status:
+          description: Health status.
+          type: string
+      required:
+      - endDate
+      - message
+      - startDate
+      - status
+      type: object
+    ValueTrackerValueCalculateTemplate:
+      description: Template type and data used for calculating the result
+      properties:
+        data:
+          description: Data used for calculating the result
+          oneOf:
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateClassificationData'
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateRegressionData'
+        templateType:
+          description: The name of the class ValueTracker value template
+          enum:
+          - classification
+          - regression
+          type: string
+      required:
+      - data
+      - templateType
+      type: object
+    ValueTrackerResponse:
+      description: The value tracker information.
+      properties:
+        accuracyHealth:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerHealthInformation'
+          - type: 'null'
+          description: The health of the accuracy.
+        businessImpact:
+          description: The expected effects on overall business operations.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        commentId:
+          description: The ID for this comment.
+          type: string
+        content:
+          description: A string
+          type: string
+        description:
+          description: The value tracker description.
+          type:
+          - string
+          - 'null'
+        feasibility:
+          description: Assessment of how the value tracker can be accomplished across multiple dimensions.
+          maximum: 5
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        id:
+          description: The ID of the ValueTracker.
+          type: string
+        inProductionWarning:
+          description: An optional warning to indicate that deployments are attached to this value tracker.
+          type:
+          - string
+          - 'null'
+        mentions:
+          description: The list of user objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerDrUserId'
+          type: array
+        modelHealth:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerHealthInformation'
+          - type: 'null'
+          description: The health of the model.
+        name:
+          description: The name of the value tracker.
+          type: string
+        notes:
+          description: The user notes.
+          type:
+          - string
+          - 'null'
+        owner:
+          $ref: '#/components/schemas/ValueTrackerDrUserId'
+        permissions:
+          description: The permissions of the current user.
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        potentialValue:
+          $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+        potentialValueTemplate:
+          anyOf:
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateClassification'
+          - $ref: '#/components/schemas/ValueTrackerValueTemplateRegression'
+          - type: 'null'
+          description: Optional. Contains the template type and parameter information.
+        predictionTargets:
+          description: An array of prediction target name strings.
+          items:
+            description: The name of the prediction target
+            type: string
+          type: array
+        predictionsCount:
+          anyOf:
+          - type: string
+          - type: integer
+          - description: The list of prediction counts.
+            items:
+              type: integer
+            type:
+            - array
+            - 'null'
+          description: The count of the number of predictions made.
+        realizedValue:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerMonetaryValue'
+          - type: 'null'
+          description: Optional. Contains MonetaryValue objects.
+        serviceHealth:
+          anyOf:
+          - type: string
+          - $ref: '#/components/schemas/ValueTrackerHealthInformation'
+          - type: 'null'
+          description: The health of the service.
+        stage:
+          description: The current stage of the value tracker.
+          enum:
+          - ideation
+          - queued
+          - dataPrepAndModeling
+          - validatingAndDeploying
+          - inProduction
+          - retired
+          - onHold
+          type: string
+        targetDates:
+          description: The array of TargetDate objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerTargetDate'
+          type:
+          - array
+          - 'null'
+      type: object
+    ValueTrackerSharingListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: A list of sharing role objects
+          items:
+            $ref: '#/components/schemas/ValueTrackerSharingListData'
+          type: array
+        next:
+          description: URL pointing to the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: URL pointing to the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The number of items matching the query condition.
+          type: integer
+      required:
+      - count
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ValueTrackerSharingUpdate:
+      properties:
+        operation:
+          description: The name of the action being taken. Only 'updateRoles' is supported.
+          enum:
+          - updateRoles
+          type: string
+        roles:
+          description: A list of sharing role objects
+          items:
+            $ref: '#/components/schemas/ValueTrackerSharingRoleUpdateData'
+          type: array
+      required:
+      - operation
+      - roles
+      type: object
+    ValueTrackerValueTemplateParameterWithSchema:
+      properties:
+        parameterName:
+          description: Name of the parameter
+          type: string
+        schema:
+          $ref: '#/components/schemas/ValueTrackerValueTemplateSchema'
+      required:
+      - parameterName
+      - schema
+      type: object
+    ValueTrackerAttachmentModelingProjectOverview:
+      properties:
+        createdAt:
+          description: The time when the project was created.
+          format: date-time
+          type: string
+        datasetName:
+          description: The name of the default dataset.
+          type: string
+        name:
+          description: The name of the project.
+          type: string
+        numberOfModels:
+          description: The number of models in the project.
+          type:
+          - integer
+          - 'null'
+        owner:
+          description: The name of the modeling project owner.
+          type:
+          - string
+          - 'null'
+        targetName:
+          description: The name of the modeling target.
+          type: string
+        useCase:
+          $ref: '#/components/schemas/UseCaseInfo'
+          x-versionadded: v2.33
+      required:
+      - createdAt
+      - datasetName
+      - name
+      - numberOfModels
+      - owner
+      - targetName
+      type: object
+    UseCaseInfo:
+      description: Information about the use case that this modeling project is attached to.
+      properties:
+        id:
+          description: The ID of the use case this modeling project is attached to.
+          type: string
+        name:
+          description: The name of the use case this modeling project is attached to.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    ValueTrackerAttachmentDatasetOverview:
+      properties:
+        createdAt:
+          description: The time when the dataset was created.
+          format: date-time
+          type: string
+        createdBy:
+          description: The name of the user who created the dataset.
+          type: string
+        lastModifiedAt:
+          description: The time of the last modification.
+          format: date-time
+          type: string
+        lastModifiedBy:
+          description: The name of the user who did the last modification.
+          type: string
+        name:
+          description: The name of the dataset.
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - lastModifiedAt
+      - lastModifiedBy
+      - name
+      type: object
+    ValueTrackerTargetDate:
+      properties:
+        date:
+          description: The date of the target.
+          format: date-time
+          type: string
+        stage:
+          description: The name of the target stage.
+          enum:
+          - ideation
+          - queued
+          - dataPrepAndModeling
+          - validatingAndDeploying
+          - inProduction
+          - retired
+          - onHold
+          type: string
+      required:
+      - date
+      - stage
+      type: object
+    CommentList:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: A list of comments
+          items:
+            $ref: '#/components/schemas/CommentRetrieve'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    ValueTrackerMonetaryValue:
+      description: Optional. Contains MonetaryValue objects.
+      properties:
+        currency:
+          description: The ISO code of the currency.
+          enum:
+          - AED
+          - BRL
+          - CHF
+          - EUR
+          - GBP
+          - JPY
+          - KRW
+          - UAH
+          - USD
+          - ZAR
+          type: string
+        details:
+          description: Optional user notes.
+          type:
+          - string
+          - 'null'
+        value:
+          description: The amount of value.
+          type: number
+      required:
+      - currency
+      - value
+      type: object
+    CreateValueTrackerAttachment:
+      properties:
+        attachedObjects:
+          description: The array of attachment objects.
+          items:
+            $ref: '#/components/schemas/ValueTrackerAttachment'
+          type: array
+      required:
+      - attachedObjects
+      type: object
+    ValueTrackerDrUserId:
+      description: DataRobot user information.
+      properties:
+        firstName:
+          description: The first name of the ValueTracker owner.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The DataRobot user ID.
+          type: string
+        lastName:
+          description: The last name of the ValueTracker owner.
+          type:
+          - string
+          - 'null'
+        username:
+          description: The username of the ValueTracker owner.
+          type: string
+      required:
+      - id
+      type: object
+    ValueTrackerAttachmentCustomModelOverview:
+      properties:
+        createdAt:
+          description: The time when the custom model was created.
+          format: date-time
+          type: string
+        modifiedAt:
+          description: The time of the last modification.
+          format: date-time
+          type: string
+        name:
+          description: The name of the custom model.
+          type: string
+        owner:
+          description: The name of the custom model owner.
+          type: string
+      required:
+      - createdAt
+      - modifiedAt
+      - name
+      - owner
+      type: object
+    CommentUpdate:
+      properties:
+        content:
+          description: Updated content of the comment, 10000 symbols max
+          maxLength: 10000
+          type: string
+        mentions:
+          description: A list of users IDs mentioned in the content
+          items:
+            type: string
+          maxItems: 100
+          type: array
+      required:
+      - content
+      type: object
+    ValueTrackerSharingListData:
+      properties:
+        id:
+          description: The ID of the recipient
+          type: string
+        name:
+          description: The name of the user, group, or organization.
+          type: string
+        role:
+          description: The assigned role
+          enum:
+          - OWNER
+          - USER
+          - CONSUMER
+          - NO_ROLE
+          type: string
+        scimIdpName:
+          description: The SCIM identity provider name. Applicable to user and group recipients.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.46
+        scimManaged:
+          description: Whether the recipient is SCIM-managed. Applicable to user and group recipients.
+          type: boolean
+          x-versionadded: v2.46
+        shareRecipientType:
+          description: The recipient type
+          enum:
+          - user
+          - group
+          - organization
+          type: string
+      required:
+      - id
+      - role
+      - shareRecipientType
+      type: object
+    ValueTrackerBucketPeriod:
+      description: A `period` object describing the time this bucket covers
+      properties:
+        end:
+          description: RFC3339 datetime. End of time period to retrieve.
+          format: date-time
+          type: string
+        start:
+          description: RFC3339 datetime. Start of time period to retrieve.
+          format: date-time
+          type: string
+      required:
+      - end
+      - start
+      type: object
+    ValueTrackerAttachmentDeploymentPredictionUsage:
+      description: The value tracker attachment detail for deployment usage.
+      properties:
+        dailyRates:
+          description: The list of daily request counts.
+          items:
+            type: integer
+          type: array
+        lastTimestamp:
+          description: Last prediction time.
+          format: date-time
+          type: string
+      required:
+      - dailyRates
+      - lastTimestamp
+      type: object
+    ValueTrackerValueTemplateRegressionData:
+      description: The value tracker value data.
+      properties:
+        accuracyImprovement:
+          description: Accuracy improvement.
+          type: number
+        decisionsCount:
+          description: The estimated number of decisions per year.
+          type: integer
+        targetValue:
+          description: The target value.
+          type: number
+      required:
+      - accuracyImprovement
+      - decisionsCount
+      - targetValue
+      type: object
+    ValueTrackerRealizedValuesOverTimeResponse:
+      properties:
+        buckets:
+          description: An array of `bucket` objects representing prediction totals and realized value over time
+          items:
+            $ref: '#/components/schemas/ValueTrackerBucket'
+          type: array
+        previousTimeRangeSummary:
+          $ref: '#/components/schemas/ValueTrackerSummary'
+        summary:
+          $ref: '#/components/schemas/ValueTrackerSummary'
+      required:
+      - buckets
+      - previousTimeRangeSummary
+      - summary
+      type: object
+    ValueTrackerBucket:
+      properties:
+        period:
+          $ref: '#/components/schemas/ValueTrackerBucketPeriod'
+        predictionsCount:
+          description: Total number of predictions that happened in this bucket
+          type: integer
+        realizedValue:
+          description: Total amount of value realised during this bucket
+          type: integer
+      required:
+      - period
+      - predictionsCount
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

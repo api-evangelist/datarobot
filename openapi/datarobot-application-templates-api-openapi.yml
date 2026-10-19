@@ -1,0 +1,562 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Application Templates API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage application templates.
+  name: application_templates
+paths:
+  /api/v2/applicationTemplates/:
+    get:
+      description: List the application templates the user has access to.
+      operationId: applicationTemplates_list
+      parameters:
+      - description: This many results will be skipped.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationTemplateListResponse'
+          description: ''
+      summary: List the application templates the user has access to
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+    post:
+      description: Create an application template.
+      operationId: applicationTemplates_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationTemplateCreate'
+      responses:
+        '201':
+          description: ''
+        '403':
+          description: Permission settings do not allow creating templates.
+      summary: Create an application template
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+  /api/v2/applicationTemplates/{applicationTemplateId}/:
+    delete:
+      description: Delete an application template.
+      operationId: applicationTemplates_delete
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: applicationTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: Permission settings do not allow deleting templates.
+        '404':
+          description: The template is either global, preventing deletion, or does not exist.
+      summary: Delete an application template by application template ID
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+    patch:
+      description: Update an application template.
+      operationId: applicationTemplates_patch
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: applicationTemplateId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationTemplateUpdate'
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: Permission settings do not allow updating templates.
+        '404':
+          description: The template is either global, preventing updates, or does not exist.
+      summary: Update an application template by application template ID
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+  /api/v2/applicationTemplates/{applicationTemplateId}/clone/:
+    post:
+      description: Clone an application template into a codespace.
+      operationId: applicationTemplatesClone_create
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: applicationTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationTemplateCloneResponse'
+          description: ''
+        '403':
+          description: Permission settings do not allow cloning templates.
+        '404':
+          description: The template does not exist.
+        '422':
+          description: An error ocurred when creating the codespace.
+      summary: Clone an application template into a codespace by application template ID
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+  /api/v2/applicationTemplates/{applicationTemplateId}/media/:
+    delete:
+      description: Delete an application template image/gif.
+      operationId: applicationTemplatesMedia_deleteMany
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: applicationTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '403':
+          description: Permission settings do not allow allow deleting media from templates.
+        '404':
+          description: The template is either global, preventing media deletion, or does not exist.
+      summary: Delete an application template image/gif. by application template ID
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+    get:
+      description: Retrieve an application template image.
+      operationId: applicationTemplatesMedia_list
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: applicationTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationTemplateMediaResponse'
+          description: ''
+        '404':
+          description: The template media does not exist or the template does not exist.
+      summary: Retrieve an application template image by application template ID
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+    post:
+      description: Upload an application template image/gif.
+      operationId: applicationTemplatesMedia_create
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: applicationTemplateId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationTemplateMediaUpload'
+      responses:
+        '202':
+          description: ''
+        '403':
+          description: Permission settings do not allow allow uploading media to templates.
+        '404':
+          description: The template is either global, preventing media upload, or does not exist.
+      summary: Upload an application template image/gif. by application template ID
+      tags:
+      - application_templates
+      x-versionadded: v2.35
+  /api/v2/applicationTemplates/{applicationTemplateId}/repositoryUrls/:
+    get:
+      description: Get the resolved clone URL for an application template repository.
+      operationId: applicationTemplatesRepositoryUrls_list
+      parameters:
+      - description: The ID of the template.
+        in: path
+        name: applicationTemplateId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationTemplateRepositoryUrlResponse'
+          description: ''
+        '404':
+          description: The template does not exist.
+      summary: Get the resolved clone URL by application template ID
+      tags:
+      - application_templates
+      x-versionadded: v2.43
+components:
+  schemas:
+    ApplicationTemplateResponse:
+      properties:
+        createdAt:
+          description: The ISO timestamp indicating when the template was created.
+          type:
+          - string
+          - 'null'
+        createdBy:
+          description: The user who created the template.
+          type:
+          - string
+          - 'null'
+        creatorFirstName:
+          description: The first name of the user who created the template.
+          type:
+          - string
+          - 'null'
+        creatorLastName:
+          description: The last name of the user who created the template.
+          type:
+          - string
+          - 'null'
+        creatorUserhash:
+          description: The Gravatar hash of the user who created the template.
+          type:
+          - string
+          - 'null'
+        description:
+          description: The short description of the template.
+          type: string
+        editedAt:
+          description: The ISO timestamp indicating when the template was last edited.
+          type:
+          - string
+          - 'null'
+        editedBy:
+          description: The user who last edited the template.
+          type:
+          - string
+          - 'null'
+        editorFirstName:
+          description: The first name of the user who last edited the template.
+          type:
+          - string
+          - 'null'
+        editorLastName:
+          description: The last name of the user who last edited the template.
+          type:
+          - string
+          - 'null'
+        editorUserhash:
+          description: The Gravatar hash of the user who last edited the template.
+          type:
+          - string
+          - 'null'
+        id:
+          description: The ID of the template.
+          type: string
+        isGlobal:
+          description: Whether the template is a global template created by DataRobot.
+          type: boolean
+        isPremium:
+          description: Whether the template is a premium template.
+          type:
+          - boolean
+          - 'null'
+          x-versionadded: v2.36
+        mediaUrl:
+          description: The link to the media URL if there is media associated with the application.
+          format: uri
+          type:
+          - string
+          - 'null'
+        name:
+          description: The name of the template.
+          maxLength: 256
+          type: string
+        orderIndex:
+          description: The order index of the template.
+          type:
+          - integer
+          - 'null'
+          x-versionadded: v2.39
+        ports:
+          description: A list of ports that the application template exposes. Each port has a port number and an optional description.
+          items:
+            $ref: '#/components/schemas/Ports'
+          maxItems: 5
+          type: array
+          x-versionadded: v2.38
+        readme:
+          description: A long-form Markdown readme to be included with the template.
+          maxLength: 256000
+          type: string
+        repository:
+          $ref: '#/components/schemas/Repository'
+        tags:
+          description: All tags of the repository.
+          items:
+            description: A single tag on the repository such as GenAI or Time Series.
+            maxLength: 256
+            type: string
+          maxItems: 256
+          type: array
+      required:
+      - createdAt
+      - createdBy
+      - description
+      - editedAt
+      - editedBy
+      - editorFirstName
+      - editorLastName
+      - editorUserhash
+      - id
+      - isGlobal
+      - isPremium
+      - mediaUrl
+      - name
+      - orderIndex
+      - readme
+      - repository
+      - tags
+      type: object
+      x-versionadded: v2.35
+    ApplicationTemplateRepositoryUrlResponse:
+      properties:
+        repositoryUrl:
+          description: The resolved clone URL for the template repository with any configured git base URL override applied.
+          format: uri
+          type: string
+      required:
+      - repositoryUrl
+      type: object
+      x-versionadded: v2.43
+    Repository:
+      description: The repository the template is stored in.
+      properties:
+        branch:
+          description: Optional branch name used when a tag is not provided.
+          maxLength: 256
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.4
+        isPublic:
+          description: Sets whether the repository is public or requires authentication.
+          type: boolean
+        softPin:
+          description: Optional semantic version constraint (for example, '~=1.1.0') used to resolve tags dynamically.
+          maxLength: 256
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.4
+        tag:
+          description: A reference pointing to where to check out the repository, from either a branch or a commit SHA.
+          maxLength: 256
+          type:
+          - string
+          - 'null'
+        url:
+          description: The URL to the GitHub repository (e.g., https://github.com/my-org/my-project/).
+          format: uri
+          type: string
+      required:
+      - isPublic
+      - url
+      type: object
+      x-versionadded: v2.35
+    Ports:
+      properties:
+        description:
+          description: The optional description of the port.
+          maxLength: 500
+          type:
+          - string
+          - 'null'
+        port:
+          description: The port number to expose.
+          maximum: 65535
+          minimum: 1024
+          type: integer
+      required:
+      - port
+      type: object
+      x-versionadded: v2.38
+    ApplicationTemplateMediaUpload:
+      properties:
+        media:
+          description: The image (.png, .jpg, .svg, .gif) that is displayed alongside the template.
+          format: binary
+          type: string
+      required:
+      - media
+      type: object
+      x-versionadded: v2.35
+    ApplicationTemplateMediaResponse:
+      properties:
+        data:
+          description: The media file returned as a FileObject.
+          format: binary
+          type: string
+      required:
+      - data
+      type: object
+      x-versionadded: v2.35
+    ApplicationTemplateCreate:
+      properties:
+        description:
+          description: The short description of the template.
+          type: string
+        media:
+          description: The image (.png, .jpg, .svg, .gif) that is displayed alongside the template.
+          format: binary
+          type: string
+        name:
+          description: The name of the template.
+          maxLength: 256
+          type: string
+        ports:
+          description: A list of ports that the application template exposes. Each port has a port number and an optional description.
+          type: string
+          x-versionadded: v2.38
+        readme:
+          description: A long-form Markdown readme to be included with the template.
+          format: binary
+          type: string
+        repository:
+          description: The repository the template is stored in.
+          type: string
+        tags:
+          description: All tags of the repository.
+          maxLength: 256
+          type: string
+      required:
+      - description
+      - name
+      - readme
+      - repository
+      - tags
+      type: object
+      x-versionadded: v2.35
+    ApplicationTemplateListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: The list of templates.
+          items:
+            $ref: '#/components/schemas/ApplicationTemplateResponse'
+          maxItems: 100
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+      x-versionadded: v2.35
+    ApplicationTemplateCloneResponse:
+      properties:
+        notebookId:
+          description: The ID of the newly created codespace.
+          type: string
+        useCaseId:
+          description: The ID of the newly created Use Case.
+          type: string
+      required:
+      - notebookId
+      - useCaseId
+      type: object
+      x-versionadded: v2.35
+    ApplicationTemplateUpdate:
+      properties:
+        description:
+          description: The short description of the template.
+          type: string
+        name:
+          description: The name of the template.
+          maxLength: 256
+          type: string
+        ports:
+          description: A list of ports that the application template exposes. Each port has a port number and an optional description.
+          type: string
+          x-versionadded: v2.38
+        readme:
+          description: A long-form Markdown readme to be included with the template.
+          format: binary
+          type: string
+        repository:
+          description: The repository the template is stored in.
+          type: string
+        tags:
+          description: All tags of the repository.
+          maxLength: 256
+          type: string
+      type: object
+      x-versionadded: v2.35
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http

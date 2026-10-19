@@ -1,0 +1,1354 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@datarobot.com
+    name: DataRobot Support
+    url: https://support.datarobot.com
+  description: DataRobot's Public facing API
+  license:
+    name: DataRobot Tool and Utility Agreement
+    url: https://www.datarobot.com/wp-content/uploads/2021/07/DataRobot-Tool-and-Utility-Agreement.pdf
+  title: Public Mitigation Retraining API
+  version: 2.49.0
+  x-datarobot-release-version: Latest
+servers:
+- url: https://app.datarobot.com/
+security:
+- BearerAuth: []
+tags:
+- description: Use the endpoints described below to manage retraining. To maintain model performance after deployment without extensive manual work, DataRobot provides an automatic retraining capability for deployments. Upon providing a retraining dataset registered in the Data Registry, you can define up to five retraining policies on each deployment. Each policy consists of a trigger, a modeling strategy, modeling settings, and a replacement action. When triggered, retraining will produce a new model based on these settings and notify you to consider promoting it.
+  name: mitigation_retraining
+paths:
+  /api/v2/deployments/{deploymentId}/retrainingPolicies/:
+    get:
+      description: Retrieve a list of deployment retraining policies.
+      operationId: deploymentsRetrainingPolicies_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingPolicyListResponse'
+          description: Retrieve a list of deployment retraining policies.
+        '404':
+          description: Deployment not found.
+      summary: Endpoint by deployment ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+    post:
+      description: Create a deployment retraining policy.
+      operationId: deploymentsRetrainingPolicies_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrainingPolicyCreate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingPolicyRetrieve'
+          description: ''
+        '404':
+          description: Deployment not found.
+      summary: Create retraining policies by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+  /api/v2/deployments/{deploymentId}/retrainingPolicies/{retrainingPolicyId}/:
+    delete:
+      description: Delete a deployment retraining policy.
+      operationId: deploymentsRetrainingPolicies_delete
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy.
+        in: path
+        name: retrainingPolicyId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Delete a deployment retraining policy.
+        '404':
+          description: Deployment or retraining policy not found.
+      summary: Delete retraining policies by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+    get:
+      description: Retrieve a deployment retraining policy.
+      operationId: deploymentsRetrainingPolicies_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy.
+        in: path
+        name: retrainingPolicyId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingPolicyRetrieve'
+          description: Retrieve a deployment retraining policy.
+        '404':
+          description: Deployment or retraining policy not found.
+      summary: Retrieve retraining policies by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+    patch:
+      description: Update a deployment retraining policy.
+      operationId: deploymentsRetrainingPolicies_patch
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy.
+        in: path
+        name: retrainingPolicyId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrainingPolicyUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingPolicyRetrieve'
+          description: ''
+        '404':
+          description: Deployment or retraining policy not found.
+      summary: Modify retraining policies by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+  /api/v2/deployments/{deploymentId}/retrainingPolicies/{retrainingPolicyId}/runs/:
+    get:
+      description: Retrieve a list of deployment retraining policy runs.
+      operationId: deploymentsRetrainingPoliciesRuns_list
+      parameters:
+      - description: The number of results to skip.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: At most this many results are returned. The default may change without notice.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          exclusiveMinimum: 0
+          maximum: 1000
+          type: integer
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy.
+        in: path
+        name: retrainingPolicyId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingPolicyRunListResponse'
+          description: Retrieve a list of deployment retraining policy runs.
+        '404':
+          description: Deployment or retraining policy not found.
+      summary: Retrieve runs by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+    post:
+      description: Initiate a deployment retraining policy run.
+      operationId: deploymentsRetrainingPoliciesRuns_create
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy.
+        in: path
+        name: retrainingPolicyId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+        '404':
+          description: Deployment or retraining policy not found.
+      summary: Create runs by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+  /api/v2/deployments/{deploymentId}/retrainingPolicies/{retrainingPolicyId}/runs/{runId}/:
+    get:
+      description: Retrieve a single deployment retraining policy run.
+      operationId: deploymentsRetrainingPoliciesRuns_retrieve
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy.
+        in: path
+        name: retrainingPolicyId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy run.
+        in: path
+        name: runId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingPolicyRunRetrieve'
+          description: Retrieve a single deployment retraining policy run.
+        '404':
+          description: Deployment or retraining policy not found.
+      summary: Retrieve runs by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+    patch:
+      description: Update a single deployment retraining policy run.
+      operationId: deploymentsRetrainingPoliciesRuns_patch
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy.
+        in: path
+        name: retrainingPolicyId
+        required: true
+        schema:
+          type: string
+      - description: ID of the retraining policy run.
+        in: path
+        name: runId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrainingPolicyRunUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingPolicyRunRetrieve'
+          description: Update a single deployment retraining policy run.
+        '404':
+          description: Deployment or retraining policy not found.
+      summary: Modify runs by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+  /api/v2/deployments/{deploymentId}/retrainingSettings/:
+    get:
+      description: Retrieve deployment retraining settings.
+      operationId: deploymentsRetrainingSettings_list
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrainingSettingsRetrieve'
+          description: Retrieve deployment retraining settings.
+        '404':
+          description: Deployment not found.
+      summary: Retrieve retraining settings by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+    patch:
+      description: Update deployment retraining settings.
+      operationId: deploymentsRetrainingSettings_patchMany
+      parameters:
+      - description: Unique identifier of the deployment.
+        in: path
+        name: deploymentId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrainingSettingsUpdate'
+      responses:
+        '200':
+          description: Update deployment retraining settings.
+        '404':
+          description: Deployment not found.
+      summary: Modify retraining settings by ID
+      tags:
+      - mitigation_retraining
+      x-versionadded: v2.29
+components:
+  schemas:
+    RetrainingPolicyRunListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of retraining policy runs.
+          items:
+            $ref: '#/components/schemas/RetrainingPolicyRunRetrieve'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    Periodicity:
+      properties:
+        timeSteps:
+          description: The number of time steps.
+          minimum: 0
+          type: integer
+        timeUnit:
+          description: The time unit or `ROW` if windowsBasisUnit is `ROW`
+          enum:
+          - MILLISECOND
+          - SECOND
+          - MINUTE
+          - HOUR
+          - DAY
+          - WEEK
+          - MONTH
+          - QUARTER
+          - YEAR
+          - ROW
+          type: string
+      required:
+      - timeSteps
+      - timeUnit
+      type: object
+    Trigger:
+      description: Retraining policy trigger.
+      properties:
+        customJobId:
+          description: Deprecated - The ID of the custom job to be used in this policy.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+          x-versiondeprecated: v2.38
+        minIntervalBetweenRuns:
+          description: Minimal interval between policy runs in ISO 8601 duration string.
+          type:
+          - string
+          - 'null'
+        schedule:
+          $ref: '#/components/schemas/Schedule'
+        statusDeclinesToFailing:
+          description: Identifies when trigger type is based on deployment a health status, whether the policy will run when health status declines to failing.
+          type: boolean
+        statusDeclinesToWarning:
+          description: Identifies when trigger type is based on deployment a health status, whether the policy will run when health status declines to warning.
+          type: boolean
+        statusStillInDecline:
+          description: Identifies when trigger type is based on deployment a health status, whether the policy will run when health status still in decline.
+          type:
+          - boolean
+          - 'null'
+        type:
+          description: Type of retraining policy trigger.
+          enum:
+          - schedule
+          - data_drift_decline
+          - accuracy_decline
+          - null
+          type: string
+      required:
+      - type
+      type: object
+    Dataset:
+      description: The dataset that will be used as retraining data.
+      properties:
+        id:
+          description: ID of the retraining dataset.
+          type: string
+        name:
+          description: Name of the retraining dataset.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    CustomRetrainingJob:
+      description: The ID, schedule, and last run for the custom job.
+      properties:
+        id:
+          description: The ID of the custom job associated with the policy.
+          maxLength: 24
+          type: string
+        lastRun:
+          description: The ISO-8601 timestamp of when the custom job was last run.
+          maxLength: 256
+          type:
+          - string
+          - 'null'
+        status:
+          description: Status of the custom job run.
+          type:
+          - string
+          - 'null'
+      required:
+      - lastRun
+      - status
+      type: object
+      x-versionadded: v2.37
+    RetrainingUseCase:
+      description: The use case to link the retrained model to.
+      properties:
+        id:
+          description: ID of the use case.
+          type: string
+        name:
+          description: Name of the use case.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+      x-versionadded: v2.37
+    RetrainingUser:
+      description: The user scheduled retraining will be performed on behalf of.
+      properties:
+        id:
+          description: ID of the scheduled retraining user.
+          type: string
+        username:
+          description: Username of the scheduled retraining user.
+          type: string
+      required:
+      - id
+      - username
+      type: object
+    TimeSeriesOptions:
+      description: Time Series project option used to build new models.
+      properties:
+        calendarId:
+          description: The ID of the calendar to be used in this project.
+          type:
+          - string
+          - 'null'
+        differencingMethod:
+          description: For time series projects only. Used to specify which differencing method to apply if the data is stationary. For classification problems `simple` and `seasonal` are not allowed. Parameter `periodicities` must be specified if `seasonal` is chosen. Defaults to `auto`.
+          enum:
+          - auto
+          - none
+          - simple
+          - seasonal
+          type:
+          - string
+          - 'null'
+        exponentiallyWeightedMovingAlpha:
+          description: Discount factor (alpha) used for exponentially weighted moving features
+          exclusiveMinimum: 0.0
+          maximum: 1.0
+          type:
+          - number
+          - 'null'
+        periodicities:
+          description: A list of periodicities for time series projects only. For classification problems periodicities are not allowed. If this is provided, parameter 'differencing_method' will default to 'seasonal' if not provided or 'auto'.
+          items:
+            $ref: '#/components/schemas/Periodicity'
+          type:
+          - array
+          - 'null'
+        treatAsExponential:
+          description: For time series projects only. Used to specify whether to treat data as exponential trend and apply transformations like log-transform. For classification problems `always` is not allowed. Defaults to `auto`.
+          enum:
+          - auto
+          - never
+          - always
+          type:
+          - string
+          - 'null'
+      type: object
+    ProjectOptions:
+      description: Options for projects used to build new models.
+      properties:
+        cvMethod:
+          description: The partitioning method for projects used to build new models.
+          enum:
+          - RandomCV
+          - StratifiedCV
+          type: string
+        holdoutPct:
+          default: null
+          description: The percentage of dataset to assign to holdout set in projects used to build new models.
+          maximum: 98.0
+          minimum: 0.0
+          type:
+          - number
+          - 'null'
+        metric:
+          default: null
+          description: The model selection metric in projects used to build new models.
+          enum:
+          - Accuracy
+          - AUC
+          - Balanced Accuracy
+          - FVE Binomial
+          - Gini Norm
+          - Kolmogorov-Smirnov
+          - LogLoss
+          - Rate@Top5%
+          - Rate@Top10%
+          - TPR
+          - FPR
+          - TNR
+          - PPV
+          - NPV
+          - F1
+          - MCC
+          - FVE Gamma
+          - FVE Poisson
+          - FVE Tweedie
+          - Gamma Deviance
+          - MAE
+          - MAPE
+          - Poisson Deviance
+          - R Squared
+          - RMSE
+          - RMSLE
+          - Tweedie Deviance
+          - null
+          type:
+          - string
+          - 'null'
+        reps:
+          default: null
+          description: The number of cross validation folds to use for projects used to build new models.
+          maximum: 50.0
+          minimum: 2.0
+          type:
+          - integer
+          - 'null'
+        validationPct:
+          default: null
+          description: The percentage of dataset to assign to validation set in projects used to build new models.
+          maximum: 99.0
+          minimum: 1.0
+          type:
+          - number
+          - 'null'
+        validationType:
+          description: The validation type for projects used to build new models.
+          enum:
+          - CV
+          - TVH
+          type: string
+      type: object
+    RetrainingPolicyRunUpdate:
+      properties:
+        status:
+          description: New status of the retraining policy.
+          enum:
+          - cancelled
+          type: string
+      required:
+      - status
+      type: object
+    AutopilotOptions:
+      description: Options for projects used to build new models.
+      properties:
+        blendBestModels:
+          description: Blend best models during Autopilot run. This option is not supported in SHAP-only mode.
+          type: boolean
+        mode:
+          description: The autopilot mode.
+          enum:
+          - auto
+          - comprehensive
+          - quick
+          type: string
+        runLeakageRemovedFeatureList:
+          description: Run Autopilot on Leakage Removed feature list (if exists).
+          type: boolean
+        scoringCodeOnly:
+          description: Keep only models that can be converted to scorable java code during Autopilot run.
+          type: boolean
+        shapOnlyMode:
+          description: Include only models with SHAP value support.
+          type: boolean
+      type: object
+    RetrainingSettingsRetrieve:
+      properties:
+        dataset:
+          $ref: '#/components/schemas/Dataset'
+        predictionEnvironment:
+          $ref: '#/components/schemas/PredictionEnvironment'
+        retrainingUser:
+          $ref: '#/components/schemas/RetrainingUser'
+      required:
+      - dataset
+      - predictionEnvironment
+      - retrainingUser
+      type: object
+    PredictionEnvironment:
+      description: The prediction environment that will be associated with the challengers created by retraining policies.
+      properties:
+        id:
+          description: ID of the prediction environment.
+          type: string
+        name:
+          description: Name of the prediction environment.
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    RetrainingPolicyCreate:
+      properties:
+        action:
+          description: Configure the action to take on the resultant new model.
+          enum:
+          - create_challenger
+          - create_model_package
+          - model_replacement
+          type: string
+        autopilotOptions:
+          $ref: '#/components/schemas/AutopilotOptions'
+        customJobId:
+          description: The ID of the custom job to be used in this policy.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+        description:
+          default: null
+          description: Description of the retraining policy.
+          maxLength: 10000
+          type:
+          - string
+          - 'null'
+        featureListStrategy:
+          description: Configure the feature list strategy used for modeling.
+          enum:
+          - informative_features
+          - same_as_champion
+          type: string
+        modelSelectionStrategy:
+          description: Configure how new model is selected when the retraining policy runs.
+          enum:
+          - autopilot_recommended
+          - same_blueprint
+          - same_hyperparameters
+          - custom_job
+          type: string
+        name:
+          description: Name of the retraining policy.
+          maxLength: 512
+          type: string
+        projectOptions:
+          $ref: '#/components/schemas/ProjectOptions'
+        projectOptionsStrategy:
+          description: Configure the project option strategy used for modeling.
+          enum:
+          - same_as_champion
+          - override_champion
+          - custom
+          type: string
+        timeSeriesOptions:
+          $ref: '#/components/schemas/TimeSeriesOptions'
+        trigger:
+          $ref: '#/components/schemas/Trigger'
+        useCaseId:
+          description: The ID of the use case to be used in this policy.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+      required:
+      - description
+      - name
+      type: object
+    RetrainingSettingsUpdate:
+      properties:
+        credentialId:
+          description: ID of the credential used to refresh retraining dataset.
+          type:
+          - string
+          - 'null'
+        datasetId:
+          description: ID of the retraining dataset.
+          type:
+          - string
+          - 'null'
+        predictionEnvironmentId:
+          description: ID of the prediction environment to associate with the challengers created by retraining policies.
+          type:
+          - string
+          - 'null'
+        retrainingUserId:
+          description: ID of the retraining user.
+          type: string
+      type: object
+    RetrainingPolicyRunRetrieve:
+      description: Latest run of the retraining policy.
+      properties:
+        challengerId:
+          description: ID of the challenger created from this retraining policy run.
+          type:
+          - string
+          - 'null'
+        errorMessage:
+          description: Error message of the retraining policy run.
+          type:
+          - string
+          - 'null'
+        finishTime:
+          description: Finish time of the retraining policy run.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        id:
+          description: ID of the retraining policy run.
+          type:
+          - string
+          - 'null'
+        modelPackageId:
+          description: ID of the model package created from this retraining policy run.
+          type:
+          - string
+          - 'null'
+        projectId:
+          description: ID of the project created from this retraining policy run.
+          type:
+          - string
+          - 'null'
+        registeredModelId:
+          description: ID of the registered model associated with model package created from this retraining policy run
+          type:
+          - string
+          - 'null'
+        startTime:
+          description: Start time of the retraining policy run.
+          format: date-time
+          type:
+          - string
+          - 'null'
+        status:
+          description: Status of the retraining policy run.
+          type:
+          - string
+          - 'null'
+        useCaseId:
+          description: The ID of the Use Case associated with the model package created from this retraining policy run.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.36
+      required:
+      - challengerId
+      - errorMessage
+      - finishTime
+      - id
+      - modelPackageId
+      - projectId
+      - registeredModelId
+      - startTime
+      - status
+      type: object
+    RetrainingPolicyRetrieve:
+      properties:
+        action:
+          description: Configure the action to take on the resultant new model.
+          enum:
+          - create_challenger
+          - create_model_package
+          - model_replacement
+          type: string
+        autopilotOptions:
+          $ref: '#/components/schemas/AutopilotOptions'
+        customJob:
+          $ref: '#/components/schemas/CustomRetrainingJob'
+          x-versionadded: v2.37
+        description:
+          description: Description of the retraining policy.
+          type:
+          - string
+          - 'null'
+        featureListStrategy:
+          description: Configure the feature list strategy used for modeling.
+          enum:
+          - informative_features
+          - same_as_champion
+          type: string
+        id:
+          description: ID of the retraining policy.
+          type: string
+        latestRun:
+          $ref: '#/components/schemas/RetrainingPolicyRunRetrieve'
+        modelSelectionStrategy:
+          description: Configure how new model is selected when the retraining policy runs.
+          enum:
+          - autopilot_recommended
+          - same_blueprint
+          - same_hyperparameters
+          - custom_job
+          type: string
+        name:
+          description: Name of the retraining policy.
+          type: string
+        projectOptions:
+          $ref: '#/components/schemas/ProjectOptions'
+        projectOptionsStrategy:
+          description: Configure the project option strategy used for modeling.
+          enum:
+          - same_as_champion
+          - override_champion
+          - custom
+          type: string
+        timeSeriesOptions:
+          $ref: '#/components/schemas/TimeSeriesOptions'
+        trigger:
+          $ref: '#/components/schemas/Trigger'
+        useCase:
+          $ref: '#/components/schemas/RetrainingUseCase'
+          x-versionadded: v2.37
+      required:
+      - action
+      - autopilotOptions
+      - description
+      - id
+      - latestRun
+      - modelSelectionStrategy
+      - name
+      - projectOptions
+      - trigger
+      type: object
+    RetrainingPolicyUpdate:
+      properties:
+        action:
+          description: Configure the action to take on the resultant new model.
+          enum:
+          - create_challenger
+          - create_model_package
+          - model_replacement
+          type: string
+        autopilotOptions:
+          $ref: '#/components/schemas/AutopilotOptions'
+        customJobId:
+          description: The ID of the custom job to be used in this policy.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+        description:
+          description: Description of the retraining policy.
+          maxLength: 10000
+          type:
+          - string
+          - 'null'
+        featureListStrategy:
+          description: Configure the feature list strategy used for modeling.
+          enum:
+          - informative_features
+          - same_as_champion
+          type: string
+        modelSelectionStrategy:
+          description: Configure how new model is selected when the retraining policy runs.
+          enum:
+          - autopilot_recommended
+          - same_blueprint
+          - same_hyperparameters
+          - custom_job
+          type: string
+        name:
+          description: Name of the retraining policy.
+          maxLength: 512
+          type: string
+        projectOptions:
+          $ref: '#/components/schemas/ProjectOptions'
+        projectOptionsStrategy:
+          description: Configure the project option strategy used for modeling.
+          enum:
+          - same_as_champion
+          - override_champion
+          - custom
+          type: string
+        timeSeriesOptions:
+          $ref: '#/components/schemas/TimeSeriesOptions'
+        trigger:
+          $ref: '#/components/schemas/Trigger'
+        useCaseId:
+          description: The ID of the use case to be used in this policy.
+          type:
+          - string
+          - 'null'
+          x-versionadded: v2.37
+      type: object
+    RetrainingPolicyListResponse:
+      properties:
+        count:
+          description: The number of items returned on this page.
+          type: integer
+        data:
+          description: List of retraining policies.
+          items:
+            $ref: '#/components/schemas/RetrainingPolicyRetrieve'
+          type: array
+        next:
+          description: The URL of the next page (if null, there is no next page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        previous:
+          description: The URL of the previous page (if null, there is no previous page).
+          format: uri
+          type:
+          - string
+          - 'null'
+        totalCount:
+          description: The total number of items across all pages.
+          type: integer
+      required:
+      - data
+      - next
+      - previous
+      - totalCount
+      type: object
+    Schedule:
+      description: Data class that represents a cron schedule.
+      properties:
+        dayOfMonth:
+          description: The day(s) of the month to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            type:
+            - number
+            - string
+          maxItems: 31
+          title: Dayofmonth
+          type: array
+        dayOfWeek:
+          description: The day(s) of the week to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - sunday
+            - SUNDAY
+            - Sunday
+            - monday
+            - MONDAY
+            - Monday
+            - tuesday
+            - TUESDAY
+            - Tuesday
+            - wednesday
+            - WEDNESDAY
+            - Wednesday
+            - thursday
+            - THURSDAY
+            - Thursday
+            - friday
+            - FRIDAY
+            - Friday
+            - saturday
+            - SATURDAY
+            - Saturday
+            - sun
+            - SUN
+            - Sun
+            - mon
+            - MON
+            - Mon
+            - tue
+            - TUE
+            - Tue
+            - wed
+            - WED
+            - Wed
+            - thu
+            - THU
+            - Thu
+            - fri
+            - FRI
+            - Fri
+            - sat
+            - SAT
+            - Sat
+            type:
+            - number
+            - string
+          maxItems: 7
+          title: Dayofweek
+          type: array
+        hour:
+          description: The hour(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            type:
+            - number
+            - string
+          maxItems: 24
+          title: Hour
+          type: array
+        minute:
+          description: The minute(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            type:
+            - number
+            - string
+          maxItems: 60
+          title: Minute
+          type: array
+        month:
+          description: The month(s) to run the schedule.
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+            enum:
+            - '*'
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - january
+            - JANUARY
+            - January
+            - february
+            - FEBRUARY
+            - February
+            - march
+            - MARCH
+            - March
+            - april
+            - APRIL
+            - April
+            - may
+            - MAY
+            - May
+            - june
+            - JUNE
+            - June
+            - july
+            - JULY
+            - July
+            - august
+            - AUGUST
+            - August
+            - september
+            - SEPTEMBER
+            - September
+            - october
+            - OCTOBER
+            - October
+            - november
+            - NOVEMBER
+            - November
+            - december
+            - DECEMBER
+            - December
+            - jan
+            - JAN
+            - Jan
+            - feb
+            - FEB
+            - Feb
+            - mar
+            - MAR
+            - Mar
+            - apr
+            - APR
+            - Apr
+            - jun
+            - JUN
+            - Jun
+            - jul
+            - JUL
+            - Jul
+            - aug
+            - AUG
+            - Aug
+            - sep
+            - SEP
+            - Sep
+            - oct
+            - OCT
+            - Oct
+            - nov
+            - NOV
+            - Nov
+            - dec
+            - DEC
+            - Dec
+            type:
+            - number
+            - string
+          maxItems: 12
+          title: Month
+          type: array
+      required:
+      - minute
+      - hour
+      - dayOfMonth
+      - month
+      - dayOfWeek
+      title: Schedule
+      type: object
+  securitySchemes:
+    BearerAuth:
+      description: JWT Bearer Auth
+      scheme: bearer
+      type: http
