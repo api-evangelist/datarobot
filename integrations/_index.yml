@@ -39,40 +39,6 @@
   relationship: platform-app
   status: not-a-workflow
   arazzo: null
-- slug: datarobot-fedramp
-  label: FedRAMP
-  partner_name: FedRAMP
-  category: FedRAMP FedRAMP Ready
-  type: contract
-  channel: regulator-register
-  evidence: https://marketplace.fedramp.gov/products/FR2131832443
-  source: edge
-  relationship: standard-participant
-  contract_reference:
-    register: FedRAMP Marketplace data (github.com/18F/fedramp-data data/data.json @4b73d9247f)
-    standard: FedRAMP
-    spec_file: null
-    role: fedramp-ready
-    registered_name: Datarobot
-    register_id: FR2131832443
-    matched_domain: datarobot.com
-    matched_by: domain
-    domain_source: website
-    designations:
-    - FedRAMP Ready
-    packages:
-    - Datarobot Government Cloud (DGC)
-    service_models:
-    - SaaS
-    paths:
-    - None
-    signal_note: certified_products = one entry per AUTHORIZED impact level, never per package; packages, service
-      models, paths and leveraging agencies are context, never counted. The register lists current designations
-      only (revoked / expired are removed), so lapsed is always false
-    detected_by: sweep-gov-cloud.py
-    detected: '2026-10-15'
-  status: not-a-workflow
-  arazzo: null
 - slug: datarobot-pypi
   label: PyPI
   partner: pypi
@@ -120,5 +86,65 @@
       24 months'
     detected_by: sweep-official-sdks.py
     detected: '2026-10-18'
+  status: not-a-workflow
+  arazzo: null
+- slug: datarobot-fedramp
+  label: FedRAMP
+  partner_name: FedRAMP
+  category: FedRAMP FedRAMP Ready
+  type: contract
+  channel: regulator-register
+  evidence: https://marketplace.fedramp.gov/products/FR2131832443
+  source: edge
+  relationship: standard-participant
+  contract_reference:
+    register: FedRAMP Marketplace data (github.com/18F/fedramp-data data/data.json @4b73d9247f)
+    standard: FedRAMP
+    spec_file: null
+    role: fedramp-ready
+    registered_name: Datarobot
+    register_id: FR2131832443
+    matched_domain: datarobot.com
+    matched_by: domain
+    domain_source: website
+    designations:
+    - FedRAMP Ready
+    packages:
+    - Datarobot Government Cloud (DGC)
+    service_models:
+    - SaaS
+    paths:
+    - None
+    signal_note: certified_products = one entry per AUTHORIZED impact level, never per package; packages, service
+      models, paths and leveraging agencies are context, never counted. The register lists current designations
+      only (revoked / expired are removed), so lapsed is always false
+    detected_by: sweep-gov-cloud.py
+    detected: '2026-10-15'
+  status: not-a-workflow
+  arazzo: null
+- slug: datarobot-pulumi-pulumi-registry
+  label: Pulumi (pulumi-registry)
+  partner: pulumi
+  partner_name: Pulumi (pulumi-registry)
+  category: infrastructure-as-code provider registry listing
+  type: marketplace
+  marketplace: pulumi-registry
+  channel: partner-built
+  evidence: https://www.pulumi.com/registry/packages/datarobot/
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: datarobot-terraform-terraform-registry
+  label: Terraform (terraform-registry)
+  partner: terraform
+  partner_name: Terraform (terraform-registry)
+  category: infrastructure-as-code provider registry listing
+  type: marketplace
+  marketplace: terraform-registry
+  channel: partner-built
+  evidence: https://registry.terraform.io/providers/datarobot-community/datarobot
+  source: edge
+  relationship: platform-app
   status: not-a-workflow
   arazzo: null
