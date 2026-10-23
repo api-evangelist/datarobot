@@ -6665,3 +6665,9 @@ components:
       description: JWT Bearer Auth
       scheme: bearer
       type: http
+x-provenance:
+  method: harvested
+  publisher: DataRobot
+  source: https://docs.datarobot.com/en/docs/api/reference/public-api/openapi.yaml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
