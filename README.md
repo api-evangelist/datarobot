@@ -1,4 +1,4 @@
-# Datarobot
+# DataRobot
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,6 +64,144 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Datarobot is a company surfaced as a portfolio company of norwest-venture-partners, sapphire-ventures, techstars and added to the API Evangelist network as a stub for enrichment. Sector: unknown. This profile is a lead awaiting the enrichment pipeline.
+DataRobot is an enterprise AI platform for building, deploying, governing, and monitoring predictive and generative AI models and agentic workflows. It exposes a public REST API (v2), first-party Python and R clients, a `dr` command-line tool, and an MCP surface (Global MCP plus deployable standalone servers) that lets agentic coding environments call DataRobot tools and resources. Developers authenticate with personal API keys (bearer tokens) against regional endpoints (US/EU/JP), while OAuth 2.0 / OIDC via app.datarobot.com backs agent and integration auth. The platform covers AutoML, MLOps deployment and monitoring, model governance and compliance documentation, and code-first GenAI/agent development. Surfaced as a portfolio company of Norwest Venture Partners, Sapphire Ventures, and Techstars, and enriched by the API Evangelist pipeline.
 
-Backed by: norwest-venture-partners, sapphire-ventures, techstars — https://datarobot.com
+**Areas:** Company · Artificial Intelligence · Machine Learning · MLOps · Data Science · AI Agents · Predictive Analytics · Generative AI
+
+## DataRobot on APIs.io
+
+Everything profiled for DataRobot is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/datarobot/](https://apis.io/providers/datarobot/)** — or go straight to one of the APIs or properties below.
+
+### APIs (12)
+
+- [DataRobot REST API v2](https://apis.io/apis/datarobot/datarobot-rest-api-v2/) — DataRobot's public REST API (v2) for projects, modeling, predictions, deployments, MLOps monitoring, governance, and agentic workflows. Personal API keys…
+- [DataRobot DataRobot API](https://apis.io/apis/datarobot/datarobot-datarobot-api-api/) — The DataRobot API API from DataRobot — 2 operation(s) for datarobot api.
+- [DataRobot Datarobot Oss API](https://apis.io/apis/datarobot/datarobot-datarobot-oss-api/) — The Datarobot Oss API from DataRobot — 2 operation(s) for datarobot oss.
+- [DataRobot Homebrew API](https://apis.io/apis/datarobot/datarobot-homebrew-api/) — The Homebrew API from DataRobot — 1 operation(s) for homebrew.
+- [DataRobot Info API](https://apis.io/apis/datarobot/datarobot-info-api/) — The Info API from DataRobot — 1 operation(s) for info.
+- [DataRobot Install API](https://apis.io/apis/datarobot/datarobot-install-api/) — The Install API from DataRobot — 2 operation(s) for install.
+- [DataRobot MCP API](https://apis.io/apis/datarobot/datarobot-mcp-api/) — The Mcp API from DataRobot — 1 operation(s) for mcp.
+- [DataRobot Memory API](https://apis.io/apis/datarobot/datarobot-memory-api/) — The Memory API from DataRobot — 1 operation(s) for memory.
+- [DataRobot Oauth2 API](https://apis.io/apis/datarobot/datarobot-oauth2-api/) — The Oauth2 API from DataRobot — 2 operation(s) for oauth2.
+- [DataRobot Projects API](https://apis.io/apis/datarobot/datarobot-projects-api/) — The Projects API from DataRobot — 1 operation(s) for projects.
+- [DataRobot Registereddeployments API](https://apis.io/apis/datarobot/datarobot-registereddeployments-api/) — The Registereddeployments API from DataRobot — 2 operation(s) for registereddeployments.
+- [DataRobot Uv API](https://apis.io/apis/datarobot/datarobot-uv-api/) — The Uv API from DataRobot — 1 operation(s) for uv.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [datarobot-mcp.yml](https://apis.io/servers/datarobot/datarobot-mcp-yml/)
+
+#### JSON Schema (6)
+
+The data models the API reads and writes.
+
+- [GetRegistereddeploymentsResponse](https://apis.io/schemas/datarobot/datarobot-get-registereddeployments-response/)
+- [PatchApiV2MemoryMemoryspaceidSessionsSessionidRequest](https://apis.io/schemas/datarobot/datarobot-patch-api-v2-memory-memoryspaceid-sessions-sessionid-request/)
+- [PostApiV2ProjectsRequest](https://apis.io/schemas/datarobot/datarobot-post-api-v2-projects-request/)
+- [PostApiV2ProjectsResponse](https://apis.io/schemas/datarobot/datarobot-post-api-v2-projects-response/)
+- [PostOauth2TokenRequest](https://apis.io/schemas/datarobot/datarobot-post-oauth2-token-request/)
+- [PostOauth2TokenResponse](https://apis.io/schemas/datarobot/datarobot-post-oauth2-token-response/)
+
+#### JSON-LD (1)
+
+Linked-data contexts for the provider's vocabulary.
+
+- [Datarobot Context](https://apis.io/jsonld/datarobot/datarobot-context/)
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [DataRobot API Rules](https://apis.io/rules/datarobot/datarobot-rules/)
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Datarobot Authentication](https://apis.io/security/datarobot/datarobot-authentication/)
+- [Datarobot Domain Security](https://apis.io/security/datarobot/datarobot-domain-security/)
+- [Datarobot Trust Center](https://apis.io/security/datarobot/datarobot-trust-center/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Datarobot Scopes](https://apis.io/scopes/datarobot/datarobot-scopes/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://datarobot.com)
+- [Documentation](https://docs.datarobot.com/en/docs/api/index.html)
+- [Getting started](https://docs.datarobot.com/en/docs/api/dev-learning/api-quickstart.html)
+- [API reference](https://docs.datarobot.com/en/docs/api/reference/index.html)
+- [Pricing](https://www.datarobot.com/pricing/)
+- [Support](https://community.datarobot.com)
+- [Blog](https://www.datarobot.com/blog/)
+- [Trust centre](https://trust.datarobot.com)
+- [Terms of service](https://www.datarobot.com/terms-of-service/)
+- [Privacy policy](https://www.datarobot.com/privacy/)
+- [GitHub](https://github.com/datarobot)
+- [Status](https://status.datarobot.com)
+
+## API Evangelist rating
+
+**Kin Score 47.3** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 78.3 |
+| Contract quality | 25.5 |
+| Contract governance | 35.6 |
+| Operational transparency | 42.1 |
+| Developer ergonomics | 66.7 |
+| Access clarity | 39.5 |
+
+**Agent readiness 29.1** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | documented (partial credit) |
+| Auth Clarity | served (partial credit) |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | — |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | — |
+
+**Regulatory alignment 36.4** — AI & Biometrics
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/datarobot/](https://apis.io/providers/datarobot/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for DataRobot: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/datarobot/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
